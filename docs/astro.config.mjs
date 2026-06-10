@@ -4,8 +4,8 @@ import starlight from '@astrojs/starlight';
 
 // https://astro.build/config
 export default defineConfig({
-	site: 'https://openubl.github.io',
-	base: '/openubl',
+	site: 'https://darvin2c.github.io',
+	base: '/openUBL',
 	integrations: [
 		starlight({
 			title: 'openUBL',

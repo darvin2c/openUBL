@@ -15,7 +15,7 @@ Navigate to [http://localhost:8000/docs](http://localhost:8000/docs) for interac
 ## Documentacion
 
 La documentacion completa esta disponible en:
-[https://openubl.github.io/openubl](https://openubl.github.io/openubl)
+[https://darvin2c.github.io/openUBL](https://darvin2c.github.io/openUBL)
 
 ## SDK Generation
 
