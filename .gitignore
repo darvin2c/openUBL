@@ -1,0 +1,30 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# pytest
+.pytest_cache/
+
+# Node.js
+node_modules/
+
+# OpenAPI Generator metadata
+openapitools.json
+
+# Generated SDK files
+sdk/java/
+sdk/go/
+sdk/python/
+sdk/csharp/
+sdk/typescript/src/openubl-types.ts
+
+# Documentation build output
+docs/dist/
+docs/.astro/

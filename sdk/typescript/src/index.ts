@@ -1,0 +1,21 @@
+export { client } from "./client.js";
+import type { components } from "./openubl-types.js";
+export type { components, paths, operations } from "./openubl-types.js";
+
+export type Invoice = components["schemas"]["Invoice"];
+export type CreditNote = components["schemas"]["CreditNote"];
+export type DebitNote = components["schemas"]["DebitNote"];
+export type VoidedDocuments = components["schemas"]["VoidedDocuments"];
+export type SummaryDocuments = components["schemas"]["SummaryDocuments"];
+export type Perception = components["schemas"]["Perception"];
+export type Retention = components["schemas"]["Retention"];
+export type Proveedor = components["schemas"]["Proveedor"];
+export type Cliente = components["schemas"]["Cliente"];
+export type DocumentoVentaDetalle = components["schemas"]["DocumentoVentaDetalle"];
+export type Address = components["schemas"]["Address"];
+export type Comprobante = components["schemas"]["Comprobante"];
+export type ComprobanteImpuestos = components["schemas"]["ComprobanteImpuestos"];
+export type ComprobanteValorVenta = components["schemas"]["ComprobanteValorVenta"];
+export type PercepcionRetencionOperacion = components["schemas"]["PercepcionRetencionOperacion"];
+export type VoidedDocumentsItem = components["schemas"]["VoidedDocumentsItem"];
+export type SummaryDocumentsItem = components["schemas"]["SummaryDocumentsItem"];

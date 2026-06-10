@@ -1,0 +1,1557 @@
+{
+  "components": {
+    "schemas": {
+      "Address": {
+        "description": "Dirección según esquema UBL 2.1 de SUNAT.",
+        "properties": {
+          "codigoPais": {
+            "default": "PE",
+            "title": "Codigopais",
+            "type": "string"
+          },
+          "departamento": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Departamento"
+          },
+          "direccion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Direccion"
+          },
+          "distrito": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Distrito"
+          },
+          "provincia": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provincia"
+          },
+          "ubigeo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ubigeo"
+          },
+          "urbanizacion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Urbanizacion"
+          }
+        },
+        "title": "Address",
+        "type": "object"
+      },
+      "Cliente": {
+        "description": "Datos del adquirente o usuario.\n\nRS N° 300-2014/SUNAT, Anexo 1:\n- Tipo de documento: Catálogo N.° 06\n- Número de documento: según tipo",
+        "properties": {
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "numeroDocumentoIdentidad": {
+            "title": "Numerodocumentoidentidad",
+            "type": "string"
+          },
+          "tipoDocumentoIdentidad": {
+            "title": "Tipodocumentoidentidad",
+            "type": "string"
+          }
+        },
+        "required": [
+          "nombre",
+          "numeroDocumentoIdentidad",
+          "tipoDocumentoIdentidad"
+        ],
+        "title": "Cliente",
+        "type": "object"
+      },
+      "Comprobante": {
+        "description": "Comprobante dentro del resumen diario.",
+        "properties": {
+          "cliente": {
+            "$ref": "#/components/schemas/Cliente"
+          },
+          "comprobanteAfectado": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/openubl__models__summary__ComprobanteAfectado"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "impuestos": {
+            "$ref": "#/components/schemas/ComprobanteImpuestos"
+          },
+          "serieNumero": {
+            "title": "Serienumero",
+            "type": "string"
+          },
+          "tipoComprobante": {
+            "title": "Tipocomprobante",
+            "type": "string"
+          },
+          "valorVenta": {
+            "$ref": "#/components/schemas/ComprobanteValorVenta"
+          }
+        },
+        "required": [
+          "tipoComprobante",
+          "serieNumero",
+          "cliente",
+          "impuestos",
+          "valorVenta"
+        ],
+        "title": "Comprobante",
+        "type": "object"
+      },
+      "ComprobanteImpuestos": {
+        "description": "Impuestos del comprobante resumido.",
+        "properties": {
+          "icb": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icb"
+          },
+          "igv": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Igv"
+          }
+        },
+        "required": [
+          "igv"
+        ],
+        "title": "ComprobanteImpuestos",
+        "type": "object"
+      },
+      "ComprobanteValorVenta": {
+        "description": "Valores de venta del comprobante resumido.",
+        "properties": {
+          "exonerado": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exonerado"
+          },
+          "gravado": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gravado"
+          },
+          "importeTotal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Importetotal"
+          },
+          "inafecto": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inafecto"
+          }
+        },
+        "required": [
+          "importeTotal"
+        ],
+        "title": "ComprobanteValorVenta",
+        "type": "object"
+      },
+      "CreditNote": {
+        "description": "Nota de Crédito Electrónica - Tipo 07.\n\nRS N° 300-2014/SUNAT, Anexo 1:\n- Serie: debe iniciar con B/C o F/E según tipo de documento afectado\n- Debe referenciar el comprobante afectado",
+        "properties": {
+          "cliente": {
+            "$ref": "#/components/schemas/Cliente"
+          },
+          "comprobanteAfectadoSerieNumero": {
+            "title": "Comprobanteafectadoserienumero",
+            "type": "string"
+          },
+          "detalles": {
+            "items": {
+              "$ref": "#/components/schemas/DocumentoVentaDetalle"
+            },
+            "title": "Detalles",
+            "type": "array"
+          },
+          "fechaEmision": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fechaemision"
+          },
+          "igvTotal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Igvtotal"
+          },
+          "importeTotal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Importetotal"
+          },
+          "moneda": {
+            "default": "PEN",
+            "title": "Moneda",
+            "type": "string"
+          },
+          "numero": {
+            "title": "Numero",
+            "type": "integer"
+          },
+          "proveedor": {
+            "$ref": "#/components/schemas/Proveedor"
+          },
+          "serie": {
+            "description": "Serie de nota de crédito",
+            "pattern": "^[BCbc][A-Za-z0-9]{2,3}$",
+            "title": "Serie",
+            "type": "string"
+          },
+          "sustentoDescripcion": {
+            "title": "Sustentodescripcion",
+            "type": "string"
+          },
+          "valorVentaTotal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valorventatotal"
+          }
+        },
+        "required": [
+          "serie",
+          "numero",
+          "comprobanteAfectadoSerieNumero",
+          "sustentoDescripcion",
+          "proveedor",
+          "cliente",
+          "detalles"
+        ],
+        "title": "CreditNote",
+        "type": "object"
+      },
+      "DebitNote": {
+        "description": "Nota de Débito Electrónica - Tipo 08.\n\nRS N° 300-2014/SUNAT, Anexo 1:\n- Serie: debe iniciar con B/C o F/E según tipo de documento afectado\n- Debe referenciar el comprobante afectado",
+        "properties": {
+          "cliente": {
+            "$ref": "#/components/schemas/Cliente"
+          },
+          "comprobanteAfectadoSerieNumero": {
+            "title": "Comprobanteafectadoserienumero",
+            "type": "string"
+          },
+          "detalles": {
+            "items": {
+              "$ref": "#/components/schemas/DocumentoVentaDetalle"
+            },
+            "title": "Detalles",
+            "type": "array"
+          },
+          "fechaEmision": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fechaemision"
+          },
+          "igvTotal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Igvtotal"
+          },
+          "importeTotal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Importetotal"
+          },
+          "moneda": {
+            "default": "PEN",
+            "title": "Moneda",
+            "type": "string"
+          },
+          "numero": {
+            "title": "Numero",
+            "type": "integer"
+          },
+          "proveedor": {
+            "$ref": "#/components/schemas/Proveedor"
+          },
+          "serie": {
+            "description": "Serie de nota de débito",
+            "pattern": "^[BCbc][A-Za-z0-9]{2,3}$",
+            "title": "Serie",
+            "type": "string"
+          },
+          "sustentoDescripcion": {
+            "title": "Sustentodescripcion",
+            "type": "string"
+          },
+          "valorVentaTotal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valorventatotal"
+          }
+        },
+        "required": [
+          "serie",
+          "numero",
+          "comprobanteAfectadoSerieNumero",
+          "sustentoDescripcion",
+          "proveedor",
+          "cliente",
+          "detalles"
+        ],
+        "title": "DebitNote",
+        "type": "object"
+      },
+      "DocumentoVentaDetalle": {
+        "description": "Línea de detalle de un documento de venta.\n\nRS N° 300-2014/SUNAT, Anexo 1:\n- Descripción del bien o servicio\n- Cantidad y unidad de medida (Catálogo N.° 03)\n- Valor unitario (sin IGV)\n- Tipo de afectación del IGV (Catálogo N.° 07)",
+        "properties": {
+          "cantidad": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Cantidad"
+          },
+          "descripcion": {
+            "title": "Descripcion",
+            "type": "string"
+          },
+          "igv": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Igv"
+          },
+          "precio": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Precio"
+          },
+          "precioVenta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Precioventa"
+          },
+          "tipoAfectacionIGV": {
+            "default": "10",
+            "title": "Tipoafectacionigv",
+            "type": "string"
+          },
+          "unidadMedida": {
+            "default": "NIU",
+            "title": "Unidadmedida",
+            "type": "string"
+          },
+          "valorVenta": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valorventa"
+          }
+        },
+        "required": [
+          "descripcion",
+          "cantidad",
+          "precio"
+        ],
+        "title": "DocumentoVentaDetalle",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "Invoice": {
+        "description": "Factura Electrónica - Tipo 01.\n\nRS N° 300-2014/SUNAT, Anexo 1:\n- Serie: debe iniciar con F (factura) o B (boleta)\n- Número: correlativo\n- Tipo de operación: Catálogo N.° 51, default 0101 (Venta interna)",
+        "properties": {
+          "cliente": {
+            "$ref": "#/components/schemas/Cliente"
+          },
+          "detalles": {
+            "items": {
+              "$ref": "#/components/schemas/DocumentoVentaDetalle"
+            },
+            "title": "Detalles",
+            "type": "array"
+          },
+          "fechaEmision": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fechaemision"
+          },
+          "igvTotal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Igvtotal"
+          },
+          "importeTotal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Importetotal"
+          },
+          "moneda": {
+            "default": "PEN",
+            "title": "Moneda",
+            "type": "string"
+          },
+          "numero": {
+            "title": "Numero",
+            "type": "integer"
+          },
+          "proveedor": {
+            "$ref": "#/components/schemas/Proveedor"
+          },
+          "serie": {
+            "description": "Serie de factura (F001) o boleta (B001)",
+            "pattern": "^[FBfb][A-Za-z0-9]{2,3}$",
+            "title": "Serie",
+            "type": "string"
+          },
+          "tipoOperacion": {
+            "default": "0101",
+            "title": "Tipooperacion",
+            "type": "string"
+          },
+          "valorVentaTotal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valorventatotal"
+          }
+        },
+        "required": [
+          "serie",
+          "numero",
+          "proveedor",
+          "cliente",
+          "detalles"
+        ],
+        "title": "Invoice",
+        "type": "object"
+      },
+      "PercepcionRetencionOperacion": {
+        "description": "Operación de percepción.",
+        "properties": {
+          "comprobante": {
+            "$ref": "#/components/schemas/openubl__models__perception__ComprobanteAfectado"
+          },
+          "fechaOperacion": {
+            "format": "date",
+            "title": "Fechaoperacion",
+            "type": "string"
+          },
+          "importeOperacion": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Importeoperacion"
+          },
+          "numeroOperacion": {
+            "title": "Numerooperacion",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "numeroOperacion",
+          "fechaOperacion",
+          "importeOperacion",
+          "comprobante"
+        ],
+        "title": "PercepcionRetencionOperacion",
+        "type": "object"
+      },
+      "Perception": {
+        "description": "Comprobante de Percepción Electrónico - Tipo 40.\n\nRS N° 274-2015/SUNAT, Anexo 1:\n- Serie: P### (P001, P002, etc.)\n- Régimen: Catálogo N.° 22",
+        "properties": {
+          "cliente": {
+            "$ref": "#/components/schemas/Cliente"
+          },
+          "fechaEmision": {
+            "format": "date",
+            "title": "Fechaemision",
+            "type": "string"
+          },
+          "importeTotalCobrado": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Importetotalcobrado"
+          },
+          "importeTotalPercibido": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Importetotalpercibido"
+          },
+          "numero": {
+            "title": "Numero",
+            "type": "integer"
+          },
+          "operaciones": {
+            "items": {
+              "$ref": "#/components/schemas/PercepcionRetencionOperacion"
+            },
+            "title": "Operaciones",
+            "type": "array"
+          },
+          "proveedor": {
+            "$ref": "#/components/schemas/Proveedor"
+          },
+          "serie": {
+            "description": "Serie de percepción (P###)",
+            "pattern": "^P\\d{3}$",
+            "title": "Serie",
+            "type": "string"
+          },
+          "tipoRegimen": {
+            "title": "Tiporegimen",
+            "type": "string"
+          },
+          "tipoRegimenPorcentaje": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Tiporegimenporcentaje"
+          }
+        },
+        "required": [
+          "serie",
+          "numero",
+          "fechaEmision",
+          "proveedor",
+          "cliente",
+          "importeTotalPercibido",
+          "importeTotalCobrado",
+          "tipoRegimen",
+          "tipoRegimenPorcentaje",
+          "operaciones"
+        ],
+        "title": "Perception",
+        "type": "object"
+      },
+      "Proveedor": {
+        "description": "Datos del emisor del comprobante.\n\nRS N° 300-2014/SUNAT, Anexo 1:\n- RUC del emisor: 11 dígitos numéricos (Catálogo N.° 06, valor 6)\n- Razón social: obligatoria",
+        "properties": {
+          "address": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Address"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "nombreComercial": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nombrecomercial"
+          },
+          "razonSocial": {
+            "title": "Razonsocial",
+            "type": "string"
+          },
+          "ruc": {
+            "description": "RUC del emisor - 11 dígitos numéricos",
+            "maxLength": 11,
+            "minLength": 11,
+            "pattern": "^\\d{11}$",
+            "title": "Ruc",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ruc",
+          "razonSocial"
+        ],
+        "title": "Proveedor",
+        "type": "object"
+      },
+      "Retention": {
+        "description": "Comprobante de Retención Electrónico - Tipo 20.\n\nRS N° 274-2015/SUNAT, Anexo 1:\n- Serie: R### (R001, R002, etc.)\n- Régimen: Catálogo N.° 23",
+        "properties": {
+          "importeTotalPagado": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Importetotalpagado"
+          },
+          "importeTotalRetenido": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Importetotalretenido"
+          },
+          "operaciones": {
+            "items": {
+              "$ref": "#/components/schemas/PercepcionRetencionOperacion"
+            },
+            "title": "Operaciones",
+            "type": "array"
+          },
+          "serie": {
+            "description": "Serie de retención (R###)",
+            "pattern": "^R\\d{3}$",
+            "title": "Serie",
+            "type": "string"
+          },
+          "tipoRegimen": {
+            "title": "Tiporegimen",
+            "type": "string"
+          },
+          "tipoRegimenPorcentaje": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Tiporegimenporcentaje"
+          }
+        },
+        "required": [
+          "serie",
+          "importeTotalRetenido",
+          "importeTotalPagado",
+          "tipoRegimen",
+          "tipoRegimenPorcentaje",
+          "operaciones"
+        ],
+        "title": "Retention",
+        "type": "object"
+      },
+      "SummaryDocuments": {
+        "description": "Resumen Diario - RC.\n\nRS N° 300-2014/SUNAT, Anexo 1:\n- Identificador: RC-YYYYMMDD-NNNN\n- Fecha de emisión de los comprobantes resumidos",
+        "properties": {
+          "comprobantes": {
+            "items": {
+              "$ref": "#/components/schemas/SummaryDocumentsItem"
+            },
+            "title": "Comprobantes",
+            "type": "array"
+          },
+          "fechaEmisionComprobantes": {
+            "format": "date",
+            "title": "Fechaemisioncomprobantes",
+            "type": "string"
+          },
+          "numero": {
+            "title": "Numero",
+            "type": "integer"
+          },
+          "proveedor": {
+            "$ref": "#/components/schemas/Proveedor"
+          }
+        },
+        "required": [
+          "numero",
+          "fechaEmisionComprobantes",
+          "proveedor",
+          "comprobantes"
+        ],
+        "title": "SummaryDocuments",
+        "type": "object"
+      },
+      "SummaryDocumentsItem": {
+        "description": "Item del resumen diario.\n\nRS N° 300-2014/SUNAT, Anexo 1:\n- Tipo de operación: Catálogo N.° 19 (ADICIONAR, MODIFICAR, ANULADO)",
+        "properties": {
+          "comprobante": {
+            "$ref": "#/components/schemas/Comprobante"
+          },
+          "tipoOperacion": {
+            "title": "Tipooperacion",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tipoOperacion",
+          "comprobante"
+        ],
+        "title": "SummaryDocumentsItem",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      },
+      "VoidedDocuments": {
+        "description": "Comunicación de Baja - RA.\n\nRS N° 300-2014/SUNAT, Anexo 1:\n- Identificador: RA-YYYYMMDD-NNNN\n- Fecha de emisión de los comprobantes que se dan de baja",
+        "properties": {
+          "comprobantes": {
+            "items": {
+              "$ref": "#/components/schemas/VoidedDocumentsItem"
+            },
+            "title": "Comprobantes",
+            "type": "array"
+          },
+          "fechaEmision": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fechaemision"
+          },
+          "fechaEmisionComprobantes": {
+            "format": "date",
+            "title": "Fechaemisioncomprobantes",
+            "type": "string"
+          },
+          "numero": {
+            "title": "Numero",
+            "type": "integer"
+          },
+          "proveedor": {
+            "$ref": "#/components/schemas/Proveedor"
+          }
+        },
+        "required": [
+          "numero",
+          "fechaEmisionComprobantes",
+          "proveedor",
+          "comprobantes"
+        ],
+        "title": "VoidedDocuments",
+        "type": "object"
+      },
+      "VoidedDocumentsItem": {
+        "description": "Item de comunicación de baja.\n\nRS N° 300-2014/SUNAT, Anexo 1:\n- Tipo de comprobante: Catálogo N.° 01\n- Serie y número del comprobante a dar de baja",
+        "properties": {
+          "descripcionSustento": {
+            "title": "Descripcionsustento",
+            "type": "string"
+          },
+          "numero": {
+            "title": "Numero",
+            "type": "integer"
+          },
+          "serie": {
+            "title": "Serie",
+            "type": "string"
+          },
+          "tipoComprobante": {
+            "title": "Tipocomprobante",
+            "type": "string"
+          }
+        },
+        "required": [
+          "serie",
+          "numero",
+          "tipoComprobante",
+          "descripcionSustento"
+        ],
+        "title": "VoidedDocumentsItem",
+        "type": "object"
+      },
+      "openubl__models__perception__ComprobanteAfectado": {
+        "description": "Comprobante afectado por la percepción.",
+        "properties": {
+          "fechaEmision": {
+            "format": "date",
+            "title": "Fechaemision",
+            "type": "string"
+          },
+          "importeTotal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Importetotal"
+          },
+          "moneda": {
+            "title": "Moneda",
+            "type": "string"
+          },
+          "serieNumero": {
+            "title": "Serienumero",
+            "type": "string"
+          },
+          "tipoComprobante": {
+            "title": "Tipocomprobante",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tipoComprobante",
+          "serieNumero",
+          "fechaEmision",
+          "importeTotal",
+          "moneda"
+        ],
+        "title": "ComprobanteAfectado",
+        "type": "object"
+      },
+      "openubl__models__summary__ComprobanteAfectado": {
+        "description": "Comprobante afectado para notas.",
+        "properties": {
+          "fechaEmision": {
+            "format": "date",
+            "title": "Fechaemision",
+            "type": "string"
+          },
+          "importeTotal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "title": "Importetotal"
+          },
+          "moneda": {
+            "title": "Moneda",
+            "type": "string"
+          },
+          "serieNumero": {
+            "title": "Serienumero",
+            "type": "string"
+          },
+          "tipoComprobante": {
+            "title": "Tipocomprobante",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tipoComprobante",
+          "serieNumero",
+          "fechaEmision",
+          "importeTotal",
+          "moneda"
+        ],
+        "title": "ComprobanteAfectado",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "openUBL",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/credit-note/create": {
+      "post": {
+        "description": "Create a CreditNote XML.",
+        "operationId": "create_credit_note_api_v1_credit_note_create_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "validate",
+            "required": false,
+            "schema": {
+              "default": true,
+              "title": "Validate",
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreditNote"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Credit Note"
+      }
+    },
+    "/api/v1/debit-note/create": {
+      "post": {
+        "description": "Create a DebitNote XML.",
+        "operationId": "create_debit_note_api_v1_debit_note_create_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "validate",
+            "required": false,
+            "schema": {
+              "default": true,
+              "title": "Validate",
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DebitNote"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Debit Note"
+      }
+    },
+    "/api/v1/invoice/create": {
+      "post": {
+        "description": "Create an Invoice XML.",
+        "operationId": "create_invoice_api_v1_invoice_create_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "validate",
+            "required": false,
+            "schema": {
+              "default": true,
+              "title": "Validate",
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Invoice"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Invoice"
+      }
+    },
+    "/api/v1/perception/create": {
+      "post": {
+        "description": "Create a Perception XML.",
+        "operationId": "create_perception_api_v1_perception_create_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "validate",
+            "required": false,
+            "schema": {
+              "default": true,
+              "title": "Validate",
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Perception"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Perception"
+      }
+    },
+    "/api/v1/retention/create": {
+      "post": {
+        "description": "Create a Retention XML.",
+        "operationId": "create_retention_api_v1_retention_create_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "validate",
+            "required": false,
+            "schema": {
+              "default": true,
+              "title": "Validate",
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Retention"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Retention"
+      }
+    },
+    "/api/v1/sign": {
+      "post": {
+        "description": "Sign an XML document with PEM cert/key.",
+        "operationId": "sign_xml_api_v1_sign_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": true,
+                "title": "Payload",
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Sign Xml"
+      }
+    },
+    "/api/v1/summary-documents/create": {
+      "post": {
+        "description": "Create a SummaryDocuments XML.",
+        "operationId": "create_summary_documents_api_v1_summary_documents_create_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "validate",
+            "required": false,
+            "schema": {
+              "default": true,
+              "title": "Validate",
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SummaryDocuments"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Summary Documents"
+      }
+    },
+    "/api/v1/voided-documents/create": {
+      "post": {
+        "description": "Create a VoidedDocuments XML.",
+        "operationId": "create_voided_documents_api_v1_voided_documents_create_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "validate",
+            "required": false,
+            "schema": {
+              "default": true,
+              "title": "Validate",
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VoidedDocuments"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Voided Documents"
+      }
+    }
+  }
+}

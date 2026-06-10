@@ -1,0 +1,11 @@
+{
+  "name": "@openubl/root",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "generate:openapi": "uv run python scripts/export_openapi.py",
+    "docs:dev": "cd docs && npm run dev",
+    "docs:build": "cd docs && npm run build",
+    "docs:preview": "cd docs && npm run preview"
+  }
+}
