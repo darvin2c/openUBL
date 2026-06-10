@@ -1,0 +1,124 @@
+---
+title: Comprobante de Retención
+description: Guía para generar Comprobantes de Retención (20) con openUBL.
+---
+
+El **Comprobante de Retención Electrónico** (tipo 20) registra la retención de IGV aplicada a compras o pagos a proveedores. Es un documento adicional a la factura de compra.
+
+## Campos requeridos
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `serie` | `string` | Serie: `R001`, `R002`, etc. (formato `R###`) |
+| `numero` | `integer` | Correlativo |
+| `fechaEmision` | `date` | Fecha de emisión (`YYYY-MM-DD`) |
+| `proveedor` | `Proveedor` | Datos del agente de retención (emisor) |
+| `cliente` | `Cliente` | Datos del retenido (proveedor) |
+| `importeTotalRetenido` | `Decimal` | Total retenido |
+| `importeTotalPagado` | `Decimal` | Total pagado (monto neto) |
+| `tipoRegimen` | `string` | Catálogo N.° 23: `01`, `02`, `03` |
+| `tipoRegimenPorcentaje` | `Decimal` | Porcentaje del régimen |
+| `operaciones` | `PercepcionRetencionOperacion[]` | Operaciones retenidas |
+
+## Operación de retención
+
+Cada elemento de `operaciones` contiene:
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `numeroOperacion` | `int` | Número de operación |
+| `fechaOperacion` | `date` | Fecha de la operación |
+| `importeOperacion` | `Decimal` | Importe retenido en esta operación |
+| `comprobante.tipoComprobante` | `string` | Tipo del comprobante afectado |
+| `comprobante.serieNumero` | `string` | Serie-numero del comprobante |
+| `comprobante.fechaEmision` | `date` | Fecha del comprobante |
+| `comprobante.importeTotal` | `Decimal` | Importe total del comprobante |
+| `comprobante.moneda` | `string` | Moneda del comprobante |
+
+## Ejemplo en Python
+
+```python
+from openubl.models import (
+    Retention, PercepcionRetencionOperacion,
+    ComprobanteAfectado, Proveedor, Cliente,
+)
+from decimal import Decimal
+from datetime import date
+
+retention = Retention(
+    serie="R001",
+    numero=1,
+    fechaEmision=date(2025, 6, 10),
+    proveedor=Proveedor(
+        ruc="20100100100",
+        razonSocial="Mi Empresa S.A.C.",
+    ),
+    cliente=Cliente(
+        nombre="Comercial del Sur S.A.",
+        numeroDocumentoIdentidad="20100200200",
+        tipoDocumentoIdentidad="6",  # RUC
+    ),
+    importeTotalRetenido=Decimal("18.00"),
+    importeTotalPagado=Decimal("282.00"),
+    tipoRegimen="01",  # Tasa 3%
+    tipoRegimenPorcentaje=Decimal("0.03"),
+    operaciones=[
+        PercepcionRetencionOperacion(
+            numeroOperacion=1,
+            fechaOperacion=date(2025, 6, 10),
+            importeOperacion=Decimal("18.00"),
+            comprobante=ComprobanteAfectado(
+                tipoComprobante="01",
+                serieNumero="F005-20",
+                fechaEmision=date(2025, 6, 10),
+                importeTotal=Decimal("300.00"),
+                moneda="PEN",
+            ),
+        ),
+    ],
+)
+
+xml = retention.render()
+```
+
+## Endpoint
+
+```bash
+POST /api/v1/retention/create
+```
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/retention/create" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "serie": "R001",
+    "numero": 1,
+    "fechaEmision": "2025-06-10",
+    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },
+    "cliente": { "nombre": "Comercial del Sur S.A.", "numeroDocumentoIdentidad": "20100200200", "tipoDocumentoIdentidad": "6" },
+    "importeTotalRetenido": "18.00",
+    "importeTotalPagado": "282.00",
+    "tipoRegimen": "01",
+    "tipoRegimenPorcentaje": "0.03",
+    "operaciones": [{
+      "numeroOperacion": 1,
+      "fechaOperacion": "2025-06-10",
+      "importeOperacion": "18.00",
+      "comprobante": {
+        "tipoComprobante": "01",
+        "serieNumero": "F005-20",
+        "fechaEmision": "2025-06-10",
+        "importeTotal": "300.00",
+        "moneda": "PEN"
+      }
+    }]
+  }'
+```
+
+## Regímenes de retención (Catálogo N.° 23)
+
+| Código | Descripción | Tasa típica |
+|--------|-------------|-------------|
+| `01` | Tasa 3% | 3% |
+| `02` | Tasa 6% | 6% |
+| `03` | Tasa mixta | Variable |

@@ -1,0 +1,123 @@
+---
+title: Esquema OpenAPI
+description: Exporta y consume la especificación OpenAPI 3.1 de openUBL como fuente única de verdad.
+---
+
+openUBL utiliza **FastAPI**, lo que permite obtener automáticamente una especificación OpenAPI 3.1.0 a partir del código. El archivo `openapi.json` en la raíz del repositorio es la **fuente única de verdad** para generar clientes tipados y documentación de la API.
+
+## Exportar el esquema
+
+Cada vez que se modifiquen modelos Pydantic o rutas, regenera el archivo para mantener los SDK sincronizados:
+
+```bash
+uv run python scripts/export_openapi.py
+```
+
+El script:
+1. Importa la aplicación FastAPI desde `openubl.main`.
+2. Extrae el esquema con `app.openapi()`.
+3. Escribe `openapi.json` en la raíz del repositorio con orden determinista (`sort_keys=True`).
+
+## Validar sincronización
+
+Para evitar que un PR modifique modelos sin actualizar el esquema, ejecuta el script de verificación:
+
+```bash
+uv run python scripts/check_sdk_sync.py
+```
+
+Si el archivo exportado difiere del versionado, el script termina con código de error e indica que debes regenerarlo.
+
+## Generar clientes con openapi-generator-cli
+
+Puedes usar el CLI oficial de OpenAPI Generator para crear SDKs en múltiples lenguajes.
+
+### Instalación
+
+```bash
+npm install -g @openapitools/openapi-generator-cli
+# o usa npx sin instalar globalmente
+npx @openapitools/openapi-generator-cli --version
+```
+
+### TypeScript
+
+```bash
+npx @openapitools/openapi-generator-cli generate \
+  -i openapi.json \
+  -g typescript-fetch \
+  -o sdk/typescript
+```
+
+Alternativamente, el SDK de TypeScript de openUBL usa **openapi-typescript** para tipos estáticos y **openapi-fetch** como cliente ligero:
+
+```bash
+cd sdk/typescript
+npm run generate
+```
+
+### Java
+
+```bash
+npx @openapitools/openapi-generator-cli generate \
+  -i openapi.json \
+  -g java \
+  --library native \
+  -o sdk/java
+```
+
+### Go
+
+```bash
+npx @openapitools/openapi-generator-cli generate \
+  -i openapi.json \
+  -g go \
+  -o sdk/go
+```
+
+### Python
+
+```bash
+npx @openapitools/openapi-generator-cli generate \
+  -i openapi.json \
+  -g python \
+  -o sdk/python
+```
+
+### C#
+
+```bash
+npx @openapitools/openapi-generator-cli generate \
+  -i openapi.json \
+  -g csharp \
+  -o sdk/csharp
+```
+
+## Generación unificada
+
+El repositorio incluye `sdk/generate.py`, que orquesta la generación para todos los lenguajes soportados:
+
+```bash
+# Generar todos los SDKs
+uv run python sdk/generate.py
+
+# Generar solo Java y Go
+uv run python sdk/generate.py java go
+```
+
+## Docker (alternativa)
+
+Si prefieres no instalar Node.js, puedes ejecutar el generador con Docker:
+
+```bash
+docker run --rm -v "$PWD:/local" openapitools/openapi-generator-cli generate \
+  -i /local/openapi.json \
+  -g typescript-fetch \
+  -o /local/sdk/typescript
+```
+
+## Más información
+
+- [OpenAPI Generator Docs](https://openapi-generator.tech/docs/generators)
+- [openapi-typescript](https://github.com/drwpow/openapi-typescript)
+- [openapi-fetch](https://github.com/drwpow/openapi-fetch)

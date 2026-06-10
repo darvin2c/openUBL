@@ -1,0 +1,99 @@
+---
+title: Resumen Diario
+description: Guía para generar Resúmenes Diarios (RC) de boletas con openUBL.
+---
+
+El **Resumen Diario** (tipo RC) consolida las boletas de venta (03) y notas asociadas emitidas en un día. SUNAT lo exige para dar validez a las boletas electrónicas.
+
+## Campos requeridos
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `numero` | `integer` | Correlativo del resumen (ej: `1` para `RC-20250610-001`) |
+| `fechaEmisionComprobantes` | `date` | Fecha de emisión de los comprobantes resumidos (`YYYY-MM-DD`) |
+| `proveedor` | `Proveedor` | Datos del emisor |
+| `comprobantes` | `SummaryDocumentsItem[]` | Lista de comprobantes a resumir |
+
+## Ítem del resumen
+
+Cada elemento de `comprobantes` contiene:
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `tipoOperacion` | `string` | Catálogo N.° 19: `1` Adicionar, `2` Modificar, `3` Anulado |
+| `comprobante.tipoComprobante` | `string` | Catálogo N.° 01: `03` Boleta, `07` Nota de crédito, `08` Nota de débito |
+| `comprobante.serieNumero` | `string` | Serie y número (ej: `B001-123`) |
+| `comprobante.cliente` | `Cliente` | Datos del adquirente |
+| `comprobante.impuestos.igv` | `Decimal` | IGV del comprobante |
+| `comprobante.valorVenta.importeTotal` | `Decimal` | Importe total |
+
+## Ejemplo en Python
+
+```python
+from openubl.models import (
+    SummaryDocuments, SummaryDocumentsItem, Comprobante,
+    ComprobanteImpuestos, ComprobanteValorVenta,
+    Proveedor, Cliente,
+)
+from decimal import Decimal
+from datetime import date
+
+summary = SummaryDocuments(
+    numero=1,
+    fechaEmisionComprobantes=date(2025, 6, 10),
+    proveedor=Proveedor(
+        ruc="20100100100",
+        razonSocial="Mi Empresa S.A.C.",
+    ),
+    comprobantes=[
+        SummaryDocumentsItem(
+            tipoOperacion="1",  # Adicionar
+            comprobante=Comprobante(
+                tipoComprobante="03",
+                serieNumero="B001-45",
+                cliente=Cliente(
+                    nombre="Juan Pérez",
+                    numeroDocumentoIdentidad="46779327",
+                    tipoDocumentoIdentidad="1",
+                ),
+                impuestos=ComprobanteImpuestos(igv=Decimal("27.00")),
+                valorVenta=ComprobanteValorVenta(importeTotal=Decimal("177.00")),
+            ),
+        ),
+    ],
+)
+
+xml = summary.render()
+```
+
+## Endpoint
+
+```bash
+POST /api/v1/summary-documents/create
+```
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/summary-documents/create" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "numero": 1,
+    "fechaEmisionComprobantes": "2025-06-10",
+    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },
+    "comprobantes": [{
+      "tipoOperacion": "1",
+      "comprobante": {
+        "tipoComprobante": "03",
+        "serieNumero": "B001-45",
+        "cliente": { "nombre": "Juan Pérez", "numeroDocumentoIdentidad": "46779327", "tipoDocumentoIdentidad": "1" },
+        "impuestos": { "igv": "27.00" },
+        "valorVenta": { "importeTotal": "177.00" }
+      }
+    }]
+  }'
+```
+
+## Reglas SUNAT
+
+- Se debe enviar el mismo día de emisión de las boletas o al día siguiente hábil como máximo.
+- El identificador del resumen es `RC-YYYYMMDD-NNNN`.
+- Una vez aceptado, las boletas quedan validadas ante SUNAT.

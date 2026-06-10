@@ -1,0 +1,63 @@
+---
+title: Tu primer documento
+description: Crea tu primera factura electrónica con openUBL paso a paso.
+---
+
+Este ejemplo crea una factura electrónica (`Invoice`) y la renderiza a XML UBL 2.1.
+
+## Paso 1: Importar el modelo
+
+```python
+from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
+```
+
+## Paso 2: Crear la factura
+
+```python
+invoice = Invoice(
+    serie="F001",
+    numero=1,
+    proveedor=Proveedor(
+        ruc="12345678901",
+        razonSocial="Mi Empresa S.A.C.",
+        nombreComercial="Mi Empresa",
+        address={"ubigeo": "150101", "departamento": "Lima", "provincia": "Lima", "distrito": "Lima", "direccion": "Av. Ejemplo 123"}
+    ),
+    cliente=Cliente(
+        tipoDocumentoIdentidad="6",
+        numeroDocumentoIdentidad="98765432101",
+        nombre="Cliente Ejemplo S.A.C.",
+        address={"ubigeo": "150101", "departamento": "Lima", "provincia": "Lima", "distrito": "Lima", "direccion": "Calle Ficticia 456"}
+    ),
+    detalles=[
+        DocumentoVentaDetalle(
+            cantidad=2,
+            descripcion="Producto de ejemplo",
+            precio=50.00,
+            precioVenta=100.00,
+            unidadMedida="NIU"
+        )
+    ],
+    valorVentaTotal=100.00,
+    igvTotal=18.00,
+    moneda="PEN"
+)
+```
+
+## Paso 3: Renderizar a XML
+
+```python
+xml = invoice.to_xml()
+print(xml)
+```
+
+## Paso 4: Validar
+
+```python
+from openubl.validator import validate_invoice
+
+result = validate_invoice(xml)
+assert result.valid
+```
+
+El XML generado es válido UBL 2.1 y listo para firmar y enviar a SUNAT.

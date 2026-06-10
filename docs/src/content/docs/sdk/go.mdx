@@ -1,0 +1,82 @@
+---
+title: Go SDK
+description: Generación y uso del SDK de Go para openUBL con openapi-generator-cli.
+---
+
+El SDK de Go se genera a partir de `openapi.json` mediante `openapi-generator-cli`, produciendo paquetes tipados y un cliente basado en `net/http`.
+
+## Generar el SDK
+
+```bash
+npx @openapitools/openapi-generator-cli generate \
+  -i openapi.json \
+  -g go \
+  -o sdk/go
+```
+
+El código generado queda disponible en `sdk/go/` y puede incorporarse a tu proyecto con `go mod` o copiando los paquetes directamente.
+
+## Alternativa con Docker
+
+```bash
+docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli generate \
+  -i /local/openapi.json \
+  -g go \
+  -o /local/sdk/go
+```
+
+## Uso
+
+El generador crea un paquete principal que contiene las estructuras y el cliente. El siguiente ejemplo crea una factura y la envía al endpoint correspondiente:
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	openubl "github.com/openubl/sdk/go"
+)
+
+func main() {
+	config := openubl.NewConfiguration()
+	config.Host = "localhost:8000"
+	config.Scheme = "http"
+
+	client := openubl.NewAPIClient(config)
+
+	invoice := openubl.Invoice{
+		Serie:  openubl.PtrString("F001"),
+		Numero: openubl.PtrInt32(1),
+		Proveedor: &openubl.Proveedor{
+			Ruc:           openubl.PtrString("20100066603"),
+			RazonSocial:   openubl.PtrString("Softgreen S.A.C."),
+		},
+		Cliente: &openubl.Cliente{
+			Nombre:                  openubl.PtrString("Carlos"),
+			NumeroDocumentoIdentidad: openubl.PtrString("12121212121"),
+			TipoDocumentoIdentidad:  openubl.PtrString("6"),
+		},
+		Detalles: []openubl.DocumentoVentaDetalle{
+			{
+				Descripcion: openubl.PtrString("Item"),
+				Cantidad:    openubl.PtrInt32(10),
+				Precio:      openubl.PtrFloat64(100),
+			},
+		},
+	}
+
+	resp, r, err := client.InvoiceAPI.ApiV1InvoiceCreatePost(context.Background()).Invoice(invoice).Execute()
+	if err != nil {
+		log.Fatalf("Error: %v (HTTP %d)", err, r.StatusCode)
+	}
+
+	fmt.Println(resp.GetXml())
+}
+```
+
+:::note
+El generador de Go utiliza punteros para campos opcionales y expone helpers como `PtrString` o `PtrInt32`. Los nombres exactos de los métodos del cliente dependen de las etiquetas de operación en `openapi.json`; verifica `sdk/go/api_*.go` para confirmar.
+:::

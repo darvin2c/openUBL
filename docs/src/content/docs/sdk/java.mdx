@@ -1,0 +1,79 @@
+---
+title: Java SDK
+description: Generación y uso del SDK de Java para openUBL con openapi-generator-cli.
+---
+
+El SDK de Java se genera automáticamente a partir de `openapi.json` utilizando el generador oficial de OpenAPI.
+
+## Generar el SDK
+
+```bash
+npx @openapitools/openapi-generator-cli generate \
+  -i openapi.json \
+  -g java \
+  --library native \
+  -o sdk/java
+```
+
+Esta instrucción crea un proyecto Java completo bajo `sdk/java/` con clases modelo y un cliente HTTP nativo.
+
+## Alternativa con Docker
+
+Si no tienes `npx` disponible:
+
+```bash
+docker run --rm -v ${PWD}:/local openapitools/openapi-generator-cli generate \
+  -i /local/openapi.json \
+  -g java \
+  --library native \
+  -o /local/sdk/java
+```
+
+## Uso
+
+El generador expone cada esquema como una clase con patrón *builder*. El siguiente ejemplo construye una factura electrónica y la envía mediante el cliente generado:
+
+```java
+import com.openubl.client.ApiClient;
+import com.openubl.client.api.InvoiceApi;
+import com.openubl.client.model.Invoice;
+import com.openubl.client.model.Proveedor;
+import com.openubl.client.model.Cliente;
+import com.openubl.client.model.DocumentoVentaDetalle;
+
+public class Ejemplo {
+    public static void main(String[] args) {
+        Invoice invoice = new Invoice()
+            .serie("F001")
+            .numero(1)
+            .proveedor(
+                new Proveedor()
+                    .ruc("20100066603")
+                    .razonSocial("Softgreen S.A.C.")
+            )
+            .cliente(
+                new Cliente()
+                    .nombre("Carlos")
+                    .numeroDocumentoIdentidad("12121212121")
+                    .tipoDocumentoIdentidad("6")
+            )
+            .addDetallesItem(
+                new DocumentoVentaDetalle()
+                    .descripcion("Item")
+                    .cantidad(10)
+                    .precio(100)
+            );
+
+        ApiClient client = new ApiClient();
+        client.setBasePath("http://localhost:8000");
+
+        InvoiceApi api = new InvoiceApi(client);
+        var response = api.apiV1InvoiceCreatePost(invoice);
+        System.out.println(response.getData().getXml());
+    }
+}
+```
+
+:::note
+Los nombres exactos de los métodos del cliente pueden variar según las etiquetas de operación definidas en `openapi.json`. Revisa las clases generadas en `sdk/java/src/main/java/` para confirmar los identificadores finales.
+:::

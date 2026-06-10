@@ -1,0 +1,86 @@
+---
+title: Nota de Débito
+description: Guía para generar Notas de Débito Electrónicas (08) con openUBL.
+---
+
+La **Nota de Débito Electrónica** (tipo 08) aumenta el valor de una factura o boleta previamente emitida. Se emite por intereses, recargos o ajustes que incrementan el monto original.
+
+## Campos requeridos
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `serie` | `string` | Serie: `BC01` para boleta, `FC01` para factura |
+| `numero` | `integer` | Correlativo |
+| `comprobanteAfectadoSerieNumero` | `string` | Serie-numero del comprobante afectado (ej: `F001-123`) |
+| `sustentoDescripcion` | `string` | Motivo de la nota de débito |
+| `proveedor` | `Proveedor` | Datos del emisor |
+| `cliente` | `Cliente` | Datos del adquirente |
+| `detalles` | `DocumentoVentaDetalle[]` | Líneas de ajuste |
+
+## Campos opcionales
+
+| Campo | Default | Descripción |
+|-------|---------|-------------|
+| `moneda` | `PEN` | Moneda del comprobante |
+| `fechaEmision` | hoy | Fecha de emisión |
+| `igvTotal` | auto | IGV total |
+| `valorVentaTotal` | auto | Valor de venta |
+| `importeTotal` | auto | Importe total |
+
+## Ejemplo en Python
+
+```python
+from openubl.models import DebitNote, Proveedor, Cliente, DocumentoVentaDetalle
+from decimal import Decimal
+
+debit_note = DebitNote(
+    serie="FC01",
+    numero=1,
+    comprobanteAfectadoSerieNumero="F001-45",
+    sustentoDescripcion="Intereses moratorios",
+    proveedor=Proveedor(
+        ruc="20100100100",
+        razonSocial="Mi Empresa S.A.C.",
+    ),
+    cliente=Cliente(
+        nombre="Juan Pérez",
+        numeroDocumentoIdentidad="46779327",
+        tipoDocumentoIdentidad="1",
+    ),
+    detalles=[
+        DocumentoVentaDetalle(
+            descripcion="Intereses moratorios - Laptop Dell XPS 13",
+            cantidad=Decimal("1"),
+            precio=Decimal("150.00"),
+        ),
+    ],
+)
+
+xml = debit_note.render()
+```
+
+## Endpoint
+
+```bash
+POST /api/v1/debit-note/create
+```
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/debit-note/create" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "serie": "FC01",
+    "numero": 1,
+    "comprobanteAfectadoSerieNumero": "F001-45",
+    "sustentoDescripcion": "Intereses moratorios",
+    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },
+    "cliente": { "nombre": "Juan Pérez", "numeroDocumentoIdentidad": "46779327", "tipoDocumentoIdentidad": "1" },
+    "detalles": [{ "descripcion": "Intereses moratorios", "cantidad": "1", "precio": "150.00" }]
+  }'
+```
+
+## Reglas SUNAT
+
+- La serie debe iniciar con `B` o `F` según el tipo de comprobante afectado.
+- Solo se puede emitir sobre comprobantes ya declarados.
+- El motivo debe ser claro y justificar el incremento del monto.

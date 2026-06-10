@@ -1,0 +1,169 @@
+---
+title: Referencia de la API
+description: Endpoints disponibles en la API REST de openUBL.
+---
+
+La API REST de openUBL expone un conjunto de endpoints para generar XML de comprobantes electrónicos SUNAT y firmarlos digitalmente. Todos los endpoints de creación devuelven un objeto JSON con la clave `xml`, salvo `/sign` que devuelve `signed_xml`.
+
+## Endpoints
+
+| Método | Endpoint | Descripción | Cuerpo | Query params | Respuesta |
+|--------|----------|-------------|--------|--------------|-----------|
+| `POST` | `/api/v1/invoice/create` | Genera el XML de una **Factura Electrónica** (tipo 01) | `Invoice` | `validate` (bool, default `true`) | `{"xml": string}` |
+| `POST` | `/api/v1/credit-note/create` | Genera el XML de una **Nota de Crédito** (tipo 07) | `CreditNote` | `validate` (bool, default `true`) | `{"xml": string}` |
+| `POST` | `/api/v1/debit-note/create` | Genera el XML de una **Nota de Débito** (tipo 08) | `DebitNote` | `validate` (bool, default `true`) | `{"xml": string}` |
+| `POST` | `/api/v1/voided-documents/create` | Genera el XML de una **Comunicación de Baja** (RA) | `VoidedDocuments` | `validate` (bool, default `true`) | `{"xml": string}` |
+| `POST` | `/api/v1/summary-documents/create` | Genera el XML de un **Resumen Diario** (RC) | `SummaryDocuments` | `validate` (bool, default `true`) | `{"xml": string}` |
+| `POST` | `/api/v1/perception/create` | Genera el XML de un **Comprobante de Percepción** (tipo 40) | `Perception` | `validate` (bool, default `true`) | `{"xml": string}` |
+| `POST` | `/api/v1/retention/create` | Genera el XML de un **Comprobante de Retención** (tipo 20) | `Retention` | `validate` (bool, default `true`) | `{"xml": string}` |
+| `POST` | `/api/v1/sign` | Firma un XML con certificado y clave PEM | `SignPayload` | — | `{"signed_xml": string}` |
+
+### Parámetro de consulta `validate`
+
+Todos los endpoints de creación aceptan `?validate=true|false`. Cuando está activo (por defecto), openUBL ejecuta las validaciones SUNAT sobre el XML generado antes de responder. Si el XML no cumple las reglas, la API devuelve `422 Unprocessable Entity` con el listado de errores.
+
+## Esquemas de solicitud
+
+### `Invoice`
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `serie` | `string` | Serie de la factura (p. ej. `F001`) o boleta (`B001`). Patrón: `^[FBfb][A-Za-z0-9]{2,3}$` |
+| `numero` | `integer` | Correlativo del comprobante |
+| `proveedor` | `Proveedor` | Datos del emisor |
+| `cliente` | `Cliente` | Datos del adquirente |
+| `detalles` | `DocumentoVentaDetalle[]` | Líneas de producto o servicio |
+| `moneda` | `string` | Código de moneda (default `PEN`) |
+| `fechaEmision` | `date` | Fecha de emisión (opcional) |
+| `igvTotal` | `Decimal` | Total IGV (opcional, se calcula automáticamente) |
+| `valorVentaTotal` | `Decimal` | Valor de venta total (opcional) |
+| `importeTotal` | `Decimal` | Importe total (opcional) |
+| `tipoOperacion` | `string` | Tipo de operación (default `0101`) |
+
+### `CreditNote`
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `serie` | `string` | Serie (`BC…` o `FC…`). Patrón: `^[BCbc][A-Za-z0-9]{2,3}$` |
+| `numero` | `integer` | Correlativo |
+| `comprobanteAfectadoSerieNumero` | `string` | Serie-número del comprobante afectado |
+| `sustentoDescripcion` | `string` | Descripción del sustento |
+| `proveedor` | `Proveedor` | Datos del emisor |
+| `cliente` | `Cliente` | Datos del adquirente |
+| `detalles` | `DocumentoVentaDetalle[]` | Líneas de detalle |
+| `moneda` | `string` | Código de moneda (default `PEN`) |
+| `fechaEmision` | `date` | Fecha de emisión (opcional) |
+| `igvTotal` | `Decimal` | Total IGV (opcional) |
+| `valorVentaTotal` | `Decimal` | Valor de venta total (opcional) |
+| `importeTotal` | `Decimal` | Importe total (opcional) |
+
+### `DebitNote`
+
+Idéntico a `CreditNote` en estructura; representa una Nota de Débito Electrónica (tipo 08).
+
+### `VoidedDocuments`
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `numero` | `integer` | Correlativo del documento de baja |
+| `fechaEmisionComprobantes` | `date` | Fecha de emisión de los comprobantes que se dan de baja |
+| `fechaEmision` | `date` | Fecha de emisión del comunicado (opcional) |
+| `proveedor` | `Proveedor` | Datos del emisor |
+| `comprobantes` | `VoidedDocumentsItem[]` | Listado de comprobantes a dar de baja |
+
+#### `VoidedDocumentsItem`
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `serie` | `string` | Serie del comprobante |
+| `numero` | `integer` | Número del comprobante |
+| `tipoComprobante` | `string` | Código del tipo de comprobante (Catálogo 01) |
+| `descripcionSustento` | `string` | Motivo de la baja |
+
+### `SummaryDocuments`
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `numero` | `integer` | Correlativo del resumen |
+| `fechaEmisionComprobantes` | `date` | Fecha de emisión de los comprobantes resumidos |
+| `proveedor` | `Proveedor` | Datos del emisor |
+| `comprobantes` | `SummaryDocumentsItem[]` | Ítems del resumen |
+
+#### `SummaryDocumentsItem`
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `tipoOperacion` | `string` | `1`=ADICIONAR, `2`=MODIFICAR, `3`=ANULADO (Catálogo 19) |
+| `comprobante` | `Comprobante` | Datos del comprobante resumido |
+
+### `Perception`
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `serie` | `string` | Serie (`P###`). Patrón: `^P\d{3}$` |
+| `numero` | `integer` | Correlativo |
+| `fechaEmision` | `date` | Fecha de emisión |
+| `proveedor` | `Proveedor` | Datos del emisor |
+| `cliente` | `Cliente` | Datos del adquirente |
+| `importeTotalPercibido` | `Decimal` | Importe total percibido |
+| `importeTotalCobrado` | `Decimal` | Importe total cobrado |
+| `tipoRegimen` | `string` | Régimen (Catálogo 22) |
+| `tipoRegimenPorcentaje` | `Decimal` | Porcentaje del régimen |
+| `operaciones` | `PercepcionRetencionOperacion[]` | Operaciones de percepción |
+
+### `Retention`
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `serie` | `string` | Serie (`R###`). Patrón: `^R\d{3}$` |
+| `importeTotalRetenido` | `Decimal` | Importe total retenido |
+| `importeTotalPagado` | `Decimal` | Importe total pagado |
+| `tipoRegimen` | `string` | Régimen (Catálogo 23) |
+| `tipoRegimenPorcentaje` | `Decimal` | Porcentaje del régimen |
+| `operaciones` | `PercepcionRetencionOperacion[]` | Operaciones de retención |
+
+### `SignPayload` (`/sign`)
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `xml` | `string` | XML a firmar |
+| `cert_pem` | `string` | Certificado en formato PEM |
+| `key_pem` | `string` | Clave privada en formato PEM |
+| `signature_id` | `string` | Identificador de la firma (default `SignSUNAT`) |
+
+## Tipos auxiliares
+
+### `Proveedor`
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `ruc` | `string` | RUC del emisor (11 dígitos) |
+| `razonSocial` | `string` | Razón social |
+| `nombreComercial` | `string` | Nombre comercial (opcional) |
+| `address` | `Address` | Dirección (opcional) |
+
+### `Cliente`
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `nombre` | `string` | Nombre o razón social |
+| `numeroDocumentoIdentidad` | `string` | Número de documento |
+| `tipoDocumentoIdentidad` | `string` | Código del tipo de documento (Catálogo 06) |
+
+### `DocumentoVentaDetalle`
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `descripcion` | `string` | Descripción del bien o servicio |
+| `cantidad` | `Decimal` | Cantidad |
+| `precio` | `Decimal` | Precio unitario (sin IGV) |
+| `unidadMedida` | `string` | Unidad de medida (default `NIU`) |
+| `tipoAfectacionIGV` | `string` | Tipo de afectación (default `10`) |
+| `igv` | `Decimal` | IGV de la línea (opcional) |
+| `valorVenta` | `Decimal` | Valor de venta (opcional) |
+| `precioVenta` | `Decimal` | Precio de venta (opcional) |
+
+## Códigos de respuesta
+
+- `200 OK` — XML generado o firmado correctamente.
+- `422 Unprocessable Entity` — El documento no pasa las validaciones SUNAT (`validate=true`) o el cuerpo de la petición es inválido.

@@ -1,0 +1,120 @@
+---
+title: Factura Electrónica
+description: Guía para generar Facturas (01) y Boletas (03) con openUBL.
+---
+
+La **Factura Electrónica** (tipo 01) y la **Boleta Electrónica** (tipo 03) son los comprobantes de venta más comunes en el sistema SUNAT. openUBL genera el XML UBL 2.1 listo para firmar y enviar.
+
+## Campos requeridos
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `serie` | `string` | Serie: `F001` para factura, `B001` para boleta |
+| `numero` | `integer` | Correlativo del comprobante |
+| `proveedor` | `Proveedor` | Datos del emisor (`ruc`, `razonSocial`) |
+| `cliente` | `Cliente` | Datos del adquirente (`nombre`, `numeroDocumentoIdentidad`, `tipoDocumentoIdentidad`) |
+| `detalles` | `DocumentoVentaDetalle[]` | Líneas de producto o servicio |
+
+## Campos opcionales
+
+| Campo | Default | Descripción |
+|-------|---------|-------------|
+| `moneda` | `PEN` | Catálogo N.° 02 (`PEN`, `USD`, `EUR`) |
+| `tipoOperacion` | `0101` | Catálogo N.° 51 — `0101` Venta interna |
+| `fechaEmision` | hoy | Fecha de emisión (`YYYY-MM-DD`) |
+| `igvTotal` | auto | IGV total calculado |
+| `valorVentaTotal` | auto | Valor de venta total |
+| `importeTotal` | auto | Importe total |
+
+## Detalle de línea
+
+Cada ítem del array `detalles` requiere:
+
+- `descripcion` — nombre del producto o servicio
+- `cantidad` — cantidad vendida
+- `precio` — precio unitario (sin IGV)
+
+Opciones por defecto:
+
+| Campo | Default | Catálogo |
+|-------|---------|----------|
+| `unidadMedida` | `NIU` | N.° 03 — Unidad / Unidad de medida |
+| `tipoAfectacionIGV` | `10` | N.° 07 — Gravado operación onerosa |
+
+## Ejemplo en Python
+
+```python
+from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
+from decimal import Decimal
+
+invoice = Invoice(
+    serie="F001",
+    numero=1,
+    proveedor=Proveedor(
+        ruc="20100100100",
+        razonSocial="Mi Empresa S.A.C.",
+    ),
+    cliente=Cliente(
+        nombre="Juan Pérez",
+        numeroDocumentoIdentidad="46779327",
+        tipoDocumentoIdentidad="1",  # DNI
+    ),
+    detalles=[
+        DocumentoVentaDetalle(
+            descripcion="Laptop Dell XPS 13",
+            cantidad=Decimal("1"),
+            precio=Decimal("5000.00"),
+        ),
+    ],
+)
+
+# Generar XML
+xml = invoice.render()
+```
+
+## Valores de catálogo más usados
+
+### Tipo de operación (Catálogo N.° 51)
+
+| Código | Descripción |
+|--------|-------------|
+| `0101` | Venta interna |
+| `0200` | Exportación de bienes |
+| `0401` | Venta no domiciliado que no califica como exportación |
+
+### Tipo de afectación IGV (Catálogo N.° 07)
+
+| Código | Descripción |
+|--------|-------------|
+| `10` | Gravado — Operación onerosa |
+| `20` | Exonerado — Operación onerosa |
+| `30` | Inafecto — Operación onerosa |
+
+### Tipo de documento de identidad (Catálogo N.° 06)
+
+| Código | Descripción |
+|--------|-------------|
+| `1` | DNI |
+| `4` | Carnet de extranjería |
+| `6` | RUC |
+| `7` | Pasaporte |
+
+## Endpoint
+
+```bash
+POST /api/v1/invoice/create
+```
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/invoice/create" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "serie": "F001",
+    "numero": 1,
+    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },
+    "cliente": { "nombre": "Juan Pérez", "numeroDocumentoIdentidad": "46779327", "tipoDocumentoIdentidad": "1" },
+    "detalles": [{ "descripcion": "Laptop Dell XPS 13", "cantidad": "1", "precio": "5000.00" }]
+  }'
+```
+
+La respuesta contiene el campo `xml` con el documento UBL 2.1 generado.

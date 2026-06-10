@@ -1,0 +1,98 @@
+---
+title: Validación SUNAT
+description: Guía para validar documentos XML contra los esquemas XSD y reglas de SUNAT.
+---
+
+openUBL valida automáticamente cada documento generado contra los esquemas XSD de SUNAT y las reglas de negocio definidas en las Resoluciones de Superintendencia. Esto garantiza que el XML sea rechazado antes de llegar a SUNAT si contiene errores estructurales.
+
+## Validación automática
+
+Por defecto, todos los endpoints de creación ejecutan validación antes de devolver el XML:
+
+```bash
+POST /api/v1/invoice/create       # validate=true por defecto
+POST /api/v1/credit-note/create   # validate=true por defecto
+POST /api/v1/debit-note/create    # validate=true por defecto
+POST /api/v1/summary-documents/create  # validate=true por defecto
+POST /api/v1/voided-documents/create   # validate=true por defecto
+POST /api/v1/perception/create    # validate=true por defecto
+POST /api/v1/retention/create     # validate=true por defecto
+```
+
+Si la validación falla, el endpoint responde con código `400` y una lista de errores:
+
+```json
+{
+  "detail": [
+    "XSD validation error: Element 'cbc:ID': [facet 'pattern'] ...",
+    "Business rule: RUC must be 11 digits"
+  ]
+}
+```
+
+## Desactivar validación
+
+Para omitir la validación —por ejemplo, durante desarrollo o pruebas— usa el parámetro de consulta `validate`:
+
+```bash
+POST /api/v1/invoice/create?validate=false
+```
+
+```python
+import requests
+
+response = requests.post(
+    "http://localhost:8000/api/v1/invoice/create?validate=false",
+    json={...},
+)
+xml = response.json()["xml"]
+```
+
+:::caution
+Desactivar la validación solo es recomendable en ambientes de desarrollo. Un XML inválido será rechazado por SUNAT.
+:::
+
+## Tipos de validación
+
+### Validación XSD
+
+Comprueba que el XML cumple la estructura UBL 2.1 definida por OASIS y SUNAT:
+
+- Elementos obligatorios presentes
+- Tipos de datos correctos
+- Secuencia de elementos válida
+- Atributos requeridos completos
+
+### Validación de reglas de negocio
+
+Verifica restricciones específicas de SUNAT:
+
+| Regla | Descripción |
+|-------|-------------|
+| RUC | 11 dígitos numéricos |
+| Serie factura | Inicia con `F` seguido de 2-3 caracteres alfanuméricos |
+| Serie boleta | Inicia con `B` seguido de 2-3 caracteres alfanuméricos |
+| Fechas | Formato `YYYY-MM-DD` válido |
+| Montos | Valores positivos con 2 decimales |
+| Firma | Estructura de firma digital presente (validación posterior a `/sign`) |
+
+## Validación de XML firmado
+
+Después de firmar un documento con `/api/v1/sign`, puedes validar la estructura de la firma:
+
+```python
+from openubl.validator import SunatValidator
+
+validator = SunatValidator()
+errors = validator.validate_signed_xml(signed_xml)
+
+if errors:
+    print("Errores de firma:", errors)
+else:
+    print("Firma válida")
+```
+
+## Referencias
+
+- [RS N° 300-2014/SUNAT](https://cpe.sunat.gob.pe/) — Sistema de Emisión Electrónica
+- [Reglas de validación SUNAT](https://cpe.sunat.gob.pe/sites/default/files/inline-files/Validacion%20de%20comprobantes%20de%20pago%20electronicos.pdf)

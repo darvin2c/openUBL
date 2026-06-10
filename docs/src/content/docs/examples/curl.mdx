@@ -1,0 +1,105 @@
+---
+title: Ejemplos con cURL
+description: Crea documentos electrónicos y firma XML usando cURL desde la terminal.
+---
+
+Los siguientes ejemplos asumen que el servidor está corriendo en `http://localhost:8000`.
+
+## Crear una Factura
+
+```bash
+curl -X POST http://localhost:8000/api/v1/invoice/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "serie": "F001",
+    "numero": 1,
+    "proveedor": {
+      "ruc": "20100111111",
+      "razonSocial": "Mi Empresa S.A.C."
+    },
+    "cliente": {
+      "nombre": "Juan Perez",
+      "numeroDocumentoIdentidad": "12345678",
+      "tipoDocumentoIdentidad": "1"
+    },
+    "detalles": [
+      {
+        "descripcion": "Producto A",
+        "cantidad": 2,
+        "precio": 100.00
+      }
+    ],
+    "moneda": "PEN"
+  }'
+```
+
+**Respuesta esperada:**
+
+```json
+{
+  "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>..."
+}
+```
+
+Para omitir la validación SUNAT, añade `?validate=false` a la URL.
+
+## Firmar un XML
+
+```bash
+curl -X POST http://localhost:8000/api/v1/sign \
+  -H "Content-Type: application/json" \
+  -d '{
+    "xml": "<?xml version=\"1.0\"?>...",
+    "cert_pem": "-----BEGIN CERTIFICATE-----\nMIIC...\n-----END CERTIFICATE-----",
+    "key_pem": "-----BEGIN PRIVATE KEY-----\nMIIE...\n-----END PRIVATE KEY-----",
+    "signature_id": "SignSUNAT"
+  }'
+```
+
+**Respuesta esperada:**
+
+```json
+{
+  "signed_xml": "<?xml version=\"1.0\"?>...<ds:Signature>..."
+}
+```
+
+## Crear otra nota de crédito
+
+```bash
+curl -X POST http://localhost:8000/api/v1/credit-note/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "serie": "BC01",
+    "numero": 1,
+    "comprobanteAfectadoSerieNumero": "F001-1",
+    "sustentoDescripcion": "Anulación de venta",
+    "proveedor": {
+      "ruc": "20100111111",
+      "razonSocial": "Mi Empresa S.A.C."
+    },
+    "cliente": {
+      "nombre": "Juan Perez",
+      "numeroDocumentoIdentidad": "12345678",
+      "tipoDocumentoIdentidad": "1"
+    },
+    "detalles": [
+      {
+        "descripcion": "Producto A",
+        "cantidad": 2,
+        "precio": 100.00
+      }
+    ],
+    "moneda": "PEN"
+  }'
+```
+
+## Guardar la respuesta en un archivo
+
+Puedes redirigir la salida y extraer el XML con [`jq`](https://jqlang.github.io/jq/):
+
+```bash
+curl -s http://localhost:8000/api/v1/invoice/create \
+  -H "Content-Type: application/json" \
+  -d @invoice.json | jq -r '.xml' > invoice.xml
+```

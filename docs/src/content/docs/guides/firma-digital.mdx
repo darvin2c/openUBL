@@ -1,0 +1,95 @@
+---
+title: Firma Digital
+description: Guía para firmar documentos XML UBL 2.1 con certificado digital SUNAT.
+---
+
+SUNAT exige que todos los documentos electrónicos estén firmados digitalmente con un certificado X.509 válido. openUBL expone un endpoint dedicado para firmar cualquier XML UBL previamente generado.
+
+## Requisitos
+
+- Certificado digital X.509 en formato PEM (`.crt` o `.pem`)
+- Clave privada en formato PEM (`.key` o `.pem`)
+- El XML debe seguir la estructura UBL 2.1 de SUNAT
+
+## Conversión desde PFX/P12
+
+Si posees un certificado en formato `.pfx` o `.p12`, úsalo directamente:
+
+```python
+from openubl.signer import load_pfx
+
+with open("certificado.pfx", "rb") as f:
+    pfx_bytes = f.read()
+
+key_pem, cert_pem = load_pfx(pfx_bytes, password="mi_clave")
+```
+
+## Endpoint
+
+```bash
+POST /api/v1/sign
+```
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `cert_pem` | `string` | Certificado X.509 en formato PEM |
+| `key_pem` | `string` | Clave privada en formato PEM |
+| `xml` | `string` | XML UBL 2.1 a firmar |
+
+## Ejemplo en Python
+
+```python
+import requests
+
+with open("certificado.pem", "r") as f:
+    cert_pem = f.read()
+
+with open("llave_privada.pem", "r") as f:
+    key_pem = f.read()
+
+xml_generado = "<?xml version='1.0' encoding='UTF-8'?>..."
+
+response = requests.post(
+    "http://localhost:8000/api/v1/sign",
+    json={
+        "cert_pem": cert_pem,
+        "key_pem": key_pem,
+        "xml": xml_generado,
+    },
+)
+
+signed_xml = response.json()["signed_xml"]
+```
+
+## Ejemplo con curl
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/sign" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "cert_pem": "-----BEGIN CERTIFICATE-----\nMIIC...\n-----END CERTIFICATE-----",
+    "key_pem": "-----BEGIN PRIVATE KEY-----\nMIIE...\n-----END PRIVATE KEY-----",
+    "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>..."
+  }'
+```
+
+## Algoritmo de firma
+
+openUBL utiliza los parámetros requeridos por SUNAT:
+
+| Parámetro | Valor |
+|-----------|-------|
+| Algoritmo de firma | RSA-SHA1 |
+| Algoritmo de digestión | SHA1 |
+| Canonicalización | C14N |
+| Ubicación de la firma | `UBLExtension/ExtensionContent` |
+
+:::caution
+SUNAT requiere RSA-SHA1 por compatibilidad con su plataforma de recepción. Este algoritmo está considerado obsoleto para otros usos, pero sigue siendo obligatorio para la facturación electrónica peruana.
+:::
+
+## Flujo completo
+
+1. Genera el XML con el endpoint correspondiente (`/invoice/create`, `/credit-note/create`, etc.).
+2. Firma el XML con `/sign`.
+3. Envía el XML firmado a SUNAT mediante el Web Service de recepción.

@@ -1,0 +1,40 @@
+---
+title: openUBL
+description: Facturación electrónica SUNAT. Genera XML UBL 2.1 válido, firmado y listo para enviar.
+template: splash
+hero:
+  tagline: Facturacion electronica SUNAT. Genera XML UBL 2.1 valido, firmado y listo para enviar.
+  actions:
+    - text: Comenzar
+      link: /getting-started/introduccion/
+      icon: right-arrow
+    - text: API
+      link: /api/referencia/
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## ¿Qué puedes hacer?
+
+<CardGrid stagger>
+	<Card title="Generar XML" icon="document">
+		Crea XML UBL 2.1 conforme a las especificaciones de SUNAT para todos los documentos electrónicos soportados.
+	</Card>
+	<Card title="Firmar documentos" icon="approve-check">
+		Firma digitalmente tus comprobantes con el estándar XAdES-EPES requerido por SUNAT.
+	</Card>
+	<Card title="Validar con SUNAT" icon="seti:python">
+		Valida la estructura y contenido de tus documentos antes del envío oficial.
+	</Card>
+	<Card title="SDK Multi-lenguaje" icon="seti:javascript">
+		Genera clientes tipados en TypeScript, Java, Go, Python y C# desde OpenAPI.
+	</Card>
+	<Card title="API REST" icon="laptop">
+		Integra vía API REST con tipado Pydantic y documentación OpenAPI interactiva.
+	</Card>
+	<Card title="Clientes tipados" icon="open-book">
+		Usa clientes TypeScript con autocompletado de endpoints y validación estática.
+	</Card>
+</CardGrid>

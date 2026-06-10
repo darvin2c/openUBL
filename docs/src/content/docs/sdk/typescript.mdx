@@ -1,0 +1,70 @@
+---
+title: TypeScript SDK
+description: Instalación y uso del SDK de TypeScript para openUBL con openapi-fetch.
+---
+
+El SDK de TypeScript ofrece tipos generados a partir del esquema OpenAPI y un cliente con autocompletado para todos los endpoints.
+
+## Instalación
+
+```bash
+npm install @openubl/sdk
+```
+
+## Generar tipos
+
+Si necesitas regenerar los tipos desde el esquema más reciente:
+
+```bash
+cd sdk/typescript
+npm install
+npm run generate
+npm run build
+```
+
+El script `generate` ejecuta `openapi-typescript` sobre `openapi.json` y produce `src/openubl-types.ts`.
+
+## Uso
+
+Importa el cliente y los tipos. El cliente está construido con `openapi-fetch`, por lo que cada llamada cuenta con tipado completo de rutas, cuerpo de solicitud y respuesta.
+
+```typescript
+import { client, type Invoice, type Proveedor, type Cliente, type DocumentoVentaDetalle } from "@openubl/sdk";
+
+const proveedor: Proveedor = {
+  ruc: "20100066603",
+  razonSocial: "Softgreen S.A.C.",
+};
+
+const cliente: Cliente = {
+  nombre: "Carlos",
+  numeroDocumentoIdentidad: "12121212121",
+  tipoDocumentoIdentidad: "6",
+};
+
+const detalle: DocumentoVentaDetalle = {
+  descripcion: "Item",
+  cantidad: 10,
+  precio: 100,
+};
+
+const invoice: Invoice = {
+  serie: "F001",
+  numero: 1,
+  proveedor,
+  cliente,
+  detalles: [detalle],
+};
+
+const { data, error } = await client.POST("/api/v1/invoice/create", {
+  body: invoice,
+});
+
+if (error) {
+  throw new Error(JSON.stringify(error));
+}
+
+console.log(data.xml); // XML UBL 2.1 generado
+```
+
+El método `POST` infiere automáticamente el tipo del cuerpo a partir de la ruta. Si omites un campo obligatorio, TypeScript reportará el error en tiempo de compilación.

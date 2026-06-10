@@ -1,0 +1,83 @@
+---
+title: Comunicación de Baja
+description: Guía para generar Comunicaciones de Baja (RA) de comprobantes con openUBL.
+---
+
+La **Comunicación de Baja** (tipo RA) informa a SUNAT la anulación de facturas o boletas antes de que sean declaradas. Solo aplica para comprobantes que aún no han sido comunicados en un resumen diario.
+
+## Campos requeridos
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `numero` | `integer` | Correlativo del documento de baja (ej: `1` para `RA-20250610-001`) |
+| `fechaEmisionComprobantes` | `date` | Fecha de emisión de los comprobantes que se dan de baja |
+| `proveedor` | `Proveedor` | Datos del emisor |
+| `comprobantes` | `VoidedDocumentsItem[]` | Lista de comprobantes a dar de baja |
+
+## Ítem de baja
+
+Cada elemento de `comprobantes` contiene:
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `serie` | `string` | Serie del comprobante |
+| `numero` | `integer` | Número del comprobante |
+| `tipoComprobante` | `string` | Catálogo N.° 01: `01` Factura, `03` Boleta |
+| `descripcionSustento` | `string` | Motivo de la baja |
+
+## Ejemplo en Python
+
+```python
+from openubl.models import (
+    VoidedDocuments, VoidedDocumentsItem,
+    Proveedor,
+)
+from datetime import date
+
+voided = VoidedDocuments(
+    numero=1,
+    fechaEmisionComprobantes=date(2025, 6, 10),
+    proveedor=Proveedor(
+        ruc="20100100100",
+        razonSocial="Mi Empresa S.A.C.",
+    ),
+    comprobantes=[
+        VoidedDocumentsItem(
+            serie="F001",
+            numero=45,
+            tipoComprobante="01",
+            descripcionSustento="Error en datos del cliente",
+        ),
+    ],
+)
+
+xml = voided.render()
+```
+
+## Endpoint
+
+```bash
+POST /api/v1/voided-documents/create
+```
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/voided-documents/create" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "numero": 1,
+    "fechaEmisionComprobantes": "2025-06-10",
+    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },
+    "comprobantes": [{
+      "serie": "F001",
+      "numero": 45,
+      "tipoComprobante": "01",
+      "descripcionSustento": "Error en datos del cliente"
+    }]
+  }'
+```
+
+## Reglas SUNAT
+
+- Se debe enviar dentro de los 7 días calendario siguientes a la fecha de emisión del comprobante.
+- No se puede dar de baja un comprobante ya incluido en un Resumen Diario aceptado.
+- El identificador es `RA-YYYYMMDD-NNNN`.

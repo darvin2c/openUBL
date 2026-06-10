@@ -1,0 +1,124 @@
+---
+title: Comprobante de Percepción
+description: Guía para generar Comprobantes de Percepción (40) con openUBL.
+---
+
+El **Comprobante de Percepción Electrónico** (tipo 40) registra la percepción de IGV aplicada a ventas internas o adquisición de combustible. Es un documento adicional a la factura.
+
+## Campos requeridos
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `serie` | `string` | Serie: `P001`, `P002`, etc. (formato `P###`) |
+| `numero` | `integer` | Correlativo |
+| `fechaEmision` | `date` | Fecha de emisión (`YYYY-MM-DD`) |
+| `proveedor` | `Proveedor` | Datos del agente de percepción (emisor) |
+| `cliente` | `Cliente` | Datos del perceptor (adquirente) |
+| `importeTotalPercibido` | `Decimal` | Total percibido |
+| `importeTotalCobrado` | `Decimal` | Total cobrado (incluye percepción) |
+| `tipoRegimen` | `string` | Catálogo N.° 22: `01`, `02`, `03` |
+| `tipoRegimenPorcentaje` | `Decimal` | Porcentaje del régimen |
+| `operaciones` | `PercepcionRetencionOperacion[]` | Operaciones percibidas |
+
+## Operación de percepción
+
+Cada elemento de `operaciones` contiene:
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `numeroOperacion` | `int` | Número de operación |
+| `fechaOperacion` | `date` | Fecha de la operación |
+| `importeOperacion` | `Decimal` | Importe percibido en esta operación |
+| `comprobante.tipoComprobante` | `string` | Tipo del comprobante afectado |
+| `comprobante.serieNumero` | `string` | Serie-numero del comprobante |
+| `comprobante.fechaEmision` | `date` | Fecha del comprobante |
+| `comprobante.importeTotal` | `Decimal` | Importe total del comprobante |
+| `comprobante.moneda` | `string` | Moneda del comprobante |
+
+## Ejemplo en Python
+
+```python
+from openubl.models import (
+    Perception, PercepcionRetencionOperacion,
+    ComprobanteAfectado, Proveedor, Cliente,
+)
+from decimal import Decimal
+from datetime import date
+
+perception = Perception(
+    serie="P001",
+    numero=1,
+    fechaEmision=date(2025, 6, 10),
+    proveedor=Proveedor(
+        ruc="20100100100",
+        razonSocial="Mi Empresa S.A.C.",
+    ),
+    cliente=Cliente(
+        nombre="Juan Pérez",
+        numeroDocumentoIdentidad="46779327",
+        tipoDocumentoIdentidad="1",
+    ),
+    importeTotalPercibido=Decimal("53.10"),
+    importeTotalCobrado=Decimal("353.10"),
+    tipoRegimen="01",  # Venta interna
+    tipoRegimenPorcentaje=Decimal("0.02"),
+    operaciones=[
+        PercepcionRetencionOperacion(
+            numeroOperacion=1,
+            fechaOperacion=date(2025, 6, 10),
+            importeOperacion=Decimal("53.10"),
+            comprobante=ComprobanteAfectado(
+                tipoComprobante="01",
+                serieNumero="F001-45",
+                fechaEmision=date(2025, 6, 10),
+                importeTotal=Decimal("300.00"),
+                moneda="PEN",
+            ),
+        ),
+    ],
+)
+
+xml = perception.render()
+```
+
+## Endpoint
+
+```bash
+POST /api/v1/perception/create
+```
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/perception/create" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "serie": "P001",
+    "numero": 1,
+    "fechaEmision": "2025-06-10",
+    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },
+    "cliente": { "nombre": "Juan Pérez", "numeroDocumentoIdentidad": "46779327", "tipoDocumentoIdentidad": "1" },
+    "importeTotalPercibido": "53.10",
+    "importeTotalCobrado": "353.10",
+    "tipoRegimen": "01",
+    "tipoRegimenPorcentaje": "0.02",
+    "operaciones": [{
+      "numeroOperacion": 1,
+      "fechaOperacion": "2025-06-10",
+      "importeOperacion": "53.10",
+      "comprobante": {
+        "tipoComprobante": "01",
+        "serieNumero": "F001-45",
+        "fechaEmision": "2025-06-10",
+        "importeTotal": "300.00",
+        "moneda": "PEN"
+      }
+    }]
+  }'
+```
+
+## Regímenes de percepción (Catálogo N.° 22)
+
+| Código | Descripción | Tasa típica |
+|--------|-------------|-------------|
+| `01` | Venta interna | 2% |
+| `02` | Adquisición de combustible | 1% |
+| `03` | Tasa 3% | 3% |

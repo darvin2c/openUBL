@@ -1,0 +1,118 @@
+---
+title: Ejemplo en Python
+description: Crea una factura, obtén el XML y fírmalo usando Python con httpx o requests.
+---
+
+El siguiente ejemplo usa `httpx`, pero puedes reemplazarlo por `requests` simplemente cambiando `httpx.Client` por `requests.Session`.
+
+## Crear y firmar una factura
+
+```python
+import os
+import httpx
+
+BASE_URL = "http://localhost:8000"
+
+invoice = {
+    "serie": "F001",
+    "numero": 1,
+    "proveedor": {
+        "ruc": "20100111111",
+        "razonSocial": "Mi Empresa S.A.C.",
+    },
+    "cliente": {
+        "nombre": "Juan Perez",
+        "numeroDocumentoIdentidad": "12345678",
+        "tipoDocumentoIdentidad": "1",
+    },
+    "detalles": [
+        {"descripcion": "Producto A", "cantidad": 2, "precio": 100.00}
+    ],
+    "moneda": "PEN",
+}
+
+
+def main():
+    with httpx.Client(base_url=BASE_URL) as client:
+        # 1. Crear la factura
+        r = client.post("/api/v1/invoice/create", json=invoice)
+        r.raise_for_status()
+        xml = r.json()["xml"]
+        print("XML generado:\n", xml)
+
+        # 2. Firmar el XML
+        cert_pem = os.getenv("CERT_PEM", "")
+        key_pem = os.getenv("KEY_PEM", "")
+
+        r2 = client.post(
+            "/api/v1/sign",
+            json={
+                "xml": xml,
+                "cert_pem": cert_pem,
+                "key_pem": key_pem,
+                "signature_id": "SignSUNAT",
+            },
+        )
+        r2.raise_for_status()
+        signed_xml = r2.json()["signed_xml"]
+        print("XML firmado:\n", signed_xml)
+
+
+if __name__ == "__main__":
+    main()
+```
+
+## Usar `requests`
+
+```python
+import requests
+
+with requests.Session() as s:
+    r = s.post(f"{BASE_URL}/api/v1/invoice/create", json=invoice)
+    r.raise_for_status()
+    xml = r.json()["xml"]
+    print(xml)
+```
+
+## Nota de crédito
+
+```python
+credit_note = {
+    "serie": "BC01",
+    "numero": 1,
+    "comprobanteAfectadoSerieNumero": "F001-1",
+    "sustentoDescripcion": "Anulación de venta",
+    "proveedor": invoice["proveedor"],
+    "cliente": invoice["cliente"],
+    "detalles": invoice["detalles"],
+    "moneda": "PEN",
+}
+
+with httpx.Client(base_url=BASE_URL) as client:
+    r = client.post("/api/v1/credit-note/create", json=credit_note)
+    r.raise_for_status()
+    print(r.json()["xml"])
+```
+
+## Comunicación de baja
+
+```python
+voided = {
+    "numero": 1,
+    "fechaEmisionComprobantes": "2024-01-15",
+    "proveedor": invoice["proveedor"],
+    "comprobantes": [
+        {
+            "serie": "F001",
+            "numero": 1,
+            "tipoComprobante": "01",
+            "descripcionSustento": "Error en datos del cliente",
+        }
+    ],
+}
+
+with httpx.Client(base_url=BASE_URL) as client:
+    r = client.post("/api/v1/voided-documents/create", json=voided)
+    r.raise_for_status()
+    print(r.json()["xml"])
+```

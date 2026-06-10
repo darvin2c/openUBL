@@ -1,0 +1,93 @@
+---
+title: Python SDK
+description: Generación y uso del SDK de Python para openUBL con openapi-generator-cli o la biblioteca nativa.
+---
+
+openUBL ofrece dos alternativas para trabajar con Python: utilizar la biblioteca nativa del proyecto o generar un cliente tipado a partir de `openapi.json`.
+
+## Opción A: biblioteca nativa
+
+Si trabajas directamente con el código fuente de openUBL, puedes importar los modelos Pydantic definidos en `src/openubl/models`:
+
+```python
+from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
+
+invoice = Invoice(
+    serie="F001",
+    numero=1,
+    proveedor=Proveedor(
+        ruc="20100066603",
+        razonSocial="Softgreen S.A.C.",
+    ),
+    cliente=Cliente(
+        nombre="Carlos",
+        numeroDocumentoIdentidad="12121212121",
+        tipoDocumentoIdentidad="6",
+    ),
+    detalles=[
+        DocumentoVentaDetalle(
+            descripcion="Item",
+            cantidad=10,
+            precio=100,
+        )
+    ],
+)
+
+xml_output = invoice.to_xml()
+print(xml_output)
+```
+
+## Opción B: generar un cliente con openapi-generator-cli
+
+Si prefieres un cliente HTTP independiente con modelos generados:
+
+```bash
+npx @openapitools/openapi-generator-cli generate \
+  -i openapi.json \
+  -g python \
+  -o sdk/python
+```
+
+### Uso del cliente generado
+
+```python
+from openubl_client.api.invoice_api import InvoiceApi
+from openubl_client.models.invoice import Invoice
+from openubl_client.models.proveedor import Proveedor
+from openubl_client.models.cliente import Cliente
+from openubl_client.models.documento_venta_detalle import DocumentoVentaDetalle
+from openubl_client.api_client import ApiClient
+from openubl_client.configuration import Configuration
+
+config = Configuration(host="http://localhost:8000")
+client = ApiClient(configuration=config)
+api = InvoiceApi(client)
+
+invoice = Invoice(
+    serie="F001",
+    numero=1,
+    proveedor=Proveedor(
+        ruc="20100066603",
+        razon_social="Softgreen S.A.C.",
+    ),
+    cliente=Cliente(
+        nombre="Carlos",
+        numero_documento_identidad="12121212121",
+        tipo_documento_identidad="6",
+    ),
+    detalles=[
+        DocumentoVentaDetalle(
+            descripcion="Item",
+            cantidad=10,
+            precio=100,
+        )
+    ],
+)
+
+response = api.api_v1_invoice_create_post(invoice=invoice)
+print(response.xml)
+```
+
+:::note
+Los nombres de clases y métodos del cliente generado siguen las convenciones de `openapi-generator` para Python (snake_case). Revisa `sdk/python/openubl_client/` para confirmar los identificadores exactos.
+:::
