@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Retention xmlns="urn:sunat:names:specification:ubl:peru:schema:xsd:Retention-1"
+           xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+           xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
+           xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2"
+           xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+           xmlns:sac="urn:sunat:names:specification:ubl:peru:schema:xsd:SunatAggregateComponents-1">
+  <ext:UBLExtensions>
+    <ext:UBLExtension>
+      <ext:ExtensionContent>
+      </ext:ExtensionContent>
+    </ext:UBLExtension>
+  </ext:UBLExtensions>
+  <cbc:UBLVersionID>2.0</cbc:UBLVersionID>
+  <cbc:CustomizationID>1.0</cbc:CustomizationID>
+  <cbc:ID>{{ doc.serie }}-{{ doc.numero }}</cbc:ID>
+  <cbc:IssueDate>{{ doc.fechaEmision }}</cbc:IssueDate>
+  <cbc:IssueTime>00:00:00</cbc:IssueTime>
+  <cbc:Note>Regimen de Retencion - {{ doc.tipoRegimen }}</cbc:Note>
+  <cac:Signature>
+    <cbc:ID>SignSUNAT</cbc:ID>
+    <cac:SignatoryParty>
+      <cac:PartyIdentification>
+        <cbc:ID schemeID="6">{{ doc.proveedor.ruc }}</cbc:ID>
+      </cac:PartyIdentification>
+      <cac:PartyName>
+        <cbc:Name>{{ doc.proveedor.razonSocial }}</cbc:Name>
+      </cac:PartyName>
+    </cac:SignatoryParty>
+    <cac:DigitalSignatureAttachment>
+      <cac:ExternalReference>
+        <cbc:URI>#SignatureSP</cbc:URI>
+      </cac:ExternalReference>
+    </cac:DigitalSignatureAttachment>
+  </cac:Signature>
+  <cac:AgentParty>
+    <cac:PartyIdentification>
+      <cbc:ID schemeID="6">{{ doc.proveedor.ruc }}</cbc:ID>
+    </cac:PartyIdentification>
+    <cac:PartyLegalEntity>
+      <cbc:RegistrationName>{{ doc.proveedor.razonSocial }}</cbc:RegistrationName>
+    </cac:PartyLegalEntity>
+  </cac:AgentParty>
+  <cac:ReceiverParty>
+    <cac:PartyIdentification>
+      <cbc:ID schemeID="{{ doc.cliente.tipoDocumentoIdentidad }}">{{ doc.cliente.numeroDocumentoIdentidad }}</cbc:ID>
+    </cac:PartyIdentification>
+    <cac:PartyLegalEntity>
+      <cbc:RegistrationName>{{ doc.cliente.nombre }}</cbc:RegistrationName>
+    </cac:PartyLegalEntity>
+  </cac:ReceiverParty>
+  <sac:SUNATRetentionSystemCode>{{ doc.tipoRegimen }}</sac:SUNATRetentionSystemCode>
+  <sac:SUNATRetentionPercent>{{ doc.tipoRegimenPorcentaje | round(5) }}</sac:SUNATRetentionPercent>
+  <cbc:TotalInvoiceAmount currencyID="PEN">{{ doc.importeTotalRetenido | round(2) }}</cbc:TotalInvoiceAmount>
+  <sac:SUNATTotalPaid currencyID="PEN">{{ doc.importeTotalPagado | round(2) }}</sac:SUNATTotalPaid>
+{% for op in doc.operaciones %}
+  <sac:SUNATRetentionDocumentReference>
+    <cbc:ID schemeID="{{ op.comprobante.tipoComprobante }}">{{ op.comprobante.serieNumero }}</cbc:ID>
+    <cbc:IssueDate>{{ op.comprobante.fechaEmision }}</cbc:IssueDate>
+    <cbc:TotalInvoiceAmount currencyID="{{ op.comprobante.moneda }}">{{ op.comprobante.importeTotal | round(2) }}</cbc:TotalInvoiceAmount>
+    <sac:SUNATRetentionInformation>
+      <sac:SUNATRetentionAmount currencyID="PEN">{{ op.importeOperacion | round(2) }}</sac:SUNATRetentionAmount>
+      <sac:SUNATNetTotalPaid currencyID="PEN">{{ (op.comprobante.importeTotal - op.importeOperacion) | round(2) }}</sac:SUNATNetTotalPaid>
+      <cbc:PaymentMeansCode>{{ op.numeroOperacion }}</cbc:PaymentMeansCode>
+    </sac:SUNATRetentionInformation>
+  </sac:SUNATRetentionDocumentReference>
+{% endfor %}
+</Retention>

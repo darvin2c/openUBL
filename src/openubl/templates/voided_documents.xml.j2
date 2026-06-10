@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VoidedDocuments xmlns="urn:sunat:names:specification:ubl:peru:schema:xsd:VoidedDocuments-1"
+                 xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+                 xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
+                 xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2"
+                 xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+  <ext:UBLExtensions>
+    <ext:UBLExtension>
+      <ext:ExtensionContent>
+      </ext:ExtensionContent>
+    </ext:UBLExtension>
+  </ext:UBLExtensions>
+  <cbc:UBLVersionID>2.0</cbc:UBLVersionID>
+  <cbc:CustomizationID>1.0</cbc:CustomizationID>
+  <cbc:ID>RA-{{ doc.fechaEmision.strftime('%Y%m%d') }}-{{ doc.numero }}</cbc:ID>
+  <cbc:ReferenceDate>{{ doc.fechaEmisionComprobantes }}</cbc:ReferenceDate>
+  <cbc:IssueDate>{{ doc.fechaEmision }}</cbc:IssueDate>
+  <cac:Signature>
+    <cbc:ID>SignSUNAT</cbc:ID>
+    <cac:SignatoryParty>
+      <cac:PartyIdentification>
+        <cbc:ID schemeID="6">{{ doc.proveedor.ruc }}</cbc:ID>
+      </cac:PartyIdentification>
+      <cac:PartyName>
+        <cbc:Name>{{ doc.proveedor.razonSocial }}</cbc:Name>
+      </cac:PartyName>
+    </cac:SignatoryParty>
+    <cac:DigitalSignatureAttachment>
+      <cac:ExternalReference>
+        <cbc:URI>#SignatureSP</cbc:URI>
+      </cac:ExternalReference>
+    </cac:DigitalSignatureAttachment>
+  </cac:Signature>
+  <cac:AccountingSupplierParty>
+    <cac:Party>
+      <cac:PartyIdentification>
+        <cbc:ID schemeID="6">{{ doc.proveedor.ruc }}</cbc:ID>
+      </cac:PartyIdentification>
+      <cac:PartyLegalEntity>
+        <cbc:RegistrationName>{{ doc.proveedor.razonSocial }}</cbc:RegistrationName>
+      </cac:PartyLegalEntity>
+    </cac:Party>
+  </cac:AccountingSupplierParty>
+{% for item in doc.comprobantes %}
+  <cac:VoidedDocumentsLine>
+    <cbc:LineID>{{ loop.index }}</cbc:LineID>
+    <cbc:DocumentTypeCode>{{ item.tipoComprobante }}</cbc:DocumentTypeCode>
+    <cbc:DocumentSerialID>{{ item.serie }}</cbc:DocumentSerialID>
+    <cbc:DocumentNumberID>{{ item.numero }}</cbc:DocumentNumberID>
+    <cbc:VoidReasonDescription>{{ item.descripcionSustento }}</cbc:VoidReasonDescription>
+  </cac:VoidedDocumentsLine>
+{% endfor %}
+</VoidedDocuments>

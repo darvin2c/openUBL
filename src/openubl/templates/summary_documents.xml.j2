@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SummaryDocuments xmlns="urn:sunat:names:specification:ubl:peru:schema:xsd:SummaryDocuments-1"
+                  xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+                  xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
+                  xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2"
+                  xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+  <ext:UBLExtensions>
+    <ext:UBLExtension>
+      <ext:ExtensionContent>
+      </ext:ExtensionContent>
+    </ext:UBLExtension>
+  </ext:UBLExtensions>
+  <cbc:UBLVersionID>2.0</cbc:UBLVersionID>
+  <cbc:CustomizationID>1.0</cbc:CustomizationID>
+  <cbc:ID>RC-{{ doc.fechaEmisionComprobantes.strftime('%Y%m%d') }}-{{ doc.numero }}</cbc:ID>
+  <cbc:ReferenceDate>{{ doc.fechaEmisionComprobantes }}</cbc:ReferenceDate>
+  <cbc:IssueDate>{{ doc.fechaEmisionComprobantes }}</cbc:IssueDate>
+  <cac:Signature>
+    <cbc:ID>SignSUNAT</cbc:ID>
+    <cac:SignatoryParty>
+      <cac:PartyIdentification>
+        <cbc:ID schemeID="6">{{ doc.proveedor.ruc }}</cbc:ID>
+      </cac:PartyIdentification>
+      <cac:PartyName>
+        <cbc:Name>{{ doc.proveedor.razonSocial }}</cbc:Name>
+      </cac:PartyName>
+    </cac:SignatoryParty>
+    <cac:DigitalSignatureAttachment>
+      <cac:ExternalReference>
+        <cbc:URI>#SignatureSP</cbc:URI>
+      </cac:ExternalReference>
+    </cac:DigitalSignatureAttachment>
+  </cac:Signature>
+  <cac:AccountingSupplierParty>
+    <cac:Party>
+      <cac:PartyIdentification>
+        <cbc:ID schemeID="6">{{ doc.proveedor.ruc }}</cbc:ID>
+      </cac:PartyIdentification>
+      <cac:PartyLegalEntity>
+        <cbc:RegistrationName>{{ doc.proveedor.razonSocial }}</cbc:RegistrationName>
+      </cac:PartyLegalEntity>
+    </cac:Party>
+  </cac:AccountingSupplierParty>
+{% for item in doc.comprobantes %}
+  <cac:SummaryDocumentsLine>
+    <cbc:LineID>{{ loop.index }}</cbc:LineID>
+    <cbc:DocumentTypeCode>{{ item.comprobante.tipoComprobante }}</cbc:DocumentTypeCode>
+    <cbc:ID>{{ item.comprobante.serieNumero }}</cbc:ID>
+    <cac:AccountingCustomerParty>
+      <cac:Party>
+        <cac:PartyIdentification>
+          <cbc:ID schemeID="{{ item.comprobante.cliente.tipoDocumentoIdentidad }}">{{ item.comprobante.cliente.numeroDocumentoIdentidad }}</cbc:ID>
+        </cac:PartyIdentification>
+        <cac:PartyLegalEntity>
+          <cbc:RegistrationName>{{ item.comprobante.cliente.nombre }}</cbc:RegistrationName>
+        </cac:PartyLegalEntity>
+      </cac:Party>
+    </cac:AccountingCustomerParty>
+    <cac:Status>
+      <cbc:ConditionCode>{{ item.tipoOperacion }}</cbc:ConditionCode>
+    </cac:Status>
+    <cac:TotalAmount currencyID="PEN">{{ item.comprobante.valorVenta.importeTotal | round(2) }}</cac:TotalAmount>
+    <cac:BillingPayment>
+      <cbc:PaidAmount currencyID="PEN">{{ item.comprobante.valorVenta.gravado | round(2) }}</cbc:PaidAmount>
+      <cbc:InstructionID>01</cbc:InstructionID>
+    </cac:BillingPayment>
+    <cac:TaxTotal>
+      <cbc:TaxAmount currencyID="PEN">{{ item.comprobante.impuestos.igv | round(2) }}</cbc:TaxAmount>
+      <cac:TaxSubtotal>
+        <cbc:TaxAmount currencyID="PEN">{{ item.comprobante.impuestos.igv | round(2) }}</cbc:TaxAmount>
+        <cac:TaxCategory>
+          <cac:TaxScheme>
+            <cbc:ID>1000</cbc:ID>
+            <cbc:Name>IGV</cbc:Name>
+            <cbc:TaxTypeCode>VAT</cbc:TaxTypeCode>
+          </cac:TaxScheme>
+        </cac:TaxCategory>
+      </cac:TaxSubtotal>
+    </cac:TaxTotal>
+  </cac:SummaryDocumentsLine>
+{% endfor %}
+</SummaryDocuments>
