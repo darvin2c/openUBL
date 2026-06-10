@@ -2,7 +2,7 @@
 
 Peruvian SUNAT Electronic Documents Library — generate, sign, and validate UBL 2.1 XML for invoices, credit notes, debit notes, voided documents, summary documents, perceptions, and retentions.
 
-## API Docs
+## Levantar openUBL
 
 Start the development server and open Swagger UI:
 
@@ -14,27 +14,8 @@ Navigate to [http://localhost:8000/docs](http://localhost:8000/docs) for interac
 
 ## Documentacion
 
-La documentacion completa esta construida con Astro Starlight:
-
-```bash
-# Modo desarrollo
-npm run docs:dev
-
-# Build estatico
-npm run docs:build
-
-# Preview del build
-npm run docs:preview
-```
-
-La documentacion incluye:
- Guia de inicio rapido
- Referencia de todos los documentos soportados
- SDKs en TypeScript, Java, Go, Python y C#
- Ejemplos con cURL, TypeScript y Python
- Referencia completa de la API REST
-
-El sitio de documentacion se sirve estaticamente desde `docs/dist/`.
+La documentacion completa esta disponible en:
+[https://openubl.github.io/openubl](https://openubl.github.io/openubl)
 
 ## SDK Generation
 
