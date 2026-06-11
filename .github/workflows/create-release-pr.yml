@@ -1,13 +1,12 @@
 name: Create Release PR
 
 on:
-  pull_request:
-    types: [closed]
+  push:
     branches: [main]
 
 jobs:
   create-release-pr:
-    if: github.event.pull_request.mergedAt != null && contains(join(github.event.pull_request.labels.*.name, ','), 'release:')
+    if: ${{ !startsWith(github.event.head_commit.message, 'release:') }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -18,10 +17,20 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Determine bump type
-        id: bump
+      - name: Find merged PR with release label
+        id: check
         run: |
-          LABELS='${{ toJson(github.event.pull_request.labels.*.name) }}'
+          PR_NUMBER=$(gh pr list --search "${{ github.sha }}" --state merged --json number --jq '.[0].number' --limit 1)
+          if [ -z "$PR_NUMBER" ] || [ "$PR_NUMBER" = "null" ]; then
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          LABELS=$(gh pr view "$PR_NUMBER" --json labels --jq '.labels[].name')
+          if ! echo "$LABELS" | grep -q "release:"; then
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "found=true" >> "$GITHUB_OUTPUT"
           if echo "$LABELS" | grep -q "release:major"; then
             echo "type=major" >> "$GITHUB_OUTPUT"
           elif echo "$LABELS" | grep -q "release:minor"; then
@@ -29,6 +38,12 @@ jobs:
           else
             echo "type=patch" >> "$GITHUB_OUTPUT"
           fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Exit if not a release PR
+        if: steps.check.outputs.found != 'true'
+        run: exit 0
 
       - name: Calculate new version
         id: version
@@ -36,7 +51,7 @@ jobs:
           LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
           LAST_VERSION=${LAST_TAG#v}
           IFS='.' read -r MAJOR MINOR PATCH <<< "$LAST_VERSION"
-          TYPE="${{ steps.bump.outputs.type }}"
+          TYPE="${{ steps.check.outputs.type }}"
           if [ "$TYPE" = "major" ]; then
             NEW_VERSION="$((MAJOR + 1)).0.0"
           elif [ "$TYPE" = "minor" ]; then
