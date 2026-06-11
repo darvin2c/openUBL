@@ -3,7 +3,7 @@ title: Tu primer documento
 description: Crea tu primera factura electrónica con openUBL paso a paso.
 ---
 
-Este ejemplo crea una factura electrónica (`Invoice`) y la renderiza a XML UBL 2.1.
+Este ejemplo crea una factura electrónica (`Invoice`), enriquece sus campos calculados, la renderiza a XML UBL 2.1, la firma digitalmente y la valida contra las reglas de SUNAT.
 
 ## Paso 1: Importar el modelo
 
@@ -13,6 +13,8 @@ from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
 
 ## Paso 2: Crear la factura
 
+Define solo los datos de negocio. openUBL calculará los totales, impuestos y precios de venta automáticamente en el siguiente paso.
+
 ```python
 invoice = Invoice(
     serie="F001",
@@ -21,43 +23,123 @@ invoice = Invoice(
         ruc="12345678901",
         razonSocial="Mi Empresa S.A.C.",
         nombreComercial="Mi Empresa",
-        address={"ubigeo": "150101", "departamento": "Lima", "provincia": "Lima", "distrito": "Lima", "direccion": "Av. Ejemplo 123"}
+        address={
+            "ubigeo": "150101",
+            "departamento": "Lima",
+            "provincia": "Lima",
+            "distrito": "Lima",
+            "direccion": "Av. Ejemplo 123",
+        },
     ),
     cliente=Cliente(
         tipoDocumentoIdentidad="6",
         numeroDocumentoIdentidad="98765432101",
         nombre="Cliente Ejemplo S.A.C.",
-        address={"ubigeo": "150101", "departamento": "Lima", "provincia": "Lima", "distrito": "Lima", "direccion": "Calle Ficticia 456"}
+        address={
+            "ubigeo": "150101",
+            "departamento": "Lima",
+            "provincia": "Lima",
+            "distrito": "Lima",
+            "direccion": "Calle Ficticia 456",
+        },
     ),
     detalles=[
         DocumentoVentaDetalle(
             cantidad=2,
             descripcion="Producto de ejemplo",
             precio=50.00,
-            precioVenta=100.00,
-            unidadMedida="NIU"
+            unidadMedida="NIU",
         )
     ],
-    valorVentaTotal=100.00,
-    igvTotal=18.00,
-    moneda="PEN"
+    moneda="PEN",
 )
 ```
 
-## Paso 3: Renderizar a XML
+## Paso 3: Enriquecimiento automático con ContentEnricher
+
+`ContentEnricher` calcula los campos faltantes de cada línea y los totales del documento:
+
+- `fechaEmision` → fecha actual (si no se proporcionó)
+- `valorVenta` = cantidad × precio
+- `igv` = valorVenta × tasa IGV (solo para afectación gravada)
+- `precioVenta` = valorVenta + igv
+- `valorVentaTotal`, `igvTotal`, `importeTotal`
+
+```python
+from openubl.enricher import ContentEnricher
+
+enricher = ContentEnricher()
+enricher.enrich(invoice)
+
+assert invoice.valorVentaTotal == 100.00
+assert invoice.igvTotal == 18.00
+assert invoice.importeTotal == 118.00
+```
+
+:::tip[Tasas personalizadas]
+Puedes pasar un objeto `Defaults` para usar una tasa de IGV o ICBPER diferente:
+
+```python
+from openubl.enricher import ContentEnricher
+from openubl.models.defaults import Defaults
+
+enricher = ContentEnricher(defaults=Defaults(igvTasa=0.18, icbTasa=0.20))
+```
+:::
+
+## Paso 4: Renderizar a XML
 
 ```python
 xml = invoice.to_xml()
 print(xml)
 ```
 
-## Paso 4: Validar
+El XML generado es válido UBL 2.1 y está listo para firmar y enviar a SUNAT.
+
+## Paso 5: Firma digital
+
+SUNAT exige que el XML esté firmado digitalmente con un certificado X.509 válido. openUBL usa RSA-SHA1, digestión SHA1 y canonicalización C14N, colocando la firma dentro de `UBLExtension/ExtensionContent`.
+
+Necesitas el certificado y la clave privada en formato PEM. Si tienes un archivo `.pfx`, conviértelo primero:
 
 ```python
-from openubl.validator import validate_invoice
+from openubl.signer import load_pfx, sign_ubl_xml
 
-result = validate_invoice(xml)
-assert result.valid
+with open("certificado.pfx", "rb") as f:
+    key_pem, cert_pem = load_pfx(f.read(), password="mi-password")
+
+signed_xml = sign_ubl_xml(xml, cert_pem=cert_pem, key_pem=key_pem)
+print(signed_xml)
 ```
 
-El XML generado es válido UBL 2.1 y listo para firmar y enviar a SUNAT.
+:::note
+En producción utiliza un certificado emitido por una autoridad certificadora reconocida por SUNAT.
+:::
+
+## Paso 6: Validación explícita con SunatValidator
+
+Antes de enviar el documento a SUNAT, valida que cumpla las reglas de negocio documentadas:
+
+```python
+from openubl.validator import SunatValidator
+
+validator = SunatValidator()
+errors = validator.validate_invoice(xml)
+
+assert len(errors) == 0, f"Errores de validación: {errors}"
+```
+
+Si la lista de errores está vacía, el documento superó las validaciones de SUNAT y puede enviarse a través de los servicios web de la entidad.
+
+## Conclusión
+
+Con estos seis pasos has creado, enriquecido, renderizado, firmado y validado una factura electrónica UBL 2.1 lista para SUNAT:
+
+1. **Importar** los modelos.
+2. **Crear** la factura con datos de negocio.
+3. **Enriquecer** automáticamente totales e impuestos.
+4. **Renderizar** a XML UBL 2.1.
+5. **Firmar** digitalmente el XML.
+6. **Validar** contra las reglas de SUNAT.
+
+El siguiente paso es empaquetar el XML en un ZIP con la convención de nombres de SUNAT y enviarlo a la plataforma de facturación electrónica.

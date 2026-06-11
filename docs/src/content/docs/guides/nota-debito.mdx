@@ -3,34 +3,71 @@ title: Nota de Débito
 description: Guía para generar Notas de Débito Electrónicas (08) con openUBL.
 ---
 
-La **Nota de Débito Electrónica** (tipo 08) aumenta el valor de una factura o boleta previamente emitida. Se emite por intereses, recargos o ajustes que incrementan el monto original.
+La **Nota de Débito Electrónica** (tipo `08`) aumenta el valor de una factura o boleta previamente emitida. Se emite por intereses, recargos o ajustes que incrementan el monto original.
 
 ## Campos requeridos
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `serie` | `string` | Serie: `BC01` para boleta, `FC01` para factura |
-| `numero` | `integer` | Correlativo |
-| `comprobanteAfectadoSerieNumero` | `string` | Serie-numero del comprobante afectado (ej: `F001-123`) |
-| `sustentoDescripcion` | `string` | Motivo de la nota de débito |
-| `proveedor` | `Proveedor` | Datos del emisor |
-| `cliente` | `Cliente` | Datos del adquirente |
-| `detalles` | `DocumentoVentaDetalle[]` | Líneas de ajuste |
+| Campo | Tipo | Descripción | Validación |
+|-------|------|-------------|------------|
+| `serie` | `string` | Serie de la nota | Patrón `^[BCbc][A-Za-z0-9]{2,3}$`. Ej: `FC01` para factura, `BC01` para boleta. |
+| `numero` | `integer` | Correlativo | Mayor a 0. |
+| `comprobanteAfectadoSerieNumero` | `string` | Serie-número del comprobante afectado | Ej: `F001-123`. |
+| `sustentoDescripcion` | `string` | Motivo de la nota de débito | Texto libre. |
+| `proveedor` | `Proveedor` | Datos del emisor | `ruc` de 11 dígitos y `razonSocial` obligatorios. |
+| `cliente` | `Cliente` | Datos del adquirente | `nombre`, `numeroDocumentoIdentidad` y `tipoDocumentoIdentidad` (Catálogo N.° 06). |
+| `detalles` | `DocumentoVentaDetalle[]` | Líneas de ajuste | Al menos una línea. |
 
 ## Campos opcionales
 
-| Campo | Default | Descripción |
-|-------|---------|-------------|
-| `moneda` | `PEN` | Moneda del comprobante |
-| `fechaEmision` | hoy | Fecha de emisión |
-| `igvTotal` | auto | IGV total |
-| `valorVentaTotal` | auto | Valor de venta |
-| `importeTotal` | auto | Importe total |
+| Campo | Tipo | Default | Descripción |
+|-------|------|---------|-------------|
+| `moneda` | `string` | `PEN` | Moneda del comprobante (Catálogo N.° 02). |
+| `fechaEmision` | `date` | hoy | Fecha de emisión (`YYYY-MM-DD`). |
+| `igvTotal` | `Decimal` | auto | Suma de IGV de las líneas. |
+| `valorVentaTotal` | `Decimal` | auto | Suma de valores de venta. |
+| `importeTotal` | `Decimal` | auto | `valorVentaTotal + igvTotal`. |
 
-## Ejemplo en Python
+## Línea de detalle (`DocumentoVentaDetalle`)
+
+| Campo | Tipo | Requerido | Default | Descripción |
+|-------|------|-----------|---------|-------------|
+| `descripcion` | `string` | Sí | — | Descripción del bien o servicio. |
+| `cantidad` | `Decimal` | Sí | — | Cantidad. |
+| `precio` | `Decimal` | Sí | — | Valor unitario (sin IGV). |
+| `unidadMedida` | `string` | No | `NIU` | Unidad de medida (Catálogo N.° 03). |
+| `tipoAfectacionIGV` | `string` | No | `10` | Tipo de afectación del IGV (Catálogo N.° 07). |
+| `igv` | `Decimal` | No | auto | IGV de la línea. |
+| `valorVenta` | `Decimal` | No | auto | `cantidad × precio`. |
+| `precioVenta` | `Decimal` | No | auto | `valorVenta + igv`. |
+
+## Reglas SUNAT aplicables
+
+| Código / Regla | Descripción |
+|----------------|-------------|
+| `2074` | `UBLVersionID` debe ser `2.1`. |
+| `2072` | `CustomizationID` debe ser `2.0`. |
+| `1001` | El ID del comprobante debe tener formato `serie-número`. |
+| `2070` | `DocumentCurrencyCode` es obligatorio. |
+| `1007` | `schemeID` del emisor debe ser `6` (RUC). |
+| `1008` | RUC del emisor debe tener 11 dígitos. |
+| `1037` | `RegistrationName` del emisor es obligatorio. |
+| `2015` | `schemeID` del cliente es obligatorio. |
+| `2062` | `PayableAmount` debe ser mayor a 0. |
+| `3305` | `TaxInclusiveAmount` es obligatorio. |
+| `3294` | El `TaxTotal` debe cuadrar con la sumatoria de líneas. |
+| `3278` | El `LineExtensionAmount` debe cuadrar con la sumatoria de líneas. |
+| Serie | Debe iniciar con `B`/`C` o `F`/`E` según el tipo de comprobante afectado. |
+| Origen | Solo se puede emitir sobre comprobantes ya declarados. |
+| Motivo | El motivo debe ser claro y justificar el incremento del monto. |
+
+## Ejemplo Python completo
 
 ```python
-from openubl.models import DebitNote, Proveedor, Cliente, DocumentoVentaDetalle
+from openubl.models import (
+    DebitNote, Proveedor, Cliente, DocumentoVentaDetalle,
+)
+from openubl.renderer import render_debit_note
+from openubl.validator import SunatValidator
 from decimal import Decimal
 
 debit_note = DebitNote(
@@ -56,17 +93,63 @@ debit_note = DebitNote(
     ],
 )
 
-xml = debit_note.render()
+xml = render_debit_note(debit_note)
+errors = SunatValidator().validate_credit_note(xml)
+assert errors == []
+print(xml)
+```
+
+## Ejemplo con enriquecimiento automático
+
+`ContentEnricher` calcula `fechaEmision`, `valorVenta`, `igv`, `precioVenta`, `valorVentaTotal`, `igvTotal` e `importeTotal`.
+
+```python
+from openubl.models import (
+    DebitNote, Proveedor, Cliente, DocumentoVentaDetalle,
+)
+from openubl.enricher import ContentEnricher
+from openubl.renderer import render_debit_note
+from openubl.validator import SunatValidator
+from decimal import Decimal
+
+debit_note = DebitNote(
+    serie="FC01",
+    numero=1,
+    comprobanteAfectadoSerieNumero="F001-45",
+    sustentoDescripcion="Intereses moratorios",
+    proveedor=Proveedor(
+        ruc="20100100100",
+        razonSocial="Mi Empresa S.A.C.",
+    ),
+    cliente=Cliente(
+        nombre="Juan Pérez",
+        numeroDocumentoIdentidad="46779327",
+        tipoDocumentoIdentidad="1",
+    ),
+    detalles=[
+        DocumentoVentaDetalle(
+            descripcion="Intereses moratorios - Laptop Dell XPS 13",
+            cantidad=Decimal("1"),
+            precio=Decimal("150.00"),
+        ),
+    ],
+)
+
+ContentEnricher().enrich(debit_note)
+xml = render_debit_note(debit_note)
+errors = SunatValidator().validate_credit_note(xml)
+assert errors == []
+print(xml)
 ```
 
 ## Endpoint
 
 ```bash
-POST /api/v1/debit-note/create
+POST /api/v1/debit-note/create?validate=true
 ```
 
 ```bash
-curl -X POST "http://localhost:8000/api/v1/debit-note/create" \
+curl -X POST "http://localhost:8000/api/v1/debit-note/create?validate=true" \
   -H "Content-Type: application/json" \
   -d '{
     "serie": "FC01",
@@ -79,8 +162,12 @@ curl -X POST "http://localhost:8000/api/v1/debit-note/create" \
   }'
 ```
 
-## Reglas SUNAT
+## Respuesta esperada
 
-- La serie debe iniciar con `B` o `F` según el tipo de comprobante afectado.
-- Solo se puede emitir sobre comprobantes ya declarados.
-- El motivo debe ser claro y justificar el incremento del monto.
+```json
+{
+  "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>..."
+}
+```
+
+Si `validate=true` y el XML no cumple las reglas SUNAT, la API devuelve un error `422` con la lista de errores.

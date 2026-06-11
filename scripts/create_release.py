@@ -69,6 +69,7 @@ def main() -> int:
         "sdk/typescript/src/version.ts",
         "openapi.json",
         "sdk/typescript/src/openubl-types.ts",
+        "uv.lock",
     ]
     changelog_path = REPO_ROOT / "CHANGELOG.md"
     if changelog_path.exists():

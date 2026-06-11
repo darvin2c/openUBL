@@ -1,0 +1,193 @@
+---
+title: Enriquecimiento automático
+description: Aprende cómo ContentEnricher calcula impuestos y totales automáticamente en openUBL.
+---
+
+El **enriquecimiento automático** es el paso que completa los campos calculables de un comprobante antes de renderizarlo a XML. En lugar de escribir manualmente totales, impuestos y fechas, `ContentEnricher` los deriva de los datos mínimos que ya proporcionaste.
+
+Este patrón está basado en el `ContentEnricher` de XBuilder y respeta la normativa peruana:
+
+- **Ley N.° 30296** — IGV tasa 18 %.
+- **Ley N.° 30830** — ICBPER tasa S/ 0.20.
+- **RS N.° 300-2014/SUNAT, Anexo 1** — estructura del comprobante electrónico.
+
+## ¿Qué hace ContentEnricher?
+
+`ContentEnricher` recibe un documento y lo modifica en memoria (`in-place`) agregando o completando los campos que faltan. Soporta:
+
+- `Invoice` (Factura / Boleta)
+- `CreditNote` (Nota de Crédito)
+- `DebitNote` (Nota de Débito)
+- `VoidedDocuments` (Comunicación de Baja)
+
+Resumen Diario, Percepción y Retención no requieren enriquecimiento porque sus totales se definen explícitamente.
+
+## Campos calculados automáticamente
+
+| Campo | Nivel | Fórmula / Regla |
+|-------|-------|-----------------|
+| `fechaEmision` | Documento | Fecha actual si no se indica (`date.today()`). |
+| `valorVenta` | Línea | `cantidad × precio`, redondeado a 2 decimales. |
+| `igv` | Línea | `valorVenta × igvTasa` solo si `tipoAfectacionIGV == "10"` (Gravado); de lo contrario `0`. |
+| `precioVenta` | Línea | `valorVenta + igv`, redondeado a 2 decimales. |
+| `valorVentaTotal` | Documento | Suma de `valorVenta` de todas las líneas. |
+| `igvTotal` | Documento | Suma de `igv` de todas las líneas. |
+| `importeTotal` | Documento | `valorVentaTotal + igvTotal`. |
+
+Los redondeos usan `ROUND_HALF_UP` a 2 decimales, el mismo criterio que aplica SUNAT para los comprobantes electrónicos.
+
+## Defaults
+
+La clase `Defaults` centraliza las tasas usadas durante el enriquecimiento:
+
+| Campo | Valor por defecto | Origen legal |
+|-------|-------------------|--------------|
+| `igvTasa` | `0.18` | Ley N.° 30296 |
+| `icbTasa` | `0.20` | Ley N.° 30830 |
+
+Puedes instanciar `ContentEnricher` sin argumentos y usará estos valores:
+
+```python
+from openubl.enricher import ContentEnricher
+
+enricher = ContentEnricher()
+```
+
+### Ejemplo con valores custom
+
+Si necesitas una tasa diferente (por ejemplo, para un escenario histórico o de prueba), crea un `Defaults` personalizado:
+
+```python
+from decimal import Decimal
+from openubl.enricher import ContentEnricher
+from openubl.models.defaults import Defaults
+
+enricher = ContentEnricher(
+    defaults=Defaults(
+        igvTasa=Decimal("0.18"),
+        icbTasa=Decimal("0.2"),
+    )
+)
+```
+
+Aunque en el ejemplo se repiten los valores por defecto, este es el punto de entrada para cambiar la tasa de IGV o el monto del ICBPER cuando la normativa o tu negocio lo requieran.
+
+## DateProvider
+
+`DateProvider` es una clase que abstrae la obtención de la fecha actual. Su implementación por defecto devuelve `date.today()`:
+
+```python
+from openubl.models.defaults import DateProvider
+
+provider = DateProvider()
+print(provider.now())  # 2026-06-11 (fecha actual)
+```
+
+Gracias a esta abstracción puedes reemplazar el proveedor de fechas en tus tests para obtener resultados deterministas.
+
+### Ejemplo con DateProvider para testing
+
+```python
+from datetime import date
+from openubl.enricher import ContentEnricher
+from openubl.models.defaults import DateProvider
+
+
+class FixedDateProvider(DateProvider):
+    @staticmethod
+    def now():
+        return date(2025, 6, 1)
+
+
+enricher = ContentEnricher(date_provider=FixedDateProvider())
+```
+
+Con `FixedDateProvider`, cualquier documento que no especifique `fechaEmision` recibirá siempre `2025-06-01`, haciendo que tus aserciones sean reproducibles.
+
+## Ejemplo completo
+
+```python
+from decimal import Decimal
+from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
+from openubl.enricher import ContentEnricher
+
+invoice = Invoice(
+    serie="F001",
+    numero=1,
+    proveedor=Proveedor(ruc="20100066603", razonSocial="Mi Empresa S.A.C."),
+    cliente=Cliente(
+        nombre="Cliente Ejemplo",
+        numeroDocumentoIdentidad="12345678",
+        tipoDocumentoIdentidad="1",
+    ),
+    detalles=[
+        DocumentoVentaDetalle(
+            descripcion="Producto A",
+            cantidad=Decimal("10"),
+            precio=Decimal("100"),
+        ),
+        DocumentoVentaDetalle(
+            descripcion="Producto B",
+            cantidad=Decimal("5"),
+            precio=Decimal("200"),
+        ),
+    ],
+)
+
+enricher = ContentEnricher()
+enricher.enrich(invoice)
+
+assert invoice.valorVentaTotal == Decimal("2000.00")
+assert invoice.igvTotal == Decimal("360.00")
+assert invoice.importeTotal == Decimal("2360.00")
+```
+
+Después del enriquecimiento, el documento tiene todos los totales calculados y está listo para renderizarse a XML, validarse, firmarse y enviarse a SUNAT.
+
+## Comportamiento por tipo de afectación IGV
+
+El enriquecidor respeta el Catálogo N.° 07. Solo los ítems gravados (`10`) generan IGV; exonerados (`20`) e inafectos (`30`) producen `0`:
+
+```python
+from decimal import Decimal
+from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
+from openubl.enricher import ContentEnricher
+
+invoice = Invoice(
+    serie="F001",
+    numero=2,
+    proveedor=Proveedor(ruc="20100066603", razonSocial="Mi Empresa S.A.C."),
+    cliente=Cliente(
+        nombre="Cliente Ejemplo",
+        numeroDocumentoIdentidad="12345678",
+        tipoDocumentoIdentidad="1",
+    ),
+    detalles=[
+        DocumentoVentaDetalle(
+            descripcion="Gravado",
+            cantidad=Decimal("1"),
+            precio=Decimal("100"),
+            tipoAfectacionIGV="10",
+        ),
+        DocumentoVentaDetalle(
+            descripcion="Exonerado",
+            cantidad=Decimal("1"),
+            precio=Decimal("50"),
+            tipoAfectacionIGV="20",
+        ),
+    ],
+)
+
+enricher = ContentEnricher()
+enricher.enrich(invoice)
+
+assert invoice.detalles[0].igv == Decimal("18.00")
+assert invoice.detalles[1].igv == Decimal("0.00")
+assert invoice.igvTotal == Decimal("18.00")
+```
+
+## Notas importantes
+
+- El enriquecimiento es **idempotente**: si un campo ya tiene valor, `ContentEnricher` no lo sobrescribe. Puedes proporcionar totales manualmente cuando lo necesites.
+- Los documentos tipo `VoidedDocuments` solo reciben `fechaEmision` automática; sus comprobantes internos ya deben existir.
+- Si usas la API REST de openUBL, el enriquecimiento suele aplicarse automáticamente antes de la validación y el renderizado, salvo que la ruta indique lo contrario.

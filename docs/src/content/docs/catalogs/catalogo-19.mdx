@@ -1,0 +1,64 @@
+---
+title: Catálogo 19 — Tipo de operación (resumen diario)
+description: Códigos SUNAT de operaciones para ítems del Resumen Diario en openUBL.
+---
+
+
+Catálogo SUNAT que indica la acción que se realiza sobre un comprobante dentro de un Resumen Diario (`SummaryDocuments`). Permite adicionar, modificar o anular boletas y notas asociadas.
+
+## Tabla de códigos
+
+| Código | Descripción |
+|--------|-------------|
+| 1 | Adicionar |
+| 2 | Modificar |
+| 3 | Anulado |
+
+## Uso típico
+
+Se utiliza en:
+
+- `SummaryDocumentsItem.tipoOperacion`
+
+El valor `1` (Adicionar) se usa para reportar nuevas boletas emitidas en el día. El valor `3` (Anulado) reporta boletas anuladas dentro de las 7 días calendario permitidos por SUNAT.
+
+## Ejemplo
+
+```python
+from datetime import date
+from decimal import Decimal
+from openubl.models import (
+    SummaryDocuments,
+    SummaryDocumentsItem,
+    Comprobante,
+    ComprobanteImpuestos,
+    ComprobanteValorVenta,
+    Proveedor,
+    Cliente,
+)
+
+resumen = SummaryDocuments(
+    numero=1,
+    fechaEmisionComprobantes=date(2026, 6, 10),
+    proveedor=Proveedor(ruc="20100100100", razonSocial="Mi Empresa S.A.C."),
+    comprobantes=[
+        SummaryDocumentsItem(
+            tipoOperacion="1",  # Adicionar
+            comprobante=Comprobante(
+                tipoComprobante="03",  # Boleta
+                serieNumero="B001-1",
+                cliente=Cliente(
+                    nombre="Cliente Ejemplo",
+                    numeroDocumentoIdentidad="12345678",
+                    tipoDocumentoIdentidad="1",
+                ),
+                impuestos=ComprobanteImpuestos(igv=Decimal("3.60")),
+                valorVenta=ComprobanteValorVenta(
+                    importeTotal=Decimal("23.60"),
+                    gravado=Decimal("20.00"),
+                ),
+            ),
+        )
+    ],
+)
+```

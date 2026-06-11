@@ -1,0 +1,60 @@
+---
+title: Catálogo 05 — Tipo de tributo
+description: Códigos SUNAT de tributos aplicables a líneas y totales de comprobantes electrónicos en openUBL.
+---
+
+
+Catálogo SUNAT que clasifica los tributos que afectan una línea o el total de un comprobante electrónico. Es fundamental para construir los nodos `TaxTotal` y `TaxSubtotal` del XML UBL 2.1.
+
+## Tabla de códigos
+
+| Código | Descripción |
+|--------|-------------|
+| 1000 | IGV |
+| 2000 | ISC |
+| 9995 | Exportación |
+| 9996 | Gratuitas |
+| 9997 | Exonerado |
+| 9998 | Inafecto |
+| 9999 | Otros Tributos |
+| 7152 | ICBPER |
+| 1016 | IVAP |
+
+## Uso típico
+
+openUBL utiliza el catálogo principalmente de forma interna para generar el XML:
+
+- `1000` (IGV) para líneas con `tipoAfectacionIGV = "10"`.
+- `9997` (Exonerado) para `tipoAfectacionIGV = "20"`.
+- `9998` (Inafecto) para `tipoAfectacionIGV = "30"`.
+- `7152` (ICBPER) para el impuesto a la bolsa plástica, cuando se configura `icbTasa`.
+
+No es necesario pasar estos códigos manualmente en la mayoría de modelos de venta; el `ContentEnricher` y el renderer los asignan en función de la afectación del IGV.
+
+## Ejemplo
+
+```python
+from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
+from decimal import Decimal
+
+# Línea gravada: el renderer asignará automáticamente tributo 1000 (IGV)
+invoice = Invoice(
+    serie="F001",
+    numero=125,
+    proveedor=Proveedor(ruc="20100100100", razonSocial="Mi Empresa S.A.C."),
+    cliente=Cliente(
+        nombre="Cliente Ejemplo",
+        numeroDocumentoIdentidad="20123456789",
+        tipoDocumentoIdentidad="6",
+    ),
+    detalles=[
+        DocumentoVentaDetalle(
+            descripcion="Producto gravado",
+            cantidad=Decimal("1"),
+            precio=Decimal("100.00"),
+            tipoAfectacionIGV="10",  # Gravado → tributo 1000
+        )
+    ],
+    moneda="PEN",
+)
+```

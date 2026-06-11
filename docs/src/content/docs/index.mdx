@@ -3,14 +3,18 @@ title: openUBL
 description: Facturación electrónica SUNAT. Genera XML UBL 2.1 válido, firmado y listo para enviar.
 template: splash
 hero:
-  tagline: Facturacion electronica SUNAT. Genera XML UBL 2.1 valido, firmado y listo para enviar.
+  tagline: Biblioteca Python y API REST para generar, firmar y validar comprobantes electrónicos SUNAT con XML UBL 2.1.
   actions:
     - text: Comenzar
-      link: /getting-started/introduccion/
+      link: /openUBL/getting-started/introduccion/
       icon: right-arrow
     - text: API
-      link: /api/referencia/
+      link: /openUBL/api/referencia/
       icon: external
+      variant: minimal
+    - text: Ver en GitHub
+      link: https://github.com/darvin2c/openUBL
+      icon: github
       variant: minimal
 ---
 
@@ -38,3 +42,30 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 		Usa clientes TypeScript con autocompletado de endpoints y validación estática.
 	</Card>
 </CardGrid>
+
+## Flujo de trabajo
+
+<ol class="steps">
+	<li>
+		<strong>Modelar</strong> — Define el documento con modelos Pydantic (Invoice, CreditNote, DebitNote, etc.).
+	</li>
+	<li>
+		<strong>Renderizar</strong> — Convierte el modelo a XML UBL 2.1 con `render()` o `to_xml()`.
+	</li>
+	<li>
+		<strong>Firmar</strong> — Aplica firma digital XAdES-EPES con tu certificado PEM.
+	</li>
+	<li>
+		<strong>Enviar</strong> — Envía el ZIP firmado a SUNAT y recibe el CDR de confirmación.
+	</li>
+</ol>
+
+## Soporte multi-lenguaje
+
+openUBL se puede usar desde múltiples lenguajes y plataformas:
+
+- **Python** — Biblioteca nativa con modelos Pydantic
+- **TypeScript / JavaScript** — SDK npm `@openubl/sdk`
+- **Java** — Cliente generado con OpenAPI Generator
+- **Go** — Cliente generado con OpenAPI Generator
+- **C#** — Cliente generado con OpenAPI Generator

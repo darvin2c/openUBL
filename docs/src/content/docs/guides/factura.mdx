@@ -1,51 +1,179 @@
 ---
 title: Factura Electrónica
-description: Guía para generar Facturas (01) y Boletas (03) con openUBL.
+description: Guía completa para generar Facturas (01) y Boletas (03) con openUBL.
 ---
 
-La **Factura Electrónica** (tipo 01) y la **Boleta Electrónica** (tipo 03) son los comprobantes de venta más comunes en el sistema SUNAT. openUBL genera el XML UBL 2.1 listo para firmar y enviar.
+La **Factura Electrónica** (código SUNAT `01`) y la **Boleta Electrónica** (código SUNAT `03`) son los comprobantes de venta más usados en el sistema de emisión electrónica de SUNAT. openUBL genera el XML UBL 2.1 listo para firmar digitalmente y enviar a SUNAT.
+
+- **Factura (01)**: se emite ante operaciones con clientes que tienen RUC y que necesitan crédito fiscal.
+- **Boleta (03)**: se emite ante clientes finales que no necesitan crédito fiscal.
+
+En openUBL ambos documentos comparten el mismo modelo (`Invoice`) y se diferencian únicamente por la serie: las facturas usan series que empiezan con `F` (`F001`), y las boletas con `B` (`B001`).
 
 ## Campos requeridos
 
+| Campo | Tipo | Descripción y validación |
+|-------|------|--------------------------|
+| `serie` | `string` | Serie del comprobante. Debe iniciar con `F` para factura o `B` para boleta, seguido de 2 o 3 caracteres alfanuméricos. Ejemplos: `F001`, `B001`. |
+| `numero` | `integer` | Correlativo del comprobante. Ejemplo: `1`, `123`. |
+| `proveedor` | `Proveedor` | Datos del emisor. Requiere `ruc` (11 dígitos numéricos) y `razonSocial`. |
+| `cliente` | `Cliente` | Datos del adquirente. Requiere `nombre`, `numeroDocumentoIdentidad` y `tipoDocumentoIdentidad` (Catálogo N.° 06). |
+| `detalles` | `DocumentoVentaDetalle[]` | Lista de líneas de producto o servicio. Debe contener al menos un ítem. |
+
+### Campos requeridos por línea
+
+Cada elemento de `detalles` requiere:
+
 | Campo | Tipo | Descripción |
 |-------|------|-------------|
-| `serie` | `string` | Serie: `F001` para factura, `B001` para boleta |
-| `numero` | `integer` | Correlativo del comprobante |
-| `proveedor` | `Proveedor` | Datos del emisor (`ruc`, `razonSocial`) |
-| `cliente` | `Cliente` | Datos del adquirente (`nombre`, `numeroDocumentoIdentidad`, `tipoDocumentoIdentidad`) |
-| `detalles` | `DocumentoVentaDetalle[]` | Líneas de producto o servicio |
+| `descripcion` | `string` | Nombre del producto o servicio. |
+| `cantidad` | `Decimal` | Cantidad vendida. Debe ser mayor que 0. |
+| `precio` | `Decimal` | Precio unitario sin IGV. |
 
 ## Campos opcionales
 
+### Cabecera
+
 | Campo | Default | Descripción |
 |-------|---------|-------------|
-| `moneda` | `PEN` | Catálogo N.° 02 (`PEN`, `USD`, `EUR`) |
-| `tipoOperacion` | `0101` | Catálogo N.° 51 — `0101` Venta interna |
-| `fechaEmision` | hoy | Fecha de emisión (`YYYY-MM-DD`) |
-| `igvTotal` | auto | IGV total calculado |
-| `valorVentaTotal` | auto | Valor de venta total |
-| `importeTotal` | auto | Importe total |
+| `moneda` | `PEN` | Código de moneda según Catálogo N.° 02 (`PEN`, `USD`, `EUR`). |
+| `tipoOperacion` | `0101` | Tipo de operación según Catálogo N.° 51. `0101` = Venta interna. |
+| `fechaEmision` | hoy | Fecha de emisión en formato `YYYY-MM-DD`. Si no se envía, se asigna la fecha actual. |
+| `igvTotal` | auto | Suma del IGV de todas las líneas. Calculado automáticamente por `ContentEnricher`. |
+| `valorVentaTotal` | auto | Suma del valor de venta de todas las líneas. Calculado automáticamente. |
+| `importeTotal` | auto | Total a pagar (`valorVentaTotal + igvTotal`). Calculado automáticamente. |
 
-## Detalle de línea
+### Por línea
 
-Cada ítem del array `detalles` requiere:
+| Campo | Default | Catálogo | Descripción |
+|-------|---------|----------|-------------|
+| `unidadMedida` | `NIU` | N.° 03 | Unidad de medida. `NIU` = Unidad. |
+| `tipoAfectacionIGV` | `10` | N.° 07 | Tipo de afectación del IGV. |
+| `igv` | auto | — | IGV de la línea. Se calcula según el tipo de afectación. |
+| `valorVenta` | auto | — | Valor de venta de la línea (`cantidad × precio`). |
+| `precioVenta` | auto | — | Precio de venta de la línea (`valorVenta + igv`). |
 
-- `descripcion` — nombre del producto o servicio
-- `cantidad` — cantidad vendida
-- `precio` — precio unitario (sin IGV)
+## Reglas SUNAT aplicables
 
-Opciones por defecto:
+openUBL aplica, además del esquema UBL 2.1, las siguientes reglas de validación documentadas por SUNAT:
 
-| Campo | Default | Catálogo |
-|-------|---------|----------|
-| `unidadMedida` | `NIU` | N.° 03 — Unidad / Unidad de medida |
-| `tipoAfectacionIGV` | `10` | N.° 07 — Gravado operación onerosa |
+| Código | Regla |
+|--------|-------|
+| 2074 | `UBLVersionID` debe ser `2.1`. |
+| 2072 | `CustomizationID` debe ser `2.0`. |
+| 1001 | El ID del comprobante debe tener el formato `{serie}-{numero}`. |
+| 2070 | `DocumentCurrencyCode` es obligatorio. |
+| 1007 | El `schemeID` del emisor debe ser `6` (RUC). |
+| 1008 | El RUC del emisor debe tener 11 dígitos. |
+| 1037 | La razón social del emisor (`RegistrationName`) es obligatoria. |
+| 2015 | El `schemeID` del cliente es obligatorio. |
+| 2062 | El importe total a pagar (`PayableAmount`) debe ser mayor a 0. |
+| 3305 | `TaxInclusiveAmount` es obligatorio. |
+| 3294 | El `TaxTotal` debe cuadrar con la sumatoria de los impuestos de las líneas. |
+| 3278 | El `LineExtensionAmount` debe cuadrar con la sumatoria de los valores de venta de las líneas. |
+
+Estas reglas se ejecutan automáticamente cuando llamas a la API con `?validate=true` (valor por defecto). También puedes ejecutarlas manualmente con `SunatValidator.validate_invoice(xml)`.
+
+## Múltiples ítems y descuentos
+
+Para emitir un comprobante con varios productos o servicios, incluye cada uno como un elemento del array `detalles`.
+
+:::caution[Descuentos]
+openUBL no expone un campo específico de descuento global por línea. Para reflejar un descuento, disminuye el `precio` unitario de la línea correspondiente o agrega una línea adicional con valor negativo que represente el descuento, siempre que el total final siga siendo mayor a 0.
+:::
+
+```python
+from decimal import Decimal
+from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
+
+invoice = Invoice(
+    serie="F001",
+    numero=5,
+    proveedor=Proveedor(ruc="20100100100", razonSocial="Mi Empresa S.A.C."),
+    cliente=Cliente(
+        nombre="Juan Pérez",
+        numeroDocumentoIdentidad="46779327",
+        tipoDocumentoIdentidad="1",  # DNI
+    ),
+    detalles=[
+        DocumentoVentaDetalle(
+            descripcion="Laptop Dell XPS 13",
+            cantidad=Decimal("1"),
+            precio=Decimal("4800.00"),  # precio ya con descuento reflejado
+        ),
+        DocumentoVentaDetalle(
+            descripcion="Mouse inalámbrico",
+            cantidad=Decimal("2"),
+            precio=Decimal("150.00"),
+        ),
+    ],
+)
+```
+
+## Tipos de operación (Catálogo 51)
+
+El campo `tipoOperacion` indica la naturaleza de la operación documentada. openUBL usa `0101` (Venta interna) por defecto. Catálogo N.° 51 de SUNAT incluye muchos más códigos; los más comunes son:
+
+| Código | Descripción |
+|--------|-------------|
+| `0101` | Venta interna |
+| `0200` | Exportación de bienes |
+| `0401` | Venta no domiciliado que no califica como exportación |
+
+Para operaciones de exportación usa `0200` y asegúrate de que las líneas usen el tipo de afectación IGV correspondiente.
+
+## Afectación IGV por línea
+
+Cada línea define su tipo de afectación mediante `tipoAfectacionIGV`. openUBL soporta los valores más comunes del Catálogo N.° 07:
+
+| Código | Descripción | Comportamiento del enriquecimiento |
+|--------|-------------|-------------------------------------|
+| `10` | Gravado — Operación onerosa | Calcula IGV (`valorVenta × 18%`) y lo suma al precio de venta. |
+| `20` | Exonerado — Operación onerosa | IGV = 0. El precio de venta es igual al valor de venta. |
+| `30` | Inafecto — Operación onerosa | IGV = 0. El precio de venta es igual al valor de venta. |
+
+Ejemplo de una línea exonerada:
+
+```python
+DocumentoVentaDetalle(
+    descripcion="Medicamento exonerado",
+    cantidad=Decimal("2"),
+    precio=Decimal("50.00"),
+    tipoAfectacionIGV="20",
+)
+```
+
+## Monedas extranjeras (USD, EUR)
+
+El campo `moneda` acepta códigos del Catálogo N.° 02:
+
+| Código | Descripción |
+|--------|-------------|
+| `PEN` | Soles |
+| `USD` | Dólares estadounidenses |
+| `EUR` | Euros |
+
+Cuando emitas en moneda extranjera, establece `moneda` en `USD` o `EUR`. El enriquecimiento calcula los totales en esa moneda; SUNAT recibirá el XML con `DocumentCurrencyCode` correspondiente.
+
+```python
+Invoice(
+    serie="F001",
+    numero=10,
+    moneda="USD",
+    # ... proveedor, cliente y detalles
+)
+```
 
 ## Ejemplo en Python
 
+Este ejemplo crea una factura, la enriquece, renderiza el XML UBL 2.1 y la valida contra las reglas SUNAT:
+
 ```python
-from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
 from decimal import Decimal
+from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
+from openubl.enricher import ContentEnricher
+from openubl.renderer import render_invoice
+from openubl.validator import SunatValidator
 
 invoice = Invoice(
     serie="F001",
@@ -68,53 +196,105 @@ invoice = Invoice(
     ],
 )
 
-# Generar XML
-xml = invoice.render()
+# 1. Enriquecer: calcula fechas, IGV y totales
+enricher = ContentEnricher()
+enricher.enrich(invoice)
+
+# 2. Renderizar a XML UBL 2.1
+xml = render_invoice(invoice)
+
+# 3. Validar contra reglas SUNAT
+validator = SunatValidator()
+errors = validator.validate_invoice(xml)
+
+if errors:
+    print("Errores de validación:", errors)
+else:
+    print("XML generado correctamente")
+    print(xml[:500])
 ```
 
-## Valores de catálogo más usados
+## Ejemplo con enriquecimiento automático
 
-### Tipo de operación (Catálogo N.° 51)
+Si usas la API REST, el enriquecimiento se ejecuta automáticamente. Desde Python también puedes personalizar las tasas o la fecha:
 
-| Código | Descripción |
-|--------|-------------|
-| `0101` | Venta interna |
-| `0200` | Exportación de bienes |
-| `0401` | Venta no domiciliado que no califica como exportación |
+```python
+from openubl.enricher import ContentEnricher
+from openubl.models.defaults import Defaults, DateProvider
+from datetime import date
 
-### Tipo de afectación IGV (Catálogo N.° 07)
+# Forzar IGV al 18% y simular una fecha específica para tests
+enricher = ContentEnricher(
+    defaults=Defaults(igvTasa=Decimal("0.18"), icbTasa=Decimal("0.2")),
+    date_provider=DateProvider(),  # por defecto devuelve date.today()
+)
 
-| Código | Descripción |
-|--------|-------------|
-| `10` | Gravado — Operación onerosa |
-| `20` | Exonerado — Operación onerosa |
-| `30` | Inafecto — Operación onerosa |
+# Para testing puedes crear tu propio proveedor de fechas
+class FixedDateProvider(DateProvider):
+    @staticmethod
+    def now():
+        return date(2026, 6, 11)
 
-### Tipo de documento de identidad (Catálogo N.° 06)
-
-| Código | Descripción |
-|--------|-------------|
-| `1` | DNI |
-| `4` | Carnet de extranjería |
-| `6` | RUC |
-| `7` | Pasaporte |
-
-## Endpoint
-
-```bash
-POST /api/v1/invoice/create
+enricher = ContentEnricher(date_provider=FixedDateProvider())
+enricher.enrich(invoice)
 ```
 
+## Ejemplo API REST (curl)
+
+Genera una factura o boleta llamando al endpoint de creación:
+
 ```bash
-curl -X POST "http://localhost:8000/api/v1/invoice/create" \
+curl -X POST "http://localhost:8000/api/v1/invoice/create?validate=true" \
   -H "Content-Type: application/json" \
   -d '{
     "serie": "F001",
     "numero": 1,
-    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },
-    "cliente": { "nombre": "Juan Pérez", "numeroDocumentoIdentidad": "46779327", "tipoDocumentoIdentidad": "1" },
-    "detalles": [{ "descripcion": "Laptop Dell XPS 13", "cantidad": "1", "precio": "5000.00" }]
+    "proveedor": {
+      "ruc": "20100100100",
+      "razonSocial": "Mi Empresa S.A.C."
+    },
+    "cliente": {
+      "nombre": "Juan Pérez",
+      "numeroDocumentoIdentidad": "46779327",
+      "tipoDocumentoIdentidad": "1"
+    },
+    "detalles": [
+      {
+        "descripcion": "Laptop Dell XPS 13",
+        "cantidad": "1",
+        "precio": "5000.00"
+      }
+    ]
   }'
 ```
 
-La respuesta contiene el campo `xml` con el documento UBL 2.1 generado.
+Para omitir la validación SUNAT (por ejemplo, mientras depuras el JSON), usa `?validate=false`:
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/invoice/create?validate=false" \
+  -H "Content-Type: application/json" \
+  -d '{ ... }'
+```
+
+## Respuesta esperada de la API
+
+Cuando la solicitud es exitosa, la API responde con estado `200 OK` y un objeto JSON que contiene el XML generado:
+
+```json
+{
+  "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>..."
+}
+```
+
+Si la validación SUNAT detecta errores, la API responde con estado `422 Unprocessable Entity` y un array con los mensajes de error:
+
+```json
+{
+  "detail": [
+    "ERROR 1008: RUC del emisor debe tener 11 dígitos",
+    "ERROR 2062: PayableAmount debe ser mayor a 0"
+  ]
+}
+```
+
+El campo `xml` contiene el documento UBL 2.1 completo, listo para firmar digitalmente con el endpoint `POST /api/v1/sign` o con la librería de firmado de openUBL.

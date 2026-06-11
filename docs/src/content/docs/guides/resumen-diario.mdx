@@ -3,31 +3,61 @@ title: Resumen Diario
 description: Guía para generar Resúmenes Diarios (RC) de boletas con openUBL.
 ---
 
-El **Resumen Diario** (tipo RC) consolida las boletas de venta (03) y notas asociadas emitidas en un día. SUNAT lo exige para dar validez a las boletas electrónicas.
+El **Resumen Diario** (tipo `RC`) consolida las boletas de venta (`03`) y notas asociadas emitidas en un día. SUNAT lo exige para dar validez a las boletas electrónicas.
 
 ## Campos requeridos
 
+| Campo | Tipo | Descripción | Validación |
+|-------|------|-------------|------------|
+| `numero` | `integer` | Correlativo del resumen | Ej: `1` genera `RC-YYYYMMDD-001`. Mayor a 0. |
+| `fechaEmisionComprobantes` | `date` | Fecha de emisión de los comprobantes resumidos | `YYYY-MM-DD`. |
+| `proveedor` | `Proveedor` | Datos del emisor | `ruc` de 11 dígitos y `razonSocial` obligatorios. |
+| `comprobantes` | `SummaryDocumentsItem[]` | Lista de comprobantes a resumir | Al menos un ítem. |
+
+## Campos opcionales
+
+El modelo `SummaryDocuments` no tiene campos opcionales a nivel raíz. Los totales se declaran explícitamente por comprobante.
+
+## Ítem del resumen (`SummaryDocumentsItem`)
+
+| Campo | Tipo | Descripción | Validación |
+|-------|------|-------------|------------|
+| `tipoOperacion` | `string` | Tipo de operación | Catálogo N.° 19: `1` Adicionar, `2` Modificar, `3` Anulado. |
+| `comprobante` | `Comprobante` | Comprobante a resumir | Ver detalle abajo. |
+
+### `Comprobante`
+
+| Campo | Tipo | Descripción | Validación |
+|-------|------|-------------|------------|
+| `tipoComprobante` | `string` | Tipo de comprobante | Catálogo N.° 01: `03` Boleta, `07` Nota de crédito, `08` Nota de débito. |
+| `serieNumero` | `string` | Serie y número | Ej: `B001-123`. |
+| `cliente` | `Cliente` | Datos del adquirente | Campos obligatorios del cliente. |
+| `impuestos` | `ComprobanteImpuestos` | Impuestos | `igv` obligatorio; `icb` opcional. |
+| `valorVenta` | `ComprobanteValorVenta` | Valores de venta | `importeTotal` obligatorio; `gravado`, `exonerado`, `inafecto` opcionales. |
+| `comprobanteAfectado` | `ComprobanteAfectado` | Comprobante afectado para notas | Opcional; requerido para notas de crédito/débito. |
+
+### `ComprobanteAfectado`
+
 | Campo | Tipo | Descripción |
 |-------|------|-------------|
-| `numero` | `integer` | Correlativo del resumen (ej: `1` para `RC-20250610-001`) |
-| `fechaEmisionComprobantes` | `date` | Fecha de emisión de los comprobantes resumidos (`YYYY-MM-DD`) |
-| `proveedor` | `Proveedor` | Datos del emisor |
-| `comprobantes` | `SummaryDocumentsItem[]` | Lista de comprobantes a resumir |
+| `tipoComprobante` | `string` | Tipo del comprobante afectado. |
+| `serieNumero` | `string` | Serie-número del comprobante afectado. |
+| `fechaEmision` | `date` | Fecha de emisión. |
+| `importeTotal` | `Decimal` | Importe total. |
+| `moneda` | `string` | Moneda. |
 
-## Ítem del resumen
+## Reglas SUNAT aplicables
 
-Cada elemento de `comprobantes` contiene:
+| Código / Regla | Descripción |
+|----------------|-------------|
+| `2074` (Voided/Summary) | `UBLVersionID` debe ser `2.0`. |
+| `2072` (Voided/Summary) | `CustomizationID` debe ser `1.0`. |
+| Identificador | `RC-YYYYMMDD-NNNN`. |
+| Frecuencia | Se debe enviar el mismo día de emisión de las boletas o al día siguiente hábil como máximo. |
+| Contenido | Solo se pueden resumir boletas (`03`) y sus notas de crédito/débito (`07`/`08`). |
+| Validación | Una vez aceptado, las boletas quedan validadas ante SUNAT. |
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `tipoOperacion` | `string` | Catálogo N.° 19: `1` Adicionar, `2` Modificar, `3` Anulado |
-| `comprobante.tipoComprobante` | `string` | Catálogo N.° 01: `03` Boleta, `07` Nota de crédito, `08` Nota de débito |
-| `comprobante.serieNumero` | `string` | Serie y número (ej: `B001-123`) |
-| `comprobante.cliente` | `Cliente` | Datos del adquirente |
-| `comprobante.impuestos.igv` | `Decimal` | IGV del comprobante |
-| `comprobante.valorVenta.importeTotal` | `Decimal` | Importe total |
-
-## Ejemplo en Python
+## Ejemplo Python completo
 
 ```python
 from openubl.models import (
@@ -35,6 +65,8 @@ from openubl.models import (
     ComprobanteImpuestos, ComprobanteValorVenta,
     Proveedor, Cliente,
 )
+from openubl.renderer import render_summary_documents
+from openubl.validator import SunatValidator
 from decimal import Decimal
 from datetime import date
 
@@ -63,17 +95,37 @@ summary = SummaryDocuments(
     ],
 )
 
-xml = summary.render()
+xml = render_summary_documents(summary)
+errors = SunatValidator().validate_schema(
+    xml,
+    "sunat_schemas/xsd_2.1/2.0/maindoc/UBLPE-SummaryDocuments-1.0.xsd",
+)
+assert errors == []
+print(xml)
+```
+
+## Ejemplo con validación del esquema
+
+openUBL expone `validate_schema` para validar el XML generado contra el XSD de SUNAT:
+
+```python
+from openubl.validator import SunatValidator
+
+errors = SunatValidator().validate_schema(
+    xml,
+    "sunat_schemas/xsd_2.1/2.0/maindoc/UBLPE-SummaryDocuments-1.0.xsd",
+)
+print(errors)  # [] si es válido
 ```
 
 ## Endpoint
 
 ```bash
-POST /api/v1/summary-documents/create
+POST /api/v1/summary-documents/create?validate=true
 ```
 
 ```bash
-curl -X POST "http://localhost:8000/api/v1/summary-documents/create" \
+curl -X POST "http://localhost:8000/api/v1/summary-documents/create?validate=true" \
   -H "Content-Type: application/json" \
   -d '{
     "numero": 1,
@@ -92,8 +144,12 @@ curl -X POST "http://localhost:8000/api/v1/summary-documents/create" \
   }'
 ```
 
-## Reglas SUNAT
+## Respuesta esperada
 
-- Se debe enviar el mismo día de emisión de las boletas o al día siguiente hábil como máximo.
-- El identificador del resumen es `RC-YYYYMMDD-NNNN`.
-- Una vez aceptado, las boletas quedan validadas ante SUNAT.
+```json
+{
+  "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>..."
+}
+```
+
+Si `validate=true` y el cuerpo no cumple las reglas, la API devuelve un error `422` con el detalle de la validación.

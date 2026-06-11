@@ -3,35 +3,51 @@ title: Comunicación de Baja
 description: Guía para generar Comunicaciones de Baja (RA) de comprobantes con openUBL.
 ---
 
-La **Comunicación de Baja** (tipo RA) informa a SUNAT la anulación de facturas o boletas antes de que sean declaradas. Solo aplica para comprobantes que aún no han sido comunicados en un resumen diario.
+La **Comunicación de Baja** (tipo `RA`) informa a SUNAT la anulación de facturas o boletas antes de que sean declaradas. Solo aplica para comprobantes que aún no han sido comunicados en un resumen diario.
 
 ## Campos requeridos
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `numero` | `integer` | Correlativo del documento de baja (ej: `1` para `RA-20250610-001`) |
-| `fechaEmisionComprobantes` | `date` | Fecha de emisión de los comprobantes que se dan de baja |
-| `proveedor` | `Proveedor` | Datos del emisor |
-| `comprobantes` | `VoidedDocumentsItem[]` | Lista de comprobantes a dar de baja |
+| Campo | Tipo | Descripción | Validación |
+|-------|------|-------------|------------|
+| `numero` | `integer` | Correlativo del documento de baja | Ej: `1` genera `RA-YYYYMMDD-001`. Mayor a 0. |
+| `fechaEmisionComprobantes` | `date` | Fecha de emisión de los comprobantes que se dan de baja | `YYYY-MM-DD`. |
+| `proveedor` | `Proveedor` | Datos del emisor | `ruc` de 11 dígitos y `razonSocial` obligatorios. |
+| `comprobantes` | `VoidedDocumentsItem[]` | Lista de comprobantes a dar de baja | Al menos un ítem. |
 
-## Ítem de baja
+## Campos opcionales
 
-Cada elemento de `comprobantes` contiene:
+| Campo | Tipo | Default | Descripción |
+|-------|------|---------|-------------|
+| `fechaEmision` | `date` | hoy | Fecha de emisión del documento de baja. `ContentEnricher` la asigna automáticamente si no se indica. |
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `serie` | `string` | Serie del comprobante |
-| `numero` | `integer` | Número del comprobante |
-| `tipoComprobante` | `string` | Catálogo N.° 01: `01` Factura, `03` Boleta |
-| `descripcionSustento` | `string` | Motivo de la baja |
+## Ítem de baja (`VoidedDocumentsItem`)
 
-## Ejemplo en Python
+| Campo | Tipo | Descripción | Validación |
+|-------|------|-------------|------------|
+| `serie` | `string` | Serie del comprobante | Ej: `F001`, `B001`. |
+| `numero` | `integer` | Número del comprobante | Mayor a 0. |
+| `tipoComprobante` | `string` | Tipo de comprobante | Catálogo N.° 01: `01` Factura, `03` Boleta. |
+| `descripcionSustento` | `string` | Motivo de la baja | Texto libre. |
+
+## Reglas SUNAT aplicables
+
+| Código / Regla | Descripción |
+|----------------|-------------|
+| `2074` (Voided) | `UBLVersionID` debe ser `2.0`. |
+| `2072` (Voided) | `CustomizationID` debe ser `1.0`. |
+| Identificador | `RA-YYYYMMDD-NNNN`. |
+| Plazo | Se debe enviar dentro de los 7 días calendario siguientes a la fecha de emisión del comprobante. |
+| Restricción | No se puede dar de baja un comprobante ya incluido en un Resumen Diario aceptado. |
+| Tipos permitidos | `01` Factura y `03` Boleta. |
+
+## Ejemplo Python completo
 
 ```python
 from openubl.models import (
-    VoidedDocuments, VoidedDocumentsItem,
-    Proveedor,
+    VoidedDocuments, VoidedDocumentsItem, Proveedor,
 )
+from openubl.renderer import render_voided_documents
+from openubl.validator import SunatValidator
 from datetime import date
 
 voided = VoidedDocuments(
@@ -51,17 +67,53 @@ voided = VoidedDocuments(
     ],
 )
 
-xml = voided.render()
+xml = render_voided_documents(voided)
+errors = SunatValidator().validate_voided_documents(xml)
+assert errors == []
+print(xml)
+```
+
+## Ejemplo con `ContentEnricher`
+
+```python
+from openubl.enricher import ContentEnricher
+from openubl.models import VoidedDocuments, VoidedDocumentsItem, Proveedor
+from openubl.renderer import render_voided_documents
+from openubl.validator import SunatValidator
+from datetime import date
+
+voided = VoidedDocuments(
+    numero=1,
+    fechaEmisionComprobantes=date(2025, 6, 10),
+    proveedor=Proveedor(
+        ruc="20100100100",
+        razonSocial="Mi Empresa S.A.C.",
+    ),
+    comprobantes=[
+        VoidedDocumentsItem(
+            serie="F001",
+            numero=45,
+            tipoComprobante="01",
+            descripcionSustento="Error en datos del cliente",
+        ),
+    ],
+)
+
+ContentEnricher().enrich(voided)  # Asigna fechaEmision si falta
+xml = render_voided_documents(voided)
+errors = SunatValidator().validate_voided_documents(xml)
+assert errors == []
+print(xml)
 ```
 
 ## Endpoint
 
 ```bash
-POST /api/v1/voided-documents/create
+POST /api/v1/voided-documents/create?validate=true
 ```
 
 ```bash
-curl -X POST "http://localhost:8000/api/v1/voided-documents/create" \
+curl -X POST "http://localhost:8000/api/v1/voided-documents/create?validate=true" \
   -H "Content-Type: application/json" \
   -d '{
     "numero": 1,
@@ -76,8 +128,12 @@ curl -X POST "http://localhost:8000/api/v1/voided-documents/create" \
   }'
 ```
 
-## Reglas SUNAT
+## Respuesta esperada
 
-- Se debe enviar dentro de los 7 días calendario siguientes a la fecha de emisión del comprobante.
-- No se puede dar de baja un comprobante ya incluido en un Resumen Diario aceptado.
-- El identificador es `RA-YYYYMMDD-NNNN`.
+```json
+{
+  "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>..."
+}
+```
+
+Si `validate=true` y el cuerpo no cumple las reglas, la API devuelve un error `422` con el detalle de la validación.

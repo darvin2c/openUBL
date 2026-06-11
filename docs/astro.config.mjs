@@ -16,17 +16,21 @@ export default defineConfig({
 				replacesTitle: true,
 			},
 			social: [
-				{ icon: 'github', label: 'GitHub', href: 'https://github.com/openubl/openubl' },
+				{ icon: 'github', label: 'GitHub', href: 'https://github.com/darvin2c/openUBL' },
 			],
 			editLink: {
-				baseUrl: 'https://github.com/openubl/openubl/edit/main/docs/',
+				baseUrl: 'https://github.com/darvin2c/openUBL/edit/main/docs/',
 			},
 			customCss: [
 				'./src/styles/custom.css',
 			],
-			 expressiveCode: {
-				 themes: ['github-light', 'github-dark'],
-			 },
+			expressiveCode: {
+				themes: ['github-light', 'github-dark'],
+				styleOverrides: {
+					borderRadius: '0.75rem',
+					borderWidth: '1px',
+				},
+			},
 			locales: {
 				root: {
 					label: 'Espanol',
@@ -34,6 +38,7 @@ export default defineConfig({
 				},
 			},
 			lastUpdated: true,
+			pagination: true,
 			tableOfContents: {
 				minHeadingLevel: 2,
 				maxHeadingLevel: 4,
@@ -44,47 +49,76 @@ export default defineConfig({
 					items: [
 						{ label: 'Introduccion', slug: 'getting-started/introduccion' },
 						{ label: 'Instalacion', slug: 'getting-started/instalacion' },
-						{ label: 'Primer documento', slug: 'getting-started/primer-documento' },
+						{ label: 'Conceptos SUNAT', slug: 'getting-started/conceptos-sunat' },
+						{ label: 'Tu primer documento', slug: 'getting-started/primer-documento' },
 						{ label: 'Testing', slug: 'testing' },
 					],
 				},
 				{
-					label: 'Guia de uso',
+					label: 'Guías de documentos',
 					items: [
-						{ label: 'Factura', slug: 'guides/factura' },
-						{ label: 'Nota de Credito', slug: 'guides/nota-credito' },
-						{ label: 'Nota de Debito', slug: 'guides/nota-debito' },
+						{ label: 'Factura y Boleta', slug: 'guides/factura' },
+						{ label: 'Nota de Crédito', slug: 'guides/nota-credito' },
+						{ label: 'Nota de Débito', slug: 'guides/nota-debito' },
 						{ label: 'Resumen Diario', slug: 'guides/resumen-diario' },
-						{ label: 'Comunicacion de Baja', slug: 'guides/comunicacion-baja' },
-						{ label: 'Percepcion', slug: 'guides/percepcion' },
-						{ label: 'Retencion', slug: 'guides/retencion' },
+						{ label: 'Comunicación de Baja', slug: 'guides/comunicacion-baja' },
+						{ label: 'Percepción', slug: 'guides/percepcion' },
+						{ label: 'Retención', slug: 'guides/retencion' },
+					],
+				},
+				{
+					label: 'Motor openUBL',
+					items: [
+						{ label: 'Enriquecimiento automático', slug: 'engine/enriquecimiento' },
 						{ label: 'Firma digital', slug: 'guides/firma-digital' },
-						{ label: 'Validacion SUNAT', slug: 'guides/validacion' },
+						{ label: 'Validación SUNAT', slug: 'guides/validacion' },
+						{ label: 'Empaquetado ZIP', slug: 'engine/empaquetado' },
+					],
+				},
+				{
+					label: 'Catálogos SUNAT',
+					items: [
+						{ label: 'Catálogo 01 — Tipo de comprobante', slug: 'catalogs/catalogo-01' },
+						{ label: 'Catálogo 02 — Moneda', slug: 'catalogs/catalogo-02' },
+						{ label: 'Catálogo 05 — Tipo de tributo', slug: 'catalogs/catalogo-05' },
+						{ label: 'Catálogo 06 — Tipo de documento de identidad', slug: 'catalogs/catalogo-06' },
+						{ label: 'Catálogo 07 — Tipo de afectación del IGV', slug: 'catalogs/catalogo-07' },
+						{ label: 'Catálogo 16 — Tipo de precio', slug: 'catalogs/catalogo-16' },
+						{ label: 'Catálogo 19 — Tipo de operación (resumen)', slug: 'catalogs/catalogo-19' },
+						{ label: 'Catálogo 20 — Motivo de traslado', slug: 'catalogs/catalogo-20' },
+						{ label: 'Catálogo 22 — Régimen de percepción', slug: 'catalogs/catalogo-22' },
+						{ label: 'Catálogo 23 — Régimen de retención', slug: 'catalogs/catalogo-23' },
 					],
 				},
 				{
 					label: 'SDKs',
 					items: [
 						{ label: 'TypeScript', slug: 'sdk/typescript' },
+						{ label: 'Python', slug: 'sdk/python' },
 						{ label: 'Java', slug: 'sdk/java' },
 						{ label: 'Go', slug: 'sdk/go' },
-						{ label: 'Python', slug: 'sdk/python' },
 						{ label: 'C#', slug: 'sdk/csharp' },
 					],
 				},
 				{
 					label: 'API',
 					items: [
-						{ label: 'Referencia', slug: 'api/referencia' },
-						{ label: 'OpenAPI', slug: 'api/openapi' },
+						{ label: 'Referencia de endpoints', slug: 'api/referencia' },
+						{ label: 'Esquema OpenAPI', slug: 'api/openapi' },
 					],
 				},
 				{
 					label: 'Ejemplos',
 					items: [
-						{ label: 'Curl', slug: 'examples/curl' },
+						{ label: 'cURL', slug: 'examples/curl' },
 						{ label: 'TypeScript', slug: 'examples/typescript' },
 						{ label: 'Python', slug: 'examples/python' },
+					],
+				},
+				{
+					label: 'Preguntas frecuentes',
+					items: [
+						{ label: 'FAQ', slug: 'faq' },
 					],
 				},
 			],

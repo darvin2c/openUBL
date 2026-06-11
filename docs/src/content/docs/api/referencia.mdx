@@ -9,6 +9,7 @@ La API REST de openUBL expone un conjunto de endpoints para generar XML de compr
 
 | Método | Endpoint | Descripción | Cuerpo | Query params | Respuesta |
 |--------|----------|-------------|--------|--------------|-----------|
+| `GET` | `/api/v1/version` | Devuelve la versión actual de la API | — | — | `{"version": "0.1.1"}` |
 | `POST` | `/api/v1/invoice/create` | Genera el XML de una **Factura Electrónica** (tipo 01) | `Invoice` | `validate` (bool, default `true`) | `{"xml": string}` |
 | `POST` | `/api/v1/credit-note/create` | Genera el XML de una **Nota de Crédito** (tipo 07) | `CreditNote` | `validate` (bool, default `true`) | `{"xml": string}` |
 | `POST` | `/api/v1/debit-note/create` | Genera el XML de una **Nota de Débito** (tipo 08) | `DebitNote` | `validate` (bool, default `true`) | `{"xml": string}` |
@@ -18,9 +19,25 @@ La API REST de openUBL expone un conjunto de endpoints para generar XML de compr
 | `POST` | `/api/v1/retention/create` | Genera el XML de un **Comprobante de Retención** (tipo 20) | `Retention` | `validate` (bool, default `true`) | `{"xml": string}` |
 | `POST` | `/api/v1/sign` | Firma un XML con certificado y clave PEM | `SignPayload` | — | `{"signed_xml": string}` |
 
+### `GET /api/v1/version`
+
+Devuelve la versión actual de openUBL. Útil para verificar compatibilidad entre SDKs y la API desplegada.
+
+```json
+{
+  "version": "0.1.1"
+}
+```
+
 ### Parámetro de consulta `validate`
 
-Todos los endpoints de creación aceptan `?validate=true|false`. Cuando está activo (por defecto), openUBL ejecuta las validaciones SUNAT sobre el XML generado antes de responder. Si el XML no cumple las reglas, la API devuelve `422 Unprocessable Entity` con el listado de errores.
+Todos los endpoints de creación (`/api/v1/*/create`) aceptan el parámetro `?validate=true|false`. Cuando está activo (`true`, valor por defecto), openUBL ejecuta las validaciones SUNAT y del esquema UBL 2.1 sobre el XML generado antes de responder. Si el XML no cumple las reglas, la API devuelve `422 Unprocessable Entity` con el listado de errores detectados.
+
+Usa `?validate=false` únicamente cuando necesites inspeccionar el XML crudo generado a partir de un payload; en producción se recomienda dejar la validación activada.
+
+## Autenticación
+
+La API REST de openUBL es pública por defecto y no requiere autenticación ni tokens de acceso. Cualquier cliente que pueda alcanzar el servidor puede consumir los endpoints. Si expones la API en Internet, colócala detrás de un proxy o gateway con las medidas de seguridad que consideres necesarias.
 
 ## Esquemas de solicitud
 
@@ -167,3 +184,22 @@ Idéntico a `CreditNote` en estructura; representa una Nota de Débito Electrón
 
 - `200 OK` — XML generado o firmado correctamente.
 - `422 Unprocessable Entity` — El documento no pasa las validaciones SUNAT (`validate=true`) o el cuerpo de la petición es inválido.
+
+## Códigos de error SUNAT
+
+openUBL reporta los siguientes códigos de error basados en las reglas de validación SUNAT implementadas en `validator.py`. Cuando `?validate=true`, un documento inválido devuelve `422 Unprocessable Entity` con una lista de mensajes como los de la siguiente tabla.
+
+| Código | Significado |
+|--------|-------------|
+| **ERROR 1001** | Formato de `ID` inválido. Debe coincidir con el patrón `{serie}-{número}`, por ejemplo `F001-123`. |
+| **ERROR 1007** | El `schemeID` del emisor debe ser `6` (RUC). |
+| **ERROR 1008** | El RUC del emisor debe tener exactamente 11 dígitos. |
+| **ERROR 1037** | El `RegistrationName` (razón social) del emisor es obligatorio. |
+| **ERROR 2015** | El `schemeID` del cliente/adquirente es obligatorio. |
+| **ERROR 2062** | El importe total a pagar (`PayableAmount`) debe ser mayor a 0. |
+| **ERROR 2070** | El código de moneda (`DocumentCurrencyCode`) es obligatorio. |
+| **ERROR 2072** | El `CustomizationID` debe ser `2.0` para facturas, notas de crédito y notas de débito; o `1.0` para comunicaciones de baja. |
+| **ERROR 2074** | El `UBLVersionID` debe ser `2.1` para facturas, notas de crédito y notas de débito; o `2.0` para comunicaciones de baja. |
+| **ERROR 3278** | El `LineExtensionAmount` no cuadra con la sumatoria de los valores de venta de las líneas. |
+| **ERROR 3294** | El `TaxTotal` no cuadra con la sumatoria de los impuestos de las líneas. |
+| **ERROR 3305** | El `TaxInclusiveAmount` es obligatorio en el total del comprobante. |

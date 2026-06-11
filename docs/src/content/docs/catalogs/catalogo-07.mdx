@@ -1,0 +1,62 @@
+---
+title: Catálogo 07 — Tipo de afectación del IGV
+description: Códigos SUNAT de afectación del IGV por línea de comprobante en openUBL.
+---
+
+
+Catálogo SUNAT que indica la afectación del Impuesto General a las Ventas (IGV) para cada línea de un comprobante de venta. Determina si la línea es gravada, exonerada o inafecta, y por tanto qué tributo del Catálogo 05 se aplica.
+
+## Tabla de códigos
+
+| Código | Descripción |
+|--------|-------------|
+| 10 | Gravado - Operación Onerosa |
+| 20 | Exonerado - Operación Onerosa |
+| 30 | Inafecto - Operación Onerosa |
+
+## Uso típico
+
+Se utiliza en el campo `tipoAfectacionIGV` de:
+
+- `DocumentoVentaDetalle` (usado por `Invoice`, `CreditNote` y `DebitNote`)
+
+openUBL usa este valor para decidir si calcula IGV y qué categoría de tributo reporta en el XML. El valor por defecto es `"10"` (Gravado - Operación Onerosa).
+
+## Ejemplo
+
+```python
+from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
+from decimal import Decimal
+
+invoice = Invoice(
+    serie="F001",
+    numero=127,
+    proveedor=Proveedor(ruc="20100100100", razonSocial="Mi Empresa S.A.C."),
+    cliente=Cliente(
+        nombre="Cliente Ejemplo",
+        numeroDocumentoIdentidad="20123456789",
+        tipoDocumentoIdentidad="6",
+    ),
+    detalles=[
+        DocumentoVentaDetalle(
+            descripcion="Producto gravado",
+            cantidad=Decimal("2"),
+            precio=Decimal("50.00"),
+            tipoAfectacionIGV="10",
+        ),
+        DocumentoVentaDetalle(
+            descripcion="Producto exonerado",
+            cantidad=Decimal("1"),
+            precio=Decimal("100.00"),
+            tipoAfectacionIGV="20",
+        ),
+        DocumentoVentaDetalle(
+            descripcion="Producto inafecto",
+            cantidad=Decimal("1"),
+            precio=Decimal("80.00"),
+            tipoAfectacionIGV="30",
+        ),
+    ],
+    moneda="PEN",
+)
+```

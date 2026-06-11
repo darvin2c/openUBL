@@ -86,6 +86,12 @@ def run_ts_generate() -> None:
         check=True,
     )
 
+def run_uv_lock() -> None:
+    uv = shutil.which("uv")
+    if not uv:
+        raise FileNotFoundError("uv not found in PATH")
+    subprocess.run([uv, "lock"], cwd=REPO_ROOT, check=True)
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Bump version across all sources")
@@ -108,6 +114,7 @@ def main() -> int:
 
     run_export_openapi()
     run_ts_generate()
+    run_uv_lock()
 
     print(f"OK: bumped to {version}")
     return 0

@@ -1,0 +1,100 @@
+---
+title: Empaquetado ZIP
+description: Cómo empaquetar documentos XML en archivos ZIP listos para SUNAT usando openUBL.
+---
+
+El módulo `openubl.packager` genera archivos ZIP con la estructura y nomenclatura exigidas por SUNAT para el envío de comprobantes electrónicos. Está basado en el *Manual del Programador SUNAT* (RS N° 097-2012/SUNAT).
+
+## Convención de nombres SUNAT
+
+Cada archivo ZIP debe seguir el formato `{RUC}-{TIPO}-{SERIE}-{NUMERO}.zip`:
+
+| Componente | Descripción | Ejemplo |
+|------------|-------------|---------|
+| `RUC` | Número de RUC del emisor | `20100100100` |
+| `TIPO` | Código del tipo de comprobante según SUNAT | `01` (Factura), `03` (Boleta) |
+| `SERIE` | Serie del comprobante | `F001`, `B001` |
+| `NUMERO` | Número correlativo del comprobante | `1`, `42` |
+
+Para documentos de baja y resumen, el `TIPO` y la `SERIE` varían según el tipo de envío:
+
+| Función | Patrón de nombre | Ejemplo |
+|---------|------------------|---------|
+| Facturas, boletas, notas | `{RUC}-{TIPO}-{SERIE}-{NUMERO}.zip` | `20100100100-01-F001-1.zip` |
+| Comunicación de baja | `{RUC}-RA-{YYYYMMDD}-{NUMERO}.zip` | `20100100100-RA-20240115-1.zip` |
+| Resumen diario | `{RUC}-RC-{YYYYMMDD}-{NUMERO}.zip` | `20100100100-RC-20240115-1.zip` |
+| Percepción | `{RUC}-40-{SERIE}-{NUMERO}.zip` | `20100100100-40-P001-1.zip` |
+| Retención | `{RUC}-20-{SERIE}-{NUMERO}.zip` | `20100100100-20-R001-1.zip` |
+
+## Estructura interna del ZIP
+
+Cada ZIP contiene exactamente dos entradas:
+
+1. `dummy/` — directorio vacío requerido por SUNAT.
+2. `{nombre}.xml` — el documento XML firmado.
+
+```
+20100100100-01-F001-1.zip
+├── dummy/
+└── 20100100100-01-F001-1.xml
+```
+
+## Funciones disponibles
+
+| Función | Propósito | Parámetros |
+|---------|-----------|------------|
+| `build_filename(ruc, tipo_comprobante, serie, numero)` | Construye el nombre base SUNAT sin extensión. | `ruc: str`, `tipo_comprobante: str`, `serie: str`, `numero: int` |
+| `package_invoice(xml_string, ruc, tipo_comprobante, serie, numero)` | Empaqueta una factura, boleta o nota. | `xml_string: str`, `ruc: str`, `tipo_comprobante: str`, `serie: str`, `numero: int` |
+| `package_voided_documents(xml_string, ruc, fecha, numero)` | Empaqueta una comunicación de baja. | `xml_string: str`, `ruc: str`, `fecha: date`, `numero: int` |
+| `package_summary_documents(xml_string, ruc, fecha, numero)` | Empaqueta un resumen diario. | `xml_string: str`, `ruc: str`, `fecha: date`, `numero: int` |
+| `package_perception(xml_string, ruc, serie, numero)` | Empaqueta una percepción. | `xml_string: str`, `ruc: str`, `serie: str`, `numero: int` |
+| `package_retention(xml_string, ruc, serie, numero)` | Empaqueta una retención. | `xml_string: str`, `ruc: str`, `serie: str`, `numero: int` |
+
+## Ejemplo: empaquetar una factura
+
+```python
+from openubl.packager import package_invoice
+
+zip_bytes = package_invoice(
+    xml_string,
+    ruc="20100100100",
+    tipo_comprobante="01",
+    serie="F001",
+    numero=1
+)
+
+with open("20100100100-01-F001-1.zip", "wb") as f:
+    f.write(zip_bytes)
+```
+
+## Ejemplo: empaquetar otros documentos
+
+```python
+from datetime import date
+from openubl.packager import (
+    package_voided_documents,
+    package_summary_documents,
+    package_perception,
+    package_retention,
+)
+
+fecha = date(2024, 1, 15)
+
+# Comunicación de baja
+zip_baja = package_voided_documents(xml_baja, ruc="20100100100", fecha=fecha, numero=1)
+
+# Resumen diario
+zip_resumen = package_summary_documents(xml_resumen, ruc="20100100100", fecha=fecha, numero=1)
+
+# Percepción
+zip_percepcion = package_perception(xml_percepcion, ruc="20100100100", serie="P001", numero=1)
+
+# Retención
+zip_retencion = package_retention(xml_retencion, ruc="20100100100", serie="R001", numero=1)
+```
+
+## Notas
+
+- El XML de entrada debe estar firmado digitalmente antes de empaquetarlo.
+- El parámetro `numero` es un entero correlativo. La función no realiza padding; SUNAT lo espera como número decimal sin ceros a la izquierda.
+- Para comunicaciones de baja y resúmenes diarios, la fecha debe ser un objeto `datetime.date` y se formatea como `YYYYMMDD`.

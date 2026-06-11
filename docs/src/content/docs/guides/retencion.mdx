@@ -3,45 +3,76 @@ title: Comprobante de Retención
 description: Guía para generar Comprobantes de Retención (20) con openUBL.
 ---
 
-El **Comprobante de Retención Electrónico** (tipo 20) registra la retención de IGV aplicada a compras o pagos a proveedores. Es un documento adicional a la factura de compra.
+El **Comprobante de Retención Electrónico** (tipo `20`) registra la retención de IGV aplicada a compras o pagos a proveedores. Es un documento adicional a la factura de compra.
 
 ## Campos requeridos
 
+| Campo | Tipo | Descripción | Validación |
+|-------|------|-------------|------------|
+| `serie` | `string` | Serie del comprobante | Patrón `^R\d{3}$`. Ej: `R001`, `R002`. |
+| `numero` | `integer` | Correlativo | Mayor a 0. |
+| `fechaEmision` | `date` | Fecha de emisión | `YYYY-MM-DD`. |
+| `proveedor` | `Proveedor` | Datos del agente de retención (emisor) | `ruc` de 11 dígitos y `razonSocial` obligatorios. |
+| `cliente` | `Cliente` | Datos del retenido (proveedor) | Campos obligatorios del cliente. |
+| `importeTotalRetenido` | `Decimal` | Total retenido | Debe ser positivo. |
+| `importeTotalPagado` | `Decimal` | Total pagado (monto neto) | Debe ser positivo. |
+| `tipoRegimen` | `string` | Régimen de retención | Catálogo N.° 23: `01`, `02`, `03`. |
+| `tipoRegimenPorcentaje` | `Decimal` | Porcentaje del régimen | Ej: `0.03` para 3%. |
+| `operaciones` | `PercepcionRetencionOperacion[]` | Operaciones retenidas | Al menos una operación. |
+
+## Campos opcionales
+
+El modelo `Retention` no tiene campos opcionales a nivel raíz.
+
+## Operación de retención (`PercepcionRetencionOperacion`)
+
+| Campo | Tipo | Descripción | Validación |
+|-------|------|-------------|------------|
+| `numeroOperacion` | `int` | Número de operación | Mayor a 0. |
+| `fechaOperacion` | `date` | Fecha de la operación | `YYYY-MM-DD`. |
+| `importeOperacion` | `Decimal` | Importe retenido en esta operación | Debe ser positivo. |
+| `comprobante` | `ComprobanteAfectado` | Comprobante afectado | Ver detalle abajo. |
+
+### `ComprobanteAfectado`
+
 | Campo | Tipo | Descripción |
 |-------|------|-------------|
-| `serie` | `string` | Serie: `R001`, `R002`, etc. (formato `R###`) |
-| `numero` | `integer` | Correlativo |
-| `fechaEmision` | `date` | Fecha de emisión (`YYYY-MM-DD`) |
-| `proveedor` | `Proveedor` | Datos del agente de retención (emisor) |
-| `cliente` | `Cliente` | Datos del retenido (proveedor) |
-| `importeTotalRetenido` | `Decimal` | Total retenido |
-| `importeTotalPagado` | `Decimal` | Total pagado (monto neto) |
-| `tipoRegimen` | `string` | Catálogo N.° 23: `01`, `02`, `03` |
-| `tipoRegimenPorcentaje` | `Decimal` | Porcentaje del régimen |
-| `operaciones` | `PercepcionRetencionOperacion[]` | Operaciones retenidas |
+| `tipoComprobante` | `string` | Tipo del comprobante afectado (Catálogo N.° 01). |
+| `serieNumero` | `string` | Serie-número del comprobante. |
+| `fechaEmision` | `date` | Fecha de emisión. |
+| `importeTotal` | `Decimal` | Importe total del comprobante. |
+| `moneda` | `string` | Moneda del comprobante. |
 
-## Operación de retención
+## Reglas SUNAT aplicables
 
-Cada elemento de `operaciones` contiene:
+| Código / Regla | Descripción |
+|----------------|-------------|
+| `2074` (Perception/Retention) | `UBLVersionID` debe ser `2.0`. |
+| `2072` (Perception/Retention) | `CustomizationID` debe ser `1.0`. |
+| `1001` | El ID debe tener formato `serie-número`. |
+| `1007` | `schemeID` del agente de retención debe ser `6` (RUC). |
+| `1008` | RUC del agente de retención debe tener 11 dígitos. |
+| `1037` | `RegistrationName` del agente es obligatorio. |
+| Serie | Debe iniciar con `R`. |
+| Total | `importeTotalPagado = importeTotalComprobante - importeTotalRetenido` (debe cuadrar por operación). |
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `numeroOperacion` | `int` | Número de operación |
-| `fechaOperacion` | `date` | Fecha de la operación |
-| `importeOperacion` | `Decimal` | Importe retenido en esta operación |
-| `comprobante.tipoComprobante` | `string` | Tipo del comprobante afectado |
-| `comprobante.serieNumero` | `string` | Serie-numero del comprobante |
-| `comprobante.fechaEmision` | `date` | Fecha del comprobante |
-| `comprobante.importeTotal` | `Decimal` | Importe total del comprobante |
-| `comprobante.moneda` | `string` | Moneda del comprobante |
+## Regímenes de retención (Catálogo N.° 23)
 
-## Ejemplo en Python
+| Código | Descripción | Tasa típica |
+|--------|-------------|-------------|
+| `01` | Tasa 3% | 3% |
+| `02` | Tasa 6% | 6% |
+| `03` | Tasa mixta | Variable |
+
+## Ejemplo Python completo
 
 ```python
 from openubl.models import (
     Retention, PercepcionRetencionOperacion,
     ComprobanteAfectado, Proveedor, Cliente,
 )
+from openubl.renderer import render_retention
+from openubl.validator import SunatValidator
 from decimal import Decimal
 from datetime import date
 
@@ -78,17 +109,27 @@ retention = Retention(
     ],
 )
 
-xml = retention.render()
+xml = render_retention(retention)
+errors = SunatValidator().validate_schema(
+    xml,
+    "sunat_schemas/xsd_2.1/2.0/maindoc/UBLPE-Retention-1.0.xsd",
+)
+assert errors == []
+print(xml)
 ```
+
+## Nota sobre enriquecimiento
+
+`ContentEnricher` no enriquece `Retention`. Los totales y los importes por operación deben proporcionarse explícitamente.
 
 ## Endpoint
 
 ```bash
-POST /api/v1/retention/create
+POST /api/v1/retention/create?validate=true
 ```
 
 ```bash
-curl -X POST "http://localhost:8000/api/v1/retention/create" \
+curl -X POST "http://localhost:8000/api/v1/retention/create?validate=true" \
   -H "Content-Type: application/json" \
   -d '{
     "serie": "R001",
@@ -115,10 +156,12 @@ curl -X POST "http://localhost:8000/api/v1/retention/create" \
   }'
 ```
 
-## Regímenes de retención (Catálogo N.° 23)
+## Respuesta esperada
 
-| Código | Descripción | Tasa típica |
-|--------|-------------|-------------|
-| `01` | Tasa 3% | 3% |
-| `02` | Tasa 6% | 6% |
-| `03` | Tasa mixta | Variable |
+```json
+{
+  "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>..."
+}
+```
+
+Si `validate=true` y el cuerpo no cumple las reglas, la API devuelve un error `422` con el detalle de la validación.
