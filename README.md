@@ -135,13 +135,8 @@ Esto ejecuta `bump_version.py`, crea el commit `release: v0.2.0` y el tag anotad
 
 ### Prerequisites
 
-Configure your git email before manual releases:
-
-```bash
-git config user.email "darvin.2c@gmail.com"
-```
-
 Repository secrets required for CI publication:
+
 - `NPM_TOKEN` — npm access token with publish rights for `@openubl` scope.
 - `PYPI_API_TOKEN` — PyPI API token for the `openubl` project.
 

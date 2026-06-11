@@ -124,10 +124,6 @@ Esta es la fuente autorizada de SUNAT para:
 - `POST /api/v1/voided-documents/create` → Comunicación de baja (RA)
 - `POST /api/v1/summary-documents/create` → Resumen diario (RC)
 - `POST /api/v1/perception/create` → Percepción
-- `POST /api/v1/retention/create` → Retención
-- `POST /api/v1/sign` → Firma digital de XML arbitrario
-- `GET /api/v1/version` → Versión actual de la API
-
 ## Contacto / autor
 
-Darvin <darvin.2c@gmail.com>
+Consulta el repositorio en GitHub para información del mantenedor.
