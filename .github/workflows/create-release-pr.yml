@@ -67,6 +67,9 @@ jobs:
         with:
           node-version: 22
 
+      - name: Install npm dependencies
+        run: cd sdk/typescript && npm ci
+
       - name: Bump version
         run: uv run python scripts/bump_version.py ${{ steps.version.outputs.version }}
 
@@ -79,11 +82,8 @@ jobs:
           git checkout -b "$BRANCH"
           git add -A
           git commit -m "release: v${VERSION}"
-      - name: Install npm dependencies
-        run: cd sdk/typescript && npm ci
-
-      - name: Bump version
-        run: uv run python scripts/bump_version.py ${{ steps.version.outputs.version }}
+          git push origin "$BRANCH"
+          gh pr create \
             --title "release: v${VERSION}" \
             --body "Release PR automático. Mergea para crear el tag v${VERSION} y disparar la publicación a npm/PyPI." \
             --base main \
