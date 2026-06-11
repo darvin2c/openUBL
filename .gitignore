@@ -28,3 +28,6 @@ sdk/typescript/src/openubl-types.ts
 # Documentation build output
 docs/dist/
 docs/.astro/
+
+# Local tools (e.g. downloaded binaries)
+.tools/
