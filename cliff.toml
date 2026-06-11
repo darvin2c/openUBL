@@ -81,9 +81,11 @@ commit_preprocessors = [
 # An array of regex based parsers for extracting data from the commit message.
 commit_parsers = [
   # Skip release commits.
-  { message = "^chore\\(release\\):", skip = true },
+  { message = "^chore\\(release\\):|^release:", skip = true },
   # Skip commits without a scope, except breaking changes.
-  { message = "^[a-z]+:", skip = true },
+  # NOTE: the regex below was too broad (^feat: matched ^[a-z]+:). Disabled;
+  # filter_unconventional = true already drops non-conventional commits.
+  # { message = "^[a-z]+:", skip = true },
   { message = "^feat", group = "<!-- 0 -->Features" },
   { message = "^fix", group = "<!-- 1 -->Bug Fixes" },
   { message = "^doc", group = "<!-- 3 -->Documentation" },
