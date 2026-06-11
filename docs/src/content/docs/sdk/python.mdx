@@ -1,13 +1,19 @@
 ---
 title: Python SDK
-description: Generación y uso del SDK de Python para openUBL con openapi-generator-cli o la biblioteca nativa.
+description: Uso de la biblioteca nativa openubl y generación de clientes con openapi-generator-cli.
 ---
 
-openUBL ofrece dos alternativas para trabajar con Python: utilizar la biblioteca nativa del proyecto o generar un cliente tipado a partir de `openapi.json`.
+openUBL ofrece dos alternativas para trabajar con Python. La forma recomendada es utilizar la biblioteca nativa (`openubl`), que incluye modelos Pydantic, renderizado de XML, firma digital y validación SUNAT integrada.
 
-## Opción A: biblioteca nativa
+## Opción A: biblioteca nativa (oficial)
 
-Si trabajas directamente con el código fuente de openUBL, puedes importar los modelos Pydantic definidos en `src/openubl/models`:
+Instala el paquete desde PyPI:
+
+```bash
+pip install openubl
+```
+
+Importa los modelos Pydantic definidos en `openubl.models`:
 
 ```python
 from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
@@ -35,6 +41,24 @@ invoice = Invoice(
 
 xml_output = invoice.to_xml()
 print(xml_output)
+```
+
+Puedes consultar la versión instalada rápidamente:
+
+```python
+import openubl
+print(openubl.__version__)
+```
+
+### Validación de versión
+
+El módulo `openubl.version` expone `check_api_version` para verificar en runtime que la versión de la API coincide con la del SDK:
+
+```python
+from openubl.version import check_api_version
+
+result = check_api_version("http://localhost:8000")
+assert result["ok"], f"Desfase de versión: SDK {result['sdk_version']} vs API {result['api_version']}"
 ```
 
 ## Opción B: generar un cliente con openapi-generator-cli
@@ -88,6 +112,6 @@ response = api.api_v1_invoice_create_post(invoice=invoice)
 print(response.xml)
 ```
 
-:::note
+::::note
 Los nombres de clases y métodos del cliente generado siguen las convenciones de `openapi-generator` para Python (snake_case). Revisa `sdk/python/openubl_client/` para confirmar los identificadores exactos.
-:::
+::::
