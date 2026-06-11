@@ -25,7 +25,12 @@ openubl/
 │   ├── export_openapi.py      # Exporta openapi.json desde FastAPI
 │   ├── check_sdk_sync.py      # Valida sincronización de versiones + openapi.json
 │   ├── bump_version.py        # Bump atómico de versión en todas las fuentes
-│   └── create_release.py      # Bump + commit + tag anotado
+│   └── create_release.py      # Bump + commit + tag anotado (manual)
+├── .github/workflows/
+│   ├── create-release-pr.yml  # Crea PR de release desde label de PR mergeado
+│   ├── tag-on-release-pr.yml  # Crea tag al mergear PR de release
+│   ├── publish-npm.yml        # Publica @openubl/sdk en npm
+│   └── publish-pypi.yml       # Publica openubl en PyPI
 ├── tests/                 # Suite pytest
 ├── openapi.json           # Esquema OpenAPI 3.1.0 (single source of truth)
 ├── pyproject.toml         # Config Python (openubl)
@@ -53,6 +58,23 @@ uv run python scripts/check_sdk_sync.py
 ```
 
 ## Cómo crear un release
+
+Cuando un PR se mergea a `main` con un label `release:patch`, `release:minor` o `release:major`:
+
+| Label | Color HEX | Resultado |
+|-------|-----------|-----------|
+| `release:patch` | `#22c55e` | Bugfix → `0.1.0` → `0.1.1` |
+| `release:minor` | `#f59e0b` | Feature → `0.1.0` → `0.2.0` |
+| `release:major` | `#ef4444` | Breaking → `0.1.0` → `1.0.0` |
+
+> El label `release` (`#3b82f6`) se aplica automáticamente al PR de release generado por el workflow.
+
+1. `.github/workflows/create-release-pr.yml` se ejecuta y crea un **PR de release** con el bump de versión.
+2. El maintainer revisa y mergea el PR de release.
+3. `.github/workflows/tag-on-release-pr.yml` se ejecuta y crea automáticamente el tag `vX.Y.Z`.
+4. `.github/workflows/publish-npm.yml` y `publish-pypi.yml` se disparan y publican los paquetes.
+
+### Flujo manual (fallback)
 
 ```bash
 uv run python scripts/create_release.py 0.2.0

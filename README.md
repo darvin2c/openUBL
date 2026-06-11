@@ -97,36 +97,45 @@ Check that `openapi.json` is up to date:
 uv run python scripts/check_sdk_sync.py
 ```
 
-
 ## Releases
 
-The project uses [Semantic Versioning](https://semver.org/). All version sources must stay synchronized.
+The project uses [Semantic Versioning](https://semver.org/).
 
-### Bump and tag a new version
+### Flujo automático (recomendado)
+
+Cada vez que mergeas un PR a `main`, puedes solicitar un release automático agregando un **label** al PR antes de mergearlo:
+
+| Label | Color | Resultado |
+|-------|-------|-----------|
+| `release:patch` | <span style="background:#22c55e;color:#fff;padding:2px 6px;border-radius:4px;">#22c55e</span> | Bugfix → `0.1.0` → `0.1.1` |
+| `release:minor` | <span style="background:#f59e0b;color:#fff;padding:2px 6px;border-radius:4px;">#f59e0b</span> | Feature → `0.1.0` → `0.2.0` |
+| `release:major` | <span style="background:#ef4444;color:#fff;padding:2px 6px;border-radius:4px;">#ef4444</span> | Breaking → `0.1.0` → `1.0.0` |
+
+> El label `release` (color <span style="background:#3b82f6;color:#fff;padding:2px 6px;border-radius:4px;">#3b82f6</span>) se aplica automáticamente al PR de release generado por el workflow; no hace falta crearlo manualmente.
+
+**Qué pasa automáticamente:**
+1. Al mergear el PR, un workflow crea un **PR de release** con el bump de versión ya aplicado.
+2. Tú revisas y mergeas el PR de release.
+3. Al mergear el PR de release, otro workflow crea automáticamente el **tag** `vX.Y.Z`.
+4. El tag dispara la publicación a **npm** (`@openubl/sdk`) y **PyPI** (`openubl`).
+
+**Nada se pushea directo a `main` sin un PR.** El flujo es seguro y auditable.
+
+### Flujo manual (fallback)
+
+Si prefieres control total, usa el script local:
 
 ```bash
 uv run python scripts/create_release.py 0.2.0
-```
-
-This script will:
-1. Run `bump_version.py` to update all 7 version sources atomically.
-2. Commit the changes with message `release: v0.2.0`.
-3. Create an annotated tag `v0.2.0`.
-
-Then push:
-
-```bash
-git push origin feat/sdk-publish-version-sync
+git push origin main
 git push origin v0.2.0
 ```
 
-Pushing the `v*` tag triggers the CI workflows that publish:
-- `@openubl/sdk` to **npm**
-- `openubl` to **PyPI**
+Esto ejecuta `bump_version.py`, crea el commit `release: v0.2.0` y el tag anotado `v0.2.0`.
 
 ### Prerequisites
 
-Configure your git email before creating releases:
+Configure your git email before manual releases:
 
 ```bash
 git config user.email "darvin.2c@gmail.com"
