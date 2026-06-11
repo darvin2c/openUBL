@@ -45,6 +45,7 @@ export default defineConfig({
 						{ label: 'Introduccion', slug: 'getting-started/introduccion' },
 						{ label: 'Instalacion', slug: 'getting-started/instalacion' },
 						{ label: 'Primer documento', slug: 'getting-started/primer-documento' },
+						{ label: 'Testing', slug: 'testing' },
 					],
 				},
 				{

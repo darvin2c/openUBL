@@ -124,3 +124,11 @@ class TestApiSign:
         })
         assert response.status_code == 200
         assert "VoidedDocuments" in response.json()["xml"]
+
+
+class TestApiVersion:
+    def test_api_version_returns_current_version(self):
+        from openubl import __version__
+        response = client.get("/api/v1/version")
+        assert response.status_code == 200
+        assert response.json()["version"] == __version__

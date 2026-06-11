@@ -1,28 +1,12 @@
----
-title: TypeScript SDK
-description: Instalación y uso del SDK de TypeScript para openUBL con openapi-fetch.
----
+# @openubl/sdk
 
-El SDK de TypeScript ofrece tipos generados a partir del esquema OpenAPI y un cliente con autocompletado para todos los endpoints.
+SDK de TypeScript para openUBL. Ofrece tipos generados a partir del esquema OpenAPI y un cliente con autocompletado para todos los endpoints de la API REST.
 
 ## Instalación
 
 ```bash
 npm install @openubl/sdk
 ```
-
-## Generar tipos
-
-Si necesitas regenerar los tipos desde el esquema más reciente:
-
-```bash
-cd sdk/typescript
-npm install
-npm run generate
-npm run build
-```
-
-El script `generate` ejecuta `openapi-typescript` sobre `openapi.json` y produce `src/openubl-types.ts`.
 
 ## Uso
 
@@ -67,9 +51,7 @@ if (error) {
 console.log(data.xml); // XML UBL 2.1 generado
 ```
 
-El método `POST` infiere automáticamente el tipo del cuerpo a partir de la ruta. Si omites un campo obligatorio, TypeScript reportará el error en tiempo de compilación.
-
-### Validación de versión
+## Validación de versión
 
 El SDK expone `checkApiVersion` para verificar en runtime que la versión de la API coincide con la del SDK:
 
@@ -82,4 +64,16 @@ if (!result.ok) {
     `Desfase de versión: SDK ${result.sdkVersion} vs API ${result.apiVersion}`
   );
 }
+```
+
+Si la API no responde o las versiones difieren, la función lanza un error o retorna `ok: false`.
+
+## Desarrollo
+
+```bash
+cd sdk/typescript
+npm install
+npm run generate   # regenera src/openubl-types.ts desde openapi.json
+npm run build      # compila TypeScript
+npm test           # ejecuta la suite de tests
 ```

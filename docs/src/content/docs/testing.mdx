@@ -1,0 +1,50 @@
+---
+title: Testing y calidad
+description: Cómo ejecutar tests de Python y TypeScript, y cómo verificar la sincronización de versiones.
+---
+
+## Ejecutar tests de Python
+
+La suite de tests de Python usa `pytest` y está organizada por marcadores:
+
+```bash
+# Todos los tests excepto E2E
+uv run pytest -m "not e2e"
+
+# Todos los tests (incluidos E2E; requiere credenciales SUNAT beta)
+uv run pytest
+
+# Solo tests E2E (requiere la variable de entorno SUNAT_BETA_RUC)
+uv run pytest -m e2e
+```
+
+## Ejecutar tests del SDK TypeScript
+
+```bash
+cd sdk/typescript
+npm install
+npm run generate
+npm run build
+npm test
+```
+
+## Verificar sincronización
+
+Antes de publicar, verifica que todas las fuentes de versión estén alineadas y que `openapi.json` esté actualizado:
+
+```bash
+uv run python scripts/check_sdk_sync.py
+```
+
+Si alguna fuente de versión difiere o el esquema está desfasado, el script retornará código de error 1.
+
+## Suites de tests
+
+- **`test_models.py`** — validación Pydantic de modelos.
+- **`test_render.py`** — generación de XML UBL 2.1.
+- **`test_sign.py`** — firma digital XAdES-EPES.
+- **`test_validator.py`** — reglas SUNAT sobre XML generado.
+- **`test_api.py`** — tests de integración contra la API REST FastAPI.
+- **`test_e2e_sunat_beta.py`** — envío real al ambiente beta de SUNAT (requiere credenciales).
+- **`test_sdk_types.py`** — presencia de modelos en `openapi.json`.
+- **`sdk/typescript/test/client.test.ts`** — tipado estático y round-trip runtime del SDK TS.

@@ -97,6 +97,59 @@ Check that `openapi.json` is up to date:
 uv run python scripts/check_sdk_sync.py
 ```
 
+## Releases
+
+The project uses [Semantic Versioning](https://semver.org/).
+
+### Flujo automático (recomendado)
+
+Cada vez que mergeas un PR a `main`, puedes solicitar un release automático agregando un **label** al PR antes de mergearlo:
+
+| Label | Color | Resultado |
+|-------|-------|-----------|
+| `release:patch` | <span style="background:#22c55e;color:#fff;padding:2px 6px;border-radius:4px;">#22c55e</span> | Bugfix → `0.1.0` → `0.1.1` |
+| `release:minor` | <span style="background:#f59e0b;color:#fff;padding:2px 6px;border-radius:4px;">#f59e0b</span> | Feature → `0.1.0` → `0.2.0` |
+| `release:major` | <span style="background:#ef4444;color:#fff;padding:2px 6px;border-radius:4px;">#ef4444</span> | Breaking → `0.1.0` → `1.0.0` |
+
+> El label `release` (color <span style="background:#3b82f6;color:#fff;padding:2px 6px;border-radius:4px;">#3b82f6</span>) se aplica automáticamente al PR de release generado por el workflow; no hace falta crearlo manualmente.
+
+**Qué pasa automáticamente:**
+1. Al mergear el PR, un workflow crea un **PR de release** con el bump de versión ya aplicado.
+2. Tú revisas y mergeas el PR de release.
+3. Al mergear el PR de release, otro workflow crea automáticamente el **tag** `vX.Y.Z`.
+4. El tag dispara la publicación a **npm** (`@openubl/sdk`) y **PyPI** (`openubl`).
+
+**Nada se pushea directo a `main` sin un PR.** El flujo es seguro y auditable.
+
+### Flujo manual (fallback)
+
+Si prefieres control total, usa el script local:
+
+```bash
+uv run python scripts/create_release.py 0.2.0
+git push origin main
+git push origin v0.2.0
+```
+
+Esto ejecuta `bump_version.py`, crea el commit `release: v0.2.0` y el tag anotado `v0.2.0`.
+
+### Prerequisites
+
+Repository secrets required for CI publication:
+
+- `NPM_TOKEN` — npm access token with publish rights for `@openubl` scope.
+- `PYPI_API_TOKEN` — PyPI API token for the `openubl` project.
+
+### Validate before releasing
+
+```bash
+uv run python scripts/check_sdk_sync.py
+```
+
+This verifies:
+- All 7 version sources are identical.
+- `openapi.json` is up to date with the FastAPI schema.
+
 ## Supported Documents
 
 | Tipo | Schema | Endpoint |
