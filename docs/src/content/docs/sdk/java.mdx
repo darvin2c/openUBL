@@ -74,6 +74,71 @@ public class Ejemplo {
 }
 ```
 
+## Firma digital
+
+El cliente generado puede firmar el XML llamando al endpoint `/api/v1/sign` con PEM o con PFX/P12.
+
+### Firma con PEM
+
+```java
+import com.openubl.client.ApiClient;
+import com.openubl.client.api.SignApi;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Map;
+
+public class EjemploFirma {
+    public static void main(String[] args) throws Exception {
+        String certPem = Files.readString(Paths.get("certificado.pem"));
+        String keyPem = Files.readString(Paths.get("llave_privada.pem"));
+
+        ApiClient client = new ApiClient();
+        client.setBasePath("http://localhost:8000");
+
+        SignApi signApi = new SignApi(client);
+        var response = signApi.apiV1SignPost(
+            Map.of(
+                "xml", xml,
+                "cert_pem", certPem,
+                "key_pem", keyPem
+            )
+        );
+        System.out.println(response.getData().getSignedXml());
+    }
+}
+```
+
+### Firma con PFX/P12
+
+```java
+import com.openubl.client.ApiClient;
+import com.openubl.client.api.SignApi;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Base64;
+import java.util.Map;
+
+public class EjemploFirmaPfx {
+    public static void main(String[] args) throws Exception {
+        byte[] pfxBytes = Files.readAllBytes(Paths.get("certificado.pfx"));
+        String pfxBase64 = Base64.getEncoder().encodeToString(pfxBytes);
+
+        ApiClient client = new ApiClient();
+        client.setBasePath("http://localhost:8000");
+
+        SignApi signApi = new SignApi(client);
+        var response = signApi.apiV1SignPost(
+            Map.of(
+                "xml", xml,
+                "pfx_base64", pfxBase64,
+                "pfx_password", "mi_clave"
+            )
+        );
+        System.out.println(response.getData().getSignedXml());
+    }
+}
+```
+
 :::note
 Los nombres exactos de los métodos del cliente pueden variar según las etiquetas de operación definidas en `openapi.json`. Revisa las clases generadas en `sdk/java/src/main/java/` para confirmar los identificadores finales.
 :::

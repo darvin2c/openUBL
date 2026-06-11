@@ -43,6 +43,43 @@ xml_output = invoice.to_xml()
 print(xml_output)
 ```
 
+### Firma digital
+
+La biblioteca nativa expone `sign_ubl_xml` para firmar el XML directamente en el proceso, sin depender del servicio REST.
+
+#### Firma con PEM
+
+```python
+from openubl.signer import sign_ubl_xml
+
+with open("certificado.pem", "r") as f:
+    cert_pem = f.read()
+
+with open("llave_privada.pem", "r") as f:
+    key_pem = f.read()
+
+signed_xml = sign_ubl_xml(
+    xml_output,
+    cert_pem=cert_pem,
+    key_pem=key_pem,
+    signature_id="SignSUNAT",
+)
+print(signed_xml)
+```
+
+#### Firma con PFX/P12
+
+```python
+from openubl.signer import load_pfx, sign_ubl_xml
+
+with open("certificado.pfx", "rb") as f:
+    pfx_bytes = f.read()
+
+key_pem, cert_pem = load_pfx(pfx_bytes, password="mi_clave")
+signed_xml = sign_ubl_xml(xml_output, cert_pem, key_pem)
+print(signed_xml)
+```
+
 Puedes consultar la versión instalada rápidamente:
 
 ```python
@@ -110,6 +147,48 @@ invoice = Invoice(
 
 response = api.api_v1_invoice_create_post(invoice=invoice)
 print(response.xml)
+```
+
+### Firma digital
+
+El cliente generado puede firmar el XML llamando al endpoint `/api/v1/sign` con PEM o con PFX/P12.
+
+#### Firma con PEM
+
+```python
+from openubl_client.api.sign_api import SignApi
+
+with open("certificado.pem", "r") as f:
+    cert_pem = f.read()
+
+with open("llave_privada.pem", "r") as f:
+    key_pem = f.read()
+
+sign_api = SignApi(client)
+sign_response = sign_api.api_v1_sign_post(body={
+    "xml": response.xml,
+    "cert_pem": cert_pem,
+    "key_pem": key_pem,
+})
+print(sign_response["signed_xml"])
+```
+
+#### Firma con PFX/P12
+
+```python
+import base64
+from openubl_client.api.sign_api import SignApi
+
+with open("certificado.pfx", "rb") as f:
+    pfx_base64 = base64.b64encode(f.read()).decode("ascii")
+
+sign_api = SignApi(client)
+sign_response = sign_api.api_v1_sign_post(body={
+    "xml": response.xml,
+    "pfx_base64": pfx_base64,
+    "pfx_password": "mi_clave",
+})
+print(sign_response["signed_xml"])
 ```
 
 ::::note

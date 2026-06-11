@@ -74,6 +74,67 @@ catch (ApiException ex)
 }
 ```
 
+## Firma digital
+
+El cliente generado puede firmar el XML llamando al endpoint `/api/v1/sign` con PEM o con PFX/P12.
+
+### Firma con PEM
+
+```csharp
+using Openubl.Client;
+using Openubl.Api;
+
+var config = new Configuration
+{
+    BasePath = "http://localhost:8000"
+};
+
+var client = new ApiClient(config);
+var signApi = new SignApi(client);
+
+var certPem = File.ReadAllText("certificado.pem");
+var keyPem = File.ReadAllText("llave_privada.pem");
+
+var body = new Dictionary<string, object>
+{
+    ["xml"] = xml,
+    ["cert_pem"] = certPem,
+    ["key_pem"] = keyPem,
+};
+
+var signResponse = signApi.ApiV1SignPost(body);
+Console.WriteLine(signResponse.SignedXml);
+```
+
+### Firma con PFX/P12
+
+```csharp
+using System;
+using Openubl.Client;
+using Openubl.Api;
+
+var config = new Configuration
+{
+    BasePath = "http://localhost:8000"
+};
+
+var client = new ApiClient(config);
+var signApi = new SignApi(client);
+
+var pfxBytes = File.ReadAllBytes("certificado.pfx");
+var pfxBase64 = Convert.ToBase64String(pfxBytes);
+
+var body = new Dictionary<string, object>
+{
+    ["xml"] = xml,
+    ["pfx_base64"] = pfxBase64,
+    ["pfx_password"] = "mi_clave",
+};
+
+var signResponse = signApi.ApiV1SignPost(body);
+Console.WriteLine(signResponse.SignedXml);
+```
+
 :::note
 El espacio de nombres (`Openubl`) y los nombres de métodos pueden variar ligeramente según la versión del generador y las etiquetas de operación definidas en `openapi.json`. Consulta `sdk/csharp/src/Openubl/` para verificar los identificadores exactos.
 :::
