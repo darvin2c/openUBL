@@ -1,0 +1,94 @@
+name: Publish Release
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: "https://registry.npmjs.org"
+      - run: uv sync
+      - run: uv run pytest -m "not e2e"
+      - run: uv run python scripts/check_sdk_sync.py
+      - run: cd sdk/typescript && npm ci && npm run generate && npm run build && npm test
+      - run: uv build
+
+  publish-pypi:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+      - run: uv sync
+      - run: uv build
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+
+  publish-npm:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: "https://registry.npmjs.org"
+      - run: cd sdk/typescript && npm ci && npm run generate && npm run build
+      - run: cd sdk/typescript && npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  release-notes:
+    needs: [publish-pypi, publish-npm]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Generate changelog
+        id: git-cliff
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --latest --strip header
+        env:
+          OUTPUT: CHANGES.md
+          GITHUB_REPO: ${{ github.repository }}
+      - name: Build release body
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          {
+            echo "📦 **PyPI**: [openubl ${VERSION}](https://pypi.org/project/openubl/${VERSION}/)"
+            echo ""
+            echo '```bash'
+            echo "pip install openubl==${VERSION}"
+            echo '```'
+            echo ""
+            echo "📦 **npm**: [@openubl/sdk ${VERSION}](https://www.npmjs.com/package/@openubl/sdk/v/${VERSION})"
+            echo ""
+            echo '```bash'
+            echo "npm install @openubl/sdk@${VERSION}"
+            echo '```'
+            echo ""
+            echo "---"
+            echo ""
+            cat CHANGES.md
+          } > RELEASE_BODY.md
+      - name: Create GitHub Release
+        run: |
+          BODY=$(cat RELEASE_BODY.md)
+          gh release create "$GITHUB_REF_NAME" \
+            --title "Release $GITHUB_REF_NAME" \
+            --notes "$BODY"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

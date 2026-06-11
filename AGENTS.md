@@ -21,16 +21,14 @@ openubl/
 │   ├── src/               # Código fuente (client.ts, version.ts, openubl-types.ts)
 │   ├── test/              # Tests Vitest
 │   └── dist/              # Emitido por tsc
-├── scripts/
-│   ├── export_openapi.py      # Exporta openapi.json desde FastAPI
-│   ├── check_sdk_sync.py      # Valida sincronización de versiones + openapi.json
-│   ├── bump_version.py        # Bump atómico de versión en todas las fuentes
-│   └── create_release.py      # Bump + commit + tag anotado (manual)
-├── .github/workflows/
-│   ├── create-release-pr.yml  # Crea PR de release desde label de PR mergeado
-│   ├── tag-on-release-pr.yml  # Crea tag al mergear PR de release
-│   ├── publish-npm.yml        # Publica @openubl/sdk en npm
-│   └── publish-pypi.yml       # Publica openubl en PyPI
+  ├── scripts/
+  │   ├── export_openapi.py      # Exporta openapi.json desde FastAPI
+  │   ├── check_sdk_sync.py      # Valida sincronización de versiones + openapi.json
+  │   ├── bump_version.py        # Bump atómico de versión en todas las fuentes
+  │   └── release.py             # Script único de release (bump, commit, tag, push, rollback)
+  ├── .github/workflows/
+  │   ├── ci.yml                 # Tests y build en PR
+  │   └── publish.yml            # Publica en PyPI + npm y crea GitHub Release
 ├── tests/                 # Suite pytest
 ├── openapi.json           # Esquema OpenAPI 3.1.0 (single source of truth)
 ├── pyproject.toml         # Config Python (openubl)
@@ -67,23 +65,33 @@ Cuando un PR se mergea a `main` con un label `release:patch`, `release:minor` o 
 | `release:minor` | `#f59e0b` | Feature → `0.1.0` → `0.2.0` |
 | `release:major` | `#ef4444` | Breaking → `0.1.0` → `1.0.0` |
 
-> El label `release` (`#3b82f6`) se aplica automáticamente al PR de release generado por el workflow.
+1. Ejecuta localmente (detecta el label automáticamente):
+   ```bash
+   uv run python scripts/release.py --from-label --push
+   ```
+   > Requiere la CLI `gh` instalada y autenticada.
 
-1. `.github/workflows/create-release-pr.yml` se ejecuta y crea un **PR de release** con el bump de versión.
-2. El maintainer revisa y mergea el PR de release.
-3. `.github/workflows/tag-on-release-pr.yml` se ejecuta y crea automáticamente el tag `vX.Y.Z`.
-4. `.github/workflows/publish-npm.yml` y `publish-pypi.yml` se disparan y publican los paquetes.
+2. El workflow `.github/workflows/publish.yml` se disparará automáticamente en GitHub Actions por el tag `v*`.
 
 ### Flujo manual (fallback)
 
 ```bash
-uv run python scripts/create_release.py 0.2.0
-# Luego:
-git push origin <rama>
-git push origin v0.2.0
+# Bump por tipo
+uv run python scripts/release.py --type minor --push
+
+# O versión exacta
+uv run python scripts/release.py 0.2.0 --push
 ```
 
-Los tags `v*` disparan los workflows de publicación en npm y PyPI.
+### Rollback
+
+Si algo sale mal después de crear el release localmente:
+
+```bash
+uv run python scripts/release.py --rollback
+```
+
+Esto elimina el tag local y hace `git reset --hard HEAD~1`.
 
 ## Reglas de dominio (no inventar)
 
