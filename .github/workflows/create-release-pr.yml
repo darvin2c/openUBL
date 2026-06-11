@@ -7,7 +7,7 @@ on:
 
 jobs:
   create-release-pr:
-    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release:')
+    if: github.event.pull_request.mergedAt != null && contains(join(github.event.pull_request.labels.*.name, ','), 'release:')
     runs-on: ubuntu-latest
     permissions:
       contents: write
