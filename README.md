@@ -97,6 +97,55 @@ Check that `openapi.json` is up to date:
 uv run python scripts/check_sdk_sync.py
 ```
 
+
+## Releases
+
+The project uses [Semantic Versioning](https://semver.org/). All version sources must stay synchronized.
+
+### Bump and tag a new version
+
+```bash
+uv run python scripts/create_release.py 0.2.0
+```
+
+This script will:
+1. Run `bump_version.py` to update all 7 version sources atomically.
+2. Commit the changes with message `release: v0.2.0`.
+3. Create an annotated tag `v0.2.0`.
+
+Then push:
+
+```bash
+git push origin feat/sdk-publish-version-sync
+git push origin v0.2.0
+```
+
+Pushing the `v*` tag triggers the CI workflows that publish:
+- `@openubl/sdk` to **npm**
+- `openubl` to **PyPI**
+
+### Prerequisites
+
+Configure your git email before creating releases:
+
+```bash
+git config user.email "darvin.2c@gmail.com"
+```
+
+Repository secrets required for CI publication:
+- `NPM_TOKEN` — npm access token with publish rights for `@openubl` scope.
+- `PYPI_API_TOKEN` — PyPI API token for the `openubl` project.
+
+### Validate before releasing
+
+```bash
+uv run python scripts/check_sdk_sync.py
+```
+
+This verifies:
+- All 7 version sources are identical.
+- `openapi.json` is up to date with the FastAPI schema.
+
 ## Supported Documents
 
 | Tipo | Schema | Endpoint |
