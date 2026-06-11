@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0](https://github.com/darvin2c/openUBL/compare/v0.1.4..v0.2.0) - 2026-06-11
+
+### Features
+
+- *(api)* Soporte PFX/P12 en /api/v1/sign y ejemplos en SDKs ([#23](https://github.com/darvin2c/openUBL/issues/23)) - ([c230bc6](https://github.com/darvin2c/openUBL/commit/c230bc66b1bdb05325c85359f9aa53344c3c1fb9))
+
+### Bug Fixes
+
+- Corregir regex en cliff.toml que ignoraba todos los commits - ([772ddf0](https://github.com/darvin2c/openUBL/commit/772ddf0ac6d847307b11f46cb474380b0decfbc3))
 ## [0.1.3](https://github.com/darvin2c/openUBL/compare/v0.1.2..v0.1.3) - 2026-06-11
 
 ### Features

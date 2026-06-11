@@ -145,13 +145,15 @@ export interface paths {
         put?: never;
         /**
          * Sign Xml
-         * @description Sign an arbitrary UBL XML document with a PEM certificate and key.
+         * @description Sign an arbitrary UBL XML document with a PEM certificate/key pair or a PFX/P12 container.
          *
-         *     Required body fields:
-         *         - `xml`: The XML string to sign.
-         *         - `cert_pem`: The PEM-encoded certificate.
-         *         - `key_pem`: The PEM-encoded private key.
-         *         - `signature_id`: The signature ID (defaults to `SignSUNAT`).
+         *     Required body fields (choose one credential mode):
+         *         * PEM mode: `cert_pem` and `key_pem`.
+         *         * PFX/P12 mode: `pfx_base64` (standard base64 of the file) and `pfx_password`.
+         *
+         *     Optional body fields:
+         *         * `xml`: The XML string to sign.
+         *         * `signature_id`: The signature ID (defaults to `SignSUNAT`).
          *
          *     Returns:
          *         200: `{"signed_xml": "..."}` with the signed XML.
