@@ -1,4 +1,5 @@
 export { client } from "./client.js";
+export { SDK_VERSION, checkApiVersion } from "./version.js";
 import type { components } from "./openubl-types.js";
 export type { components, paths, operations } from "./openubl-types.js";
 

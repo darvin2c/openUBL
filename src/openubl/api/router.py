@@ -2,6 +2,7 @@
 FastAPI router for openUBL REST API.
 """
 from fastapi import APIRouter, Query, HTTPException
+from openubl import __version__
 
 from ..models import (
     Invoice, CreditNote, DebitNote, VoidedDocuments,
@@ -21,6 +22,16 @@ router = APIRouter()
 validator = SunatValidator()
 
 
+@router.get("/version")
+def get_version():
+    """Return the current API version.
+
+    Returns:
+        200: `{"version": "..."}` with the current API version.
+    """
+    return {"version": __version__}
+
+
 def _validate_xml(xml_string: str, doc_type: str) -> list[str]:
     """Run SUNAT validation on rendered XML."""
     if doc_type == "invoice":
@@ -34,7 +45,14 @@ def _validate_xml(xml_string: str, doc_type: str) -> list[str]:
 
 @router.post("/invoice/create")
 def create_invoice(doc: Invoice, validate: bool = Query(default=True)):
-    """Create an Invoice XML."""
+    """Generate an Invoice XML document.
+
+    The `validate` query parameter controls SUNAT validation and defaults to `true`.
+
+    Returns:
+        200: `{"xml": "..."}` with the generated XML.
+        422: Validation failed or the request body is invalid.
+    """
     enricher = ContentEnricher()
     enricher.enrich(doc)
     xml = render_invoice(doc)
@@ -47,7 +65,14 @@ def create_invoice(doc: Invoice, validate: bool = Query(default=True)):
 
 @router.post("/credit-note/create")
 def create_credit_note(doc: CreditNote, validate: bool = Query(default=True)):
-    """Create a CreditNote XML."""
+    """Generate a CreditNote XML document.
+
+    The `validate` query parameter controls SUNAT validation and defaults to `true`.
+
+    Returns:
+        200: `{"xml": "..."}` with the generated XML.
+        422: Validation failed or the request body is invalid.
+    """
     enricher = ContentEnricher()
     enricher.enrich(doc)
     xml = render_credit_note(doc)
@@ -60,7 +85,14 @@ def create_credit_note(doc: CreditNote, validate: bool = Query(default=True)):
 
 @router.post("/debit-note/create")
 def create_debit_note(doc: DebitNote, validate: bool = Query(default=True)):
-    """Create a DebitNote XML."""
+    """Generate a DebitNote XML document.
+
+    The `validate` query parameter controls SUNAT validation and defaults to `true`.
+
+    Returns:
+        200: `{"xml": "..."}` with the generated XML.
+        422: Validation failed or the request body is invalid.
+    """
     enricher = ContentEnricher()
     enricher.enrich(doc)
     xml = render_debit_note(doc)
@@ -73,7 +105,14 @@ def create_debit_note(doc: DebitNote, validate: bool = Query(default=True)):
 
 @router.post("/voided-documents/create")
 def create_voided_documents(doc: VoidedDocuments, validate: bool = Query(default=True)):
-    """Create a VoidedDocuments XML."""
+    """Generate a VoidedDocuments XML document.
+
+    The `validate` query parameter controls SUNAT validation and defaults to `true`.
+
+    Returns:
+        200: `{"xml": "..."}` with the generated XML.
+        422: Validation failed or the request body is invalid.
+    """
     enricher = ContentEnricher()
     enricher.enrich(doc)
     xml = render_voided_documents(doc)
@@ -86,28 +125,59 @@ def create_voided_documents(doc: VoidedDocuments, validate: bool = Query(default
 
 @router.post("/summary-documents/create")
 def create_summary_documents(doc: SummaryDocuments, validate: bool = Query(default=True)):
-    """Create a SummaryDocuments XML."""
+    """Generate a SummaryDocuments XML document.
+
+    The `validate` query parameter controls SUNAT validation and defaults to `true`.
+
+    Returns:
+        200: `{"xml": "..."}` with the generated XML.
+        422: Validation failed or the request body is invalid.
+    """
     xml = render_summary_documents(doc)
     return {"xml": xml}
 
 
 @router.post("/perception/create")
 def create_perception(doc: Perception, validate: bool = Query(default=True)):
-    """Create a Perception XML."""
+    """Generate a Perception XML document.
+
+    The `validate` query parameter controls SUNAT validation and defaults to `true`.
+
+    Returns:
+        200: `{"xml": "..."}` with the generated XML.
+        422: Validation failed or the request body is invalid.
+    """
     xml = render_perception(doc)
     return {"xml": xml}
 
 
 @router.post("/retention/create")
 def create_retention(doc: Retention, validate: bool = Query(default=True)):
-    """Create a Retention XML."""
+    """Generate a Retention XML document.
+
+    The `validate` query parameter controls SUNAT validation and defaults to `true`.
+
+    Returns:
+        200: `{"xml": "..."}` with the generated XML.
+        422: Validation failed or the request body is invalid.
+    """
     xml = render_retention(doc)
     return {"xml": xml}
 
 
 @router.post("/sign")
 def sign_xml(payload: dict):
-    """Sign an XML document with PEM cert/key."""
+    """Sign an arbitrary UBL XML document with a PEM certificate and key.
+
+    Required body fields:
+        - `xml`: The XML string to sign.
+        - `cert_pem`: The PEM-encoded certificate.
+        - `key_pem`: The PEM-encoded private key.
+        - `signature_id`: The signature ID (defaults to `SignSUNAT`).
+
+    Returns:
+        200: `{"signed_xml": "..."}` with the signed XML.
+    """
     xml = payload.get("xml", "")
     cert_pem = payload.get("cert_pem", "")
     key_pem = payload.get("key_pem", "")

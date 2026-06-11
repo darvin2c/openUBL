@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { client, type Invoice, type CreditNote, type Proveedor, type Cliente, type DocumentoVentaDetalle } from "../src/index.js";
+import { client, type Invoice, type CreditNote, type Proveedor, type Cliente, type DocumentoVentaDetalle, SDK_VERSION, checkApiVersion } from "../src/index.js";
 
 const proveedor: Proveedor = {
   ruc: "20100066603",
@@ -52,7 +52,8 @@ describe("runtime round-trip", () => {
   it("POSTs an Invoice and returns XML with expected ID", async () => {
     // Skip if no server is running
     try {
-      await fetch("http://localhost:8000/api/v1/invoice/create", { method: "HEAD" });
+      const res = await fetch("http://localhost:8000/api/v1/invoice/create", { method: "HEAD" });
+      if (!res.ok) return;
     } catch {
       return;
     }
@@ -75,5 +76,24 @@ describe("runtime round-trip", () => {
 
     expect(data).toBeDefined();
     expect(data!.xml).toContain("<cbc:ID>F001-1</cbc:ID>");
+  });
+});
+
+describe("version sync", () => {
+  it("exports a non-empty SDK_VERSION", () => {
+    expect(SDK_VERSION).toMatch(/^\d+\.\d+\.\d+$/);
+  });
+
+  it("checkApiVersion matches when server is up", async () => {
+    try {
+      const res = await fetch("http://localhost:8000/api/v1/version", { method: "HEAD" });
+      if (!res.ok) return;
+    } catch {
+      return;
+    }
+    const result = await checkApiVersion();
+    expect(result.ok).toBe(true);
+    expect(result.sdkVersion).toBe(SDK_VERSION);
+    expect(result.apiVersion).toBe(SDK_VERSION);
   });
 });
