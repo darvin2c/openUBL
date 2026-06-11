@@ -48,9 +48,8 @@ jobs:
       - name: Calculate new version
         id: version
         run: |
-          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
-          LAST_VERSION=${LAST_TAG#v}
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$LAST_VERSION"
+          CURRENT=$(grep '^version\s*=\s*' pyproject.toml | head -1 | sed 's/.*"\([0-9]\+\.[0-9]\+\.[0-9]\+\)".*/\1/')
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
           TYPE="${{ steps.check.outputs.type }}"
           if [ "$TYPE" = "major" ]; then
             NEW_VERSION="$((MAJOR + 1)).0.0"
@@ -82,8 +81,7 @@ jobs:
           git checkout -b "$BRANCH"
           git add -A
           git commit -m "release: v${VERSION}"
-          git push origin "$BRANCH"
-          gh pr create \
+          git push --force-with-lease origin "$BRANCH"
             --title "release: v${VERSION}" \
             --body "Release PR automático. Mergea para crear el tag v${VERSION} y disparar la publicación a npm/PyPI." \
             --base main \
