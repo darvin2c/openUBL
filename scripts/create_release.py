@@ -70,6 +70,11 @@ def main() -> int:
         "openapi.json",
         "sdk/typescript/src/openubl-types.ts",
     ]
+    changelog_path = REPO_ROOT / "CHANGELOG.md"
+    if changelog_path.exists():
+        files_to_stage.append("CHANGELOG.md")
+    else:
+        print("WARNING: CHANGELOG.md not found; skipping changelog in release commit.")
     run(["git", "add"] + files_to_stage)
 
     # 3. Commit
