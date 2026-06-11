@@ -3,45 +3,76 @@ title: Comprobante de Percepción
 description: Guía para generar Comprobantes de Percepción (40) con openUBL.
 ---
 
-El **Comprobante de Percepción Electrónico** (tipo 40) registra la percepción de IGV aplicada a ventas internas o adquisición de combustible. Es un documento adicional a la factura.
+El **Comprobante de Percepción Electrónico** (tipo `40`) registra la percepción de IGV aplicada a ventas internas o adquisición de combustible. Es un documento adicional a la factura.
 
 ## Campos requeridos
 
+| Campo | Tipo | Descripción | Validación |
+|-------|------|-------------|------------|
+| `serie` | `string` | Serie del comprobante | Patrón `^P\d{3}$`. Ej: `P001`, `P002`. |
+| `numero` | `integer` | Correlativo | Mayor a 0. |
+| `fechaEmision` | `date` | Fecha de emisión | `YYYY-MM-DD`. |
+| `proveedor` | `Proveedor` | Datos del agente de percepción (emisor) | `ruc` de 11 dígitos y `razonSocial` obligatorios. |
+| `cliente` | `Cliente` | Datos del perceptor (adquirente) | Campos obligatorios del cliente. |
+| `importeTotalPercibido` | `Decimal` | Total percibido | Debe ser positivo. |
+| `importeTotalCobrado` | `Decimal` | Total cobrado (incluye percepción) | Debe ser positivo. |
+| `tipoRegimen` | `string` | Régimen de percepción | Catálogo N.° 22: `01`, `02`, `03`. |
+| `tipoRegimenPorcentaje` | `Decimal` | Porcentaje del régimen | Ej: `0.02` para 2%. |
+| `operaciones` | `PercepcionRetencionOperacion[]` | Operaciones percibidas | Al menos una operación. |
+
+## Campos opcionales
+
+El modelo `Perception` no tiene campos opcionales a nivel raíz.
+
+## Operación de percepción (`PercepcionRetencionOperacion`)
+
+| Campo | Tipo | Descripción | Validación |
+|-------|------|-------------|------------|
+| `numeroOperacion` | `int` | Número de operación | Mayor a 0. |
+| `fechaOperacion` | `date` | Fecha de la operación | `YYYY-MM-DD`. |
+| `importeOperacion` | `Decimal` | Importe percibido en esta operación | Debe ser positivo. |
+| `comprobante` | `ComprobanteAfectado` | Comprobante afectado | Ver detalle abajo. |
+
+### `ComprobanteAfectado`
+
 | Campo | Tipo | Descripción |
 |-------|------|-------------|
-| `serie` | `string` | Serie: `P001`, `P002`, etc. (formato `P###`) |
-| `numero` | `integer` | Correlativo |
-| `fechaEmision` | `date` | Fecha de emisión (`YYYY-MM-DD`) |
-| `proveedor` | `Proveedor` | Datos del agente de percepción (emisor) |
-| `cliente` | `Cliente` | Datos del perceptor (adquirente) |
-| `importeTotalPercibido` | `Decimal` | Total percibido |
-| `importeTotalCobrado` | `Decimal` | Total cobrado (incluye percepción) |
-| `tipoRegimen` | `string` | Catálogo N.° 22: `01`, `02`, `03` |
-| `tipoRegimenPorcentaje` | `Decimal` | Porcentaje del régimen |
-| `operaciones` | `PercepcionRetencionOperacion[]` | Operaciones percibidas |
+| `tipoComprobante` | `string` | Tipo del comprobante afectado (Catálogo N.° 01). |
+| `serieNumero` | `string` | Serie-número del comprobante. |
+| `fechaEmision` | `date` | Fecha de emisión. |
+| `importeTotal` | `Decimal` | Importe total del comprobante. |
+| `moneda` | `string` | Moneda del comprobante. |
 
-## Operación de percepción
+## Reglas SUNAT aplicables
 
-Cada elemento de `operaciones` contiene:
+| Código / Regla | Descripción |
+|----------------|-------------|
+| `2074` (Perception/Retention) | `UBLVersionID` debe ser `2.0`. |
+| `2072` (Perception/Retention) | `CustomizationID` debe ser `1.0`. |
+| `1001` | El ID debe tener formato `serie-número`. |
+| `1007` | `schemeID` del agente de percepción debe ser `6` (RUC). |
+| `1008` | RUC del agente de percepción debe tener 11 dígitos. |
+| `1037` | `RegistrationName` del agente es obligatorio. |
+| Serie | Debe iniciar con `P`. |
+| Total | `importeTotalCobrado = importeTotalComprobante + importeTotalPercibido` (debe cuadrar por operación). |
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `numeroOperacion` | `int` | Número de operación |
-| `fechaOperacion` | `date` | Fecha de la operación |
-| `importeOperacion` | `Decimal` | Importe percibido en esta operación |
-| `comprobante.tipoComprobante` | `string` | Tipo del comprobante afectado |
-| `comprobante.serieNumero` | `string` | Serie-numero del comprobante |
-| `comprobante.fechaEmision` | `date` | Fecha del comprobante |
-| `comprobante.importeTotal` | `Decimal` | Importe total del comprobante |
-| `comprobante.moneda` | `string` | Moneda del comprobante |
+## Regímenes de percepción (Catálogo N.° 22)
 
-## Ejemplo en Python
+| Código | Descripción | Tasa típica |
+|--------|-------------|-------------|
+| `01` | Venta interna | 2% |
+| `02` | Adquisición de combustible | Variable |
+| `03` | Tasa 3% | 3% |
+
+## Ejemplo Python completo
 
 ```python
 from openubl.models import (
     Perception, PercepcionRetencionOperacion,
     ComprobanteAfectado, Proveedor, Cliente,
 )
+from openubl.renderer import render_perception
+from openubl.validator import SunatValidator
 from decimal import Decimal
 from datetime import date
 
@@ -78,17 +109,27 @@ perception = Perception(
     ],
 )
 
-xml = perception.render()
+xml = render_perception(perception)
+errors = SunatValidator().validate_schema(
+    xml,
+    "sunat_schemas/xsd_2.1/2.0/maindoc/UBLPE-Perception-1.0.xsd",
+)
+assert errors == []
+print(xml)
 ```
+
+## Nota sobre enriquecimiento
+
+`ContentEnricher` no enriquece `Perception`. Los totales y los importes por operación deben proporcionarse explícitamente.
 
 ## Endpoint
 
 ```bash
-POST /api/v1/perception/create
+POST /api/v1/perception/create?validate=true
 ```
 
 ```bash
-curl -X POST "http://localhost:8000/api/v1/perception/create" \
+curl -X POST "http://localhost:8000/api/v1/perception/create?validate=true" \
   -H "Content-Type: application/json" \
   -d '{
     "serie": "P001",
@@ -115,10 +156,12 @@ curl -X POST "http://localhost:8000/api/v1/perception/create" \
   }'
 ```
 
-## Regímenes de percepción (Catálogo N.° 22)
+## Respuesta esperada
 
-| Código | Descripción | Tasa típica |
-|--------|-------------|-------------|
-| `01` | Venta interna | 2% |
-| `02` | Adquisición de combustible | 1% |
-| `03` | Tasa 3% | 3% |
+```json
+{
+  "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>..."
+}
+```
+
+Si `validate=true` y el cuerpo no cumple las reglas, la API devuelve un error `422` con el detalle de la validación.

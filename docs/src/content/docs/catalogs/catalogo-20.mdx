@@ -1,0 +1,50 @@
+---
+title: Catálogo 20 — Motivo de traslado
+description: Códigos SUNAT de motivos de traslado para guías de remisión en openUBL.
+---
+
+
+Catálogo SUNAT que clasifica el motivo por el cual se realiza el traslado de bienes. Es requerido en la Guía de Remisión Remitente y otros documentos de transporte.
+
+## Tabla de códigos
+
+| Código | Descripción |
+|--------|-------------|
+| 01 | Venta |
+| 02 | Compra |
+| 03 | Venta sujeta a confirmar |
+| 04 | Traslado entre establecimientos |
+| 05 | Consignación |
+| 06 | Devolución |
+| 08 | Importación |
+| 09 | Exportación |
+| 13 | Traslado emisor itinerante |
+| 14 | Otros |
+
+## Uso típico
+
+Se utiliza en el campo `motivoTraslado` de modelos de guía de remisión o documentos de traslado. openUBL aún no expone un modelo dedicado de Guía de Remisión en la API REST, pero el catálogo está disponible en `src/openubl/models/catalog.py` para uso directo.
+
+## Ejemplo
+
+```python
+from openubl.models.catalog import Catalog20
+
+# Seleccionar el motivo de traslado
+motivo = Catalog20.VENTA.value  # "01"
+
+print(f"Motivo de traslado: {motivo}")
+```
+
+```python
+from openubl.models.catalog import Catalog20
+
+motivos_comunes = {
+    "Venta": Catalog20.VENTA.value,
+    "Devolución": Catalog20.DEVOLUCION.value,
+    "Traslado entre establecimientos": Catalog20.TRASLADO_ENTRE_ESTABLECIMIENTOS.value,
+}
+
+for nombre, codigo in motivos_comunes.items():
+    print(f"{nombre}: {codigo}")
+```

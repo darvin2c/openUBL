@@ -1,0 +1,67 @@
+---
+title: Catálogo 22 — Régimen de percepción
+description: Códigos SUNAT de regímenes de percepción aplicables al Comprobante de Percepción en openUBL.
+---
+
+
+Catálogo SUNAT que identifica el régimen de percepción aplicado en un Comprobante de Percepción Electrónico (tipo 40). Determina la tasa y el escenario en el que se realiza la percepción.
+
+## Tabla de códigos
+
+| Código | Descripción |
+|--------|-------------|
+| 01 | Venta interna |
+| 02 | Adquisición de combustible |
+| 03 | Tasa 3% |
+
+## Uso típico
+
+Se utiliza en:
+
+- `Perception.tipoRegimen`
+
+Debe combinarse con `tipoRegimenPorcentaje` para indicar la tasa exacta de percepción aplicada a las operaciones.
+
+## Ejemplo
+
+```python
+from datetime import date
+from decimal import Decimal
+from openubl.models import (
+    Perception,
+    Proveedor,
+    Cliente,
+    PercepcionRetencionOperacion,
+    ComprobanteAfectado,
+)
+
+percepcion = Perception(
+    serie="P001",
+    numero=1,
+    fechaEmision=date(2026, 6, 10),
+    proveedor=Proveedor(ruc="20100100100", razonSocial="Mi Empresa S.A.C."),
+    cliente=Cliente(
+        nombre="Cliente Ejemplo",
+        numeroDocumentoIdentidad="20123456789",
+        tipoDocumentoIdentidad="6",
+    ),
+    importeTotalPercibido=Decimal("30.00"),
+    importeTotalCobrado=Decimal("1030.00"),
+    tipoRegimen="01",  # Venta interna
+    tipoRegimenPorcentaje=Decimal("0.03"),
+    operaciones=[
+        PercepcionRetencionOperacion(
+            numeroOperacion=1,
+            fechaOperacion=date(2026, 6, 10),
+            importeOperacion=Decimal("1000.00"),
+            comprobante=ComprobanteAfectado(
+                tipoComprobante="01",
+                serieNumero="F001-1",
+                fechaEmision=date(2026, 6, 10),
+                importeTotal=Decimal("1000.00"),
+                moneda="PEN",
+            ),
+        )
+    ],
+)
+```

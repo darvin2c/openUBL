@@ -1,0 +1,110 @@
+---
+title: Conceptos SUNAT
+description: Entiende UBL 2.1, SUNAT, los comprobantes de pago electrónicos y el flujo de facturación soportado por openUBL.
+---
+
+Antes de crear tu primer documento, conviene repasar los conceptos básicos del ecosistema de facturación electrónica en el Perú y cómo los modela openUBL.
+
+## ¿Qué es UBL 2.1?
+
+**UBL** (*Universal Business Language*) es un estándar internacional mantenido por OASIS que define formatos XML reutilizables para documentos de negocio: facturas, notas de crédito, guías de remisión, etc.
+
+La versión **UBL 2.1** es la que exige SUNAT para los Comprobantes de Pago Electrónicos (CPE). openUBL genera XML que incluye obligatoriamente:
+
+- `UBLVersionID` con valor `2.1`.
+- `CustomizationID` con valor `2.0` (personalización para Perú).
+
+## ¿Qué es SUNAT?
+
+La **Superintendencia Nacional de Aduanas y de Administración Tributaria (SUNAT)** es la entidad encargada de recibir, validar y dar constancia de los comprobantes electrónicos emitidos en el Perú. Las empresas deben enviar sus documentos a SUNAT —directamente o a través de un OSE (*Operador de Servicios Electrónicos*)— dentro de los plazos que establece la normativa vigente.
+
+## ¿Qué es un CPE?
+
+Un **Comprobante de Pago Electrónico (CPE)** es la representación digital de facturas, boletas, notas y otros documentos tributarios. Tiene validez legal si cumple con:
+
+1. Estructura XML UBL 2.1.
+2. Firma digital con certificado válido.
+3. Envío y aceptación por parte de SUNAT (CDR).
+
+## Documentos soportados
+
+openUBL puede generar los siguientes documentos. Los códigos de tipo de comprobante provienen del **Catálogo N.° 01** de SUNAT:
+
+| Documento | Código | Nombre del modelo en openUBL |
+|-----------|--------|------------------------------|
+| Factura | `01` | `Invoice` |
+| Boleta | `03` | `Invoice` (con serie boleta) |
+| Nota de Crédito | `07` | `CreditNote` |
+| Nota de Débito | `08` | `DebitNote` |
+| Resumen Diario | `RC` | `SummaryDocuments` |
+| Comunicación de Baja | `RA` | `VoidedDocuments` |
+| Percepción | `40` | `Perception` |
+| Retención | `20` | `Retention` |
+
+:::note
+El Catálogo N.° 01 también define la Guía de Remisión (`09`), pero openUBL aún no la genera.
+:::
+
+### Casos de uso
+
+- **Factura (`01`)**: ventas a contribuyentes (RUC) que requieren crédito fiscal.
+- **Boleta (`03`)**: ventas al público final; se pueden declarar individualmente o consolidar en un Resumen Diario.
+- **Nota de Crédito (`07`)**: anulación, descuentos o devoluciones sobre una factura o boleta ya emitida.
+- **Nota de Débito (`08`)**: cobros adicionales o correcciones que aumentan el monto de una factura o boleta.
+- **Resumen Diario (`RC`)**: comunicación diaria de boletas y notas asociadas, dentro de los plazos que SUNAT establece.
+- **Comunicación de Baja (`RA`)**: anulación de facturas ya comunicadas a SUNAT dentro del plazo permitido.
+- **Percepción (`40`)**: comprobante de percepción de IGV en ventas internas o adquisición de combustible.
+- **Retención (`20`)**: comprobante de retención de IGV a proveedores.
+
+## Flujo completo
+
+El ciclo de vida de un documento electrónico con openUBL sigue cuatro pasos:
+
+```
+Emisión  →  Firma  →  Envío a SUNAT  →  CDR
+```
+
+### 1. Emisión
+
+Construyes el modelo Pydantic correspondiente (por ejemplo, `Invoice`), luego lo renderizas a XML UBL 2.1. Puedes enriquecer automáticamente los totales (`valorVenta`, `igv`, `importeTotal`, etc.) antes de renderizar.
+
+### 2. Firma
+
+El XML se firma digitalmente con un certificado en formato PEM/PFX. openUBL usa el algoritmo **RSA-SHA1**, digestión **SHA1** y canonicalización **C14N**, ubicando la firma en `UBLExtension/ExtensionContent`.
+
+### 3. Envío a SUNAT
+
+El XML firmado se empaqueta en un ZIP con la convención de nombres `{RUC}-{tipo}-{serie}-{numero}.zip` y se transmite a SUNAT o a tu OSE.
+
+### 4. CDR
+
+SUNAT responde con una **Constancia de Recepción (CDR)** que confirma si aceptó o rechazó el documento. El CDR también es un archivo ZIP que contiene el XML de respuesta.
+
+## Tabla comparativa de documentos
+
+| Tipo | Código | Serie requerida | Frecuencia de envío |
+|------|--------|-----------------|---------------------|
+| Factura | `01` | Serie electrónica que inicia con `F` (por ejemplo, `F001`) | En tiempo real |
+| Boleta | `03` | Serie electrónica que inicia con `B` (por ejemplo, `B001`) | En tiempo real, o consolidada en Resumen Diario |
+| Nota de Crédito | `07` | Serie que inicia con `F` o `B`, según el comprobante modificado | En tiempo real |
+| Nota de Débito | `08` | Serie que inicia con `F` o `B`, según el comprobante modificado | En tiempo real |
+| Resumen Diario | `RC` | `RCYYYYMMDD-NNNN` | Diaria, dentro del plazo máximo establecido por SUNAT |
+| Comunicación de Baja | `RA` | `RAYYYYMMDD-NNNN` | Dentro del plazo máximo establecido por SUNAT |
+| Percepción | `40` | Serie que inicia con `P` (por ejemplo, `P001`) | En tiempo real |
+| Retención | `20` | Serie que inicia con `R` (por ejemplo, `R001`) | En tiempo real |
+
+## Relación con los catálogos SUNAT
+
+openUBL implementa los catálogos más utilizados en `src/openubl/models/catalog.py`:
+
+- **Catálogo N.° 01**: tipo de comprobante.
+- **Catálogo N.° 02**: moneda (`PEN`, `USD`, `EUR`).
+- **Catálogo N.° 05**: tipo de tributo (`1000` IGV, `7152` ICBPER, etc.).
+- **Catálogo N.° 06**: tipo de documento de identidad (`1` DNI, `6` RUC, etc.).
+- **Catálogo N.° 07**: tipo de afectación del IGV (`10` gravado, `20` exonerado, `30` inafecto).
+- **Catálogo N.° 16**: tipo de precio (`01` precio unitario).
+- **Catálogo N.° 19**: tipo de operación del Resumen Diario (`1` adicionar, `2` modificar, `3` anulado).
+- **Catálogo N.° 20**: motivo de traslado.
+- **Catálogos N.° 22 y 23**: régimenes de percepción y retención.
+
+Usar los códigos correctos de cada catálogo es responsabilidad del emisor. openUBL valida que los valores existan y que los XML resultantes cumplan con las reglas de SUNAT documentadas en el validador.

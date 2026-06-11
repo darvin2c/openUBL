@@ -1,0 +1,48 @@
+---
+title: Catálogo 16 — Tipo de precio
+description: Códigos SUNAT de tipo de precio aplicables a líneas de comprobantes en openUBL.
+---
+
+
+Catálogo SUNAT que indica si el precio unitario de una línea incluye IGV (operación onerosa) o es un valor referencial (operación no onerosa, como donaciones o promociones).
+
+## Tabla de códigos
+
+| Código | Descripción |
+|--------|-------------|
+| 01 | Precio unitario (incluye IGV) |
+| 02 | Valor referencial unitario en operaciones no onerosas |
+
+## Uso típico
+
+Se aplica a nivel de línea en `DocumentoVentaDetalle`. openUBL asigna el código `01` de forma predeterminada cuando se emite una factura o boleta gravada. El código `02` se usa para operaciones no onerosas o gratuitas.
+
+## Ejemplo
+
+```python
+from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
+from decimal import Decimal
+
+# Operación onerosa: precio unitario incluye IGV (tipo 01)
+invoice = Invoice(
+    serie="F001",
+    numero=128,
+    proveedor=Proveedor(ruc="20100100100", razonSocial="Mi Empresa S.A.C."),
+    cliente=Cliente(
+        nombre="Cliente Ejemplo",
+        numeroDocumentoIdentidad="20123456789",
+        tipoDocumentoIdentidad="6",
+    ),
+    detalles=[
+        DocumentoVentaDetalle(
+            descripcion="Producto con IGV",
+            cantidad=Decimal("1"),
+            precio=Decimal("118.00"),
+            tipoAfectacionIGV="10",
+        )
+    ],
+    moneda="PEN",
+)
+```
+
+> openUBL maneja el Catálogo 16 internamente durante el renderizado del XML; no es necesario especificarlo manualmente salvo casos avanzados de operaciones no onerosas.

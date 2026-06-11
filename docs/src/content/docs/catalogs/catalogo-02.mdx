@@ -1,0 +1,56 @@
+---
+title: Catálogo 02 — Moneda
+description: Códigos de moneda admitidos por SUNAT para comprobantes electrónicos en openUBL.
+---
+
+
+Catálogo SUNAT con los códigos ISO 4217 de las monedas admitidas para la emisión de comprobantes electrónicos. Define la moneda en la que se expresan los importes del documento.
+
+## Tabla de códigos
+
+| Código | Descripción |
+|--------|-------------|
+| PEN | Soles |
+| USD | Dólares estadounidenses |
+| EUR | Euros |
+
+## Uso típico
+
+Se utiliza en el campo `moneda` de los modelos:
+
+- `Invoice`
+- `CreditNote`
+- `DebitNote`
+- `Perception`
+- `Retention`
+- `ComprobanteAfectado` dentro de percepciones, retenciones y resúmenes diarios
+
+El valor por defecto en la mayoría de modelos es `PEN`.
+
+## Ejemplo
+
+```python
+from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
+from decimal import Decimal
+
+# Factura en dólares estadounidenses
+invoice = Invoice(
+    serie="F001",
+    numero=124,
+    proveedor=Proveedor(ruc="20100100100", razonSocial="Mi Empresa S.A.C."),
+    cliente=Cliente(
+        nombre="Cliente Exportador",
+        numeroDocumentoIdentidad="20123456789",
+        tipoDocumentoIdentidad="6",  # RUC
+    ),
+    detalles=[
+        DocumentoVentaDetalle(
+            descripcion="Servicio de consultoría",
+            cantidad=Decimal("1"),
+            precio=Decimal("1000.00"),
+            tipoAfectacionIGV="10",
+        )
+    ],
+    moneda="USD",  # Catálogo 02
+)
+```

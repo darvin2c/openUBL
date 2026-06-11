@@ -1,0 +1,56 @@
+---
+title: Catálogo 06 — Tipo de documento de identidad
+description: Códigos SUNAT de tipos de documento de identidad para emisores y clientes en openUBL.
+---
+
+
+Catálogo SUNAT que identifica el tipo de documento de identidad del emisor o del adquirente/usuario de un comprobante electrónico.
+
+## Tabla de códigos
+
+| Código | Descripción |
+|--------|-------------|
+| 0 | Documento no domiciliado |
+| 1 | DNI |
+| 4 | Carnet de extranjería |
+| 6 | RUC |
+| 7 | Pasaporte |
+
+## Uso típico
+
+Se utiliza en:
+
+- `Cliente.tipoDocumentoIdentidad`
+- `Proveedor.ruc` se asocia implícitamente al tipo `6` (RUC) en el XML.
+
+SUNAT exige que el emisor siempre se identifique con RUC (`6`). El cliente puede usar cualquiera de los códigos del catálogo según su condición.
+
+## Ejemplo
+
+```python
+from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
+from decimal import Decimal
+
+invoice = Invoice(
+    serie="F001",
+    numero=126,
+    proveedor=Proveedor(
+        ruc="20100100100",  # Siempre RUC (tipo 6)
+        razonSocial="Mi Empresa S.A.C.",
+    ),
+    cliente=Cliente(
+        nombre="Juan Pérez",
+        numeroDocumentoIdentidad="12345678",
+        tipoDocumentoIdentidad="1",  # DNI
+    ),
+    detalles=[
+        DocumentoVentaDetalle(
+            descripcion="Producto A",
+            cantidad=Decimal("1"),
+            precio=Decimal("80.00"),
+            tipoAfectacionIGV="10",
+        )
+    ],
+    moneda="PEN",
+)
+```

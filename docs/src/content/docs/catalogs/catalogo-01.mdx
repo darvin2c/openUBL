@@ -1,0 +1,63 @@
+---
+title: Catálogo 01 — Tipo de comprobante
+description: Códigos SUNAT de tipos de comprobante electrónico soportados por openUBL.
+---
+
+
+Catálogo SUNAT que identifica el tipo de comprobante de pago electrónico generado por el emisor. Es uno de los valores más importantes de la firma XML y del nombre del archivo ZIP enviado a SUNAT.
+
+## Tabla de códigos
+
+| Código | Descripción |
+|--------|-------------|
+| 01 | Factura |
+| 03 | Boleta |
+| 07 | Nota de Crédito |
+| 08 | Nota de Débito |
+| 09 | Guía de Remisión |
+| 20 | Comprobante de Retención |
+| 40 | Comprobante de Percepción |
+
+## Uso típico
+
+Se utiliza en los campos `tipoComprobante` de los modelos:
+
+- `Invoice` y `CreditNote` / `DebitNote` (implícito por el modelo).
+- `VoidedDocumentsItem.tipoComprobante` para comunicaciones de baja.
+- `SummaryDocuments` → `Comprobante.tipoComprobante` en resúmenes diarios.
+- `PercepcionRetencionOperacion.comprobante.tipoComprobante` en percepciones y retenciones.
+
+También forma parte del nombre del archivo ZIP:
+
+```text
+{RUC}-{TIPO}-{SERIE}-{NUMERO}.zip
+```
+
+## Ejemplo
+
+```python
+from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
+from decimal import Decimal
+
+invoice = Invoice(
+    serie="F001",
+    numero=123,
+    proveedor=Proveedor(ruc="20100100100", razonSocial="Mi Empresa S.A.C."),
+    cliente=Cliente(
+        nombre="Cliente Ejemplo",
+        numeroDocumentoIdentidad="12345678",
+        tipoDocumentoIdentidad="1",  # DNI (Catálogo 06)
+    ),
+    detalles=[
+        DocumentoVentaDetalle(
+            descripcion="Producto A",
+            cantidad=Decimal("2"),
+            precio=Decimal("50.00"),
+            tipoAfectacionIGV="10",
+        )
+    ],
+    moneda="PEN",
+)
+```
+
+En este ejemplo el modelo `Invoice` representa el tipo de comprobante `01` (Factura).

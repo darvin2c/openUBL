@@ -1,0 +1,234 @@
+---
+title: Preguntas frecuentes
+description: Respuestas a las dudas más comunes sobre openUBL, SUNAT, firma digital y uso de la API.
+---
+
+Esta página responde preguntas frecuentes basadas en el comportamiento real del código de openUBL.
+
+## ¿Por qué SUNAT exige RSA-SHA1 si es obsoleto?
+
+La normativa técnica de SUNAT (RS N° 300-2014/SUNAT, Anexo 1) exige que los comprobantes electrónicos se firmen con el algoritmo **RSA-SHA1** y digestión **SHA1**. Aunque estos algoritmos están considerados obsoletos para usos generales, siguen siendo obligatorios para la facturación electrónica peruana.
+
+En `src/openubl/signer.py` se configura explícitamente:
+
+```python
+signer = XMLSigner(
+    c14n_algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315",
+    digest_algorithm="sha1",
+    signature_algorithm="rsa-sha1",
+)
+```
+
+La librería `signxml` 4.x bloquea RSA-SHA1 por defecto por considerarlo deprecado. Para cumplir con SUNAT, openUBL desactiva temporalmente esa verificación:
+
+```python
+_XMLSigner.check_deprecated_methods = lambda self: None
+```
+
+Esto no es una decisión de diseño de openUBL, sino una adaptación al requerimiento vigente de SUNAT.
+
+## ¿Puedo omitir campos de totales si uso la API REST?
+
+Sí, siempre que el documento sea enriquecible. El `ContentEnricher` (`src/openubl/enricher.py`) calcula automáticamente los siguientes campos cuando no se proporcionan:
+
+| Campo calculado | Fórmula |
+|-----------------|---------|
+| `fechaEmision` | Fecha actual del sistema |
+| `valorVenta` (línea) | `cantidad × precio` |
+| `igv` (línea) | `valorVenta × igvTasa` (solo si `tipoAfectacionIGV == "10"`) |
+| `precioVenta` (línea) | `valorVenta + igv` |
+| `valorVentaTotal` | Suma de `valorVenta` de todas las líneas |
+| `igvTotal` | Suma de `igv` de todas las líneas |
+| `importeTotal` | `valorVentaTotal + igvTotal` |
+
+El enriquecimiento aplica a `Invoice`, `CreditNote` y `DebitNote`. No aplica a `SummaryDocuments`, `Perception` ni `Retention`, porque esos documentos requieren totales explícitos por ítem o comprobante.
+
+Ejemplo de petición mínima válida:
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/invoice/create" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "serie": "F001",
+    "numero": 1,
+    "proveedor": {
+      "ruc": "20100066603",
+      "razonSocial": "Softgreen S.A.C."
+    },
+    "cliente": {
+      "nombre": "Carlos Feria",
+      "numeroDocumentoIdentidad": "12121212121",
+      "tipoDocumentoIdentidad": "6"
+    },
+    "detalles": [
+      {
+        "descripcion": "Item",
+        "cantidad": 10,
+        "precio": 100
+      }
+    ]
+  }'
+```
+
+La API devolverá el XML con los totales ya calculados.
+
+## ¿Qué diferencia hay entre `?validate=true` y `?validate=false`?
+
+Todos los endpoints de creación de documentos aceptan el parámetro de consulta `validate`:
+
+| Valor | Comportamiento |
+|-------|----------------|
+| `true` (por defecto) | Genera el XML y lo valida contra los esquemas XSD y reglas de negocio de SUNAT antes de responder. Si falla, devuelve `422 Unprocessable Entity` con el listado de errores. |
+| `false` | Genera el XML sin ejecutar validaciones. Es útil para depuración o pruebas internas, pero el resultado puede ser rechazado por SUNAT. |
+
+La definición en `src/openubl/api/router.py` es:
+
+```python
+@router.post("/invoice/create")
+def create_invoice(doc: Invoice, validate: bool = Query(default=True)):
+    ...
+```
+
+Ejemplo con validación desactivada:
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/invoice/create?validate=false" \
+  -H "Content-Type: application/json" \
+  -d '{...}'
+```
+
+:::caution
+Usa `validate=false` solo en ambientes de desarrollo. Un XML inválido será rechazado por SUNAT en producción.
+:::
+
+## ¿Cómo convierto un certificado .pfx a PEM?
+
+openUBL expone la función `load_pfx` en `src/openubl/signer.py` para extraer la clave privada y el certificado X.509 de un archivo `.pfx` o `.p12`:
+
+```python
+from pathlib import Path
+from openubl.signer import load_pfx
+
+pfx_bytes = Path("certificado.pfx").read_bytes()
+key_pem, cert_pem = load_pfx(pfx_bytes, password="mi-contraseña")
+
+print(key_pem)   # -----BEGIN RSA PRIVATE KEY-----
+print(cert_pem)  # -----BEGIN CERTIFICATE-----
+```
+
+Internamente usa `cryptography.hazmat.primitives.serialization.pkcs12` para:
+
+1. Descifrar el contenedor PKCS#12 con la contraseña proporcionada.
+2. Exportar la clave privada en formato PEM tradicional (`TraditionalOpenSSL`).
+3. Exportar el certificado en formato PEM.
+
+Una vez convertidos, puedes usarlos para firmar XML:
+
+```python
+from openubl.signer import sign_ubl_xml
+
+signed_xml = sign_ubl_xml(xml_output, cert_pem, key_pem)
+```
+
+## ¿Cuándo debo usar Resumen Diario vs Comunicación de Baja?
+
+Ambos documentos tienen propósitos diferentes:
+
+| Aspecto | Resumen Diario (`SummaryDocuments`) | Comunicación de Baja (`VoidedDocuments`) |
+|---------|-------------------------------------|------------------------------------------|
+| Tipo | RC | RA |
+| Identificador | `RC-YYYYMMDD-NNNN` | `RA-YYYYMMDD-NNNN` |
+| ¿Para qué sirve? | Declarar boletas y notas asociadas emitidas en un día | Anular facturas o boletas antes de que sean declaradas |
+| Documentos afectados | Boletas (03) y notas de crédito/débito asociadas | Facturas (01) o boletas (03) no comunicadas |
+| Frecuencia | Diaria | Eventual, dentro de los 7 días calendario siguientes a la emisión |
+
+Reglas importantes:
+
+- Las **boletas** solo adquieren validez ante SUNAT cuando se declaran en un Resumen Diario.
+- No se puede dar de baja un comprobante que ya fue incluido en un Resumen Diario aceptado.
+- La Comunicación de Baja aplica a comprobantes que aún no han sido comunicados a SUNAT.
+
+Ejemplo de Resumen Diario:
+
+```python
+from openubl.models import SummaryDocuments, SummaryDocumentsItem
+
+summary = SummaryDocuments(
+    numero=1,
+    fechaEmisionComprobantes="2025-06-10",
+    proveedor={...},
+    comprobantes=[
+        SummaryDocumentsItem(
+            tipoOperacion="1",  # Adicionar
+            comprobante={...}
+        )
+    ]
+)
+```
+
+## ¿Qué hace `check_api_version`?
+
+`check_api_version` es una utilidad de `src/openubl/version.py` que verifica en runtime que la versión del SDK Python coincida con la versión de la API REST:
+
+```python
+from openubl.version import check_api_version
+
+result = check_api_version("http://localhost:8000")
+assert result["ok"], f"Desfase: SDK {result['sdk_version']} vs API {result['api_version']}"
+```
+
+El código realiza lo siguiente:
+
+1. Consulta `GET /api/v1/version`.
+2. Obtiene la versión reportada por la API.
+3. La compara con `openubl.__version__`.
+4. Devuelve un diccionario con:
+
+| Campo | Descripción |
+|-------|-------------|
+| `ok` | `True` si las versiones coinciden, `False` en caso contrario |
+| `sdk_version` | Versión instalada del paquete `openubl` |
+| `api_version` | Versión reportada por la API |
+
+Esto ayuda a detectar desfases entre el cliente y el servidor, especialmente en despliegues donde la API se actualiza independientemente del SDK.
+
+## ¿Cómo configuro tasas de IGV diferentes?
+
+La tasa de IGV por defecto es `0.18` (18 %), definida en `src/openubl/models/defaults.py`:
+
+```python
+class Defaults(BaseModel):
+    igvTasa: Decimal = Decimal("0.18")
+    icbTasa: Decimal = Decimal("0.2")
+```
+
+Para usar una tasa diferente, crea una instancia de `Defaults` y pásala al `ContentEnricher`:
+
+```python
+from decimal import Decimal
+from openubl.enricher import ContentEnricher
+from openubl.models import Defaults, Invoice
+
+invoice = Invoice(
+    serie="F001",
+    numero=1,
+    detalles=[
+        {"descripcion": "Item", "cantidad": 1, "precio": 100}
+    ],
+    # ... otros campos
+)
+
+enricher = ContentEnricher(
+    defaults=Defaults(igvTasa=Decimal("0.10"))
+)
+enricher.enrich(invoice)
+
+print(invoice.igvTotal)      # 10.00
+print(invoice.importeTotal)  # 110.00
+```
+
+Si usas la API REST, no puedes cambiar la tasa directamente por parámetro de consulta. Debes enviar el campo `igv` calculado manualmente en cada línea, o bien usar la biblioteca Python con un `ContentEnricher` personalizado.
+
+:::note
+SUNAT solo reconoce tasas oficiales vigentes. Asegúrate de que la tasa configurada cumpla la normativa aplicable.
+:::
