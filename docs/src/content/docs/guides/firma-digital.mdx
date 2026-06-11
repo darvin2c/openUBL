@@ -7,13 +7,13 @@ SUNAT exige que todos los documentos electrónicos estén firmados digitalmente 
 
 ## Requisitos
 
-- Certificado digital X.509 en formato PEM (`.crt` o `.pem`)
-- Clave privada en formato PEM (`.key` o `.pem`)
+- Certificado digital X.509 y clave privada en formato PEM (`.crt`/`.pem` + `.key`/`.pem`), **o**
+- Certificado digital en formato PFX/P12 (`.pfx` o `.p12`) protegido con su frase de clave.
 - El XML debe seguir la estructura UBL 2.1 de SUNAT
 
 ## Conversión desde PFX/P12
 
-Si posees un certificado en formato `.pfx` o `.p12`, úsalo directamente:
+Si posees un certificado en formato `.pfx` o `.p12`, también puedes usar la librería core para extraer PEM:
 
 ```python
 from openubl.signer import load_pfx
@@ -32,11 +32,13 @@ POST /api/v1/sign
 
 | Campo | Tipo | Descripción |
 |-------|------|-------------|
-| `cert_pem` | `string` | Certificado X.509 en formato PEM |
-| `key_pem` | `string` | Clave privada en formato PEM |
+| `cert_pem` | `string` | Certificado X.509 en formato PEM (modo PEM) |
+| `key_pem` | `string` | Clave privada en formato PEM (modo PEM) |
+| `pfx_base64` | `string` | Contenido del archivo PFX/P12 codificado en base64 estándar (modo PFX) |
+| `pfx_password` | `string` | Contraseña del archivo PFX/P12 (modo PFX) |
 | `xml` | `string` | XML UBL 2.1 a firmar |
 
-## Ejemplo en Python
+## Ejemplo en Python (PEM)
 
 ```python
 import requests
@@ -61,7 +63,7 @@ response = requests.post(
 signed_xml = response.json()["signed_xml"]
 ```
 
-## Ejemplo con curl
+## Ejemplo con curl (PEM)
 
 ```bash
 curl -X POST "http://localhost:8000/api/v1/sign" \
@@ -73,6 +75,43 @@ curl -X POST "http://localhost:8000/api/v1/sign" \
   }'
 ```
 
+## Ejemplo con PFX
+
+```python
+import base64
+import requests
+
+with open("certificado.pfx", "rb") as f:
+    pfx_base64 = base64.b64encode(f.read()).decode("ascii")
+
+xml_generado = "<?xml version='1.0' encoding='UTF-8'?>..."
+
+response = requests.post(
+    "http://localhost:8000/api/v1/sign",
+    json={
+        "pfx_base64": pfx_base64,
+        "pfx_password": "mi_clave",
+        "xml": xml_generado,
+    },
+)
+
+signed_xml = response.json()["signed_xml"]
+```
+
+## Ejemplo con curl (PFX)
+
+```bash
+PFX_BASE64=$(base64 -w 0 certificado.pfx)
+
+curl -X POST "http://localhost:8000/api/v1/sign" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"pfx_base64\": \"$PFX_BASE64\",
+    \"pfx_password\": \"mi_clave\",
+    \"xml\": \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?>...\"
+  }"
+```
+
 ## Algoritmo de firma
 
 openUBL utiliza los parámetros requeridos por SUNAT:
@@ -82,8 +121,6 @@ openUBL utiliza los parámetros requeridos por SUNAT:
 | Algoritmo de firma | RSA-SHA1 |
 | Algoritmo de digestión | SHA1 |
 | Canonicalización | C14N |
-| Ubicación de la firma | `UBLExtension/ExtensionContent` |
-
 :::caution
 SUNAT requiere RSA-SHA1 por compatibilidad con su plataforma de recepción. Este algoritmo está considerado obsoleto para otros usos, pero sigue siendo obligatorio para la facturación electrónica peruana.
 :::

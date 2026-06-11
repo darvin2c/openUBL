@@ -96,6 +96,150 @@ class TestApiSign:
         assert "signed_xml" in response.json()
         assert "ds:Signature" in response.json()["signed_xml"]
 
+    def test_api_sign_with_pfx(self):
+        """
+        RS N° 300-2014/SUNAT - firma digital desde contenedor PFX/P12.
+        """
+        import base64
+        from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
+        from openubl.enricher import ContentEnricher
+        from openubl.renderer import render_invoice
+        from cryptography.hazmat.primitives.asymmetric import rsa
+        from cryptography.hazmat.primitives import serialization, hashes
+        from cryptography.hazmat.primitives.serialization import pkcs12
+        from cryptography.x509 import CertificateBuilder, Name, NameAttribute
+        from cryptography.x509.oid import NameOID
+        import datetime
+
+        invoice = Invoice(
+            serie="F001", numero=1,
+            proveedor=Proveedor(ruc="20100066603", razonSocial="Test"),
+            cliente=Cliente(nombre="Test", numeroDocumentoIdentidad="12345678", tipoDocumentoIdentidad="1"),
+            detalles=[{"descripcion": "Item1", "cantidad": "1", "precio": "100", "unidadMedida": "NIU"}],
+        )
+        enricher = ContentEnricher()
+        enricher.enrich(invoice)
+        xml = render_invoice(invoice)
+
+        key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        cert = CertificateBuilder().subject_name(Name([NameAttribute(NameOID.COMMON_NAME, "Test")])).issuer_name(Name([NameAttribute(NameOID.COMMON_NAME, "Test")])).serial_number(1).not_valid_before(datetime.datetime.utcnow()).not_valid_after(datetime.datetime.utcnow() + datetime.timedelta(days=1)).public_key(key.public_key()).sign(key, hashes.SHA256())
+
+        pfx_bytes = pkcs12.serialize_key_and_certificates(
+            name=b"test",
+            key=key,
+            cert=cert,
+            cas=None,
+            encryption_algorithm=serialization.BestAvailableEncryption(b"testpass"),
+        )
+        pfx_base64 = base64.b64encode(pfx_bytes).decode("ascii")
+
+        response = client.post("/api/v1/sign", json={
+            "xml": xml,
+            "pfx_base64": pfx_base64,
+            "pfx_password": "testpass",
+        })
+        assert response.status_code == 200
+        data = response.json()
+        assert "signed_xml" in data
+        assert "ds:Signature" in data["signed_xml"]
+
+    def test_api_sign_with_pfx_passes_sunat_validation(self):
+        """
+        La firma generada desde PFX debe cumplir las reglas SUNAT validadas por openUBL.
+        """
+        import base64
+        from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
+        from openubl.enricher import ContentEnricher
+        from openubl.renderer import render_invoice
+        from openubl.validator import SunatValidator
+        from cryptography.hazmat.primitives.asymmetric import rsa
+        from cryptography.hazmat.primitives import serialization, hashes
+        from cryptography.hazmat.primitives.serialization import pkcs12
+        from cryptography.x509 import CertificateBuilder, Name, NameAttribute
+        from cryptography.x509.oid import NameOID
+        import datetime
+
+        invoice = Invoice(
+            serie="F001", numero=1,
+            proveedor=Proveedor(ruc="20100066603", razonSocial="Test"),
+            cliente=Cliente(nombre="Test", numeroDocumentoIdentidad="12345678", tipoDocumentoIdentidad="1"),
+            detalles=[{"descripcion": "Item1", "cantidad": "1", "precio": "100", "unidadMedida": "NIU"}],
+        )
+        enricher = ContentEnricher()
+        enricher.enrich(invoice)
+        xml = render_invoice(invoice)
+
+        key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        cert = CertificateBuilder().subject_name(Name([NameAttribute(NameOID.COMMON_NAME, "Test")])).issuer_name(Name([NameAttribute(NameOID.COMMON_NAME, "Test")])).serial_number(1).not_valid_before(datetime.datetime.utcnow()).not_valid_after(datetime.datetime.utcnow() + datetime.timedelta(days=1)).public_key(key.public_key()).sign(key, hashes.SHA256())
+
+        pfx_bytes = pkcs12.serialize_key_and_certificates(
+            name=b"test",
+            key=key,
+            cert=cert,
+            cas=None,
+            encryption_algorithm=serialization.BestAvailableEncryption(b"testpass"),
+        )
+        pfx_base64 = base64.b64encode(pfx_bytes).decode("ascii")
+
+        response = client.post("/api/v1/sign", json={
+            "xml": xml,
+            "pfx_base64": pfx_base64,
+            "pfx_password": "testpass",
+        })
+        assert response.status_code == 200
+        signed_xml = response.json()["signed_xml"]
+        errors = SunatValidator().validate_signed_xml(signed_xml)
+        assert errors == []
+
+    def test_api_sign_missing_credentials(self):
+        """
+        El endpoint debe rechazar peticiones sin credenciales.
+        """
+        response = client.post("/api/v1/sign", json={"xml": "<test/>"})
+        assert response.status_code == 422
+
+    def test_api_sign_invalid_base64(self):
+        """
+        El endpoint debe rechazar pfx_base64 con formato inválido.
+        """
+        response = client.post("/api/v1/sign", json={
+            "xml": "<test/>",
+            "pfx_base64": "!!!no_es_base64!!!",
+            "pfx_password": "x",
+        })
+        assert response.status_code == 422
+
+    def test_api_sign_wrong_pfx_password(self):
+        """
+        El endpoint debe rechazar un PFX cuando el password es incorrecto.
+        """
+        import base64
+        from cryptography.hazmat.primitives.asymmetric import rsa
+        from cryptography.hazmat.primitives import serialization, hashes
+        from cryptography.hazmat.primitives.serialization import pkcs12
+        from cryptography.x509 import CertificateBuilder, Name, NameAttribute
+        from cryptography.x509.oid import NameOID
+        import datetime
+
+        key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        cert = CertificateBuilder().subject_name(Name([NameAttribute(NameOID.COMMON_NAME, "Test")])).issuer_name(Name([NameAttribute(NameOID.COMMON_NAME, "Test")])).serial_number(1).not_valid_before(datetime.datetime.utcnow()).not_valid_after(datetime.datetime.utcnow() + datetime.timedelta(days=1)).public_key(key.public_key()).sign(key, hashes.SHA256())
+
+        pfx_bytes = pkcs12.serialize_key_and_certificates(
+            name=b"test",
+            key=key,
+            cert=cert,
+            cas=None,
+            encryption_algorithm=serialization.BestAvailableEncryption(b"testpass"),
+        )
+        pfx_base64 = base64.b64encode(pfx_bytes).decode("ascii")
+
+        response = client.post("/api/v1/sign", json={
+            "xml": "<test/>",
+            "pfx_base64": pfx_base64,
+            "pfx_password": "wrongpass",
+        })
+        assert response.status_code == 422
+
     def test_api_credit_note_create(self):
         """
         RS N° 300-2014/SUNAT - Nota de Crédito Electrónica (07).

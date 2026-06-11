@@ -1418,7 +1418,7 @@
     },
     "/api/v1/sign": {
       "post": {
-        "description": "Sign an arbitrary UBL XML document with a PEM certificate and key.\n\nRequired body fields:\n    - `xml`: The XML string to sign.\n    - `cert_pem`: The PEM-encoded certificate.\n    - `key_pem`: The PEM-encoded private key.\n    - `signature_id`: The signature ID (defaults to `SignSUNAT`).\n\nReturns:\n    200: `{\"signed_xml\": \"...\"}` with the signed XML.",
+        "description": "Sign an arbitrary UBL XML document with a PEM certificate/key pair or a PFX/P12 container.\n\nRequired body fields (choose one credential mode):\n    * PEM mode: `cert_pem` and `key_pem`.\n    * PFX/P12 mode: `pfx_base64` (standard base64 of the file) and `pfx_password`.\n\nOptional body fields:\n    * `xml`: The XML string to sign.\n    * `signature_id`: The signature ID (defaults to `SignSUNAT`).\n\nReturns:\n    200: `{\"signed_xml\": \"...\"}` with the signed XML.",
         "operationId": "sign_xml_api_v1_sign_post",
         "requestBody": {
           "content": {

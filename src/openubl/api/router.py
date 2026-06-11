@@ -14,7 +14,7 @@ from ..renderer import (
     render_voided_documents, render_summary_documents,
     render_perception, render_retention,
 )
-from ..signer import sign_ubl_xml
+from ..signer import load_pfx, sign_ubl_xml
 from ..validator import SunatValidator
 
 
@@ -167,20 +167,49 @@ def create_retention(doc: Retention, validate: bool = Query(default=True)):
 
 @router.post("/sign")
 def sign_xml(payload: dict):
-    """Sign an arbitrary UBL XML document with a PEM certificate and key.
+    """Sign an arbitrary UBL XML document with a PEM certificate/key pair or a PFX/P12 container.
 
-    Required body fields:
-        - `xml`: The XML string to sign.
-        - `cert_pem`: The PEM-encoded certificate.
-        - `key_pem`: The PEM-encoded private key.
-        - `signature_id`: The signature ID (defaults to `SignSUNAT`).
+    Required body fields (choose one credential mode):
+        * PEM mode: `cert_pem` and `key_pem`.
+        * PFX/P12 mode: `pfx_base64` (standard base64 of the file) and `pfx_password`.
+
+    Optional body fields:
+        * `xml`: The XML string to sign.
+        * `signature_id`: The signature ID (defaults to `SignSUNAT`).
 
     Returns:
         200: `{"signed_xml": "..."}` with the signed XML.
     """
     xml = payload.get("xml", "")
-    cert_pem = payload.get("cert_pem", "")
-    key_pem = payload.get("key_pem", "")
     signature_id = payload.get("signature_id", "SignSUNAT")
-    signed = sign_ubl_xml(xml, cert_pem, key_pem, signature_id)
+
+    if "pfx_base64" in payload and "pfx_password" in payload:
+        import base64
+        import binascii
+
+        try:
+            pfx_bytes = base64.b64decode(payload["pfx_base64"])
+        except (ValueError, binascii.Error):
+            raise HTTPException(
+                status_code=422,
+                detail="pfx_base64 no es un base64 válido.",
+            )
+        try:
+            key_pem, cert_pem = load_pfx(pfx_bytes, payload["pfx_password"])
+        except ValueError:
+            raise HTTPException(
+                status_code=422,
+                detail="No se pudo desencriptar el PFX: verifique el password.",
+            )
+        signed = sign_ubl_xml(xml, cert_pem, key_pem, signature_id)
+    elif "cert_pem" in payload and "key_pem" in payload:
+        cert_pem = payload["cert_pem"]
+        key_pem = payload["key_pem"]
+        signed = sign_ubl_xml(xml, cert_pem, key_pem, signature_id)
+    else:
+        raise HTTPException(
+            status_code=422,
+            detail="Debe proporcionar cert_pem y key_pem, o pfx_base64 y pfx_password.",
+        )
+
     return {"signed_xml": signed}

@@ -77,6 +77,96 @@ func main() {
 }
 ```
 
+## Firma digital
+
+El cliente generado puede firmar el XML llamando al endpoint `/api/v1/sign` con PEM o con PFX/P12.
+
+### Firma con PEM
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"os"
+
+	openubl "github.com/openubl/sdk/go"
+)
+
+func main() {
+	certPem, err := os.ReadFile("certificado.pem")
+	if err != nil {
+		log.Fatal(err)
+	}
+	keyPem, err := os.ReadFile("llave_privada.pem")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	config := openubl.NewConfiguration()
+	config.Host = "localhost:8000"
+	config.Scheme = "http"
+
+	client := openubl.NewAPIClient(config)
+	body := map[string]interface{}{
+		"xml":       xml,
+		"cert_pem":  string(certPem),
+		"key_pem":   string(keyPem),
+	}
+
+	signResp, r, err := client.SignAPI.ApiV1SignPost(context.Background()).Body(body).Execute()
+	if err != nil {
+		log.Fatalf("Error: %v (HTTP %d)", err, r.StatusCode)
+	}
+
+	fmt.Println(signResp.GetSignedXml())
+}
+```
+
+### Firma con PFX/P12
+
+```go
+package main
+
+import (
+	"context"
+	"encoding/base64"
+	"fmt"
+	"log"
+	"os"
+
+	openubl "github.com/openubl/sdk/go"
+)
+
+func main() {
+	pfxBytes, err := os.ReadFile("certificado.pfx")
+	if err != nil {
+		log.Fatal(err)
+	}
+	pfxBase64 := base64.StdEncoding.EncodeToString(pfxBytes)
+
+	config := openubl.NewConfiguration()
+	config.Host = "localhost:8000"
+	config.Scheme = "http"
+
+	client := openubl.NewAPIClient(config)
+	body := map[string]interface{}{
+		"xml":           xml,
+		"pfx_base64":    pfxBase64,
+		"pfx_password":  "mi_clave",
+	}
+
+	signResp, r, err := client.SignAPI.ApiV1SignPost(context.Background()).Body(body).Execute()
+	if err != nil {
+		log.Fatalf("Error: %v (HTTP %d)", err, r.StatusCode)
+	}
+
+	fmt.Println(signResp.GetSignedXml())
+}
+```
+
 :::note
 El generador de Go utiliza punteros para campos opcionales y expone helpers como `PtrString` o `PtrInt32`. Los nombres exactos de los métodos del cliente dependen de las etiquetas de operación en `openapi.json`; verifica `sdk/go/api_*.go` para confirmar.
 :::
