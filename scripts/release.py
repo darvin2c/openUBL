@@ -172,7 +172,11 @@ def run_tests(skip: bool) -> None:
     ts_package = REPO_ROOT / "sdk" / "typescript" / "package.json"
     if ts_package.exists():
         print("INFO: ejecutando tests de TypeScript…")
-        run(["npm", "test"], cwd=REPO_ROOT / "sdk" / "typescript")
+        npm = shutil.which("npm")
+        if not npm:
+            print("WARN: npm no está en PATH; saltando tests de TypeScript")
+        else:
+            run([npm, "test"], cwd=REPO_ROOT / "sdk" / "typescript")
     else:
         print("WARN: no se encontró sdk/typescript/package.json; saltando tests TS")
 
