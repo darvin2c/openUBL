@@ -10,28 +10,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - name: Sync dependencies
         run: uv sync
       - name: Run Python tests
         run: uv run pytest -m "not e2e"
+      - name: Generate OpenAPI
+        run: uv run python scripts/export_openapi.py
+      - name: Generate TypeScript SDK
+        run: cd sdk/typescript && npm ci && npm run generate && npm run build && npm test
+      - name: Generate docs
+        run: npm run generate:docs
+      - name: Ensure generated files are up to date
+        run: git diff --exit-code openapi.json sdk/typescript/src docs/src/content/docs/api/referencia.mdx docs/src/content/docs/sdk/typescript.mdx
       - name: Run static sync check
         run: uv run python scripts/check_sdk_sync.py
       - name: Build wheel
         run: uv build
-
-  typescript:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - name: Install & generate
-        run: |
-          cd sdk/typescript
-          npm ci
-          npm run generate
-      - name: Build
-        run: cd sdk/typescript && npm run build
-      - name: Test
-        run: cd sdk/typescript && npm test

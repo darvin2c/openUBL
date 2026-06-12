@@ -46,17 +46,18 @@ npm install @openubl/sdk
 ```
 
 ```typescript
-import { client, type Invoice } from "@openubl/sdk";
+import { client, SDK_VERSION, checkApiVersion } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
 
-const invoice: Invoice = {
+const invoice = zInvoice.parse({
   serie: "F001",
   numero: 1,
   proveedor: { ruc: "20100066603", razonSocial: "Softgreen S.A.C." },
   cliente: { nombre: "Carlos", numeroDocumentoIdentidad: "12121212121", tipoDocumentoIdentidad: "6" },
   detalles: [{ descripcion: "Item", cantidad: 10, precio: 100 }],
-};
+});
 
-const { data } = await client.POST("/api/v1/invoice/create", { body: invoice });
+const { data } = await client.post("/api/v1/invoice/create", { body: invoice });
 console.log(data?.xml); // XML UBL 2.1 generado
 ```
 
@@ -102,7 +103,6 @@ if (!result.ok) throw new Error(`Desfase: SDK ${result.sdkVersion} vs API ${resu
 ## Documentación
 
 - [Documentación completa](https://darvin2c.github.io/openUBL)
-- [Guía de Python SDK](https://darvin2c.github.io/openUBL/sdk/python)
 - [Guía de TypeScript SDK](https://darvin2c.github.io/openUBL/sdk/typescript)
 - [Referencia de API](https://darvin2c.github.io/openUBL/api/referencia)
 

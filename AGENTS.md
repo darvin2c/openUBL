@@ -2,7 +2,7 @@
 
 ## Qué es este proyecto
 
-openUBL es una biblioteca Python para generar, firmar y validar documentos electrónicos UBL 2.1 para SUNAT (Perú). Expone una API REST FastAPI y SDKs generados a partir de OpenAPI.
+openUBL es una biblioteca Python para generar, firmar y validar documentos electrónicos UBL 2.1 para SUNAT (Perú). Expone una API REST FastAPI y un SDK TypeScript generado a partir de OpenAPI.
 
 ## Estructura clave
 
@@ -18,7 +18,7 @@ openubl/
 │   ├── enricher.py        # Enriquecimiento automático de campos
 │   └── version.py         # check_api_version() para sincronización runtime
 ├── sdk/typescript/        # SDK TypeScript (@openubl/sdk)
-│   ├── src/               # Código fuente (client.ts, version.ts, openubl-types.ts)
+│   ├── src/               # Código generado por @hey-api/openapi-ts (tipos, cliente fetch, schemas Zod)
 │   ├── test/              # Tests Vitest
 │   └── dist/              # Emitido por tsc
   ├── scripts/
@@ -39,7 +39,7 @@ openubl/
 
 - **Idioma**: Código en inglés, documentación y mensajes de usuario en español.
 - **Python**: `snake_case`, tipado estricto (mypy-friendly), docstrings en español para FastAPI OpenAPI.
-- **TypeScript**: `camelCase`, ES modules (`"type": "module"`), tipos exportados desde `openubl-types.ts`.
+- **TypeScript**: `camelCase`, ES modules (`"type": "module"`), tipos y schemas Zod generados por `@hey-api/openapi-ts`.
 - **Versionado**: SemVer. La versión debe ser idéntica en los 7 archivos. Nunca editar a mano; usar `scripts/bump_version.py`.
 
 ## Cómo ejecutar tests
@@ -121,7 +121,7 @@ Esta es la fuente autorizada de SUNAT para:
 
 - No editar versiones a mano en `__init__.py`, `pyproject.toml`, `package.json`, etc. Usar `bump_version.py`.
 - No modificar `openapi.json` manualmente. Usar `export_openapi.py`.
-- No romper la sincronización entre API y SDKs. Siempre ejecutar `check_sdk_sync.py` antes de un release.
+- No romper la sincronización entre API y SDK. Siempre ejecutar `check_sdk_sync.py` antes de un release.
 - No agregar dependencias runtime innecesarias. `urllib.request` ya cubre HTTP simple en Python.
 
 ## Endpoints principales (FastAPI)

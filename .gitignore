@@ -19,10 +19,6 @@ node_modules/
 openapitools.json
 
 # Generated SDK files
-sdk/java/
-sdk/go/
-sdk/python/
-sdk/csharp/
 sdk/typescript/src/openubl-types.ts
 
 # Documentation build output
