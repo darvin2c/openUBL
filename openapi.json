@@ -1300,7 +1300,7 @@
     "/api/v1/credit-note/create": {
       "post": {
         "description": "Generate a CreditNote XML document.\n\nThe `validate` query parameter controls SUNAT validation and defaults to `true`.\n\nReturns:\n    200: `{\"xml\": \"...\"}` with the generated XML.\n    422: Validation failed or the request body is invalid.",
-        "operationId": "create_credit_note_api_v1_credit_note_create_post",
+        "operationId": "createCreditNote",
         "parameters": [
           {
             "in": "query",
@@ -1351,7 +1351,7 @@
     "/api/v1/debit-note/create": {
       "post": {
         "description": "Generate a DebitNote XML document.\n\nThe `validate` query parameter controls SUNAT validation and defaults to `true`.\n\nReturns:\n    200: `{\"xml\": \"...\"}` with the generated XML.\n    422: Validation failed or the request body is invalid.",
-        "operationId": "create_debit_note_api_v1_debit_note_create_post",
+        "operationId": "createDebitNote",
         "parameters": [
           {
             "in": "query",
@@ -1402,7 +1402,7 @@
     "/api/v1/invoice/create": {
       "post": {
         "description": "Generate an Invoice XML document.\n\nThe `validate` query parameter controls SUNAT validation and defaults to `true`.\n\nReturns:\n    200: `{\"xml\": \"...\"}` with the generated XML.\n    422: Validation failed or the request body is invalid.",
-        "operationId": "create_invoice_api_v1_invoice_create_post",
+        "operationId": "createInvoice",
         "parameters": [
           {
             "in": "query",
@@ -1453,7 +1453,7 @@
     "/api/v1/perception/create": {
       "post": {
         "description": "Generate a Perception XML document.\n\nThe `validate` query parameter controls SUNAT validation and defaults to `true`.\n\nReturns:\n    200: `{\"xml\": \"...\"}` with the generated XML.\n    422: Validation failed or the request body is invalid.",
-        "operationId": "create_perception_api_v1_perception_create_post",
+        "operationId": "createPerception",
         "parameters": [
           {
             "in": "query",
@@ -1504,7 +1504,7 @@
     "/api/v1/retention/create": {
       "post": {
         "description": "Generate a Retention XML document.\n\nThe `validate` query parameter controls SUNAT validation and defaults to `true`.\n\nReturns:\n    200: `{\"xml\": \"...\"}` with the generated XML.\n    422: Validation failed or the request body is invalid.",
-        "operationId": "create_retention_api_v1_retention_create_post",
+        "operationId": "createRetention",
         "parameters": [
           {
             "in": "query",
@@ -1555,7 +1555,7 @@
     "/api/v1/sign": {
       "post": {
         "description": "Sign an arbitrary UBL XML document with a PEM certificate/key pair or a PFX/P12 container.\n\nRequired body fields (choose one credential mode):\n    * PEM mode: `cert_pem` and `key_pem`.\n    * PFX/P12 mode: `pfx_base64` (standard base64 of the file) and `pfx_password`.\n\nOptional body fields:\n    * `xml`: The XML string to sign.\n    * `signature_id`: The signature ID (defaults to `SignSUNAT`).\n\nReturns:\n    200: `{\"signed_xml\": \"...\"}` with the signed XML.",
-        "operationId": "sign_xml_api_v1_sign_post",
+        "operationId": "signXml",
         "requestBody": {
           "content": {
             "application/json": {
@@ -1596,7 +1596,7 @@
     "/api/v1/summary-documents/create": {
       "post": {
         "description": "Generate a SummaryDocuments XML document.\n\nThe `validate` query parameter controls SUNAT validation and defaults to `true`.\n\nReturns:\n    200: `{\"xml\": \"...\"}` with the generated XML.\n    422: Validation failed or the request body is invalid.",
-        "operationId": "create_summary_documents_api_v1_summary_documents_create_post",
+        "operationId": "createSummaryDocuments",
         "parameters": [
           {
             "in": "query",
@@ -1647,7 +1647,7 @@
     "/api/v1/version": {
       "get": {
         "description": "Return the current API version.\n\nReturns:\n    200: `{\"version\": \"...\"}` with the current API version.",
-        "operationId": "get_version_api_v1_version_get",
+        "operationId": "getVersion",
         "responses": {
           "200": {
             "content": {
@@ -1664,7 +1664,7 @@
     "/api/v1/voided-documents/create": {
       "post": {
         "description": "Generate a VoidedDocuments XML document.\n\nThe `validate` query parameter controls SUNAT validation and defaults to `true`.\n\nReturns:\n    200: `{\"xml\": \"...\"}` with the generated XML.\n    422: Validation failed or the request body is invalid.",
-        "operationId": "create_voided_documents_api_v1_voided_documents_create_post",
+        "operationId": "createVoidedDocuments",
         "parameters": [
           {
             "in": "query",
