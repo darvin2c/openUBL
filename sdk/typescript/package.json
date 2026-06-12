@@ -19,14 +19,13 @@
     "dist"
   ],
   "scripts": {
-    "generate": "openapi-ts && uv run python ../../scripts/export_openapi.py && npm run generate:version-export",
-    "generate:version-export": "node -e \"require('fs').appendFileSync('src/index.ts', 'export { client } from \\\"./client.gen.js\\\";\\nexport { SDK_VERSION, checkApiVersion } from \\\"./version.js\\\";\\n')\"",
+    "generate": "uv run python ../../scripts/export_openapi.py && openapi-ts && npm run generate:version-export",
+    "generate:version-export": "node scripts/finalize-index.js",
     "build": "tsc",
     "test": "vitest run",
     "prepublishOnly": "npm run generate && npm run build"
   },
   "dependencies": {
-    "@hey-api/client-fetch": "^0.13.1",
     "zod": "^3.0.0"
   },
   "devDependencies": {

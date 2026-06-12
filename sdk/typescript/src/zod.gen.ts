@@ -549,89 +549,89 @@ export const zSummaryDocuments = z.object({
     proveedor: zProveedor
 });
 
-export const zCreateCreditNoteApiV1CreditNoteCreatePostBody = zCreditNote;
+export const zCreateCreditNoteBody = zCreditNote;
 
-export const zCreateCreditNoteApiV1CreditNoteCreatePostQuery = z.object({
+export const zCreateCreditNoteQuery = z.object({
     validate: z.boolean().optional().default(true)
 });
 
 /**
  * Successful Response
  */
-export const zCreateCreditNoteApiV1CreditNoteCreatePostResponse = zXmlResponse;
+export const zCreateCreditNoteResponse = zXmlResponse;
 
-export const zCreateDebitNoteApiV1DebitNoteCreatePostBody = zDebitNote;
+export const zCreateDebitNoteBody = zDebitNote;
 
-export const zCreateDebitNoteApiV1DebitNoteCreatePostQuery = z.object({
+export const zCreateDebitNoteQuery = z.object({
     validate: z.boolean().optional().default(true)
 });
 
 /**
  * Successful Response
  */
-export const zCreateDebitNoteApiV1DebitNoteCreatePostResponse = zXmlResponse;
+export const zCreateDebitNoteResponse = zXmlResponse;
 
-export const zCreateInvoiceApiV1InvoiceCreatePostBody = zInvoice;
+export const zCreateInvoiceBody = zInvoice;
 
-export const zCreateInvoiceApiV1InvoiceCreatePostQuery = z.object({
+export const zCreateInvoiceQuery = z.object({
     validate: z.boolean().optional().default(true)
 });
 
 /**
  * Successful Response
  */
-export const zCreateInvoiceApiV1InvoiceCreatePostResponse = zXmlResponse;
+export const zCreateInvoiceResponse = zXmlResponse;
 
-export const zCreatePerceptionApiV1PerceptionCreatePostBody = zPerception;
+export const zCreatePerceptionBody = zPerception;
 
-export const zCreatePerceptionApiV1PerceptionCreatePostQuery = z.object({
+export const zCreatePerceptionQuery = z.object({
     validate: z.boolean().optional().default(true)
 });
 
 /**
  * Successful Response
  */
-export const zCreatePerceptionApiV1PerceptionCreatePostResponse = zXmlResponse;
+export const zCreatePerceptionResponse = zXmlResponse;
 
-export const zCreateRetentionApiV1RetentionCreatePostBody = zRetention;
+export const zCreateRetentionBody = zRetention;
 
-export const zCreateRetentionApiV1RetentionCreatePostQuery = z.object({
+export const zCreateRetentionQuery = z.object({
     validate: z.boolean().optional().default(true)
 });
 
 /**
  * Successful Response
  */
-export const zCreateRetentionApiV1RetentionCreatePostResponse = zXmlResponse;
+export const zCreateRetentionResponse = zXmlResponse;
 
 /**
  * Payload
  */
-export const zSignXmlApiV1SignPostBody = z.record(z.unknown());
+export const zSignXmlBody = z.record(z.unknown());
 
 /**
  * Successful Response
  */
-export const zSignXmlApiV1SignPostResponse = zSignedXmlResponse;
+export const zSignXmlResponse = zSignedXmlResponse;
 
-export const zCreateSummaryDocumentsApiV1SummaryDocumentsCreatePostBody = zSummaryDocuments;
+export const zCreateSummaryDocumentsBody = zSummaryDocuments;
 
-export const zCreateSummaryDocumentsApiV1SummaryDocumentsCreatePostQuery = z.object({
+export const zCreateSummaryDocumentsQuery = z.object({
     validate: z.boolean().optional().default(true)
 });
 
 /**
  * Successful Response
  */
-export const zCreateSummaryDocumentsApiV1SummaryDocumentsCreatePostResponse = zXmlResponse;
+export const zCreateSummaryDocumentsResponse = zXmlResponse;
 
-export const zCreateVoidedDocumentsApiV1VoidedDocumentsCreatePostBody = zVoidedDocuments;
+export const zCreateVoidedDocumentsBody = zVoidedDocuments;
 
-export const zCreateVoidedDocumentsApiV1VoidedDocumentsCreatePostQuery = z.object({
+export const zCreateVoidedDocumentsQuery = z.object({
     validate: z.boolean().optional().default(true)
 });
 
 /**
  * Successful Response
  */
-export const zCreateVoidedDocumentsApiV1VoidedDocumentsCreatePostResponse = zXmlResponse;
+export const zCreateVoidedDocumentsResponse = zXmlResponse;

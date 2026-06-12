@@ -5,7 +5,17 @@ export default defineConfig({
   input: '../../openapi.json',
   output: 'src',
   plugins: [
-    '@hey-api/client-fetch',
+    {
+      name: '@hey-api/client-fetch',
+      runtimeConfigPath: './src/client.config.js',
+    },
+    {
+      name: '@hey-api/sdk',
+      operations: {
+        strategy: 'flat',
+      },
+      validator: true,
+    },
     'zod',
   ],
 });

@@ -702,7 +702,7 @@ export type OpenublModelsSummaryComprobanteAfectado = {
     tipoComprobante: Catalog1;
 };
 
-export type CreateCreditNoteApiV1CreditNoteCreatePostData = {
+export type CreateCreditNoteData = {
     body: CreditNote;
     path?: never;
     query?: {
@@ -714,25 +714,25 @@ export type CreateCreditNoteApiV1CreditNoteCreatePostData = {
     url: '/api/v1/credit-note/create';
 };
 
-export type CreateCreditNoteApiV1CreditNoteCreatePostErrors = {
+export type CreateCreditNoteErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type CreateCreditNoteApiV1CreditNoteCreatePostError = CreateCreditNoteApiV1CreditNoteCreatePostErrors[keyof CreateCreditNoteApiV1CreditNoteCreatePostErrors];
+export type CreateCreditNoteError = CreateCreditNoteErrors[keyof CreateCreditNoteErrors];
 
-export type CreateCreditNoteApiV1CreditNoteCreatePostResponses = {
+export type CreateCreditNoteResponses = {
     /**
      * Successful Response
      */
     200: XmlResponse;
 };
 
-export type CreateCreditNoteApiV1CreditNoteCreatePostResponse = CreateCreditNoteApiV1CreditNoteCreatePostResponses[keyof CreateCreditNoteApiV1CreditNoteCreatePostResponses];
+export type CreateCreditNoteResponse = CreateCreditNoteResponses[keyof CreateCreditNoteResponses];
 
-export type CreateDebitNoteApiV1DebitNoteCreatePostData = {
+export type CreateDebitNoteData = {
     body: DebitNote;
     path?: never;
     query?: {
@@ -744,25 +744,25 @@ export type CreateDebitNoteApiV1DebitNoteCreatePostData = {
     url: '/api/v1/debit-note/create';
 };
 
-export type CreateDebitNoteApiV1DebitNoteCreatePostErrors = {
+export type CreateDebitNoteErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type CreateDebitNoteApiV1DebitNoteCreatePostError = CreateDebitNoteApiV1DebitNoteCreatePostErrors[keyof CreateDebitNoteApiV1DebitNoteCreatePostErrors];
+export type CreateDebitNoteError = CreateDebitNoteErrors[keyof CreateDebitNoteErrors];
 
-export type CreateDebitNoteApiV1DebitNoteCreatePostResponses = {
+export type CreateDebitNoteResponses = {
     /**
      * Successful Response
      */
     200: XmlResponse;
 };
 
-export type CreateDebitNoteApiV1DebitNoteCreatePostResponse = CreateDebitNoteApiV1DebitNoteCreatePostResponses[keyof CreateDebitNoteApiV1DebitNoteCreatePostResponses];
+export type CreateDebitNoteResponse = CreateDebitNoteResponses[keyof CreateDebitNoteResponses];
 
-export type CreateInvoiceApiV1InvoiceCreatePostData = {
+export type CreateInvoiceData = {
     body: Invoice;
     path?: never;
     query?: {
@@ -774,25 +774,25 @@ export type CreateInvoiceApiV1InvoiceCreatePostData = {
     url: '/api/v1/invoice/create';
 };
 
-export type CreateInvoiceApiV1InvoiceCreatePostErrors = {
+export type CreateInvoiceErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type CreateInvoiceApiV1InvoiceCreatePostError = CreateInvoiceApiV1InvoiceCreatePostErrors[keyof CreateInvoiceApiV1InvoiceCreatePostErrors];
+export type CreateInvoiceError = CreateInvoiceErrors[keyof CreateInvoiceErrors];
 
-export type CreateInvoiceApiV1InvoiceCreatePostResponses = {
+export type CreateInvoiceResponses = {
     /**
      * Successful Response
      */
     200: XmlResponse;
 };
 
-export type CreateInvoiceApiV1InvoiceCreatePostResponse = CreateInvoiceApiV1InvoiceCreatePostResponses[keyof CreateInvoiceApiV1InvoiceCreatePostResponses];
+export type CreateInvoiceResponse = CreateInvoiceResponses[keyof CreateInvoiceResponses];
 
-export type CreatePerceptionApiV1PerceptionCreatePostData = {
+export type CreatePerceptionData = {
     body: Perception;
     path?: never;
     query?: {
@@ -804,25 +804,25 @@ export type CreatePerceptionApiV1PerceptionCreatePostData = {
     url: '/api/v1/perception/create';
 };
 
-export type CreatePerceptionApiV1PerceptionCreatePostErrors = {
+export type CreatePerceptionErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type CreatePerceptionApiV1PerceptionCreatePostError = CreatePerceptionApiV1PerceptionCreatePostErrors[keyof CreatePerceptionApiV1PerceptionCreatePostErrors];
+export type CreatePerceptionError = CreatePerceptionErrors[keyof CreatePerceptionErrors];
 
-export type CreatePerceptionApiV1PerceptionCreatePostResponses = {
+export type CreatePerceptionResponses = {
     /**
      * Successful Response
      */
     200: XmlResponse;
 };
 
-export type CreatePerceptionApiV1PerceptionCreatePostResponse = CreatePerceptionApiV1PerceptionCreatePostResponses[keyof CreatePerceptionApiV1PerceptionCreatePostResponses];
+export type CreatePerceptionResponse = CreatePerceptionResponses[keyof CreatePerceptionResponses];
 
-export type CreateRetentionApiV1RetentionCreatePostData = {
+export type CreateRetentionData = {
     body: Retention;
     path?: never;
     query?: {
@@ -834,25 +834,25 @@ export type CreateRetentionApiV1RetentionCreatePostData = {
     url: '/api/v1/retention/create';
 };
 
-export type CreateRetentionApiV1RetentionCreatePostErrors = {
+export type CreateRetentionErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type CreateRetentionApiV1RetentionCreatePostError = CreateRetentionApiV1RetentionCreatePostErrors[keyof CreateRetentionApiV1RetentionCreatePostErrors];
+export type CreateRetentionError = CreateRetentionErrors[keyof CreateRetentionErrors];
 
-export type CreateRetentionApiV1RetentionCreatePostResponses = {
+export type CreateRetentionResponses = {
     /**
      * Successful Response
      */
     200: XmlResponse;
 };
 
-export type CreateRetentionApiV1RetentionCreatePostResponse = CreateRetentionApiV1RetentionCreatePostResponses[keyof CreateRetentionApiV1RetentionCreatePostResponses];
+export type CreateRetentionResponse = CreateRetentionResponses[keyof CreateRetentionResponses];
 
-export type SignXmlApiV1SignPostData = {
+export type SignXmlData = {
     /**
      * Payload
      */
@@ -864,25 +864,25 @@ export type SignXmlApiV1SignPostData = {
     url: '/api/v1/sign';
 };
 
-export type SignXmlApiV1SignPostErrors = {
+export type SignXmlErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type SignXmlApiV1SignPostError = SignXmlApiV1SignPostErrors[keyof SignXmlApiV1SignPostErrors];
+export type SignXmlError = SignXmlErrors[keyof SignXmlErrors];
 
-export type SignXmlApiV1SignPostResponses = {
+export type SignXmlResponses = {
     /**
      * Successful Response
      */
     200: SignedXmlResponse;
 };
 
-export type SignXmlApiV1SignPostResponse = SignXmlApiV1SignPostResponses[keyof SignXmlApiV1SignPostResponses];
+export type SignXmlResponse = SignXmlResponses[keyof SignXmlResponses];
 
-export type CreateSummaryDocumentsApiV1SummaryDocumentsCreatePostData = {
+export type CreateSummaryDocumentsData = {
     body: SummaryDocuments;
     path?: never;
     query?: {
@@ -894,39 +894,39 @@ export type CreateSummaryDocumentsApiV1SummaryDocumentsCreatePostData = {
     url: '/api/v1/summary-documents/create';
 };
 
-export type CreateSummaryDocumentsApiV1SummaryDocumentsCreatePostErrors = {
+export type CreateSummaryDocumentsErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type CreateSummaryDocumentsApiV1SummaryDocumentsCreatePostError = CreateSummaryDocumentsApiV1SummaryDocumentsCreatePostErrors[keyof CreateSummaryDocumentsApiV1SummaryDocumentsCreatePostErrors];
+export type CreateSummaryDocumentsError = CreateSummaryDocumentsErrors[keyof CreateSummaryDocumentsErrors];
 
-export type CreateSummaryDocumentsApiV1SummaryDocumentsCreatePostResponses = {
+export type CreateSummaryDocumentsResponses = {
     /**
      * Successful Response
      */
     200: XmlResponse;
 };
 
-export type CreateSummaryDocumentsApiV1SummaryDocumentsCreatePostResponse = CreateSummaryDocumentsApiV1SummaryDocumentsCreatePostResponses[keyof CreateSummaryDocumentsApiV1SummaryDocumentsCreatePostResponses];
+export type CreateSummaryDocumentsResponse = CreateSummaryDocumentsResponses[keyof CreateSummaryDocumentsResponses];
 
-export type GetVersionApiV1VersionGetData = {
+export type GetVersionData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/api/v1/version';
 };
 
-export type GetVersionApiV1VersionGetResponses = {
+export type GetVersionResponses = {
     /**
      * Successful Response
      */
     200: unknown;
 };
 
-export type CreateVoidedDocumentsApiV1VoidedDocumentsCreatePostData = {
+export type CreateVoidedDocumentsData = {
     body: VoidedDocuments;
     path?: never;
     query?: {
@@ -938,20 +938,20 @@ export type CreateVoidedDocumentsApiV1VoidedDocumentsCreatePostData = {
     url: '/api/v1/voided-documents/create';
 };
 
-export type CreateVoidedDocumentsApiV1VoidedDocumentsCreatePostErrors = {
+export type CreateVoidedDocumentsErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type CreateVoidedDocumentsApiV1VoidedDocumentsCreatePostError = CreateVoidedDocumentsApiV1VoidedDocumentsCreatePostErrors[keyof CreateVoidedDocumentsApiV1VoidedDocumentsCreatePostErrors];
+export type CreateVoidedDocumentsError = CreateVoidedDocumentsErrors[keyof CreateVoidedDocumentsErrors];
 
-export type CreateVoidedDocumentsApiV1VoidedDocumentsCreatePostResponses = {
+export type CreateVoidedDocumentsResponses = {
     /**
      * Successful Response
      */
     200: XmlResponse;
 };
 
-export type CreateVoidedDocumentsApiV1VoidedDocumentsCreatePostResponse = CreateVoidedDocumentsApiV1VoidedDocumentsCreatePostResponses[keyof CreateVoidedDocumentsApiV1VoidedDocumentsCreatePostResponses];
+export type CreateVoidedDocumentsResponse = CreateVoidedDocumentsResponses[keyof CreateVoidedDocumentsResponses];
