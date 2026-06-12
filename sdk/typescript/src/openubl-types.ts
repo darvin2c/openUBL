@@ -572,6 +572,14 @@ export interface components {
             tipoRegimenPorcentaje: number | string;
         };
         /**
+         * SignedXmlResponse
+         * @description Response containing signed XML document.
+         */
+        SignedXmlResponse: {
+            /** Signed Xml */
+            signed_xml: string;
+        };
+        /**
          * SummaryDocuments
          * @description Resumen Diario - RC.
          *
@@ -657,6 +665,14 @@ export interface components {
             tipoComprobante: string;
         };
         /**
+         * XmlResponse
+         * @description Response containing generated XML document.
+         */
+        XmlResponse: {
+            /** Xml */
+            xml: string;
+        };
+        /**
          * ComprobanteAfectado
          * @description Comprobante afectado por la percepción.
          */
@@ -724,7 +740,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["XmlResponse"];
                 };
             };
             /** @description Validation Error */
@@ -759,7 +775,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["XmlResponse"];
                 };
             };
             /** @description Validation Error */
@@ -794,7 +810,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["XmlResponse"];
                 };
             };
             /** @description Validation Error */
@@ -829,7 +845,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["XmlResponse"];
                 };
             };
             /** @description Validation Error */
@@ -864,7 +880,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["XmlResponse"];
                 };
             };
             /** @description Validation Error */
@@ -899,7 +915,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["SignedXmlResponse"];
                 };
             };
             /** @description Validation Error */
@@ -934,7 +950,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["XmlResponse"];
                 };
             };
             /** @description Validation Error */
@@ -989,7 +1005,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["XmlResponse"];
                 };
             };
             /** @description Validation Error */

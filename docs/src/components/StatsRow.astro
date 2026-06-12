@@ -1,0 +1,31 @@
+---
+interface Props {
+	items: {
+		value: string;
+		label: string;
+		accent?: 'red' | 'gold';
+	}[];
+}
+
+const { items } = Astro.props;
+
+const delayClass = (index: number) => {
+	const delay = (index + 1) * 100;
+	return `delay-${delay}`;
+};
+
+const accentClass = (accent?: 'red' | 'gold') => {
+	if (accent === 'red') return 'accent-red';
+	if (accent === 'gold') return 'accent-gold';
+	return '';
+};
+---
+
+<div class="stats-row">
+	{items.map((item, index) => (
+		<div class={`stat-item ${delayClass(index)}`}>
+			<div class={`stat-value ${accentClass(item.accent)}`}>{item.value}</div>
+			<div class="stat-label">{item.label}</div>
+		</div>
+	))}
+</div>

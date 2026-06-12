@@ -2,6 +2,7 @@
 FastAPI router for openUBL REST API.
 """
 from fastapi import APIRouter, Query, HTTPException
+from pydantic import BaseModel
 from openubl import __version__
 
 from ..models import (
@@ -19,6 +20,16 @@ from ..validator import SunatValidator
 
 
 router = APIRouter()
+
+class XmlResponse(BaseModel):
+    """Response containing generated XML document."""
+    xml: str
+
+
+class SignedXmlResponse(BaseModel):
+    """Response containing signed XML document."""
+    signed_xml: str
+
 validator = SunatValidator()
 
 
@@ -43,7 +54,7 @@ def _validate_xml(xml_string: str, doc_type: str) -> list[str]:
     return []
 
 
-@router.post("/invoice/create")
+@router.post("/invoice/create", response_model=XmlResponse)
 def create_invoice(doc: Invoice, validate: bool = Query(default=True)):
     """Generate an Invoice XML document.
 
@@ -63,7 +74,7 @@ def create_invoice(doc: Invoice, validate: bool = Query(default=True)):
     return {"xml": xml}
 
 
-@router.post("/credit-note/create")
+@router.post("/credit-note/create", response_model=XmlResponse)
 def create_credit_note(doc: CreditNote, validate: bool = Query(default=True)):
     """Generate a CreditNote XML document.
 
@@ -83,7 +94,7 @@ def create_credit_note(doc: CreditNote, validate: bool = Query(default=True)):
     return {"xml": xml}
 
 
-@router.post("/debit-note/create")
+@router.post("/debit-note/create", response_model=XmlResponse)
 def create_debit_note(doc: DebitNote, validate: bool = Query(default=True)):
     """Generate a DebitNote XML document.
 
@@ -103,7 +114,7 @@ def create_debit_note(doc: DebitNote, validate: bool = Query(default=True)):
     return {"xml": xml}
 
 
-@router.post("/voided-documents/create")
+@router.post("/voided-documents/create", response_model=XmlResponse)
 def create_voided_documents(doc: VoidedDocuments, validate: bool = Query(default=True)):
     """Generate a VoidedDocuments XML document.
 
@@ -123,7 +134,7 @@ def create_voided_documents(doc: VoidedDocuments, validate: bool = Query(default
     return {"xml": xml}
 
 
-@router.post("/summary-documents/create")
+@router.post("/summary-documents/create", response_model=XmlResponse)
 def create_summary_documents(doc: SummaryDocuments, validate: bool = Query(default=True)):
     """Generate a SummaryDocuments XML document.
 
@@ -137,7 +148,7 @@ def create_summary_documents(doc: SummaryDocuments, validate: bool = Query(defau
     return {"xml": xml}
 
 
-@router.post("/perception/create")
+@router.post("/perception/create", response_model=XmlResponse)
 def create_perception(doc: Perception, validate: bool = Query(default=True)):
     """Generate a Perception XML document.
 
@@ -151,7 +162,7 @@ def create_perception(doc: Perception, validate: bool = Query(default=True)):
     return {"xml": xml}
 
 
-@router.post("/retention/create")
+@router.post("/retention/create", response_model=XmlResponse)
 def create_retention(doc: Retention, validate: bool = Query(default=True)):
     """Generate a Retention XML document.
 
@@ -165,7 +176,7 @@ def create_retention(doc: Retention, validate: bool = Query(default=True)):
     return {"xml": xml}
 
 
-@router.post("/sign")
+@router.post("/sign", response_model=SignedXmlResponse)
 def sign_xml(payload: dict):
     """Sign an arbitrary UBL XML document with a PEM certificate/key pair or a PFX/P12 container.
 

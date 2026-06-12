@@ -1,0 +1,40 @@
+---
+import { Code } from '@astrojs/starlight/components';
+
+interface Props {
+	tabs: {
+		id: string;
+		label: string;
+		lang: string;
+		code: string;
+	}[];
+}
+
+const { tabs } = Astro.props;
+const group = `cs-${Math.random().toString(36).slice(2, 9)}`;
+---
+
+<div class="code-showcase">
+	<div class="code-showcase-dots">
+		<span class="code-showcase-dot red"></span>
+		<span class="code-showcase-dot yellow"></span>
+		<span class="code-showcase-dot green"></span>
+	</div>
+	{tabs.map((tab, index) => (
+		<>
+			<input
+				type="radio"
+				name={group}
+				id={`${group}-${tab.id}`}
+				class="code-showcase-radio"
+				checked={index === 0}
+			/>
+			<label class="code-showcase-tab" for={`${group}-${tab.id}`}>
+				{tab.label}
+			</label>
+			<div class="code-showcase-content">
+				<Code code={tab.code} lang={tab.lang} />
+			</div>
+		</>
+	))}
+</div>

@@ -914,6 +914,20 @@
         "title": "Retention",
         "type": "object"
       },
+      "SignedXmlResponse": {
+        "description": "Response containing signed XML document.",
+        "properties": {
+          "signed_xml": {
+            "title": "Signed Xml",
+            "type": "string"
+          }
+        },
+        "required": [
+          "signed_xml"
+        ],
+        "title": "SignedXmlResponse",
+        "type": "object"
+      },
       "SummaryDocuments": {
         "description": "Resumen Diario - RC.\n\nRS N° 300-2014/SUNAT, Anexo 1:\n- Identificador: RC-YYYYMMDD-NNNN\n- Fecha de emisión de los comprobantes resumidos",
         "properties": {
@@ -1077,6 +1091,20 @@
         "title": "VoidedDocumentsItem",
         "type": "object"
       },
+      "XmlResponse": {
+        "description": "Response containing generated XML document.",
+        "properties": {
+          "xml": {
+            "title": "Xml",
+            "type": "string"
+          }
+        },
+        "required": [
+          "xml"
+        ],
+        "title": "XmlResponse",
+        "type": "object"
+      },
       "openubl__models__perception__ComprobanteAfectado": {
         "description": "Comprobante afectado por la percepción.",
         "properties": {
@@ -1201,7 +1229,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/XmlResponse"
+                }
               }
             },
             "description": "Successful Response"
@@ -1250,7 +1280,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/XmlResponse"
+                }
               }
             },
             "description": "Successful Response"
@@ -1299,7 +1331,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/XmlResponse"
+                }
               }
             },
             "description": "Successful Response"
@@ -1348,7 +1382,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/XmlResponse"
+                }
               }
             },
             "description": "Successful Response"
@@ -1397,7 +1433,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/XmlResponse"
+                }
               }
             },
             "description": "Successful Response"
@@ -1436,7 +1474,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/SignedXmlResponse"
+                }
               }
             },
             "description": "Successful Response"
@@ -1485,7 +1525,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/XmlResponse"
+                }
               }
             },
             "description": "Successful Response"
@@ -1551,7 +1593,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/XmlResponse"
+                }
               }
             },
             "description": "Successful Response"

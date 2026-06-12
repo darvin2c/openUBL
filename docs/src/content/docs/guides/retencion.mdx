@@ -2,6 +2,8 @@
 title: Comprobante de Retención
 description: Guía para generar Comprobantes de Retención (20) con openUBL.
 ---
+import CodeTabs from '../../../components/CodeTabs.astro';
+
 
 El **Comprobante de Retención Electrónico** (tipo `20`) registra la retención de IGV aplicada a compras o pagos a proveedores. Es un documento adicional a la factura de compra.
 
@@ -64,15 +66,45 @@ El modelo `Retention` no tiene campos opcionales a nivel raíz.
 | `02` | Tasa 6% | 6% |
 | `03` | Tasa mixta | Variable |
 
-## Ejemplo Python completo
+## Ejemplo completo
 
-```python
-from openubl.models import (
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.models import (\n    Retention, PercepcionRetencionOperacion,\n    ComprobanteAfectado, Proveedor, Cliente,\n)\nfrom openubl.renderer import render_retention\nfrom openubl.validator import SunatValidator\nfrom decimal import Decimal\nfrom datetime import date\n\nretention = Retention(\n    serie="R001",\n    numero=1,\n    fechaEmision=date(2025, 6, 10),\n    proveedor=Proveedor(\n        ruc="20100100100",\n        razonSocial="Mi Empresa S.A.C.",\n    ),\n    cliente=Cliente(\n        nombre="Comercial del Sur S.A.",\n        numeroDocumentoIdentidad="20100200200",\n        tipoDocumentoIdentidad="6",  # RUC\n    ),\n    importeTotalRetenido=Decimal("18.00"),\n    importeTotalPagado=Decimal("282.00"),\n    tipoRegimen="01",  # Tasa 3%\n    tipoRegimenPorcentaje=Decimal("0.03"),\n    operaciones=[\n        PercepcionRetencionOperacion(\n            numeroOperacion=1,\n            fechaOperacion=date(2025, 6, 10),\n            importeOperacion=Decimal("18.00"),\n            comprobante=ComprobanteAfectado(\n                tipoComprobante="01",\n                serieNumero="F005-20",\n                fechaEmision=date(2025, 6, 10),\n                importeTotal=Decimal("300.00"),\n                moneda="PEN",\n            ),\n        ),\n    ],\n)\n\nxml = render_retention(retention)\nerrors = SunatValidator().validate_schema(\n    xml,\n    "sunat_schemas/xsd_2.1/2.0/maindoc/UBLPE-Retention-1.0.xsd",\n)\nassert errors == []\nprint(xml)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client } from "@openubl/sdk";\n\nconst { data, error } = await client.POST("/api/v1/retention/create?validate=true", {\n  body: {\n    serie: "R001",\n    numero: 1,\n    fechaEmision: "2025-06-10",\n    proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },\n    cliente: { nombre: "Comercial del Sur S.A.", numeroDocumentoIdentidad: "20100200200", tipoDocumentoIdentidad: "6" },\n    importeTotalRetenido: "18.00",\n    importeTotalPagado: "282.00",\n    tipoRegimen: "01",\n    tipoRegimenPorcentaje: "0.03",\n    operaciones: [{\n      numeroOperacion: 1,\n      fechaOperacion: "2025-06-10",\n      importeOperacion: "18.00",\n      comprobante: {\n        tipoComprobante: "01",\n        serieNumero: "F005-20",\n        fechaEmision: "2025-06-10",\n        importeTotal: "300.00",\n        moneda: "PEN"\n      }\n    }]\n  },\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/retention/create?validate=true" \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "serie": "R001",\n    "numero": 1,\n    "fechaEmision": "2025-06-10",\n    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },\n    "cliente": { "nombre": "Comercial del Sur S.A.", "numeroDocumentoIdentidad": "20100200200", "tipoDocumentoIdentidad": "6" },\n    "importeTotalRetenido": "18.00",\n    "importeTotalPagado": "282.00",\n    "tipoRegimen": "01",\n    "tipoRegimenPorcentaje": "0.03",\n    "operaciones": [{\n      "numeroOperacion": 1,\n      "fechaOperacion": "2025-06-10",\n      "importeOperacion": "18.00",\n      "comprobante": {\n        "tipoComprobante": "01",\n        "serieNumero": "F005-20",\n        "fechaEmision": "2025-06-10",\n        "importeTotal": "300.00",\n        "moneda": "PEN"\n      }\n    }]\n  }'`,
+  },
+]} />
+
+## Nota sobre enriquecimiento
+
+`ContentEnricher` no enriquece `Retention`. Los totales y los importes por operación deben proporcionarse explícitamente.
+
+## Endpoint
+
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.models import (
     Retention, PercepcionRetencionOperacion,
     ComprobanteAfectado, Proveedor, Cliente,
 )
 from openubl.renderer import render_retention
-from openubl.validator import SunatValidator
 from decimal import Decimal
 from datetime import date
 
@@ -87,11 +119,11 @@ retention = Retention(
     cliente=Cliente(
         nombre="Comercial del Sur S.A.",
         numeroDocumentoIdentidad="20100200200",
-        tipoDocumentoIdentidad="6",  # RUC
+        tipoDocumentoIdentidad="6",
     ),
     importeTotalRetenido=Decimal("18.00"),
     importeTotalPagado=Decimal("282.00"),
-    tipoRegimen="01",  # Tasa 3%
+    tipoRegimen="01",
     tipoRegimenPorcentaje=Decimal("0.03"),
     operaciones=[
         PercepcionRetencionOperacion(
@@ -110,27 +142,52 @@ retention = Retention(
 )
 
 xml = render_retention(retention)
-errors = SunatValidator().validate_schema(
-    xml,
-    "sunat_schemas/xsd_2.1/2.0/maindoc/UBLPE-Retention-1.0.xsd",
-)
-assert errors == []
-print(xml)
-```
+print(xml)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client } from "@openubl/sdk";
 
-## Nota sobre enriquecimiento
+const { data, error } = await client.POST("/api/v1/retention/create?validate=true", {
+  body: {
+    serie: "R001",
+    numero: 1,
+    fechaEmision: "2025-06-10",
+    proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },
+    cliente: { nombre: "Comercial del Sur S.A.", numeroDocumentoIdentidad: "20100200200", tipoDocumentoIdentidad: "6" },
+    importeTotalRetenido: "18.00",
+    importeTotalPagado: "282.00",
+    tipoRegimen: "01",
+    tipoRegimenPorcentaje: "0.03",
+    operaciones: [{
+      numeroOperacion: 1,
+      fechaOperacion: "2025-06-10",
+      importeOperacion: "18.00",
+      comprobante: {
+        tipoComprobante: "01",
+        serieNumero: "F005-20",
+        fechaEmision: "2025-06-10",
+        importeTotal: "300.00",
+        moneda: "PEN"
+      }
+    }]
+  },
+});
 
-`ContentEnricher` no enriquece `Retention`. Los totales y los importes por operación deben proporcionarse explícitamente.
+if (error) {
+  throw new Error(JSON.stringify(error));
+}
 
-## Endpoint
-
-```bash
-POST /api/v1/retention/create?validate=true
-```
-
-```bash
-curl -X POST "http://localhost:8000/api/v1/retention/create?validate=true" \
-  -H "Content-Type: application/json" \
+console.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/retention/create?validate=true" \\
+  -H "Content-Type: application/json" \\
   -d '{
     "serie": "R001",
     "numero": 1,
@@ -153,8 +210,9 @@ curl -X POST "http://localhost:8000/api/v1/retention/create?validate=true" \
         "moneda": "PEN"
       }
     }]
-  }'
-```
+  }'`,
+  },
+]} />
 
 ## Respuesta esperada
 

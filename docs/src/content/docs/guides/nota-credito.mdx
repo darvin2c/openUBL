@@ -3,6 +3,8 @@ title: Nota de Crédito
 description: Guía para generar Notas de Crédito Electrónicas (07) con openUBL.
 ---
 
+import CodeTabs from '../../../components/CodeTabs.astro';
+
 La **Nota de Crédito Electrónica** (tipo `07`) anula o reduce el valor de una factura o boleta previamente emitida. Se emite por devoluciones, descuentos o errores en el comprobante original.
 
 ## Campos requeridos
@@ -59,10 +61,14 @@ La **Nota de Crédito Electrónica** (tipo `07`) anula o reduce el valor de una 
 | Serie | Debe iniciar con `B`/`C` o `F`/`E` según el tipo de comprobante afectado. |
 | Total | El importe total de la nota no puede exceder el importe del comprobante original. |
 
-## Ejemplo Python completo
+## Ejemplo completo
 
-```python
-from openubl.models import (
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.models import (
     CreditNote, Proveedor, Cliente, DocumentoVentaDetalle,
 )
 from openubl.renderer import render_credit_note
@@ -95,8 +101,62 @@ credit_note = CreditNote(
 xml = render_credit_note(credit_note)
 errors = SunatValidator().validate_credit_note(xml)
 assert errors == []
-print(xml)
-```
+print(xml)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client } from "@openubl/sdk";
+
+const { data, error } = await client.POST("/api/v1/credit-note/create?validate=true", {
+  body: {
+    serie: "FC01",
+    numero: 1,
+    comprobanteAfectadoSerieNumero: "F001-45",
+    sustentoDescripcion: "Descuento por pronto pago",
+    proveedor: {
+      ruc: "20100100100",
+      razonSocial: "Mi Empresa S.A.C.",
+    },
+    cliente: {
+      nombre: "Juan Pérez",
+      numeroDocumentoIdentidad: "46779327",
+      tipoDocumentoIdentidad: "1",
+    },
+    detalles: [
+      {
+        descripcion: "Descuento pronto pago - Laptop Dell XPS 13",
+        cantidad: "1",
+        precio: "-250.00",
+      },
+    ],
+  },
+});
+
+if (error) {
+  throw new Error(JSON.stringify(error));
+}
+
+console.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/credit-note/create?validate=true" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "serie": "FC01",
+    "numero": 1,
+    "comprobanteAfectadoSerieNumero": "F001-45",
+    "sustentoDescripcion": "Descuento por pronto pago",
+    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },
+    "cliente": { "nombre": "Juan Pérez", "numeroDocumentoIdentidad": "46779327", "tipoDocumentoIdentidad": "1" },
+    "detalles": [{ "descripcion": "Descuento pronto pago", "cantidad": "1", "precio": "-250.00" }]
+  }'`,
+  },
+]} />
 
 ## Ejemplo con enriquecimiento automático
 
@@ -144,13 +204,86 @@ print(xml)
 
 ## Endpoint
 
-```bash
-POST /api/v1/credit-note/create?validate=true
-```
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.models import (
+    CreditNote, Proveedor, Cliente, DocumentoVentaDetalle,
+)
+from openubl.renderer import render_credit_note
+from decimal import Decimal
 
-```bash
-curl -X POST "http://localhost:8000/api/v1/credit-note/create?validate=true" \
-  -H "Content-Type: application/json" \
+credit_note = CreditNote(
+    serie="FC01",
+    numero=1,
+    comprobanteAfectadoSerieNumero="F001-45",
+    sustentoDescripcion="Descuento por pronto pago",
+    proveedor=Proveedor(
+        ruc="20100100100",
+        razonSocial="Mi Empresa S.A.C.",
+    ),
+    cliente=Cliente(
+        nombre="Juan Pérez",
+        numeroDocumentoIdentidad="46779327",
+        tipoDocumentoIdentidad="1",
+    ),
+    detalles=[
+        DocumentoVentaDetalle(
+            descripcion="Descuento pronto pago",
+            cantidad=Decimal("1"),
+            precio=Decimal("-250.00"),
+        ),
+    ],
+)
+
+xml = render_credit_note(credit_note)
+print(xml)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client } from "@openubl/sdk";
+
+const { data, error } = await client.POST("/api/v1/credit-note/create?validate=true", {
+  body: {
+    serie: "FC01",
+    numero: 1,
+    comprobanteAfectadoSerieNumero: "F001-45",
+    sustentoDescripcion: "Descuento por pronto pago",
+    proveedor: {
+      ruc: "20100100100",
+      razonSocial: "Mi Empresa S.A.C.",
+    },
+    cliente: {
+      nombre: "Juan Pérez",
+      numeroDocumentoIdentidad: "46779327",
+      tipoDocumentoIdentidad: "1",
+    },
+    detalles: [
+      {
+        descripcion: "Descuento pronto pago",
+        cantidad: "1",
+        precio: "-250.00",
+      },
+    ],
+  },
+});
+
+if (error) {
+  throw new Error(JSON.stringify(error));
+}
+
+console.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/credit-note/create?validate=true" \\
+  -H "Content-Type: application/json" \\
   -d '{
     "serie": "FC01",
     "numero": 1,
@@ -159,8 +292,9 @@ curl -X POST "http://localhost:8000/api/v1/credit-note/create?validate=true" \
     "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },
     "cliente": { "nombre": "Juan Pérez", "numeroDocumentoIdentidad": "46779327", "tipoDocumentoIdentidad": "1" },
     "detalles": [{ "descripcion": "Descuento pronto pago", "cantidad": "1", "precio": "-250.00" }]
-  }'
-```
+  }'`,
+  },
+]} />
 
 ## Respuesta esperada
 
