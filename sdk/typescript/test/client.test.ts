@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { z } from "zod";
-import { client, SDK_VERSION, checkApiVersion } from "../src/index.js";
+import { client, SDK_VERSION, checkApiVersion, createInvoice, signXml, getVersion } from "../src/index.js";
 import { zInvoice, zProveedor } from "../src/zod.gen.js";
 import type { Invoice, CreditNote, Proveedor, Cliente, DocumentoVentaDetalle } from "../src/index.js";
 
@@ -65,9 +65,7 @@ describe("runtime round-trip", () => {
       detalles: [detalle],
     };
 
-    const { data, error } = await client.post("/api/v1/invoice/create", {
-      body: invoice,
-    });
+    const { data, error } = await createInvoice({ body: invoice });
 
     if (error) {
       throw new Error(JSON.stringify(error));
@@ -123,3 +121,20 @@ describe("runtime Zod validation", () => {
     ).toThrow(z.ZodError);
   });
 });
+
+describe("SDK validation", () => {
+  it("rejects an invalid invoice through the generated SDK", async () => {
+    const { error } = await createInvoice({
+      body: {
+        serie: "X001",
+        numero: 1,
+        proveedor: { ruc: "20100066603", razonSocial: "X" },
+        cliente: { nombre: "C", numeroDocumentoIdentidad: "12345678", tipoDocumentoIdentidad: "1" },
+        detalles: [{ descripcion: "Item", cantidad: 1, precio: 10 }],
+      },
+    });
+    expect(error).toBeInstanceOf(z.ZodError);
+  });
+});
+
+

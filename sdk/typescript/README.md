@@ -11,7 +11,7 @@ npm install @openubl/sdk
 ## Uso
 
 ```typescript
-import { client, SDK_VERSION, checkApiVersion } from "@openubl/sdk";
+import { createInvoice, SDK_VERSION, checkApiVersion } from "@openubl/sdk";
 import { zInvoice } from "@openubl/sdk/zod.gen";
 
 const invoice = zInvoice.parse({
@@ -22,9 +22,7 @@ const invoice = zInvoice.parse({
   detalles: [{ descripcion: "Item", cantidad: 10, precio: 100 }],
 });
 
-const { data, error } = await client.post("/api/v1/invoice/create", {
-  body: invoice,
-});
+const { data, error } = await createInvoice({ body: invoice });
 ```
 
 ## Validación de versión
