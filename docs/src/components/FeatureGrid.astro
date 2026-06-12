@@ -1,0 +1,28 @@
+---
+import { Icon } from '@astrojs/starlight/components';
+
+interface Props {
+	features: {
+		title: string;
+		description: string;
+		icon: string;
+	}[];
+}
+
+const { features } = Astro.props;
+
+const delayClass = (index: number) => {
+	const delay = (index + 1) * 100;
+	return `delay-${delay}`;
+};
+---
+
+<div class="feature-grid">
+	{features.map((feature, index) => (
+		<div class={`feature-card ${delayClass(index)}`}>
+			<Icon name={feature.icon} />
+			<h3>{feature.title}</h3>
+			<p>{feature.description}</p>
+		</div>
+	))}
+</div>

@@ -3,57 +3,57 @@ title: Tu primer documento
 description: Crea tu primera factura electrónica con openUBL paso a paso.
 ---
 
+import CodeTabs from '../../../components/CodeTabs.astro';
+
 Este ejemplo crea una factura electrónica (`Invoice`), enriquece sus campos calculados, la renderiza a XML UBL 2.1, la firma digitalmente y la valida contra las reglas de SUNAT.
 
 ## Paso 1: Importar el modelo
 
-```python
-from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
-```
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client } from "@openubl/sdk";`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `# No se requieren imports. Asegúrate de tener curl instalado.`,
+  },
+]} />
 
 ## Paso 2: Crear la factura
 
 Define solo los datos de negocio. openUBL calculará los totales, impuestos y precios de venta automáticamente en el siguiente paso.
 
-```python
-invoice = Invoice(
-    serie="F001",
-    numero=1,
-    proveedor=Proveedor(
-        ruc="12345678901",
-        razonSocial="Mi Empresa S.A.C.",
-        nombreComercial="Mi Empresa",
-        address={
-            "ubigeo": "150101",
-            "departamento": "Lima",
-            "provincia": "Lima",
-            "distrito": "Lima",
-            "direccion": "Av. Ejemplo 123",
-        },
-    ),
-    cliente=Cliente(
-        tipoDocumentoIdentidad="6",
-        numeroDocumentoIdentidad="98765432101",
-        nombre="Cliente Ejemplo S.A.C.",
-        address={
-            "ubigeo": "150101",
-            "departamento": "Lima",
-            "provincia": "Lima",
-            "distrito": "Lima",
-            "direccion": "Calle Ficticia 456",
-        },
-    ),
-    detalles=[
-        DocumentoVentaDetalle(
-            cantidad=2,
-            descripcion="Producto de ejemplo",
-            precio=50.00,
-            unidadMedida="NIU",
-        )
-    ],
-    moneda="PEN",
-)
-```
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `invoice = Invoice(\n    serie="F001",\n    numero=1,\n    proveedor=Proveedor(\n        ruc="12345678901",\n        razonSocial="Mi Empresa S.A.C.",\n        nombreComercial="Mi Empresa",\n        address={\n            "ubigeo": "150101",\n            "departamento": "Lima",\n            "provincia": "Lima",\n            "distrito": "Lima",\n            "direccion": "Av. Ejemplo 123",\n        },\n    ),\n    cliente=Cliente(\n        tipoDocumentoIdentidad="6",\n        numeroDocumentoIdentidad="98765432101",\n        nombre="Cliente Ejemplo S.A.C.",\n        address={\n            "ubigeo": "150101",\n            "departamento": "Lima",\n            "provincia": "Lima",\n            "distrito": "Lima",\n            "direccion": "Calle Ficticia 456",\n        },\n    ),\n    detalles=[\n        DocumentoVentaDetalle(\n            cantidad=2,\n            descripcion="Producto de ejemplo",\n            precio=50.00,\n            unidadMedida="NIU",\n        )\n    ],\n    moneda="PEN",\n)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client, type Invoice } from "@openubl/sdk";\n\nconst invoice: Invoice = {\n  serie: "F001",\n  numero: 1,\n  tipoOperacion: "0101",\n  moneda: "PEN",\n  proveedor: {\n    ruc: "12345678901",\n    razonSocial: "Mi Empresa S.A.C.",\n    nombreComercial: "Mi Empresa",\n    address: {\n      ubigeo: "150101",\n      departamento: "Lima",\n      provincia: "Lima",\n      distrito: "Lima",\n      direccion: "Av. Ejemplo 123",\n      codigoPais: "PE",\n    },\n  },\n  cliente: {\n    tipoDocumentoIdentidad: "6",\n    numeroDocumentoIdentidad: "98765432101",\n    nombre: "Cliente Ejemplo S.A.C.",\n  },\n  detalles: [\n    {\n      cantidad: 2,\n      descripcion: "Producto de ejemplo",\n      precio: 50.00,\n      unidadMedida: "NIU",\n      tipoAfectacionIGV: "10",\n    },\n  ],\n};\n\nconst { data, error } = await client.POST("/api/v1/invoice/create", {\n  body: invoice,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST http://localhost:8000/api/v1/invoice/create \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "serie": "F001",\n    "numero": 1,\n    "proveedor": {\n      "ruc": "12345678901",\n      "razonSocial": "Mi Empresa S.A.C.",\n      "nombreComercial": "Mi Empresa",\n      "address": {\n        "ubigeo": "150101",\n        "departamento": "Lima",\n        "provincia": "Lima",\n        "distrito": "Lima",\n        "direccion": "Av. Ejemplo 123"\n      }\n    },\n    "cliente": {\n      "tipoDocumentoIdentidad": "6",\n      "numeroDocumentoIdentidad": "98765432101",\n      "nombre": "Cliente Ejemplo S.A.C.",\n      "address": {\n        "ubigeo": "150101",\n        "departamento": "Lima",\n        "provincia": "Lima",\n        "distrito": "Lima",\n        "direccion": "Calle Ficticia 456"\n      }\n    },\n    "detalles": [\n      {\n        "cantidad": 2,\n        "descripcion": "Producto de ejemplo",\n        "precio": 50.00,\n        "unidadMedida": "NIU"\n      }\n    ],\n    "moneda": "PEN"\n  }'`,
+  },
+]} />
 
 ## Paso 3: Enriquecimiento automático con ContentEnricher
 
@@ -65,34 +65,112 @@ invoice = Invoice(
 - `precioVenta` = valorVenta + igv
 - `valorVentaTotal`, `igvTotal`, `importeTotal`
 
-```python
-from openubl.enricher import ContentEnricher
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.enricher import ContentEnricher
 
 enricher = ContentEnricher()
 enricher.enrich(invoice)
 
 assert invoice.valorVentaTotal == 100.00
 assert invoice.igvTotal == 18.00
-assert invoice.importeTotal == 118.00
-```
+assert invoice.importeTotal == 118.00`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `// El endpoint de la API enriquece automáticamente al crear el documento.
+// Reutiliza la llamada del paso 2 o realízala de nuevo:
+const { data, error } = await client.POST("/api/v1/invoice/create", {
+  body: invoice,
+});
+
+if (error) {
+  throw new Error(JSON.stringify(error));
+}
+
+// La respuesta contiene el XML ya enriquecido:
+console.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `# El endpoint calcula totales automáticamente a partir del JSON enviado en el paso 2.
+curl -X POST http://localhost:8000/api/v1/invoice/create \
+  -H "Content-Type: application/json" \
+  -d @invoice.json`,
+  },
+]} />
 
 :::tip[Tasas personalizadas]
 Puedes pasar un objeto `Defaults` para usar una tasa de IGV o ICBPER diferente:
 
-```python
-from openubl.enricher import ContentEnricher
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.enricher import ContentEnricher
 from openubl.models.defaults import Defaults
 
-enricher = ContentEnricher(defaults=Defaults(igvTasa=0.18, icbTasa=0.20))
-```
+enricher = ContentEnricher(defaults=Defaults(igvTasa=0.18, icbTasa=0.20))`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `// Las tasas de IGV/ICBPER se configuran en el servidor.
+// El endpoint aplica esos valores al enriquecer el documento.`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `# Las tasas de IGV/ICBPER se configuran en el servidor.
+# El endpoint aplica esos valores al enriquecer el documento.`,
+  },
+]} />
 :::
 
 ## Paso 4: Renderizar a XML
 
-```python
-xml = invoice.to_xml()
-print(xml)
-```
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `xml = invoice.to_xml()
+print(xml)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `const { data, error } = await client.POST("/api/v1/invoice/create", {
+  body: invoice,
+});
+
+if (error) {
+  throw new Error(JSON.stringify(error));
+}
+
+console.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST http://localhost:8000/api/v1/invoice/create \
+  -H "Content-Type: application/json" \
+  -d @invoice.json \
+  | jq '.xml'`,
+  },
+]} />
 
 El XML generado es válido UBL 2.1 y está listo para firmar y enviar a SUNAT.
 
@@ -102,15 +180,26 @@ SUNAT exige que el XML esté firmado digitalmente con un certificado X.509 váli
 
 Necesitas el certificado y la clave privada en formato PEM. Si tienes un archivo `.pfx`, conviértelo primero:
 
-```python
-from openubl.signer import load_pfx, sign_ubl_xml
-
-with open("certificado.pfx", "rb") as f:
-    key_pem, cert_pem = load_pfx(f.read(), password="mi-password")
-
-signed_xml = sign_ubl_xml(xml, cert_pem=cert_pem, key_pem=key_pem)
-print(signed_xml)
-```
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.signer import load_pfx, sign_ubl_xml\n\nwith open("certificado.pfx", "rb") as f:\n    key_pem, cert_pem = load_pfx(f.read(), password="mi-password")\n\nsigned_xml = sign_ubl_xml(xml, cert_pem=cert_pem, key_pem=key_pem)\nprint(signed_xml)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client } from "@openubl/sdk";\n\nconst { data, error } = await client.POST("/api/v1/sign", {\n  body: {\n    xml,\n    cert_pem: certPem,\n    key_pem: keyPem,\n  },\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.signed_xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST http://localhost:8000/api/v1/sign \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "xml": "<?xml version=\\"1.0\\"?><Invoice>...</Invoice>",\n    "cert_pem": "-----BEGIN CERTIFICATE-----\\nMIIC...\\n-----END CERTIFICATE-----",\n    "key_pem": "-----BEGIN PRIVATE KEY-----\\nMIIE...\\n-----END PRIVATE KEY-----"\n  }'`,
+  },
+]} />
 
 :::note
 En producción utiliza un certificado emitido por una autoridad certificadora reconocida por SUNAT.
@@ -120,14 +209,26 @@ En producción utiliza un certificado emitido por una autoridad certificadora re
 
 Antes de enviar el documento a SUNAT, valida que cumpla las reglas de negocio documentadas:
 
-```python
-from openubl.validator import SunatValidator
-
-validator = SunatValidator()
-errors = validator.validate_invoice(xml)
-
-assert len(errors) == 0, f"Errores de validación: {errors}"
-```
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.validator import SunatValidator\n\nvalidator = SunatValidator()\nerrors = validator.validate_invoice(xml)\n\nassert len(errors) == 0, f"Errores de validación: {errors}"`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client } from "@openubl/sdk";\n\nconst { data, error } = await client.POST("/api/v1/invoice/create", {\n  params: {\n    query: { validate: true },\n  },\n  body: invoice,\n});\n\nif (error) {\n  // La API devuelve 422 cuando el XML no cumple las reglas SUNAT.\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log("Factura válida");\nconsole.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/invoice/create?validate=true" \\\n  -H "Content-Type: application/json" \\\n  -d @invoice.json`,
+  },
+]} />
 
 Si la lista de errores está vacía, el documento superó las validaciones de SUNAT y puede enviarse a través de los servicios web de la entidad.
 

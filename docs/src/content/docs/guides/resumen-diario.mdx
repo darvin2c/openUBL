@@ -2,6 +2,8 @@
 title: Resumen Diario
 description: Guía para generar Resúmenes Diarios (RC) de boletas con openUBL.
 ---
+import CodeTabs from '../../../components/CodeTabs.astro';
+
 
 El **Resumen Diario** (tipo `RC`) consolida las boletas de venta (`03`) y notas asociadas emitidas en un día. SUNAT lo exige para dar validez a las boletas electrónicas.
 
@@ -57,10 +59,13 @@ El modelo `SummaryDocuments` no tiene campos opcionales a nivel raíz. Los total
 | Contenido | Solo se pueden resumir boletas (`03`) y sus notas de crédito/débito (`07`/`08`). |
 | Validación | Una vez aceptado, las boletas quedan validadas ante SUNAT. |
 
-## Ejemplo Python completo
-
-```python
-from openubl.models import (
+## Ejemplo completo
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.models import (
     SummaryDocuments, SummaryDocumentsItem, Comprobante,
     ComprobanteImpuestos, ComprobanteValorVenta,
     Proveedor, Cliente,
@@ -101,8 +106,71 @@ errors = SunatValidator().validate_schema(
     "sunat_schemas/xsd_2.1/2.0/maindoc/UBLPE-SummaryDocuments-1.0.xsd",
 )
 assert errors == []
-print(xml)
-```
+print(xml)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client } from "@openubl/sdk";
+
+const { data, error } = await client.POST("/api/v1/summary-documents/create?validate=true", {
+  body: {
+    numero: 1,
+    fechaEmisionComprobantes: "2025-06-10",
+    proveedor: {
+      ruc: "20100100100",
+      razonSocial: "Mi Empresa S.A.C.",
+    },
+    comprobantes: [
+      {
+        tipoOperacion: "1",
+        comprobante: {
+          tipoComprobante: "03",
+          serieNumero: "B001-45",
+          cliente: {
+            nombre: "Juan Pérez",
+            numeroDocumentoIdentidad: "46779327",
+            tipoDocumentoIdentidad: "1",
+          },
+          impuestos: { igv: "27.00" },
+          valorVenta: { importeTotal: "177.00" },
+        },
+      },
+    ],
+  },
+});
+
+if (error) {
+  throw new Error(JSON.stringify(error));
+}
+
+console.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/summary-documents/create?validate=true" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "numero": 1,
+    "fechaEmisionComprobantes": "2025-06-10",
+    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },
+    "comprobantes": [{
+      "tipoOperacion": "1",
+      "comprobante": {
+        "tipoComprobante": "03",
+        "serieNumero": "B001-45",
+        "cliente": { "nombre": "Juan Pérez", "numeroDocumentoIdentidad": "46779327", "tipoDocumentoIdentidad": "1" },
+        "impuestos": { "igv": "27.00" },
+        "valorVenta": { "importeTotal": "177.00" }
+      }
+    }]
+  }'`,
+  },
+]} />
+
 
 ## Ejemplo con validación del esquema
 
@@ -118,15 +186,93 @@ errors = SunatValidator().validate_schema(
 print(errors)  # [] si es válido
 ```
 
-## Endpoint
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.models import (
+    SummaryDocuments, SummaryDocumentsItem, Comprobante,
+    ComprobanteImpuestos, ComprobanteValorVenta,
+    Proveedor, Cliente,
+)
+from openubl.renderer import render_summary_documents
+from decimal import Decimal
+from datetime import date
 
-```bash
-POST /api/v1/summary-documents/create?validate=true
-```
+summary = SummaryDocuments(
+    numero=1,
+    fechaEmisionComprobantes=date(2025, 6, 10),
+    proveedor=Proveedor(
+        ruc="20100100100",
+        razonSocial="Mi Empresa S.A.C.",
+    ),
+    comprobantes=[
+        SummaryDocumentsItem(
+            tipoOperacion="1",
+            comprobante=Comprobante(
+                tipoComprobante="03",
+                serieNumero="B001-45",
+                cliente=Cliente(
+                    nombre="Juan Pérez",
+                    numeroDocumentoIdentidad="46779327",
+                    tipoDocumentoIdentidad="1",
+                ),
+                impuestos=ComprobanteImpuestos(igv=Decimal("27.00")),
+                valorVenta=ComprobanteValorVenta(importeTotal=Decimal("177.00")),
+            ),
+        ),
+    ],
+)
 
-```bash
-curl -X POST "http://localhost:8000/api/v1/summary-documents/create?validate=true" \
-  -H "Content-Type: application/json" \
+xml = render_summary_documents(summary)
+print(xml)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client } from "@openubl/sdk";
+
+const { data, error } = await client.POST("/api/v1/summary-documents/create?validate=true", {
+  body: {
+    numero: 1,
+    fechaEmisionComprobantes: "2025-06-10",
+    proveedor: {
+      ruc: "20100100100",
+      razonSocial: "Mi Empresa S.A.C.",
+    },
+    comprobantes: [
+      {
+        tipoOperacion: "1",
+        comprobante: {
+          tipoComprobante: "03",
+          serieNumero: "B001-45",
+          cliente: {
+            nombre: "Juan Pérez",
+            numeroDocumentoIdentidad: "46779327",
+            tipoDocumentoIdentidad: "1",
+          },
+          impuestos: { igv: "27.00" },
+          valorVenta: { importeTotal: "177.00" },
+        },
+      },
+    ],
+  },
+});
+
+if (error) {
+  throw new Error(JSON.stringify(error));
+}
+
+console.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/summary-documents/create?validate=true" \\
+  -H "Content-Type: application/json" \\
   -d '{
     "numero": 1,
     "fechaEmisionComprobantes": "2025-06-10",
@@ -141,8 +287,9 @@ curl -X POST "http://localhost:8000/api/v1/summary-documents/create?validate=tru
         "valorVenta": { "importeTotal": "177.00" }
       }
     }]
-  }'
-```
+  }'`,
+  },
+]} />
 
 ## Respuesta esperada
 

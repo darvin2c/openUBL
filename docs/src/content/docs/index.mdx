@@ -3,45 +3,160 @@ title: openUBL
 description: Facturación electrónica SUNAT. Genera XML UBL 2.1 válido, firmado y listo para enviar.
 template: splash
 hero:
-  tagline: Biblioteca Python y API REST para generar, firmar y validar comprobantes electrónicos SUNAT con XML UBL 2.1.
+  tagline: Biblioteca Python y API REST para generar, firmar y validar comprobantes electrónicos SUNAT.
   actions:
     - text: Comenzar
       link: /openUBL/getting-started/introduccion/
       icon: right-arrow
-    - text: API
-      link: /openUBL/api/referencia/
-      icon: external
-      variant: minimal
     - text: Ver en GitHub
       link: https://github.com/darvin2c/openUBL
       icon: github
       variant: minimal
+      attrs:
+        target: _blank
+        rel: noopener noreferrer
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import SectionLabel from '../../components/SectionLabel.astro';
+import StatsRow from '../../components/StatsRow.astro';
+import CodeShowcase from '../../components/CodeShowcase.astro';
+import FeatureGrid from '../../components/FeatureGrid.astro';
 
-## ¿Qué puedes hacer?
+<SectionLabel number="01" label="Hecho para SUNAT" />
 
-<CardGrid stagger>
-	<Card title="Generar XML" icon="document">
-		Crea XML UBL 2.1 conforme a las especificaciones de SUNAT para todos los documentos electrónicos soportados.
-	</Card>
-	<Card title="Firmar documentos" icon="approve-check">
-		Firma digitalmente tus comprobantes con el estándar XAdES-EPES requerido por SUNAT.
-	</Card>
-	<Card title="Validar con SUNAT" icon="seti:python">
-		Valida la estructura y contenido de tus documentos antes del envío oficial.
-	</Card>
-	<Card title="SDK Multi-lenguaje" icon="seti:javascript">
-		Genera clientes tipados en TypeScript, Java, Go, Python y C# desde OpenAPI.
-	</Card>
-	<Card title="API REST" icon="laptop">
-		Integra vía API REST con tipado Pydantic y documentación OpenAPI interactiva.
-	</Card>
-	<Card title="Clientes tipados" icon="open-book">
-		Usa clientes TypeScript con autocompletado de endpoints y validación estática.
-	</Card>
-</CardGrid>
+<StatsRow items={[
+  { value: 'UBL 2.1', label: 'Esquema oficial SUNAT', accent: 'red' },
+  { value: 'XAdES-EPES', label: 'Firma digital', accent: 'gold' },
+  { value: '7+', label: 'Documentos SUNAT', accent: 'red' },
+  { value: 'OpenAPI', label: 'SDKs tipados', accent: 'gold' },
+]} />
+
+<SectionLabel number="02" label="Ver el código" />
+
+<CodeShowcase tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `invoice = Invoice(
+    serie="F001",
+    numero=1,
+    proveedor=Proveedor(
+        ruc="12345678901",
+        razonSocial="Mi Empresa S.A.C.",
+        nombreComercial="Mi Empresa",
+        address={
+            "ubigeo": "150101",
+            "departamento": "Lima",
+            "provincia": "Lima",
+            "distrito": "Lima",
+            "direccion": "Av. Ejemplo 123",
+        },
+    ),
+    cliente=Cliente(
+        tipoDocumentoIdentidad="6",
+        numeroDocumentoIdentidad="98765432101",
+        nombre="Cliente Ejemplo S.A.C.",
+        address={
+            "ubigeo": "150101",
+            "departamento": "Lima",
+            "provincia": "Lima",
+            "distrito": "Lima",
+            "direccion": "Calle Ficticia 456",
+        },
+    ),
+    detalles=[
+        DocumentoVentaDetalle(
+            cantidad=2,
+            descripcion="Producto de ejemplo",
+            precio=50.00,
+            unidadMedida="NIU",
+        )
+    ],
+    moneda="PEN",
+)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client, type Invoice, type Proveedor, type Cliente, type DocumentoVentaDetalle } from "@openubl/sdk";
+
+const proveedor: Proveedor = {
+  ruc: "20100066603",
+  razonSocial: "Softgreen S.A.C.",
+};
+
+const cliente: Cliente = {
+  nombre: "Carlos",
+  numeroDocumentoIdentidad: "12121212121",
+  tipoDocumentoIdentidad: "6",
+};
+
+const detalle: DocumentoVentaDetalle = {
+  descripcion: "Item",
+  cantidad: 10,
+  precio: 100,
+};
+
+const invoice: Invoice = {
+  serie: "F001",
+  numero: 1,
+  proveedor,
+  cliente,
+  detalles: [detalle],
+};
+
+const { data, error } = await client.POST("/api/v1/invoice/create", {
+  body: invoice,
+});
+
+if (error) {
+  throw new Error(JSON.stringify(error));
+}
+
+console.log(data.xml); // XML UBL 2.1 generado`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST http://localhost:8000/api/v1/invoice/create \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "serie": "F001",
+    "numero": 1,
+    "proveedor": {
+      "ruc": "20100111111",
+      "razonSocial": "Mi Empresa S.A.C."
+    },
+    "cliente": {
+      "nombre": "Juan Perez",
+      "numeroDocumentoIdentidad": "12345678",
+      "tipoDocumentoIdentidad": "1"
+    },
+    "detalles": [
+      {
+        "descripcion": "Producto A",
+        "cantidad": 2,
+        "precio": 100.00
+      }
+    ],
+    "moneda": "PEN"
+  }'`,
+  },
+]} />
+
+<SectionLabel number="03" label="¿Qué puedes hacer?" />
+
+<FeatureGrid features={[
+  { title: 'Generar XML', description: 'Crea XML UBL 2.1 conforme a las especificaciones de SUNAT para todos los documentos electrónicos soportados.', icon: 'document' },
+  { title: 'Firmar documentos', description: 'Firma digitalmente tus comprobantes con el estándar XAdES-EPES requerido por SUNAT.', icon: 'approve-check' },
+  { title: 'Validar con SUNAT', description: 'Valida la estructura y contenido de tus documentos antes del envío oficial.', icon: 'seti:python' },
+  { title: 'SDK Multi-lenguaje', description: 'Genera clientes tipados en TypeScript, Java, Go, Python y C# desde OpenAPI.', icon: 'seti:javascript' },
+  { title: 'API REST', description: 'Integra vía API REST con tipado Pydantic y documentación OpenAPI interactiva.', icon: 'laptop' },
+  { title: 'Clientes tipados', description: 'Usa clientes TypeScript con autocompletado de endpoints y validación estática.', icon: 'open-book' },
+]} />
 
 ## Flujo de trabajo
 

@@ -2,6 +2,7 @@
 title: Comprobante de Percepción
 description: Guía para generar Comprobantes de Percepción (40) con openUBL.
 ---
+import CodeTabs from '../../../components/CodeTabs.astro';
 
 El **Comprobante de Percepción Electrónico** (tipo `40`) registra la percepción de IGV aplicada a ventas internas o adquisición de combustible. Es un documento adicional a la factura.
 
@@ -64,59 +65,28 @@ El modelo `Perception` no tiene campos opcionales a nivel raíz.
 | `02` | Adquisición de combustible | Variable |
 | `03` | Tasa 3% | 3% |
 
-## Ejemplo Python completo
+## Ejemplo completo
 
-```python
-from openubl.models import (
-    Perception, PercepcionRetencionOperacion,
-    ComprobanteAfectado, Proveedor, Cliente,
-)
-from openubl.renderer import render_perception
-from openubl.validator import SunatValidator
-from decimal import Decimal
-from datetime import date
-
-perception = Perception(
-    serie="P001",
-    numero=1,
-    fechaEmision=date(2025, 6, 10),
-    proveedor=Proveedor(
-        ruc="20100100100",
-        razonSocial="Mi Empresa S.A.C.",
-    ),
-    cliente=Cliente(
-        nombre="Juan Pérez",
-        numeroDocumentoIdentidad="46779327",
-        tipoDocumentoIdentidad="1",
-    ),
-    importeTotalPercibido=Decimal("53.10"),
-    importeTotalCobrado=Decimal("353.10"),
-    tipoRegimen="01",  # Venta interna
-    tipoRegimenPorcentaje=Decimal("0.02"),
-    operaciones=[
-        PercepcionRetencionOperacion(
-            numeroOperacion=1,
-            fechaOperacion=date(2025, 6, 10),
-            importeOperacion=Decimal("53.10"),
-            comprobante=ComprobanteAfectado(
-                tipoComprobante="01",
-                serieNumero="F001-45",
-                fechaEmision=date(2025, 6, 10),
-                importeTotal=Decimal("300.00"),
-                moneda="PEN",
-            ),
-        ),
-    ],
-)
-
-xml = render_perception(perception)
-errors = SunatValidator().validate_schema(
-    xml,
-    "sunat_schemas/xsd_2.1/2.0/maindoc/UBLPE-Perception-1.0.xsd",
-)
-assert errors == []
-print(xml)
-```
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.models import (\n    Perception, PercepcionRetencionOperacion,\n    ComprobanteAfectado, Proveedor, Cliente,\n)\nfrom openubl.renderer import render_perception\nfrom openubl.validator import SunatValidator\nfrom decimal import Decimal\nfrom datetime import date\n\nperception = Perception(\n    serie="P001",\n    numero=1,\n    fechaEmision=date(2025, 6, 10),\n    proveedor=Proveedor(\n        ruc="20100100100",\n        razonSocial="Mi Empresa S.A.C.",\n    ),\n    cliente=Cliente(\n        nombre="Juan Pérez",\n        numeroDocumentoIdentidad="46779327",\n        tipoDocumentoIdentidad="1",\n    ),\n    importeTotalPercibido=Decimal("53.10"),\n    importeTotalCobrado=Decimal("353.10"),\n    tipoRegimen="01",\n    tipoRegimenPorcentaje=Decimal("0.02"),\n    operaciones=[\n        PercepcionRetencionOperacion(\n            numeroOperacion=1,\n            fechaOperacion=date(2025, 6, 10),\n            importeOperacion=Decimal("53.10"),\n            comprobante=ComprobanteAfectado(\n                tipoComprobante="01",\n                serieNumero="F001-45",\n                fechaEmision=date(2025, 6, 10),\n                importeTotal=Decimal("300.00"),\n                moneda="PEN",\n            ),\n        ),\n    ],\n)\n\nxml = render_perception(perception)\nerrors = SunatValidator().validate_schema(\n    xml,\n    "sunat_schemas/xsd_2.1/2.0/maindoc/UBLPE-Perception-1.0.xsd",\n)\nassert errors == []\nprint(xml)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client } from "@openubl/sdk";\n\nconst { data, error } = await client.POST("/api/v1/perception/create?validate=true", {\n  body: {\n    serie: "P001",\n    numero: 1,\n    fechaEmision: "2025-06-10",\n    proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },\n    cliente: { nombre: "Juan Pérez", numeroDocumentoIdentidad: "46779327", tipoDocumentoIdentidad: "1" },\n    importeTotalPercibido: "53.10",\n    importeTotalCobrado: "353.10",\n    tipoRegimen: "01",\n    tipoRegimenPorcentaje: "0.02",\n    operaciones: [{\n      numeroOperacion: 1,\n      fechaOperacion: "2025-06-10",\n      importeOperacion: "53.10",\n      comprobante: {\n        tipoComprobante: "01",\n        serieNumero: "F001-45",\n        fechaEmision: "2025-06-10",\n        importeTotal: "300.00",\n        moneda: "PEN"\n      }\n    }]\n  },\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/perception/create?validate=true" \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "serie": "P001",\n    "numero": 1,\n    "fechaEmision": "2025-06-10",\n    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },\n    "cliente": { "nombre": "Juan Pérez", "numeroDocumentoIdentidad": "46779327", "tipoDocumentoIdentidad": "1" },\n    "importeTotalPercibido": "53.10",\n    "importeTotalCobrado": "353.10",\n    "tipoRegimen": "01",\n    "tipoRegimenPorcentaje": "0.02",\n    "operaciones": [{\n      "numeroOperacion": 1,\n      "fechaOperacion": "2025-06-10",\n      "importeOperacion": "53.10",\n      "comprobante": {\n        "tipoComprobante": "01",\n        "serieNumero": "F001-45",\n        "fechaEmision": "2025-06-10",\n        "importeTotal": "300.00",\n        "moneda": "PEN"\n      }\n    }]\n  }'`,
+  },
+]} />
 
 ## Nota sobre enriquecimiento
 
@@ -124,37 +94,26 @@ print(xml)
 
 ## Endpoint
 
-```bash
-POST /api/v1/perception/create?validate=true
-```
-
-```bash
-curl -X POST "http://localhost:8000/api/v1/perception/create?validate=true" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "serie": "P001",
-    "numero": 1,
-    "fechaEmision": "2025-06-10",
-    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },
-    "cliente": { "nombre": "Juan Pérez", "numeroDocumentoIdentidad": "46779327", "tipoDocumentoIdentidad": "1" },
-    "importeTotalPercibido": "53.10",
-    "importeTotalCobrado": "353.10",
-    "tipoRegimen": "01",
-    "tipoRegimenPorcentaje": "0.02",
-    "operaciones": [{
-      "numeroOperacion": 1,
-      "fechaOperacion": "2025-06-10",
-      "importeOperacion": "53.10",
-      "comprobante": {
-        "tipoComprobante": "01",
-        "serieNumero": "F001-45",
-        "fechaEmision": "2025-06-10",
-        "importeTotal": "300.00",
-        "moneda": "PEN"
-      }
-    }]
-  }'
-```
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.models import (\n    Perception, PercepcionRetencionOperacion,\n    ComprobanteAfectado, Proveedor, Cliente,\n)\nfrom openubl.renderer import render_perception\nfrom decimal import Decimal\nfrom datetime import date\n\nperception = Perception(\n    serie="P001",\n    numero=1,\n    fechaEmision=date(2025, 6, 10),\n    proveedor=Proveedor(\n        ruc="20100100100",\n        razonSocial="Mi Empresa S.A.C.",\n    ),\n    cliente=Cliente(\n        nombre="Juan Pérez",\n        numeroDocumentoIdentidad="46779327",\n        tipoDocumentoIdentidad="1",\n    ),\n    importeTotalPercibido=Decimal("53.10"),\n    importeTotalCobrado=Decimal("353.10"),\n    tipoRegimen="01",\n    tipoRegimenPorcentaje=Decimal("0.02"),\n    operaciones=[\n        PercepcionRetencionOperacion(\n            numeroOperacion=1,\n            fechaOperacion=date(2025, 6, 10),\n            importeOperacion=Decimal("53.10"),\n            comprobante=ComprobanteAfectado(\n                tipoComprobante="01",\n                serieNumero="F001-45",\n                fechaEmision=date(2025, 6, 10),\n                importeTotal=Decimal("300.00"),\n                moneda="PEN",\n            ),\n        ),\n    ],\n)\n\nxml = render_perception(perception)\nprint(xml)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client } from "@openubl/sdk";\n\nconst { data, error } = await client.POST("/api/v1/perception/create?validate=true", {\n  body: {\n    serie: "P001",\n    numero: 1,\n    fechaEmision: "2025-06-10",\n    proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },\n    cliente: { nombre: "Juan Pérez", numeroDocumentoIdentidad: "46779327", tipoDocumentoIdentidad: "1" },\n    importeTotalPercibido: "53.10",\n    importeTotalCobrado: "353.10",\n    tipoRegimen: "01",\n    tipoRegimenPorcentaje: "0.02",\n    operaciones: [{\n      numeroOperacion: 1,\n      fechaOperacion: "2025-06-10",\n      importeOperacion: "53.10",\n      comprobante: {\n        tipoComprobante: "01",\n        serieNumero: "F001-45",\n        fechaEmision: "2025-06-10",\n        importeTotal: "300.00",\n        moneda: "PEN"\n      }\n    }]\n  },\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/perception/create?validate=true" \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "serie": "P001",\n    "numero": 1,\n    "fechaEmision": "2025-06-10",\n    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },\n    "cliente": { "nombre": "Juan Pérez", "numeroDocumentoIdentidad": "46779327", "tipoDocumentoIdentidad": "1" },\n    "importeTotalPercibido": "53.10",\n    "importeTotalCobrado": "353.10",\n    "tipoRegimen": "01",\n    "tipoRegimenPorcentaje": "0.02",\n    "operaciones": [{\n      "numeroOperacion": 1,\n      "fechaOperacion": "2025-06-10",\n      "importeOperacion": "53.10",\n      "comprobante": {\n        "tipoComprobante": "01",\n        "serieNumero": "F001-45",\n        "fechaEmision": "2025-06-10",\n        "importeTotal": "300.00",\n        "moneda": "PEN"\n      }\n    }]\n  }'`,
+  },
+]} />
 
 ## Respuesta esperada
 

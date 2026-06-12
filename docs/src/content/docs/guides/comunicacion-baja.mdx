@@ -2,6 +2,7 @@
 title: Comunicación de Baja
 description: Guía para generar Comunicaciones de Baja (RA) de comprobantes con openUBL.
 ---
+import CodeTabs from '../../../components/CodeTabs.astro';
 
 La **Comunicación de Baja** (tipo `RA`) informa a SUNAT la anulación de facturas o boletas antes de que sean declaradas. Solo aplica para comprobantes que aún no han sido comunicados en un resumen diario.
 
@@ -40,38 +41,28 @@ La **Comunicación de Baja** (tipo `RA`) informa a SUNAT la anulación de factur
 | Restricción | No se puede dar de baja un comprobante ya incluido en un Resumen Diario aceptado. |
 | Tipos permitidos | `01` Factura y `03` Boleta. |
 
-## Ejemplo Python completo
+## Ejemplo completo
 
-```python
-from openubl.models import (
-    VoidedDocuments, VoidedDocumentsItem, Proveedor,
-)
-from openubl.renderer import render_voided_documents
-from openubl.validator import SunatValidator
-from datetime import date
-
-voided = VoidedDocuments(
-    numero=1,
-    fechaEmisionComprobantes=date(2025, 6, 10),
-    proveedor=Proveedor(
-        ruc="20100100100",
-        razonSocial="Mi Empresa S.A.C.",
-    ),
-    comprobantes=[
-        VoidedDocumentsItem(
-            serie="F001",
-            numero=45,
-            tipoComprobante="01",
-            descripcionSustento="Error en datos del cliente",
-        ),
-    ],
-)
-
-xml = render_voided_documents(voided)
-errors = SunatValidator().validate_voided_documents(xml)
-assert errors == []
-print(xml)
-```
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.models import (\n    VoidedDocuments, VoidedDocumentsItem, Proveedor,\n)\nfrom openubl.renderer import render_voided_documents\nfrom openubl.validator import SunatValidator\nfrom datetime import date\n\nvoided = VoidedDocuments(\n    numero=1,\n    fechaEmisionComprobantes=date(2025, 6, 10),\n    proveedor=Proveedor(\n        ruc="20100100100",\n        razonSocial="Mi Empresa S.A.C.",\n    ),\n    comprobantes=[\n        VoidedDocumentsItem(\n            serie="F001",\n            numero=45,\n            tipoComprobante="01",\n            descripcionSustento="Error en datos del cliente",\n        ),\n    ],\n)\n\nxml = render_voided_documents(voided)\nerrors = SunatValidator().validate_voided_documents(xml)\nassert errors == []\nprint(xml)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client } from "@openubl/sdk";\n\nconst { data, error } = await client.POST("/api/v1/voided-documents/create?validate=true", {\n  body: {\n    numero: 1,\n    fechaEmisionComprobantes: "2025-06-10",\n    proveedor: {\n      ruc: "20100100100",\n      razonSocial: "Mi Empresa S.A.C.",\n    },\n    comprobantes: [\n      {\n        serie: "F001",\n        numero: 45,\n        tipoComprobante: "01",\n        descripcionSustento: "Error en datos del cliente",\n      },\n    ],\n  },\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/voided-documents/create?validate=true" \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "numero": 1,\n    "fechaEmisionComprobantes": "2025-06-10",\n    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },\n    "comprobantes": [{\n      "serie": "F001",\n      "numero": 45,\n      "tipoComprobante": "01",\n      "descripcionSustento": "Error en datos del cliente"\n    }]\n  }'`,
+  },
+]} />
 
 ## Ejemplo con `ContentEnricher`
 
@@ -108,25 +99,26 @@ print(xml)
 
 ## Endpoint
 
-```bash
-POST /api/v1/voided-documents/create?validate=true
-```
-
-```bash
-curl -X POST "http://localhost:8000/api/v1/voided-documents/create?validate=true" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "numero": 1,
-    "fechaEmisionComprobantes": "2025-06-10",
-    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },
-    "comprobantes": [{
-      "serie": "F001",
-      "numero": 45,
-      "tipoComprobante": "01",
-      "descripcionSustento": "Error en datos del cliente"
-    }]
-  }'
-```
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.models import (\n    VoidedDocuments, VoidedDocumentsItem, Proveedor,\n)\nfrom openubl.renderer import render_voided_documents\nfrom datetime import date\n\nvoided = VoidedDocuments(\n    numero=1,\n    fechaEmisionComprobantes=date(2025, 6, 10),\n    proveedor=Proveedor(\n        ruc="20100100100",\n        razonSocial="Mi Empresa S.A.C.",\n    ),\n    comprobantes=[\n        VoidedDocumentsItem(\n            serie="F001",\n            numero=45,\n            tipoComprobante="01",\n            descripcionSustento="Error en datos del cliente",\n        ),\n    ],\n)\n\nxml = render_voided_documents(voided)\nprint(xml)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client } from "@openubl/sdk";\n\nconst { data, error } = await client.POST("/api/v1/voided-documents/create?validate=true", {\n  body: {\n    numero: 1,\n    fechaEmisionComprobantes: "2025-06-10",\n    proveedor: {\n      ruc: "20100100100",\n      razonSocial: "Mi Empresa S.A.C.",\n    },\n    comprobantes: [\n      {\n        serie: "F001",\n        numero: 45,\n        tipoComprobante: "01",\n        descripcionSustento: "Error en datos del cliente",\n      },\n    ],\n  },\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/voided-documents/create?validate=true" \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "numero": 1,\n    "fechaEmisionComprobantes": "2025-06-10",\n    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },\n    "comprobantes": [{\n      "serie": "F001",\n      "numero": 45,\n      "tipoComprobante": "01",\n      "descripcionSustento": "Error en datos del cliente"\n    }]\n  }'`,
+  },
+]} />
 
 ## Respuesta esperada
 

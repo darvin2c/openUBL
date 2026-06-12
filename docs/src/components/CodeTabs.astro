@@ -1,0 +1,106 @@
+---
+import { Code } from '@astrojs/starlight/components';
+
+interface Props {
+	tabs: {
+		id: string;
+		label: string;
+		lang: string;
+		code: string;
+	}[];
+	defaultTab?: string;
+}
+
+const { tabs, defaultTab } = Astro.props;
+const group = `ct-${Math.random().toString(36).slice(2, 9)}`;
+const initial = defaultTab || tabs[0]?.id;
+---
+
+<div class="code-tabs not-content">
+	<div class="code-tabs-header" role="tablist">
+		{tabs.map((tab) => (
+			<button
+				type="button"
+				role="tab"
+				class="code-tabs-tab"
+				data-tab={tab.id}
+				data-group={group}
+				aria-selected={tab.id === initial ? 'true' : 'false'}
+			>
+				{tab.label}
+			</button>
+		))}
+	</div>
+	<div class="code-tabs-panels">
+		{tabs.map((tab) => (
+			<div
+				class="code-tabs-panel"
+				data-panel={tab.id}
+				data-group={group}
+				role="tabpanel"
+				hidden={tab.id !== initial}
+			>
+				<Code code={tab.code} lang={tab.lang} />
+			</div>
+		))}
+	</div>
+</div>
+
+<script>
+	const STORAGE_KEY = 'openubl-code-lang';
+
+	function selectTab(tab: HTMLElement) {
+		const group = tab.dataset.group;
+		const target = tab.dataset.tab;
+		if (!group || !target) return;
+
+		// Persist and notify other CodeTabs instances.
+		localStorage.setItem(STORAGE_KEY, target);
+		window.dispatchEvent(new CustomEvent('openubl:code-lang-change', { detail: { lang: target } }));
+
+
+		const root = tab.closest('.code-tabs')?.parentElement || document;
+		root.querySelectorAll<HTMLElement>(`.code-tabs-tab[data-group="${group}"]`).forEach((t) => {
+			t.setAttribute('aria-selected', t.dataset.tab === target ? 'true' : 'false');
+		});
+		root.querySelectorAll<HTMLElement>(`.code-tabs-panel[data-group="${group}"]`).forEach((p) => {
+			const active = p.dataset.panel === target;
+			p.hidden = !active;
+			if (active) {
+				p.removeAttribute('hidden');
+			}
+		});
+	}
+
+	function initCodeTabs(root: Document | HTMLElement = document) {
+		root.querySelectorAll<HTMLElement>('.code-tabs-tab').forEach((tab) => {
+			if ((tab as any)._ctBound) return;
+			(tab as any)._ctBound = true;
+
+			tab.addEventListener('click', () => selectTab(tab));
+		});
+	}
+
+	function applyStoredLang(lang: string) {
+		document.querySelectorAll<HTMLElement>('.code-tabs-tab[data-tab]').forEach((tab) => {
+			if (tab.dataset.tab === lang && tab.getAttribute('aria-selected') !== 'true') {
+				selectTab(tab);
+			}
+		});
+	}
+
+	initCodeTabs();
+	const stored = localStorage.getItem(STORAGE_KEY);
+	if (stored) applyStoredLang(stored);
+
+	document.addEventListener('astro:page-load', () => {
+		initCodeTabs();
+		const storedAfterNav = localStorage.getItem(STORAGE_KEY);
+		if (storedAfterNav) applyStoredLang(storedAfterNav);
+	});
+
+	window.addEventListener('openubl:code-lang-change', (event) => {
+		const lang = (event as CustomEvent).detail?.lang;
+		if (lang) applyStoredLang(lang);
+	});
+</script>

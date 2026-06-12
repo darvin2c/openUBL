@@ -9,17 +9,21 @@ export default defineConfig({
 	integrations: [
 		starlight({
 			title: 'openUBL',
-			tagline: 'Facturacion electronica SUNAT, hecha simple.',
+			tagline: 'Facturación electrónica SUNAT, hecha simple.',
 			favicon: '/favicon.svg',
 			logo: {
 				src: './src/assets/logo.svg',
 				replacesTitle: true,
 			},
+			components: {
+				Hero: './src/components/Hero.astro',
+			},
 			social: [
-				{ icon: 'github', label: 'GitHub', href: 'https://github.com/darvin2c/openUBL' },
+				{ icon: 'github', label: 'GitHub', href: 'https://github.com/darvin2c/openUBL', attrs: { target: '_blank', rel: 'noopener noreferrer' } },
 			],
 			editLink: {
 				baseUrl: 'https://github.com/darvin2c/openUBL/edit/main/docs/',
+				attrs: { target: '_blank', rel: 'noopener noreferrer' },
 			},
 			customCss: [
 				'./src/styles/custom.css',
