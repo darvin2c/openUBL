@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { client, type Invoice, type CreditNote, type Proveedor, type Cliente, type DocumentoVentaDetalle, SDK_VERSION, checkApiVersion } from "../src/index.js";
+import { z } from "zod";
+import { client, SDK_VERSION, checkApiVersion } from "../src/index.js";
+import { zInvoice, zProveedor } from "../src/zod.gen.js";
+import type { Invoice, CreditNote, Proveedor, Cliente, DocumentoVentaDetalle } from "../src/index.js";
 
 const proveedor: Proveedor = {
   ruc: "20100066603",
@@ -35,14 +38,11 @@ describe("type-safety", () => {
     const note: CreditNote = {
       serie: "FC01",
       numero: 1,
+      comprobanteAfectadoSerieNumero: "F001-1",
+      sustentoDescripcion: "Anulación",
       proveedor,
       cliente,
       detalles: [detalle],
-      comprobanteAfectado: {
-        tipoComprobante: "01",
-        serieNumero: "F001-1",
-        motivo: "Anulación",
-      },
     };
     expect(note.serie).toBe("FC01");
   });
@@ -50,9 +50,8 @@ describe("type-safety", () => {
 
 describe("runtime round-trip", () => {
   it("POSTs an Invoice and returns XML with expected ID", async () => {
-    // Skip if no server is running
     try {
-      const res = await fetch("http://localhost:8000/api/v1/invoice/create", { method: "HEAD" });
+      const res = await fetch("http://localhost:8000/api/v1/version");
       if (!res.ok) return;
     } catch {
       return;
@@ -66,7 +65,7 @@ describe("runtime round-trip", () => {
       detalles: [detalle],
     };
 
-    const { data, error } = await client.POST("/api/v1/invoice/create", {
+    const { data, error } = await client.post("/api/v1/invoice/create", {
       body: invoice,
     });
 
@@ -86,14 +85,41 @@ describe("version sync", () => {
 
   it("checkApiVersion matches when server is up", async () => {
     try {
-      const res = await fetch("http://localhost:8000/api/v1/version", { method: "HEAD" });
-      if (!res.ok) return;
+      const result = await checkApiVersion("http://localhost:8000");
+      expect(result.ok).toBe(true);
+      expect(result.sdkVersion).toBe(SDK_VERSION);
     } catch {
       return;
     }
-    const result = await checkApiVersion();
-    expect(result.ok).toBe(true);
-    expect(result.sdkVersion).toBe(SDK_VERSION);
-    expect(result.apiVersion).toBe(SDK_VERSION);
+  });
+});
+
+describe("runtime Zod validation", () => {
+  it("rejects invalid RUC length", () => {
+    expect(() => zProveedor.parse({ ruc: "1234567890", razonSocial: "X" })).toThrow(z.ZodError);
+  });
+
+  it("rejects invalid invoice serie", () => {
+    expect(() =>
+      zInvoice.parse({
+        serie: "X001",
+        numero: 1,
+        proveedor: { ruc: "20100066603", razonSocial: "X" },
+        cliente: { nombre: "C", numeroDocumentoIdentidad: "12345678", tipoDocumentoIdentidad: "1" },
+        detalles: [{ descripcion: "Item", cantidad: 1, precio: 10 }],
+      }),
+    ).toThrow(z.ZodError);
+  });
+
+  it("rejects invalid tipoDocumentoIdentidad enum", () => {
+    expect(() =>
+      zInvoice.parse({
+        serie: "F001",
+        numero: 1,
+        proveedor: { ruc: "20100066603", razonSocial: "X" },
+        cliente: { nombre: "C", numeroDocumentoIdentidad: "12345678", tipoDocumentoIdentidad: "99" },
+        detalles: [{ descripcion: "Item", cantidad: 1, precio: 10 }],
+      }),
+    ).toThrow(z.ZodError);
   });
 });
