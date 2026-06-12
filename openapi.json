@@ -79,6 +79,106 @@
         "title": "Address",
         "type": "object"
       },
+      "Catalog1": {
+        "description": "Tipo de Comprobante - Catálogo N.° 01",
+        "enum": [
+          "01",
+          "03",
+          "07",
+          "08",
+          "09",
+          "20",
+          "40"
+        ],
+        "title": "Catalog1",
+        "type": "string"
+      },
+      "Catalog19": {
+        "description": "Tipo de Operación - Resumen Diario - Catálogo N.° 19",
+        "enum": [
+          "1",
+          "2",
+          "3"
+        ],
+        "title": "Catalog19",
+        "type": "string"
+      },
+      "Catalog2": {
+        "description": "Tipo de Moneda - Catálogo N.° 02",
+        "enum": [
+          "PEN",
+          "USD",
+          "EUR"
+        ],
+        "title": "Catalog2",
+        "type": "string"
+      },
+      "Catalog22": {
+        "description": "Régimen de Percepción - Catálogo N.° 22",
+        "enum": [
+          "01",
+          "02",
+          "03"
+        ],
+        "title": "Catalog22",
+        "type": "string"
+      },
+      "Catalog23": {
+        "description": "Régimen de Retención - Catálogo N.° 23",
+        "enum": [
+          "01",
+          "02",
+          "03"
+        ],
+        "title": "Catalog23",
+        "type": "string"
+      },
+      "Catalog51": {
+        "description": "Tipo de Operación - Catálogo N.° 51",
+        "enum": [
+          "0101",
+          "0102",
+          "0103",
+          "0104",
+          "0105",
+          "0106",
+          "0107",
+          "0108",
+          "0110",
+          "0200",
+          "0201",
+          "0202",
+          "0203",
+          "0204",
+          "0205",
+          "0206",
+          "0207"
+        ],
+        "title": "Catalog51",
+        "type": "string"
+      },
+      "Catalog6": {
+        "description": "Tipo de Documento de Identidad - Catálogo N.° 06",
+        "enum": [
+          "0",
+          "1",
+          "4",
+          "6",
+          "7"
+        ],
+        "title": "Catalog6",
+        "type": "string"
+      },
+      "Catalog7": {
+        "description": "Tipo de Afectación del IGV - Catálogo N.° 07",
+        "enum": [
+          "10",
+          "20",
+          "30"
+        ],
+        "title": "Catalog7",
+        "type": "string"
+      },
       "Cliente": {
         "description": "Datos del adquirente o usuario.\n\nRS N° 300-2014/SUNAT, Anexo 1:\n- Tipo de documento: Catálogo N.° 06\n- Número de documento: según tipo",
         "properties": {
@@ -87,12 +187,13 @@
             "type": "string"
           },
           "numeroDocumentoIdentidad": {
+            "minLength": 1,
+            "pattern": "^\\w+$",
             "title": "Numerodocumentoidentidad",
             "type": "string"
           },
           "tipoDocumentoIdentidad": {
-            "title": "Tipodocumentoidentidad",
-            "type": "string"
+            "$ref": "#/components/schemas/Catalog6"
           }
         },
         "required": [
@@ -127,8 +228,7 @@
             "type": "string"
           },
           "tipoComprobante": {
-            "title": "Tipocomprobante",
-            "type": "string"
+            "$ref": "#/components/schemas/Catalog1"
           },
           "valorVenta": {
             "$ref": "#/components/schemas/ComprobanteValorVenta"
@@ -217,6 +317,7 @@
           "importeTotal": {
             "anyOf": [
               {
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -308,11 +409,11 @@
             "title": "Importetotal"
           },
           "moneda": {
-            "default": "PEN",
-            "title": "Moneda",
-            "type": "string"
+            "$ref": "#/components/schemas/Catalog2",
+            "default": "PEN"
           },
           "numero": {
+            "minimum": 1.0,
             "title": "Numero",
             "type": "integer"
           },
@@ -417,11 +518,11 @@
             "title": "Importetotal"
           },
           "moneda": {
-            "default": "PEN",
-            "title": "Moneda",
-            "type": "string"
+            "$ref": "#/components/schemas/Catalog2",
+            "default": "PEN"
           },
           "numero": {
+            "minimum": 1.0,
             "title": "Numero",
             "type": "integer"
           },
@@ -472,6 +573,7 @@
           "cantidad": {
             "anyOf": [
               {
+                "exclusiveMinimum": 0.0,
                 "type": "number"
               },
               {
@@ -503,6 +605,7 @@
           "precio": {
             "anyOf": [
               {
+                "minimum": 0.0,
                 "type": "number"
               },
               {
@@ -528,9 +631,8 @@
             "title": "Precioventa"
           },
           "tipoAfectacionIGV": {
-            "default": "10",
-            "title": "Tipoafectacionigv",
-            "type": "string"
+            "$ref": "#/components/schemas/Catalog7",
+            "default": "10"
           },
           "unidadMedida": {
             "default": "NIU",
@@ -630,11 +732,11 @@
             "title": "Importetotal"
           },
           "moneda": {
-            "default": "PEN",
-            "title": "Moneda",
-            "type": "string"
+            "$ref": "#/components/schemas/Catalog2",
+            "default": "PEN"
           },
           "numero": {
+            "minimum": 1.0,
             "title": "Numero",
             "type": "integer"
           },
@@ -648,9 +750,8 @@
             "type": "string"
           },
           "tipoOperacion": {
-            "default": "0101",
-            "title": "Tipooperacion",
-            "type": "string"
+            "$ref": "#/components/schemas/Catalog51",
+            "default": "0101"
           },
           "valorVentaTotal": {
             "anyOf": [
@@ -751,6 +852,7 @@
             "title": "Importetotalpercibido"
           },
           "numero": {
+            "minimum": 1.0,
             "title": "Numero",
             "type": "integer"
           },
@@ -771,8 +873,7 @@
             "type": "string"
           },
           "tipoRegimen": {
-            "title": "Tiporegimen",
-            "type": "string"
+            "$ref": "#/components/schemas/Catalog22"
           },
           "tipoRegimenPorcentaje": {
             "anyOf": [
@@ -887,8 +988,7 @@
             "type": "string"
           },
           "tipoRegimen": {
-            "title": "Tiporegimen",
-            "type": "string"
+            "$ref": "#/components/schemas/Catalog23"
           },
           "tipoRegimenPorcentaje": {
             "anyOf": [
@@ -967,8 +1067,7 @@
             "$ref": "#/components/schemas/Comprobante"
           },
           "tipoOperacion": {
-            "title": "Tipooperacion",
-            "type": "string"
+            "$ref": "#/components/schemas/Catalog19"
           }
         },
         "required": [
@@ -1046,6 +1145,7 @@
             "type": "string"
           },
           "numero": {
+            "minimum": 1.0,
             "title": "Numero",
             "type": "integer"
           },
@@ -1070,6 +1170,7 @@
             "type": "string"
           },
           "numero": {
+            "minimum": 1.0,
             "title": "Numero",
             "type": "integer"
           },
@@ -1078,8 +1179,7 @@
             "type": "string"
           },
           "tipoComprobante": {
-            "title": "Tipocomprobante",
-            "type": "string"
+            "$ref": "#/components/schemas/Catalog1"
           }
         },
         "required": [
@@ -1126,8 +1226,7 @@
             "title": "Importetotal"
           },
           "moneda": {
-            "title": "Moneda",
-            "type": "string"
+            "$ref": "#/components/schemas/Catalog2"
           },
           "serieNumero": {
             "title": "Serienumero",
@@ -1177,8 +1276,7 @@
             "type": "string"
           },
           "tipoComprobante": {
-            "title": "Tipocomprobante",
-            "type": "string"
+            "$ref": "#/components/schemas/Catalog1"
           }
         },
         "required": [
