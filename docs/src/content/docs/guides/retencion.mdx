@@ -79,7 +79,7 @@ El modelo `Retention` no tiene campos opcionales a nivel raíz.
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client } from "@openubl/sdk";\n\nconst { data, error } = await client.POST("/api/v1/retention/create?validate=true", {\n  body: {\n    serie: "R001",\n    numero: 1,\n    fechaEmision: "2025-06-10",\n    proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },\n    cliente: { nombre: "Comercial del Sur S.A.", numeroDocumentoIdentidad: "20100200200", tipoDocumentoIdentidad: "6" },\n    importeTotalRetenido: "18.00",\n    importeTotalPagado: "282.00",\n    tipoRegimen: "01",\n    tipoRegimenPorcentaje: "0.03",\n    operaciones: [{\n      numeroOperacion: 1,\n      fechaOperacion: "2025-06-10",\n      importeOperacion: "18.00",\n      comprobante: {\n        tipoComprobante: "01",\n        serieNumero: "F005-20",\n        fechaEmision: "2025-06-10",\n        importeTotal: "300.00",\n        moneda: "PEN"\n      }\n    }]\n  },\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+    code: `import { client, zRetention } from "@openubl/sdk";\n\nconst retention = zRetention.parse({\n  serie: "R001",\n  numero: 1,\n  fechaEmision: "2025-06-10",\n  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },\n  cliente: { nombre: "Comercial del Sur S.A.", numeroDocumentoIdentidad: "20100200200", tipoDocumentoIdentidad: "6" },\n  importeTotalRetenido: "18.00",\n  importeTotalPagado: "282.00",\n  tipoRegimen: "01",\n  tipoRegimenPorcentaje: "0.03",\n  operaciones: [{\n    numeroOperacion: 1,\n    fechaOperacion: "2025-06-10",\n    importeOperacion: "18.00",\n    comprobante: {\n      tipoComprobante: "01",\n      serieNumero: "F005-20",\n      fechaEmision: "2025-06-10",\n      importeTotal: "300.00",\n      moneda: "PEN"\n    }\n  }]\n});\n\nconst { data, error } = await client.post("/api/v1/retention/create?validate=true", {\n  body: retention,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
   },
   {
     id: 'curl',
@@ -148,39 +148,7 @@ print(xml)`,
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client } from "@openubl/sdk";
-
-const { data, error } = await client.POST("/api/v1/retention/create?validate=true", {
-  body: {
-    serie: "R001",
-    numero: 1,
-    fechaEmision: "2025-06-10",
-    proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },
-    cliente: { nombre: "Comercial del Sur S.A.", numeroDocumentoIdentidad: "20100200200", tipoDocumentoIdentidad: "6" },
-    importeTotalRetenido: "18.00",
-    importeTotalPagado: "282.00",
-    tipoRegimen: "01",
-    tipoRegimenPorcentaje: "0.03",
-    operaciones: [{
-      numeroOperacion: 1,
-      fechaOperacion: "2025-06-10",
-      importeOperacion: "18.00",
-      comprobante: {
-        tipoComprobante: "01",
-        serieNumero: "F005-20",
-        fechaEmision: "2025-06-10",
-        importeTotal: "300.00",
-        moneda: "PEN"
-      }
-    }]
-  },
-});
-
-if (error) {
-  throw new Error(JSON.stringify(error));
-}
-
-console.log(data.xml);`,
+    code: `import { client, zRetention } from "@openubl/sdk";\n\nconst retention = zRetention.parse({\n  serie: "R001",\n  numero: 1,\n  fechaEmision: "2025-06-10",\n  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },\n  cliente: { nombre: "Comercial del Sur S.A.", numeroDocumentoIdentidad: "20100200200", tipoDocumentoIdentidad: "6" },\n  importeTotalRetenido: "18.00",\n  importeTotalPagado: "282.00",\n  tipoRegimen: "01",\n  tipoRegimenPorcentaje: "0.03",\n  operaciones: [{\n    numeroOperacion: 1,\n    fechaOperacion: "2025-06-10",\n    importeOperacion: "18.00",\n    comprobante: {\n      tipoComprobante: "01",\n      serieNumero: "F005-20",\n      fechaEmision: "2025-06-10",\n      importeTotal: "300.00",\n      moneda: "PEN"\n    }\n  }]\n});\n\nconst { data, error } = await client.post("/api/v1/retention/create", {\n  body: retention,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
   },
   {
     id: 'curl',
@@ -211,6 +179,33 @@ console.log(data.xml);`,
       }
     }]
   }'`,
+  },
+]} />
+
+## Casos especiales
+
+### Múltiples operaciones de retención
+
+Un comprobante de retención puede incluir varias operaciones sobre facturas de compra distintas.
+
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.models import (\n    Retention, PercepcionRetencionOperacion,\n    ComprobanteAfectado, Proveedor, Cliente,\n)\nfrom openubl.renderer import render_retention\nfrom openubl.validator import SunatValidator\nfrom decimal import Decimal\nfrom datetime import date\n\nretention = Retention(\n    serie="R001",\n    numero=2,\n    fechaEmision=date(2025, 6, 10),\n    proveedor=Proveedor(ruc="20100100100", razonSocial="Mi Empresa S.A.C."),\n    cliente=Cliente(\n        nombre="Comercial del Sur S.A.",\n        numeroDocumentoIdentidad="20100200200",\n        tipoDocumentoIdentidad="6",\n    ),\n    importeTotalRetenido=Decimal("33.00"),\n    importeTotalPagado=Decimal("967.00"),\n    tipoRegimen="01",\n    tipoRegimenPorcentaje=Decimal("0.03"),\n    operaciones=[\n        PercepcionRetencionOperacion(\n            numeroOperacion=1,\n            fechaOperacion=date(2025, 6, 10),\n            importeOperacion=Decimal("18.00"),\n            comprobante=ComprobanteAfectado(\n                tipoComprobante="01",\n                serieNumero="F005-20",\n                fechaEmision=date(2025, 6, 10),\n                importeTotal=Decimal("300.00"),\n                moneda="PEN",\n            ),\n        ),\n        PercepcionRetencionOperacion(\n            numeroOperacion=2,\n            fechaOperacion=date(2025, 6, 10),\n            importeOperacion=Decimal("15.00"),\n            comprobante=ComprobanteAfectado(\n                tipoComprobante="01",\n                serieNumero="F005-21",\n                fechaEmision=date(2025, 6, 10),\n                importeTotal=Decimal("250.00"),\n                moneda="PEN",\n            ),\n        ),\n    ],\n)\n\nxml = render_retention(retention)\nerrors = SunatValidator().validate_schema(\n    xml,\n    "sunat_schemas/xsd_2.1/2.0/maindoc/UBLPE-Retention-1.0.xsd",\n)\nassert errors == [], errors\nprint(xml)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client, zRetention } from "@openubl/sdk";\n\nconst retention = zRetention.parse({\n  serie: "R001",\n  numero: 2,\n  fechaEmision: "2025-06-10",\n  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },\n  cliente: {\n    nombre: "Comercial del Sur S.A.",\n    numeroDocumentoIdentidad: "20100200200",\n    tipoDocumentoIdentidad: "6",\n  },\n  importeTotalRetenido: "33.00",\n  importeTotalPagado: "967.00",\n  tipoRegimen: "01",\n  tipoRegimenPorcentaje: "0.03",\n  operaciones: [\n    {\n      numeroOperacion: 1,\n      fechaOperacion: "2025-06-10",\n      importeOperacion: "18.00",\n      comprobante: {\n        tipoComprobante: "01",\n        serieNumero: "F005-20",\n        fechaEmision: "2025-06-10",\n        importeTotal: "300.00",\n        moneda: "PEN",\n      },\n    },\n    {\n      numeroOperacion: 2,\n      fechaOperacion: "2025-06-10",\n      importeOperacion: "15.00",\n      comprobante: {\n        tipoComprobante: "01",\n        serieNumero: "F005-21",\n        fechaEmision: "2025-06-10",\n        importeTotal: "250.00",\n        moneda: "PEN",\n      },\n    },\n  ],\n});\n\nconst { data, error } = await client.post("/api/v1/retention/create", {\n  body: retention,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/retention/create" \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "serie": "R001",\n    "numero": 2,\n    "fechaEmision": "2025-06-10",\n    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },\n    "cliente": {\n      "nombre": "Comercial del Sur S.A.",\n      "numeroDocumentoIdentidad": "20100200200",\n      "tipoDocumentoIdentidad": "6"\n    },\n    "importeTotalRetenido": "33.00",\n    "importeTotalPagado": "967.00",\n    "tipoRegimen": "01",\n    "tipoRegimenPorcentaje": "0.03",\n    "operaciones": [\n      {\n        "numeroOperacion": 1,\n        "fechaOperacion": "2025-06-10",\n        "importeOperacion": "18.00",\n        "comprobante": {\n          "tipoComprobante": "01",\n          "serieNumero": "F005-20",\n          "fechaEmision": "2025-06-10",\n          "importeTotal": "300.00",\n          "moneda": "PEN"\n        }\n      },\n      {\n        "numeroOperacion": 2,\n        "fechaOperacion": "2025-06-10",\n        "importeOperacion": "15.00",\n        "comprobante": {\n          "tipoComprobante": "01",\n          "serieNumero": "F005-21",\n          "fechaEmision": "2025-06-10",\n          "importeTotal": "250.00",\n          "moneda": "PEN"\n        }\n      }\n    ]\n  }'`,
   },
 ]} />
 

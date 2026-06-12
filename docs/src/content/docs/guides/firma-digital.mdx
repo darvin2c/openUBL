@@ -3,6 +3,8 @@ title: Firma Digital
 description: Guía para firmar documentos XML UBL 2.1 con certificado digital SUNAT.
 ---
 
+import CodeTabs from '../../../components/CodeTabs.astro';
+
 SUNAT exige que todos los documentos electrónicos estén firmados digitalmente con un certificado X.509 válido. openUBL expone un endpoint dedicado para firmar cualquier XML UBL previamente generado.
 
 ## Requisitos
@@ -15,14 +17,33 @@ SUNAT exige que todos los documentos electrónicos estén firmados digitalmente 
 
 Si posees un certificado en formato `.pfx` o `.p12`, también puedes usar la librería core para extraer PEM:
 
-```python
-from openubl.signer import load_pfx
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.signer import load_pfx
 
 with open("certificado.pfx", "rb") as f:
     pfx_bytes = f.read()
 
-key_pem, cert_pem = load_pfx(pfx_bytes, password="mi_clave")
-```
+key_pem, cert_pem = load_pfx(pfx_bytes, password="mi_clave")`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `// La conversión de PFX a PEM se realiza con la librería Python openubl.
+// Alternativamente, envía el PFX directamente al endpoint /api/v1/sign.`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `# La conversión de PFX a PEM se realiza con la librería Python openubl.
+# Alternativamente, envía el PFX directamente al endpoint /api/v1/sign.`,
+  },
+]} />
 
 ## Endpoint
 
@@ -38,10 +59,14 @@ POST /api/v1/sign
 | `pfx_password` | `string` | Contraseña del archivo PFX/P12 (modo PFX) |
 | `xml` | `string` | XML UBL 2.1 a firmar |
 
-## Ejemplo en Python (PEM)
+## Ejemplo con certificado PEM
 
-```python
-import requests
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `import requests
 
 with open("certificado.pem", "r") as f:
     cert_pem = f.read()
@@ -60,25 +85,48 @@ response = requests.post(
     },
 )
 
-signed_xml = response.json()["signed_xml"]
-```
+signed_xml = response.json()["signed_xml"]`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client, zSignXmlApiV1SignPostBody } from "@openubl/sdk";
 
-## Ejemplo con curl (PEM)
+const body = zSignXmlApiV1SignPostBody.parse({
+  cert_pem: "-----BEGIN CERTIFICATE-----\\nMIIC...\\n-----END CERTIFICATE-----",
+  key_pem: "-----BEGIN PRIVATE KEY-----\\nMIIE...\\n-----END PRIVATE KEY-----",
+  xml: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>...",
+});
 
-```bash
-curl -X POST "http://localhost:8000/api/v1/sign" \
-  -H "Content-Type: application/json" \
+const { data, error } = await client.post("/api/v1/sign", { body });
+
+if (error) throw new Error(JSON.stringify(error));
+
+console.log(data.signed_xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/sign" \\
+  -H "Content-Type: application/json" \\
   -d '{
-    "cert_pem": "-----BEGIN CERTIFICATE-----\nMIIC...\n-----END CERTIFICATE-----",
-    "key_pem": "-----BEGIN PRIVATE KEY-----\nMIIE...\n-----END PRIVATE KEY-----",
+    "cert_pem": "-----BEGIN CERTIFICATE-----\\nMIIC...\\n-----END CERTIFICATE-----",
+    "key_pem": "-----BEGIN PRIVATE KEY-----\\nMIIE...\\n-----END PRIVATE KEY-----",
     "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>..."
-  }'
-```
+  }'`,
+  },
+]} />
 
-## Ejemplo con PFX
+## Ejemplo con certificado PFX
 
-```python
-import base64
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `import base64
 import requests
 
 with open("certificado.pfx", "rb") as f:
@@ -95,22 +143,44 @@ response = requests.post(
     },
 )
 
-signed_xml = response.json()["signed_xml"]
-```
+signed_xml = response.json()["signed_xml"]`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { readFile } from "fs/promises";
+import { client, zSignXmlApiV1SignPostBody } from "@openubl/sdk";
 
-## Ejemplo con curl (PFX)
+const pfxBase64 = (await readFile("certificado.pfx")).toString("base64");
 
-```bash
-PFX_BASE64=$(base64 -w 0 certificado.pfx)
+const body = zSignXmlApiV1SignPostBody.parse({
+  pfx_base64: pfxBase64,
+  pfx_password: "mi_clave",
+  xml: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>...",
+});
 
-curl -X POST "http://localhost:8000/api/v1/sign" \
-  -H "Content-Type: application/json" \
+const { data, error } = await client.post("/api/v1/sign", { body });
+
+if (error) throw new Error(JSON.stringify(error));
+
+console.log(data.signed_xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `PFX_BASE64=$(base64 -w 0 certificado.pfx)
+
+curl -X POST "http://localhost:8000/api/v1/sign" \\
+  -H "Content-Type: application/json" \\
   -d "{
-    \"pfx_base64\": \"$PFX_BASE64\",
-    \"pfx_password\": \"mi_clave\",
-    \"xml\": \"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?>...\"
-  }"
-```
+    \\"pfx_base64\\": \\"$PFX_BASE64\\",
+    \\"pfx_password\\": \\"mi_clave\\",
+    \\"xml\\": \\"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?>...\\"
+  }"`,
+  },
+]} />
 
 ## Algoritmo de firma
 
@@ -118,15 +188,13 @@ openUBL utiliza los parámetros requeridos por SUNAT:
 
 | Parámetro | Valor |
 |-----------|-------|
-| Algoritmo de firma | RSA-SHA1 |
-| Algoritmo de digestión | SHA1 |
 | Canonicalización | C14N |
-:::caution
-SUNAT requiere RSA-SHA1 por compatibilidad con su plataforma de recepción. Este algoritmo está considerado obsoleto para otros usos, pero sigue siendo obligatorio para la facturación electrónica peruana.
-:::
+| Digest | SHA-256 |
+| Firma | RSA-SHA256 |
+| Transform | Enveloped Signature |
 
 ## Flujo completo
 
 1. Genera el XML con el endpoint correspondiente (`/invoice/create`, `/credit-note/create`, etc.).
-2. Firma el XML con `/sign`.
-3. Envía el XML firmado a SUNAT mediante el Web Service de recepción.
+2. Envía el XML al endpoint `/api/v1/sign` con tu certificado.
+3. Recibe el XML firmado (`signed_xml`) listo para enviar a SUNAT.

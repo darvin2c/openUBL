@@ -107,38 +107,7 @@ print(xml)`,
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client } from "@openubl/sdk";
-
-const { data, error } = await client.POST("/api/v1/credit-note/create?validate=true", {
-  body: {
-    serie: "FC01",
-    numero: 1,
-    comprobanteAfectadoSerieNumero: "F001-45",
-    sustentoDescripcion: "Descuento por pronto pago",
-    proveedor: {
-      ruc: "20100100100",
-      razonSocial: "Mi Empresa S.A.C.",
-    },
-    cliente: {
-      nombre: "Juan Pérez",
-      numeroDocumentoIdentidad: "46779327",
-      tipoDocumentoIdentidad: "1",
-    },
-    detalles: [
-      {
-        descripcion: "Descuento pronto pago - Laptop Dell XPS 13",
-        cantidad: "1",
-        precio: "-250.00",
-      },
-    ],
-  },
-});
-
-if (error) {
-  throw new Error(JSON.stringify(error));
-}
-
-console.log(data.xml);`,
+    code: `import { client, zCreditNote } from "@openubl/sdk";\n\nconst creditNote = zCreditNote.parse({\n  serie: \"FC01\",\n  numero: 1,\n  comprobanteAfectadoSerieNumero: \"F001-45\",\n  sustentoDescripcion: \"Descuento por pronto pago\",\n  proveedor: {\n    ruc: \"20100100100\",\n    razonSocial: \"Mi Empresa S.A.C.\",\n  },\n  cliente: {\n    nombre: \"Juan Pérez\",\n    numeroDocumentoIdentidad: \"46779327\",\n    tipoDocumentoIdentidad: \"1\",\n  },\n  detalles: [\n    {\n      descripcion: \"Descuento pronto pago - Laptop Dell XPS 13\",\n      cantidad: \"1\",\n      precio: \"-250.00\",\n    },\n  ],\n});\n\nconst { data, error } = await client.post(\"/api/v1/credit-note/create?validate=true\", {\n  body: creditNote,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
   },
   {
     id: 'curl',
@@ -162,45 +131,26 @@ console.log(data.xml);`,
 
 `ContentEnricher` calcula `fechaEmision`, `valorVenta`, `igv`, `precioVenta`, `valorVentaTotal`, `igvTotal` e `importeTotal`.
 
-```python
-from openubl.models import (
-    CreditNote, Proveedor, Cliente, DocumentoVentaDetalle,
-)
-from openubl.enricher import ContentEnricher
-from openubl.renderer import render_credit_note
-from openubl.validator import SunatValidator
-from decimal import Decimal
-
-credit_note = CreditNote(
-    serie="FC01",
-    numero=1,
-    comprobanteAfectadoSerieNumero="F001-45",
-    sustentoDescripcion="Descuento por pronto pago",
-    proveedor=Proveedor(
-        ruc="20100100100",
-        razonSocial="Mi Empresa S.A.C.",
-    ),
-    cliente=Cliente(
-        nombre="Juan Pérez",
-        numeroDocumentoIdentidad="46779327",
-        tipoDocumentoIdentidad="1",
-    ),
-    detalles=[
-        DocumentoVentaDetalle(
-            descripcion="Descuento pronto pago - Laptop Dell XPS 13",
-            cantidad=Decimal("1"),
-            precio=Decimal("-250.00"),
-            # No se envían igv, valorVenta ni precioVenta
-        ),
-    ],
-)
-
-ContentEnricher().enrich(credit_note)
-xml = render_credit_note(credit_note)
-errors = SunatValidator().validate_credit_note(xml)
-assert errors == []
-print(xml)
-```
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.models import (\n    CreditNote, Proveedor, Cliente, DocumentoVentaDetalle,\n)\nfrom openubl.enricher import ContentEnricher\nfrom openubl.renderer import render_credit_note\nfrom openubl.validator import SunatValidator\nfrom decimal import Decimal\n\ncredit_note = CreditNote(\n    serie="FC01",\n    numero=1,\n    comprobanteAfectadoSerieNumero="F001-45",\n    sustentoDescripcion="Descuento por pronto pago",\n    proveedor=Proveedor(\n        ruc="20100100100",\n        razonSocial="Mi Empresa S.A.C.",\n    ),\n    cliente=Cliente(\n        nombre="Juan Pérez",\n        numeroDocumentoIdentidad="46779327",\n        tipoDocumentoIdentidad="1",\n    ),\n    detalles=[\n        DocumentoVentaDetalle(\n            descripcion="Descuento pronto pago - Laptop Dell XPS 13",\n            cantidad=Decimal("1"),\n            precio=Decimal("-250.00"),\n            # No se envían igv, valorVenta ni precioVenta\n        ),\n    ],\n)\n\nContentEnricher().enrich(credit_note)\nxml = render_credit_note(credit_note)\nerrors = SunatValidator().validate_credit_note(xml)\nassert errors == [], errors\nprint(xml)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client, zCreditNote } from "@openubl/sdk";\n\nconst creditNote = zCreditNote.parse({\n  serie: "FC01",\n  numero: 1,\n  comprobanteAfectadoSerieNumero: "F001-45",\n  sustentoDescripcion: "Descuento por pronto pago",\n  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },\n  cliente: { nombre: "Juan Pérez", numeroDocumentoIdentidad: "46779327", tipoDocumentoIdentidad: "1" },\n  detalles: [\n    { descripcion: "Descuento pronto pago - Laptop Dell XPS 13", cantidad: "1", precio: "-250.00" },\n  ],\n});\n\nconst { data, error } = await client.post("/api/v1/credit-note/create", {\n  body: creditNote,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/credit-note/create" \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "serie": "FC01",\n    "numero": 1,\n    "comprobanteAfectadoSerieNumero": "F001-45",\n    "sustentoDescripcion": "Descuento por pronto pago",\n    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },\n    "cliente": { "nombre": "Juan Pérez", "numeroDocumentoIdentidad": "46779327", "tipoDocumentoIdentidad": "1" },\n    "detalles": [{\n      "descripcion": "Descuento pronto pago - Laptop Dell XPS 13",\n      "cantidad": "1",\n      "precio": "-250.00"\n    }]\n  }'`,
+  },
+]} />
 
 ## Endpoint
 
@@ -245,38 +195,7 @@ print(xml)`,
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client } from "@openubl/sdk";
-
-const { data, error } = await client.POST("/api/v1/credit-note/create?validate=true", {
-  body: {
-    serie: "FC01",
-    numero: 1,
-    comprobanteAfectadoSerieNumero: "F001-45",
-    sustentoDescripcion: "Descuento por pronto pago",
-    proveedor: {
-      ruc: "20100100100",
-      razonSocial: "Mi Empresa S.A.C.",
-    },
-    cliente: {
-      nombre: "Juan Pérez",
-      numeroDocumentoIdentidad: "46779327",
-      tipoDocumentoIdentidad: "1",
-    },
-    detalles: [
-      {
-        descripcion: "Descuento pronto pago",
-        cantidad: "1",
-        precio: "-250.00",
-      },
-    ],
-  },
-});
-
-if (error) {
-  throw new Error(JSON.stringify(error));
-}
-
-console.log(data.xml);`,
+    code: `import { client, zCreditNote } from "@openubl/sdk";\n\nconst creditNote = zCreditNote.parse({\n  serie: \"FC01\",\n  numero: 1,\n  comprobanteAfectadoSerieNumero: \"F001-45\",\n  sustentoDescripcion: \"Descuento por pronto pago\",\n  proveedor: {\n    ruc: \"20100100100\",\n    razonSocial: \"Mi Empresa S.A.C.\",\n  },\n  cliente: {\n    nombre: \"Juan Pérez\",\n    numeroDocumentoIdentidad: \"46779327\",\n    tipoDocumentoIdentidad: \"1\",\n  },\n  detalles: [\n    {\n      descripcion: \"Descuento pronto pago\",\n      cantidad: \"1\",\n      precio: \"-250.00\",\n    },\n  ],\n});\n\nconst { data, error } = await client.post(\"/api/v1/credit-note/create\", {\n  body: creditNote,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
   },
   {
     id: 'curl',
@@ -293,6 +212,33 @@ console.log(data.xml);`,
     "cliente": { "nombre": "Juan Pérez", "numeroDocumentoIdentidad": "46779327", "tipoDocumentoIdentidad": "1" },
     "detalles": [{ "descripcion": "Descuento pronto pago", "cantidad": "1", "precio": "-250.00" }]
   }'`,
+  },
+]} />
+
+## Casos especiales
+
+### Anulación total
+
+Si la nota de crédito anula el importe total de la factura original, el precio de la línea debe ser igual al importe total del comprobante afectado con signo negativo.
+
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.models import (\n    CreditNote, Proveedor, Cliente, DocumentoVentaDetalle,\n)\nfrom openubl.enricher import ContentEnricher\nfrom openubl.renderer import render_credit_note\nfrom openubl.validator import SunatValidator\nfrom decimal import Decimal\n\ncredit_note = CreditNote(\n    serie="FC01",\n    numero=1,\n    comprobanteAfectadoSerieNumero="F001-1",\n    sustentoDescripcion="Anulación de venta",\n    proveedor=Proveedor(ruc="20100100100", razonSocial="Mi Empresa S.A.C."),\n    cliente=Cliente(\n        nombre="Cliente Ejemplo S.A.C.",\n        numeroDocumentoIdentidad="98765432101",\n        tipoDocumentoIdentidad="6",\n    ),\n    detalles=[\n        DocumentoVentaDetalle(\n            descripcion="Anulación total - Factura F001-1",\n            cantidad=Decimal("1"),\n            precio=Decimal("-300.00"),\n        ),\n    ],\n)\n\nContentEnricher().enrich(credit_note)\nxml = render_credit_note(credit_note)\nerrors = SunatValidator().validate_credit_note(xml)\nassert errors == [], errors\nprint(xml)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client, zCreditNote } from "@openubl/sdk";\n\nconst creditNote = zCreditNote.parse({\n  serie: "FC01",\n  numero: 1,\n  comprobanteAfectadoSerieNumero: "F001-1",\n  sustentoDescripcion: "Anulación de venta",\n  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },\n  cliente: {\n    nombre: "Cliente Ejemplo S.A.C.",\n    numeroDocumentoIdentidad: "98765432101",\n    tipoDocumentoIdentidad: "6",\n  },\n  detalles: [\n    { descripcion: "Anulación total - Factura F001-1", cantidad: "1", precio: "-300.00" },\n  ],\n});\n\nconst { data, error } = await client.post("/api/v1/credit-note/create", {\n  body: creditNote,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/credit-note/create" \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "serie": "FC01",\n    "numero": 1,\n    "comprobanteAfectadoSerieNumero": "F001-1",\n    "sustentoDescripcion": "Anulación de venta",\n    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },\n    "cliente": {\n      "nombre": "Cliente Ejemplo S.A.C.",\n      "numeroDocumentoIdentidad": "98765432101",\n      "tipoDocumentoIdentidad": "6"\n    },\n    "detalles": [{\n      "descripcion": "Anulación total - Factura F001-1",\n      "cantidad": "1",\n      "precio": "-300.00"\n    }]\n  }'`,
   },
 ]} />
 

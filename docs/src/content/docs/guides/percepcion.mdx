@@ -78,7 +78,7 @@ El modelo `Perception` no tiene campos opcionales a nivel raíz.
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client } from "@openubl/sdk";\n\nconst { data, error } = await client.POST("/api/v1/perception/create?validate=true", {\n  body: {\n    serie: "P001",\n    numero: 1,\n    fechaEmision: "2025-06-10",\n    proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },\n    cliente: { nombre: "Juan Pérez", numeroDocumentoIdentidad: "46779327", tipoDocumentoIdentidad: "1" },\n    importeTotalPercibido: "53.10",\n    importeTotalCobrado: "353.10",\n    tipoRegimen: "01",\n    tipoRegimenPorcentaje: "0.02",\n    operaciones: [{\n      numeroOperacion: 1,\n      fechaOperacion: "2025-06-10",\n      importeOperacion: "53.10",\n      comprobante: {\n        tipoComprobante: "01",\n        serieNumero: "F001-45",\n        fechaEmision: "2025-06-10",\n        importeTotal: "300.00",\n        moneda: "PEN"\n      }\n    }]\n  },\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+    code: `import { client, zPerception } from "@openubl/sdk";\n\nconst perception = zPerception.parse({\n  serie: \"P001\",\n  numero: 1,\n  fechaEmision: \"2025-06-10\",\n  proveedor: { ruc: \"20100100100\", razonSocial: \"Mi Empresa S.A.C.\" },\n  cliente: { nombre: \"Juan Pérez\", numeroDocumentoIdentidad: \"46779327\", tipoDocumentoIdentidad: \"1\" },\n  importeTotalPercibido: \"53.10\",\n  importeTotalCobrado: \"353.10\",\n  tipoRegimen: \"01\",\n  tipoRegimenPorcentaje: \"0.02\",\n  operaciones: [{\n    numeroOperacion: 1,\n    fechaOperacion: \"2025-06-10\",\n    importeOperacion: \"53.10\",\n    comprobante: {\n      tipoComprobante: \"01\",\n      serieNumero: \"F001-45\",\n      fechaEmision: \"2025-06-10\",\n      importeTotal: \"300.00\",\n      moneda: \"PEN\"\n    }\n  }]\n});\n\nconst { data, error } = await client.post(\"/api/v1/perception/create?validate=true\", {\n  body: perception,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
   },
   {
     id: 'curl',
@@ -105,13 +105,40 @@ El modelo `Perception` no tiene campos opcionales a nivel raíz.
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client } from "@openubl/sdk";\n\nconst { data, error } = await client.POST("/api/v1/perception/create?validate=true", {\n  body: {\n    serie: "P001",\n    numero: 1,\n    fechaEmision: "2025-06-10",\n    proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },\n    cliente: { nombre: "Juan Pérez", numeroDocumentoIdentidad: "46779327", tipoDocumentoIdentidad: "1" },\n    importeTotalPercibido: "53.10",\n    importeTotalCobrado: "353.10",\n    tipoRegimen: "01",\n    tipoRegimenPorcentaje: "0.02",\n    operaciones: [{\n      numeroOperacion: 1,\n      fechaOperacion: "2025-06-10",\n      importeOperacion: "53.10",\n      comprobante: {\n        tipoComprobante: "01",\n        serieNumero: "F001-45",\n        fechaEmision: "2025-06-10",\n        importeTotal: "300.00",\n        moneda: "PEN"\n      }\n    }]\n  },\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+    code: `import { client, zPerception } from "@openubl/sdk";\n\nconst perception = zPerception.parse({\n  serie: \"P001\",\n  numero: 1,\n  fechaEmision: \"2025-06-10\",\n  proveedor: { ruc: \"20100100100\", razonSocial: \"Mi Empresa S.A.C.\" },\n  cliente: { nombre: \"Juan Pérez\", numeroDocumentoIdentidad: \"46779327\", tipoDocumentoIdentidad: \"1\" },\n  importeTotalPercibido: \"53.10\",\n  importeTotalCobrado: \"353.10\",\n  tipoRegimen: \"01\",\n  tipoRegimenPorcentaje: \"0.02\",\n  operaciones: [{\n    numeroOperacion: 1,\n    fechaOperacion: \"2025-06-10\",\n    importeOperacion: \"53.10\",\n    comprobante: {\n      tipoComprobante: \"01\",\n      serieNumero: \"F001-45\",\n      fechaEmision: \"2025-06-10\",\n      importeTotal: \"300.00\",\n      moneda: \"PEN\"\n    }\n  }]\n});\n\nconst { data, error } = await client.post(\"/api/v1/perception/create\", {\n  body: perception,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
   },
   {
     id: 'curl',
     label: 'cURL',
     lang: 'bash',
     code: `curl -X POST "http://localhost:8000/api/v1/perception/create?validate=true" \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "serie": "P001",\n    "numero": 1,\n    "fechaEmision": "2025-06-10",\n    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },\n    "cliente": { "nombre": "Juan Pérez", "numeroDocumentoIdentidad": "46779327", "tipoDocumentoIdentidad": "1" },\n    "importeTotalPercibido": "53.10",\n    "importeTotalCobrado": "353.10",\n    "tipoRegimen": "01",\n    "tipoRegimenPorcentaje": "0.02",\n    "operaciones": [{\n      "numeroOperacion": 1,\n      "fechaOperacion": "2025-06-10",\n      "importeOperacion": "53.10",\n      "comprobante": {\n        "tipoComprobante": "01",\n        "serieNumero": "F001-45",\n        "fechaEmision": "2025-06-10",\n        "importeTotal": "300.00",\n        "moneda": "PEN"\n      }\n    }]\n  }'`,
+  },
+]} />
+
+## Casos especiales
+
+### Múltiples operaciones de percepción
+
+Un comprobante de percepción puede consolidar varias operaciones sobre comprobantes afectados distintos.
+
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.models import (\n    Perception, PercepcionRetencionOperacion,\n    ComprobanteAfectado, Proveedor, Cliente,\n)\nfrom openubl.renderer import render_perception\nfrom openubl.validator import SunatValidator\nfrom decimal import Decimal\nfrom datetime import date\n\nperception = Perception(\n    serie="P001",\n    numero=2,\n    fechaEmision=date(2025, 6, 10),\n    proveedor=Proveedor(ruc="20100100100", razonSocial="Mi Empresa S.A.C."),\n    cliente=Cliente(\n        nombre="Juan Pérez",\n        numeroDocumentoIdentidad="46779327",\n        tipoDocumentoIdentidad="1",\n    ),\n    importeTotalPercibido=Decimal("106.00"),\n    importeTotalCobrado=Decimal("706.00"),\n    tipoRegimen="01",\n    tipoRegimenPorcentaje=Decimal("0.02"),\n    operaciones=[\n        PercepcionRetencionOperacion(\n            numeroOperacion=1,\n            fechaOperacion=date(2025, 6, 10),\n            importeOperacion=Decimal("53.10"),\n            comprobante=ComprobanteAfectado(\n                tipoComprobante="01",\n                serieNumero="F001-45",\n                fechaEmision=date(2025, 6, 10),\n                importeTotal=Decimal("300.00"),\n                moneda="PEN",\n            ),\n        ),\n        PercepcionRetencionOperacion(\n            numeroOperacion=2,\n            fechaOperacion=date(2025, 6, 10),\n            importeOperacion=Decimal("52.90"),\n            comprobante=ComprobanteAfectado(\n                tipoComprobante="01",\n                serieNumero="F001-46",\n                fechaEmision=date(2025, 6, 10),\n                importeTotal=Decimal("298.50"),\n                moneda="PEN",\n            ),\n        ),\n    ],\n)\n\nxml = render_perception(perception)\nerrors = SunatValidator().validate_schema(\n    xml,\n    "sunat_schemas/xsd_2.1/2.0/maindoc/UBLPE-Perception-1.0.xsd",\n)\nassert errors == [], errors\nprint(xml)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client, zPerception } from "@openubl/sdk";\n\nconst perception = zPerception.parse({\n  serie: "P001",\n  numero: 2,\n  fechaEmision: "2025-06-10",\n  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },\n  cliente: { nombre: "Juan Pérez", numeroDocumentoIdentidad: "46779327", tipoDocumentoIdentidad: "1" },\n  importeTotalPercibido: "106.00",\n  importeTotalCobrado: "706.00",\n  tipoRegimen: "01",\n  tipoRegimenPorcentaje: "0.02",\n  operaciones: [\n    {\n      numeroOperacion: 1,\n      fechaOperacion: "2025-06-10",\n      importeOperacion: "53.10",\n      comprobante: {\n        tipoComprobante: "01",\n        serieNumero: "F001-45",\n        fechaEmision: "2025-06-10",\n        importeTotal: "300.00",\n        moneda: "PEN",\n      },\n    },\n    {\n      numeroOperacion: 2,\n      fechaOperacion: "2025-06-10",\n      importeOperacion: "52.90",\n      comprobante: {\n        tipoComprobante: "01",\n        serieNumero: "F001-46",\n        fechaEmision: "2025-06-10",\n        importeTotal: "298.50",\n        moneda: "PEN",\n      },\n    },\n  ],\n});\n\nconst { data, error } = await client.post("/api/v1/perception/create", {\n  body: perception,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/perception/create" \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "serie": "P001",\n    "numero": 2,\n    "fechaEmision": "2025-06-10",\n    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },\n    "cliente": { "nombre": "Juan Pérez", "numeroDocumentoIdentidad": "46779327", "tipoDocumentoIdentidad": "1" },\n    "importeTotalPercibido": "106.00",\n    "importeTotalCobrado": "706.00",\n    "tipoRegimen": "01",\n    "tipoRegimenPorcentaje": "0.02",\n    "operaciones": [\n      {\n        "numeroOperacion": 1,\n        "fechaOperacion": "2025-06-10",\n        "importeOperacion": "53.10",\n        "comprobante": {\n          "tipoComprobante": "01",\n          "serieNumero": "F001-45",\n          "fechaEmision": "2025-06-10",\n          "importeTotal": "300.00",\n          "moneda": "PEN"\n        }\n      },\n      {\n        "numeroOperacion": 2,\n        "fechaOperacion": "2025-06-10",\n        "importeOperacion": "52.90",\n        "comprobante": {\n          "tipoComprobante": "01",\n          "serieNumero": "F001-46",\n          "fechaEmision": "2025-06-10",\n          "importeTotal": "298.50",\n          "moneda": "PEN"\n        }\n      }\n    ]\n  }'`,
   },
 ]} />
 

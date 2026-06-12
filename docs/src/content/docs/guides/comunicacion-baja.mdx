@@ -54,7 +54,7 @@ La **Comunicación de Baja** (tipo `RA`) informa a SUNAT la anulación de factur
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client } from "@openubl/sdk";\n\nconst { data, error } = await client.POST("/api/v1/voided-documents/create?validate=true", {\n  body: {\n    numero: 1,\n    fechaEmisionComprobantes: "2025-06-10",\n    proveedor: {\n      ruc: "20100100100",\n      razonSocial: "Mi Empresa S.A.C.",\n    },\n    comprobantes: [\n      {\n        serie: "F001",\n        numero: 45,\n        tipoComprobante: "01",\n        descripcionSustento: "Error en datos del cliente",\n      },\n    ],\n  },\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+    code: `import { client, zVoidedDocuments } from "@openubl/sdk";\n\nconst voided = zVoidedDocuments.parse({\n  numero: 1,\n  fechaEmisionComprobantes: \"2025-06-10\",\n  proveedor: {\n    ruc: \"20100100100\",\n    razonSocial: \"Mi Empresa S.A.C.\",\n  },\n  comprobantes: [\n    {\n      serie: \"F001\",\n      numero: 45,\n      tipoComprobante: \"01\",\n      descripcionSustento: \"Error en datos del cliente\",\n    },\n  ],\n});\n\nconst { data, error } = await client.post(\"/api/v1/voided-documents/create?validate=true\", {\n  body: voided,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
   },
   {
     id: 'curl',
@@ -66,36 +66,26 @@ La **Comunicación de Baja** (tipo `RA`) informa a SUNAT la anulación de factur
 
 ## Ejemplo con `ContentEnricher`
 
-```python
-from openubl.enricher import ContentEnricher
-from openubl.models import VoidedDocuments, VoidedDocumentsItem, Proveedor
-from openubl.renderer import render_voided_documents
-from openubl.validator import SunatValidator
-from datetime import date
-
-voided = VoidedDocuments(
-    numero=1,
-    fechaEmisionComprobantes=date(2025, 6, 10),
-    proveedor=Proveedor(
-        ruc="20100100100",
-        razonSocial="Mi Empresa S.A.C.",
-    ),
-    comprobantes=[
-        VoidedDocumentsItem(
-            serie="F001",
-            numero=45,
-            tipoComprobante="01",
-            descripcionSustento="Error en datos del cliente",
-        ),
-    ],
-)
-
-ContentEnricher().enrich(voided)  # Asigna fechaEmision si falta
-xml = render_voided_documents(voided)
-errors = SunatValidator().validate_voided_documents(xml)
-assert errors == []
-print(xml)
-```
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.enricher import ContentEnricher\nfrom openubl.models import VoidedDocuments, VoidedDocumentsItem, Proveedor\nfrom openubl.renderer import render_voided_documents\nfrom openubl.validator import SunatValidator\nfrom datetime import date\n\nvoided = VoidedDocuments(\n    numero=1,\n    fechaEmisionComprobantes=date(2025, 6, 10),\n    proveedor=Proveedor(\n        ruc="20100100100",\n        razonSocial="Mi Empresa S.A.C.",\n    ),\n    comprobantes=[\n        VoidedDocumentsItem(\n            serie="F001",\n            numero=45,\n            tipoComprobante="01",\n            descripcionSustento="Error en datos del cliente",\n        ),\n    ],\n)\n\nContentEnricher().enrich(voided)  # Asigna fechaEmision si falta\nxml = render_voided_documents(voided)\nerrors = SunatValidator().validate_voided_documents(xml)\nassert errors == [], errors\nprint(xml)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client, zVoidedDocuments } from "@openubl/sdk";\n\nconst voided = zVoidedDocuments.parse({\n  numero: 1,\n  fechaEmisionComprobantes: "2025-06-10",\n  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },\n  comprobantes: [\n    {\n      serie: "F001",\n      numero: 45,\n      tipoComprobante: "01",\n      descripcionSustento: "Error en datos del cliente",\n    },\n  ],\n});\n\nconst { data, error } = await client.post(\"/api/v1/voided-documents/create\", {\n  body: voided,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/voided-documents/create" \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "numero": 1,\n    "fechaEmisionComprobantes": "2025-06-10",\n    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },\n    "comprobantes": [{\n      "serie": "F001",\n      "numero": 45,\n      "tipoComprobante": "01",\n      "descripcionSustento": "Error en datos del cliente"\n    }]\n  }'`,
+  },
+]} />
 
 ## Endpoint
 
@@ -110,13 +100,40 @@ print(xml)
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client } from "@openubl/sdk";\n\nconst { data, error } = await client.POST("/api/v1/voided-documents/create?validate=true", {\n  body: {\n    numero: 1,\n    fechaEmisionComprobantes: "2025-06-10",\n    proveedor: {\n      ruc: "20100100100",\n      razonSocial: "Mi Empresa S.A.C.",\n    },\n    comprobantes: [\n      {\n        serie: "F001",\n        numero: 45,\n        tipoComprobante: "01",\n        descripcionSustento: "Error en datos del cliente",\n      },\n    ],\n  },\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+    code: `import { client, zVoidedDocuments } from "@openubl/sdk";\n\nconst voided = zVoidedDocuments.parse({\n  numero: 1,\n  fechaEmisionComprobantes: \"2025-06-10\",\n  proveedor: {\n    ruc: \"20100100100\",\n    razonSocial: \"Mi Empresa S.A.C.\",\n  },\n  comprobantes: [\n    {\n      serie: \"F001\",\n      numero: 45,\n      tipoComprobante: \"01\",\n      descripcionSustento: \"Error en datos del cliente\",\n    },\n  ],\n});\n\nconst { data, error } = await client.post(\"/api/v1/voided-documents/create\", {\n  body: voided,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
   },
   {
     id: 'curl',
     label: 'cURL',
     lang: 'bash',
-    code: `curl -X POST "http://localhost:8000/api/v1/voided-documents/create?validate=true" \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "numero": 1,\n    "fechaEmisionComprobantes": "2025-06-10",\n    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },\n    "comprobantes": [{\n      "serie": "F001",\n      "numero": 45,\n      "tipoComprobante": "01",\n      "descripcionSustento": "Error en datos del cliente"\n    }]\n  }'`,
+    code: `curl -X POST "http://localhost:8000/api/v1/voided-documents/create" \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "numero": 1,\n    "fechaEmisionComprobantes": "2025-06-10",\n    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },\n    "comprobantes": [{\n      "serie": "F001",\n      "numero": 45,\n      "tipoComprobante": "01",\n      "descripcionSustento": "Error en datos del cliente"\n    }]\n  }'`,
+  },
+]} />
+
+## Casos especiales
+
+### Baja de múltiples comprobantes
+
+Una misma comunicación de baja puede anular varios comprobantes emitidos el mismo día.
+
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.models import (\n    VoidedDocuments, VoidedDocumentsItem, Proveedor,\n)\nfrom openubl.renderer import render_voided_documents\nfrom openubl.validator import SunatValidator\nfrom datetime import date\n\nvoided = VoidedDocuments(\n    numero=2,\n    fechaEmisionComprobantes=date(2025, 6, 10),\n    proveedor=Proveedor(ruc="20100100100", razonSocial="Mi Empresa S.A.C."),\n    comprobantes=[\n        VoidedDocumentsItem(\n            serie="F001",\n            numero=10,\n            tipoComprobante="01",\n            descripcionSustento="Error en datos del cliente",\n        ),\n        VoidedDocumentsItem(\n            serie="B001",\n            numero=20,\n            tipoComprobante="03",\n            descripcionSustento="Duplicidad de emisión",\n        ),\n    ],\n)\n\nxml = render_voided_documents(voided)\nerrors = SunatValidator().validate_voided_documents(xml)\nassert errors == [], errors\nprint(xml)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client, zVoidedDocuments } from "@openubl/sdk";\n\nconst voided = zVoidedDocuments.parse({\n  numero: 2,\n  fechaEmisionComprobantes: "2025-06-10",\n  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },\n  comprobantes: [\n    {\n      serie: "F001",\n      numero: 10,\n      tipoComprobante: "01",\n      descripcionSustento: "Error en datos del cliente",\n    },\n    {\n      serie: "B001",\n      numero: 20,\n      tipoComprobante: "03",\n      descripcionSustento: "Duplicidad de emisión",\n    },\n  ],\n});\n\nconst { data, error } = await client.post("/api/v1/voided-documents/create", {\n  body: voided,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/voided-documents/create" \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "numero": 2,\n    "fechaEmisionComprobantes": "2025-06-10",\n    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },\n    "comprobantes": [\n      {\n        "serie": "F001",\n        "numero": 10,\n        "tipoComprobante": "01",\n        "descripcionSustento": "Error en datos del cliente"\n      },\n      {\n        "serie": "B001",\n        "numero": 20,\n        "tipoComprobante": "03",\n        "descripcionSustento": "Duplicidad de emisión"\n      }\n    ]\n  }'`,
   },
 ]} />
 
