@@ -1,18 +1,102 @@
 ---
-title: Ejemplos con cURL
-description: Crea documentos electrónicos y firma XML usando cURL desde la terminal.
+title: Ejemplos de uso
+description: Crea documentos electrónicos y firma XML usando Python, TypeScript o cURL.
 ---
+
+import CodeTabs from '../../../components/CodeTabs.astro';
 
 Los siguientes ejemplos asumen que el servidor está corriendo en `http://localhost:8000`.
 
 ## Crear una Factura
 
-```bash
-curl -X POST http://localhost:8000/api/v1/invoice/create \
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `import httpx
+
+from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
+
+invoice = Invoice(
+    serie="F001",
+    numero=1,
+    proveedor=Proveedor(
+        ruc="20100111111",
+        razonSocial="Mi Empresa S.A.C.",
+    ),
+    cliente=Cliente(
+        nombre="Juan Perez",
+        numeroDocumentoIdentidad="12345678",
+        tipoDocumentoIdentidad="1",
+    ),
+    detalles=[
+        DocumentoVentaDetalle(
+            descripcion="Producto A",
+            cantidad=2,
+            precio=100.00,
+        )
+    ],
+    moneda="PEN",
+)
+
+with httpx.Client(base_url="http://localhost:8000") as client:
+    r = client.post("/api/v1/invoice/create", json=invoice.model_dump(mode="json"))
+    r.raise_for_status()
+    print(r.json()["xml"])`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client, zInvoice } from "@openubl/sdk";
+
+const invoice = zInvoice.parse({
+  serie: "F001",
+  numero: 1,
+  tipoOperacion: "0101",
+  moneda: "PEN",
+  proveedor: {
+    ruc: "20100111111",
+    razonSocial: "Mi Empresa S.A.C.",
+  },
+  cliente: {
+    nombre: "Juan Perez",
+    numeroDocumentoIdentidad: "12345678",
+    tipoDocumentoIdentidad: "1",
+  },
+  detalles: [
+    {
+      descripcion: "Producto A",
+      cantidad: 2,
+      precio: 100.00,
+      unidadMedida: "NIU",
+      tipoAfectacionIGV: "10",
+    },
+  ],
+});
+
+const { data, error } = await client.post("/api/v1/invoice/create", {
+  body: invoice,
+});
+
+if (error) {
+  throw new Error(JSON.stringify(error));
+}
+
+console.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST http://localhost:8000/api/v1/invoice/create \
   -H "Content-Type: application/json" \
   -d '{
     "serie": "F001",
     "numero": 1,
+    "tipoOperacion": "0101",
+    "moneda": "PEN",
     "proveedor": {
       "ruc": "20100111111",
       "razonSocial": "Mi Empresa S.A.C."
@@ -26,12 +110,14 @@ curl -X POST http://localhost:8000/api/v1/invoice/create \
       {
         "descripcion": "Producto A",
         "cantidad": 2,
-        "precio": 100.00
+        "precio": 100.00,
+        "unidadMedida": "NIU",
+        "tipoAfectacionIGV": "10"
       }
-    ],
-    "moneda": "PEN"
-  }'
-```
+    ]
+  }'`,
+  },
+]} />
 
 **Respuesta esperada:**
 
@@ -45,16 +131,66 @@ Para omitir la validación SUNAT, añade `?validate=false` a la URL.
 
 ## Firmar un XML
 
-```bash
-curl -X POST http://localhost:8000/api/v1/sign \
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `import os
+import httpx
+
+xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>..."
+
+with httpx.Client(base_url="http://localhost:8000") as client:
+    r = client.post(
+        "/api/v1/sign",
+        json={
+            "xml": xml,
+            "cert_pem": os.getenv("CERT_PEM", ""),
+            "key_pem": os.getenv("KEY_PEM", ""),
+            "signature_id": "SignSUNAT",
+        },
+    )
+    r.raise_for_status()
+    print(r.json()["signed_xml"])`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client, zSignXmlApiV1SignPostBody } from "@openubl/sdk";
+
+const body = zSignXmlApiV1SignPostBody.parse({
+  xml: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>...",
+  cert_pem: process.env.CERT_PEM,
+  key_pem: process.env.KEY_PEM,
+  signature_id: "SignSUNAT",
+});
+
+const { data, error } = await client.post("/api/v1/sign", {
+  body,
+});
+
+if (error) {
+  throw new Error(JSON.stringify(error));
+}
+
+console.log(data.signed_xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST http://localhost:8000/api/v1/sign \
   -H "Content-Type: application/json" \
   -d '{
     "xml": "<?xml version=\"1.0\"?>...",
     "cert_pem": "-----BEGIN CERTIFICATE-----\nMIIC...\n-----END CERTIFICATE-----",
     "key_pem": "-----BEGIN PRIVATE KEY-----\nMIIE...\n-----END PRIVATE KEY-----",
     "signature_id": "SignSUNAT"
-  }'
-```
+  }'`,
+  },
+]} />
 
 **Respuesta esperada:**
 
@@ -66,14 +202,98 @@ curl -X POST http://localhost:8000/api/v1/sign \
 
 ## Crear otra nota de crédito
 
-```bash
-curl -X POST http://localhost:8000/api/v1/credit-note/create \
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `import httpx
+
+from openubl.models import CreditNote, Proveedor, Cliente, DocumentoVentaDetalle
+
+credit_note = CreditNote(
+    serie="BC01",
+    numero=1,
+    comprobanteAfectadoSerieNumero="F001-1",
+    sustentoDescripcion="Anulación de venta",
+    proveedor=Proveedor(
+        ruc="20100111111",
+        razonSocial="Mi Empresa S.A.C.",
+    ),
+    cliente=Cliente(
+        nombre="Juan Perez",
+        numeroDocumentoIdentidad="12345678",
+        tipoDocumentoIdentidad="1",
+    ),
+    detalles=[
+        DocumentoVentaDetalle(
+            descripcion="Producto A",
+            cantidad=2,
+            precio=100.00,
+        )
+    ],
+    moneda="PEN",
+)
+
+with httpx.Client(base_url="http://localhost:8000") as client:
+    r = client.post("/api/v1/credit-note/create", json=credit_note.model_dump(mode="json"))
+    r.raise_for_status()
+    print(r.json()["xml"])`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client, zCreditNote } from "@openubl/sdk";
+
+const creditNote = zCreditNote.parse({
+  serie: "BC01",
+  numero: 1,
+  comprobanteAfectadoSerieNumero: "F001-1",
+  sustentoDescripcion: "Anulación de venta",
+  moneda: "PEN",
+  proveedor: {
+    ruc: "20100111111",
+    razonSocial: "Mi Empresa S.A.C.",
+  },
+  cliente: {
+    nombre: "Juan Perez",
+    numeroDocumentoIdentidad: "12345678",
+    tipoDocumentoIdentidad: "1",
+  },
+  detalles: [
+    {
+      descripcion: "Producto A",
+      cantidad: 2,
+      precio: 100.00,
+      unidadMedida: "NIU",
+      tipoAfectacionIGV: "10",
+    },
+  ],
+});
+
+const { data, error } = await client.post("/api/v1/credit-note/create", {
+  body: creditNote,
+});
+
+if (error) {
+  throw new Error(JSON.stringify(error));
+}
+
+console.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST http://localhost:8000/api/v1/credit-note/create \
   -H "Content-Type: application/json" \
   -d '{
     "serie": "BC01",
     "numero": 1,
     "comprobanteAfectadoSerieNumero": "F001-1",
     "sustentoDescripcion": "Anulación de venta",
+    "moneda": "PEN",
     "proveedor": {
       "ruc": "20100111111",
       "razonSocial": "Mi Empresa S.A.C."
@@ -87,19 +307,63 @@ curl -X POST http://localhost:8000/api/v1/credit-note/create \
       {
         "descripcion": "Producto A",
         "cantidad": 2,
-        "precio": 100.00
+        "precio": 100.00,
+        "unidadMedida": "NIU",
+        "tipoAfectacionIGV": "10"
       }
-    ],
-    "moneda": "PEN"
-  }'
-```
+    ]
+  }'`,
+  },
+]} />
 
 ## Guardar la respuesta en un archivo
 
 Puedes redirigir la salida y extraer el XML con <a href="https://jqlang.github.io/jq/" target="_blank" rel="noopener noreferrer"><code>jq</code></a>:
 
-```bash
-curl -s http://localhost:8000/api/v1/invoice/create \
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `import httpx
+import json
+
+with httpx.Client(base_url="http://localhost:8000") as client:
+    r = client.post(
+        "/api/v1/invoice/create",
+        json=json.load(open("invoice.json")),
+    )
+    r.raise_for_status()
+    with open("invoice.xml", "w", encoding="utf-8") as f:
+        f.write(r.json()["xml"])`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client, zInvoice } from "@openubl/sdk";
+import fs from "node:fs/promises";
+
+const invoice = zInvoice.parse(
+  JSON.parse(await fs.readFile("invoice.json", "utf-8"))
+);
+
+const { data, error } = await client.post("/api/v1/invoice/create", {
+  body: invoice,
+});
+
+if (error) {
+  throw new Error(JSON.stringify(error));
+}
+
+await fs.writeFile("invoice.xml", data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -s http://localhost:8000/api/v1/invoice/create \
   -H "Content-Type: application/json" \
-  -d @invoice.json | jq -r '.xml' > invoice.xml
-```
+  -d @invoice.json | jq -r '.xml' > invoice.xml`,
+  },
+]} />

@@ -3,6 +3,8 @@ title: Enriquecimiento automático
 description: Aprende cómo ContentEnricher calcula impuestos y totales automáticamente en openUBL.
 ---
 
+import CodeTabs from '../../../components/CodeTabs.astro';
+
 El **enriquecimiento automático** es el paso que completa los campos calculables de un comprobante antes de renderizarlo a XML. En lugar de escribir manualmente totales, impuestos y fechas, `ContentEnricher` los deriva de los datos mínimos que ya proporcionaste.
 
 Este patrón está basado en el `ContentEnricher` de XBuilder y respeta la normativa peruana:
@@ -47,18 +49,67 @@ La clase `Defaults` centraliza las tasas usadas durante el enriquecimiento:
 
 Puedes instanciar `ContentEnricher` sin argumentos y usará estos valores:
 
-```python
-from openubl.enricher import ContentEnricher
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.enricher import ContentEnricher
 
-enricher = ContentEnricher()
-```
+enricher = ContentEnricher()`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `// El enriquecimiento ocurre automáticamente al llamar a POST /api/v1/invoice/create.
+import { client, zInvoice } from "@openubl/sdk";
+
+const invoice = zInvoice.parse({
+  serie: "F001",
+  numero: 1,
+  tipoOperacion: "0101",
+  moneda: "PEN",
+  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },
+  cliente: { tipoDocumentoIdentidad: "6", numeroDocumentoIdentidad: "12345678", nombre: "Cliente Ejemplo" },
+  detalles: [{ descripcion: "Producto A", cantidad: 1, precio: 100, unidadMedida: "NIU", tipoAfectacionIGV: "10" }],
+});
+
+const { data, error } = await client.post("/api/v1/invoice/create", {
+  body: invoice,
+});
+
+if (error) throw new Error(JSON.stringify(error));`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `# El enriquecimiento ocurre automáticamente al llamar a POST /api/v1/invoice/create.
+curl -X POST http://localhost:8000/api/v1/invoice/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "serie": "F001",
+    "numero": 1,
+    "tipoOperacion": "0101",
+    "moneda": "PEN",
+    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },
+    "cliente": { "tipoDocumentoIdentidad": "6", "numeroDocumentoIdentidad": "12345678", "nombre": "Cliente Ejemplo" },
+    "detalles": [{ "descripcion": "Producto A", "cantidad": 1, "precio": 100, "unidadMedida": "NIU", "tipoAfectacionIGV": "10" }]
+  }'`,
+  },
+]} />
 
 ### Ejemplo con valores custom
 
 Si necesitas una tasa diferente (por ejemplo, para un escenario histórico o de prueba), crea un `Defaults` personalizado:
 
-```python
-from decimal import Decimal
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from decimal import Decimal
 from openubl.enricher import ContentEnricher
 from openubl.models.defaults import Defaults
 
@@ -67,8 +118,51 @@ enricher = ContentEnricher(
         igvTasa=Decimal("0.18"),
         icbTasa=Decimal("0.2"),
     )
-)
-```
+)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `// Las tasas de IGV/ICBPER se configuran en el servidor.
+// El endpoint aplica esos valores al enriquecer el documento.
+import { client, zInvoice } from "@openubl/sdk";
+
+const invoice = zInvoice.parse({
+  serie: "F001",
+  numero: 1,
+  tipoOperacion: "0101",
+  moneda: "PEN",
+  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },
+  cliente: { tipoDocumentoIdentidad: "6", numeroDocumentoIdentidad: "12345678", nombre: "Cliente Ejemplo" },
+  detalles: [{ descripcion: "Producto A", cantidad: 1, precio: 100, unidadMedida: "NIU", tipoAfectacionIGV: "10" }],
+});
+
+const { data, error } = await client.post("/api/v1/invoice/create", {
+  body: invoice,
+});
+
+if (error) throw new Error(JSON.stringify(error));`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `# Las tasas de IGV/ICBPER se configuran en el servidor.
+# El endpoint aplica esos valores al enriquecer el documento.
+curl -X POST http://localhost:8000/api/v1/invoice/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "serie": "F001",
+    "numero": 1,
+    "tipoOperacion": "0101",
+    "moneda": "PEN",
+    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },
+    "cliente": { "tipoDocumentoIdentidad": "6", "numeroDocumentoIdentidad": "12345678", "nombre": "Cliente Ejemplo" },
+    "detalles": [{ "descripcion": "Producto A", "cantidad": 1, "precio": 100, "unidadMedida": "NIU", "tipoAfectacionIGV": "10" }]
+  }'`,
+  },
+]} />
 
 Aunque en el ejemplo se repiten los valores por defecto, este es el punto de entrada para cambiar la tasa de IGV o el monto del ICBPER cuando la normativa o tu negocio lo requieran.
 
@@ -76,19 +170,68 @@ Aunque en el ejemplo se repiten los valores por defecto, este es el punto de ent
 
 `DateProvider` es una clase que abstrae la obtención de la fecha actual. Su implementación por defecto devuelve `date.today()`:
 
-```python
-from openubl.models.defaults import DateProvider
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.models.defaults import DateProvider
 
 provider = DateProvider()
-print(provider.now())  # 2026-06-11 (fecha actual)
-```
+print(provider.now())  # 2026-06-11 (fecha actual)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `// El enriquecimiento automático en el servidor aplica la fecha actual cuando no se envía fechaEmision.
+import { client, zInvoice } from "@openubl/sdk";
+
+const invoice = zInvoice.parse({
+  serie: "F001",
+  numero: 1,
+  tipoOperacion: "0101",
+  moneda: "PEN",
+  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },
+  cliente: { tipoDocumentoIdentidad: "6", numeroDocumentoIdentidad: "12345678", nombre: "Cliente Ejemplo" },
+  detalles: [{ descripcion: "Producto A", cantidad: 1, precio: 100, unidadMedida: "NIU", tipoAfectacionIGV: "10" }],
+});
+
+const { data, error } = await client.post("/api/v1/invoice/create", {
+  body: invoice,
+});
+
+if (error) throw new Error(JSON.stringify(error));`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `# El enriquecimiento automático en el servidor aplica la fecha actual cuando no se envía fechaEmision.
+curl -X POST http://localhost:8000/api/v1/invoice/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "serie": "F001",
+    "numero": 1,
+    "tipoOperacion": "0101",
+    "moneda": "PEN",
+    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },
+    "cliente": { "tipoDocumentoIdentidad": "6", "numeroDocumentoIdentidad": "12345678", "nombre": "Cliente Ejemplo" },
+    "detalles": [{ "descripcion": "Producto A", "cantidad": 1, "precio": 100, "unidadMedida": "NIU", "tipoAfectacionIGV": "10" }]
+  }'`,
+  },
+]} />
 
 Gracias a esta abstracción puedes reemplazar el proveedor de fechas en tus tests para obtener resultados deterministas.
 
 ### Ejemplo con DateProvider para testing
 
-```python
-from datetime import date
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from datetime import date
 from openubl.enricher import ContentEnricher
 from openubl.models.defaults import DateProvider
 
@@ -99,15 +242,64 @@ class FixedDateProvider(DateProvider):
         return date(2025, 6, 1)
 
 
-enricher = ContentEnricher(date_provider=FixedDateProvider())
-```
+enricher = ContentEnricher(date_provider=FixedDateProvider())`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `// El control de fechas deterministas se realiza con la librería Python (openubl.models.defaults.DateProvider).
+// En TypeScript envía explicitamente fechaEmision para obtener resultados reproducibles.
+import { client, zInvoice } from "@openubl/sdk";
+
+const invoice = zInvoice.parse({
+  serie: "F001",
+  numero: 1,
+  tipoOperacion: "0101",
+  moneda: "PEN",
+  fechaEmision: "2025-06-01",
+  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },
+  cliente: { tipoDocumentoIdentidad: "6", numeroDocumentoIdentidad: "12345678", nombre: "Cliente Ejemplo" },
+  detalles: [{ descripcion: "Producto A", cantidad: 1, precio: 100, unidadMedida: "NIU", tipoAfectacionIGV: "10" }],
+});
+
+const { data, error } = await client.post("/api/v1/invoice/create", {
+  body: invoice,
+});
+
+if (error) throw new Error(JSON.stringify(error));`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `# El control de fechas deterministas se realiza con la librería Python (openubl.models.defaults.DateProvider).
+# En cURL envía explicitamente fechaEmision para obtener resultados reproducibles.
+curl -X POST http://localhost:8000/api/v1/invoice/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "serie": "F001",
+    "numero": 1,
+    "tipoOperacion": "0101",
+    "moneda": "PEN",
+    "fechaEmision": "2025-06-01",
+    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },
+    "cliente": { "tipoDocumentoIdentidad": "6", "numeroDocumentoIdentidad": "12345678", "nombre": "Cliente Ejemplo" },
+    "detalles": [{ "descripcion": "Producto A", "cantidad": 1, "precio": 100, "unidadMedida": "NIU", "tipoAfectacionIGV": "10" }]
+  }'`,
+  },
+]} />
 
 Con `FixedDateProvider`, cualquier documento que no especifique `fechaEmision` recibirá siempre `2025-06-01`, haciendo que tus aserciones sean reproducibles.
 
 ## Ejemplo completo
 
-```python
-from decimal import Decimal
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from decimal import Decimal
 from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
 from openubl.enricher import ContentEnricher
 
@@ -139,8 +331,59 @@ enricher.enrich(invoice)
 
 assert invoice.valorVentaTotal == Decimal("2000.00")
 assert invoice.igvTotal == Decimal("360.00")
-assert invoice.importeTotal == Decimal("2360.00")
-```
+assert invoice.importeTotal == Decimal("2360.00")`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `// El enriquecimiento ocurre automáticamente al llamar a POST /api/v1/invoice/create.
+import { client, zInvoice } from "@openubl/sdk";
+
+const invoice = zInvoice.parse({
+  serie: "F001",
+  numero: 1,
+  tipoOperacion: "0101",
+  moneda: "PEN",
+  proveedor: { ruc: "20100066603", razonSocial: "Mi Empresa S.A.C." },
+  cliente: { tipoDocumentoIdentidad: "1", numeroDocumentoIdentidad: "12345678", nombre: "Cliente Ejemplo" },
+  detalles: [
+    { descripcion: "Producto A", cantidad: 10, precio: 100, unidadMedida: "NIU", tipoAfectacionIGV: "10" },
+    { descripcion: "Producto B", cantidad: 5, precio: 200, unidadMedida: "NIU", tipoAfectacionIGV: "10" },
+  ],
+});
+
+const { data, error } = await client.post("/api/v1/invoice/create", {
+  body: invoice,
+});
+
+if (error) throw new Error(JSON.stringify(error));
+
+console.log(data.valorVentaTotal);  // 2000.00
+console.log(data.igvTotal);          // 360.00
+console.log(data.importeTotal);      // 2360.00`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `# El enriquecimiento ocurre automáticamente al llamar a POST /api/v1/invoice/create.
+curl -X POST http://localhost:8000/api/v1/invoice/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "serie": "F001",
+    "numero": 1,
+    "tipoOperacion": "0101",
+    "moneda": "PEN",
+    "proveedor": { "ruc": "20100066603", "razonSocial": "Mi Empresa S.A.C." },
+    "cliente": { "tipoDocumentoIdentidad": "1", "numeroDocumentoIdentidad": "12345678", "nombre": "Cliente Ejemplo" },
+    "detalles": [
+      { "descripcion": "Producto A", "cantidad": 10, "precio": 100, "unidadMedida": "NIU", "tipoAfectacionIGV": "10" },
+      { "descripcion": "Producto B", "cantidad": 5, "precio": 200, "unidadMedida": "NIU", "tipoAfectacionIGV": "10" }
+    ]
+  }'`,
+  },
+]} />
 
 Después del enriquecimiento, el documento tiene todos los totales calculados y está listo para renderizarse a XML, validarse, firmarse y enviarse a SUNAT.
 
@@ -148,8 +391,12 @@ Después del enriquecimiento, el documento tiene todos los totales calculados y 
 
 El enriquecidor respeta el Catálogo N.° 07. Solo los ítems gravados (`10`) generan IGV; exonerados (`20`) e inafectos (`30`) producen `0`:
 
-```python
-from decimal import Decimal
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from decimal import Decimal
 from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
 from openubl.enricher import ContentEnricher
 
@@ -183,8 +430,59 @@ enricher.enrich(invoice)
 
 assert invoice.detalles[0].igv == Decimal("18.00")
 assert invoice.detalles[1].igv == Decimal("0.00")
-assert invoice.igvTotal == Decimal("18.00")
-```
+assert invoice.igvTotal == Decimal("18.00")`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `// El enriquecimiento ocurre automáticamente al llamar a POST /api/v1/invoice/create.
+import { client, zInvoice } from "@openubl/sdk";
+
+const invoice = zInvoice.parse({
+  serie: "F001",
+  numero: 2,
+  tipoOperacion: "0101",
+  moneda: "PEN",
+  proveedor: { ruc: "20100066603", razonSocial: "Mi Empresa S.A.C." },
+  cliente: { tipoDocumentoIdentidad: "1", numeroDocumentoIdentidad: "12345678", nombre: "Cliente Ejemplo" },
+  detalles: [
+    { descripcion: "Gravado", cantidad: 1, precio: 100, unidadMedida: "NIU", tipoAfectacionIGV: "10" },
+    { descripcion: "Exonerado", cantidad: 1, precio: 50, unidadMedida: "NIU", tipoAfectacionIGV: "20" },
+  ],
+});
+
+const { data, error } = await client.post("/api/v1/invoice/create", {
+  body: invoice,
+});
+
+if (error) throw new Error(JSON.stringify(error));
+
+console.log(data.detalles[0].igv);  // 18.00
+console.log(data.detalles[1].igv);  // 0.00
+console.log(data.igvTotal);          // 18.00`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `# El enriquecimiento ocurre automáticamente al llamar a POST /api/v1/invoice/create.
+curl -X POST http://localhost:8000/api/v1/invoice/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "serie": "F001",
+    "numero": 2,
+    "tipoOperacion": "0101",
+    "moneda": "PEN",
+    "proveedor": { "ruc": "20100066603", "razonSocial": "Mi Empresa S.A.C." },
+    "cliente": { "tipoDocumentoIdentidad": "1", "numeroDocumentoIdentidad": "12345678", "nombre": "Cliente Ejemplo" },
+    "detalles": [
+      { "descripcion": "Gravado", "cantidad": 1, "precio": 100, "unidadMedida": "NIU", "tipoAfectacionIGV": "10" },
+      { "descripcion": "Exonerado", "cantidad": 1, "precio": 50, "unidadMedida": "NIU", "tipoAfectacionIGV": "20" }
+    ]
+  }'`,
+  },
+]} />
 
 ## Notas importantes
 

@@ -3,6 +3,8 @@ title: Preguntas frecuentes
 description: Respuestas a las dudas más comunes sobre openUBL, SUNAT, firma digital y uso de la API.
 ---
 
+import CodeTabs from '../../components/CodeTabs.astro';
+
 Esta página responde preguntas frecuentes basadas en el comportamiento real del código de openUBL.
 
 ## ¿Por qué SUNAT exige RSA-SHA1 si es obsoleto?
@@ -45,9 +47,85 @@ El enriquecimiento aplica a `Invoice`, `CreditNote` y `DebitNote`. No aplica a `
 
 Ejemplo de petición mínima válida:
 
-```bash
-curl -X POST "http://localhost:8000/api/v1/invoice/create" \
-  -H "Content-Type: application/json" \
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `import httpx
+from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
+
+invoice = Invoice(
+    serie="F001",
+    numero=1,
+    proveedor=Proveedor(
+        ruc="20100066603",
+        razonSocial="Softgreen S.A.C.",
+    ),
+    cliente=Cliente(
+        nombre="Carlos Feria",
+        numeroDocumentoIdentidad="12121212121",
+        tipoDocumentoIdentidad="6",
+    ),
+    detalles=[
+        DocumentoVentaDetalle(
+            descripcion="Item",
+            cantidad=10,
+            precio=100,
+        )
+    ],
+)
+
+response = httpx.post(
+    "http://localhost:8000/api/v1/invoice/create",
+    json=invoice.model_dump(mode="json"),
+)
+response.raise_for_status()
+print(response.json()["xml"])`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client, zInvoice } from "@openubl/sdk";
+
+const invoice = zInvoice.parse({
+  serie: "F001",
+  numero: 1,
+  proveedor: {
+    ruc: "20100066603",
+    razonSocial: "Softgreen S.A.C.",
+  },
+  cliente: {
+    nombre: "Carlos Feria",
+    numeroDocumentoIdentidad: "12121212121",
+    tipoDocumentoIdentidad: "6",
+  },
+  detalles: [
+    {
+      descripcion: "Item",
+      cantidad: 10,
+      precio: 100,
+    },
+  ],
+});
+
+const { data, error } = await client.post("/api/v1/invoice/create", {
+  body: invoice,
+});
+
+if (error) {
+  throw new Error(JSON.stringify(error));
+}
+
+console.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/invoice/create" \\
+  -H "Content-Type: application/json" \\
   -d '{
     "serie": "F001",
     "numero": 1,
@@ -67,8 +145,9 @@ curl -X POST "http://localhost:8000/api/v1/invoice/create" \
         "precio": 100
       }
     ]
-  }'
-```
+  }'`,
+  },
+]} />
 
 La API devolverá el XML con los totales ya calculados.
 
@@ -81,40 +160,121 @@ Todos los endpoints de creación de documentos aceptan el parámetro de consulta
 | `true` (por defecto) | Genera el XML y lo valida contra los esquemas XSD y reglas de negocio de SUNAT antes de responder. Si falla, devuelve `422 Unprocessable Entity` con el listado de errores. |
 | `false` | Genera el XML sin ejecutar validaciones. Es útil para depuración o pruebas internas, pero el resultado puede ser rechazado por SUNAT. |
 
-La definición en `src/openubl/api/router.py` es:
-
-```python
-@router.post("/invoice/create")
-def create_invoice(doc: Invoice, validate: bool = Query(default=True)):
-    ...
-```
-
 Ejemplo con validación desactivada:
 
-```bash
-curl -X POST "http://localhost:8000/api/v1/invoice/create?validate=false" \
-  -H "Content-Type: application/json" \
-  -d '{...}'
-```
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `import httpx
+from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
 
-:::caution
+invoice = Invoice(
+    serie="F001",
+    numero=1,
+    proveedor=Proveedor(ruc="20100066603", razonSocial="Softgreen S.A.C."),
+    cliente=Cliente(
+        nombre="Carlos Feria",
+        numeroDocumentoIdentidad="12121212121",
+        tipoDocumentoIdentidad="6",
+    ),
+    detalles=[DocumentoVentaDetalle(descripcion="Item", cantidad=10, precio=100)],
+)
+
+response = httpx.post(
+    "http://localhost:8000/api/v1/invoice/create?validate=false",
+    json=invoice.model_dump(mode="json"),
+)
+print(response.status_code)
+print(response.json()["xml"])`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client, zInvoice } from "@openubl/sdk";
+
+const invoice = zInvoice.parse({
+  serie: "F001",
+  numero: 1,
+  proveedor: { ruc: "20100066603", razonSocial: "Softgreen S.A.C." },
+  cliente: {
+    nombre: "Carlos Feria",
+    numeroDocumentoIdentidad: "12121212121",
+    tipoDocumentoIdentidad: "6",
+  },
+  detalles: [{ descripcion: "Item", cantidad: 10, precio: 100 }],
+});
+
+const { data, error } = await client.post("/api/v1/invoice/create", {
+  params: { query: { validate: false } },
+  body: invoice,
+});
+
+if (error) {
+  throw new Error(JSON.stringify(error));
+}
+
+console.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/invoice/create?validate=false" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "serie": "F001",
+    "numero": 1,
+    "proveedor": { "ruc": "20100066603", "razonSocial": "Softgreen S.A.C." },
+    "cliente": {
+      "nombre": "Carlos Feria",
+      "numeroDocumentoIdentidad": "12121212121",
+      "tipoDocumentoIdentidad": "6"
+    },
+    "detalles": [{ "descripcion": "Item", "cantidad": 10, "precio": 100 }]
+  }'`,
+  },
+]} />
+
+::::caution
 Usa `validate=false` solo en ambientes de desarrollo. Un XML inválido será rechazado por SUNAT en producción.
-:::
+::::
 
 ## ¿Cómo convierto un certificado .pfx a PEM?
 
 openUBL expone la función `load_pfx` en `src/openubl/signer.py` para extraer la clave privada y el certificado X.509 de un archivo `.pfx` o `.p12`:
 
-```python
-from pathlib import Path
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from pathlib import Path
 from openubl.signer import load_pfx
 
 pfx_bytes = Path("certificado.pfx").read_bytes()
 key_pem, cert_pem = load_pfx(pfx_bytes, password="mi-contraseña")
 
 print(key_pem)   # -----BEGIN RSA PRIVATE KEY-----
-print(cert_pem)  # -----BEGIN CERTIFICATE-----
-```
+print(cert_pem)  # -----BEGIN CERTIFICATE-----`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `// load_pfx es una utilidad interna del paquete Python openubl.
+// En TypeScript puedes enviar el certificado ya convertido a PEM al endpoint /api/v1/sign.`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `# load_pfx es una utilidad del paquete Python openubl.
+# Convierte el .pfx a PEM con openssl u otra herramienta y envía el resultado a /api/v1/sign.`,
+  },
+]} />
 
 Internamente usa `cryptography.hazmat.primitives.serialization.pkcs12` para:
 
@@ -124,11 +284,30 @@ Internamente usa `cryptography.hazmat.primitives.serialization.pkcs12` para:
 
 Una vez convertidos, puedes usarlos para firmar XML:
 
-```python
-from openubl.signer import sign_ubl_xml
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.signer import sign_ubl_xml
 
-signed_xml = sign_ubl_xml(xml_output, cert_pem, key_pem)
-```
+signed_xml = sign_ubl_xml(xml_output, cert_pem, key_pem)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `// sign_ubl_xml es una utilidad interna del paquete Python openubl.
+// Desde TypeScript firma el XML enviándolo al endpoint /api/v1/sign.`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `# sign_ubl_xml es una utilidad del paquete Python openubl.
+# Envía el XML sin firmar junto con cert_pem y key_pem a /api/v1/sign.`,
+  },
+]} />
 
 ## ¿Cuándo debo usar Resumen Diario vs Comunicación de Baja?
 
@@ -150,45 +329,151 @@ Reglas importantes:
 
 Ejemplo de Resumen Diario:
 
-```python
-from openubl.models import SummaryDocuments, SummaryDocumentsItem
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.models import (
+    SummaryDocuments, SummaryDocumentsItem,
+    Comprobante, ComprobanteImpuestos, ComprobanteValorVenta,
+    Proveedor, Cliente,
+)
+from decimal import Decimal
 
 summary = SummaryDocuments(
     numero=1,
     fechaEmisionComprobantes="2025-06-10",
-    proveedor={...},
+    proveedor=Proveedor(ruc="20100100100", razonSocial="Mi Empresa S.A.C."),
     comprobantes=[
         SummaryDocumentsItem(
             tipoOperacion="1",  # Adicionar
-            comprobante={...}
-        )
-    ]
+            comprobante=Comprobante(
+                tipoComprobante="03",
+                serieNumero="B001-45",
+                cliente=Cliente(
+                    nombre="Juan Pérez",
+                    numeroDocumentoIdentidad="46779327",
+                    tipoDocumentoIdentidad="1",
+                ),
+                impuestos=ComprobanteImpuestos(igv=Decimal("27.00")),
+                valorVenta=ComprobanteValorVenta(importeTotal=Decimal("177.00")),
+            ),
+        ),
+    ],
 )
-```
+
+print(summary.model_dump_json(indent=2))`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client, zSummaryDocuments } from "@openubl/sdk";
+
+const summary = zSummaryDocuments.parse({
+  numero: 1,
+  fechaEmisionComprobantes: "2025-06-10",
+  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },
+  comprobantes: [
+    {
+      tipoOperacion: "1",
+      comprobante: {
+        tipoComprobante: "03",
+        serieNumero: "B001-45",
+        cliente: {
+          nombre: "Juan Pérez",
+          numeroDocumentoIdentidad: "46779327",
+          tipoDocumentoIdentidad: "1",
+        },
+        impuestos: { igv: "27.00" },
+        valorVenta: { importeTotal: "177.00" },
+      },
+    },
+  ],
+});
+
+const { data, error } = await client.post("/api/v1/summary-documents/create", {
+  body: summary,
+});
+
+if (error) {
+  throw new Error(JSON.stringify(error));
+}
+
+console.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/summary-documents/create" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "numero": 1,
+    "fechaEmisionComprobantes": "2025-06-10",
+    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },
+    "comprobantes": [{
+      "tipoOperacion": "1",
+      "comprobante": {
+        "tipoComprobante": "03",
+        "serieNumero": "B001-45",
+        "cliente": { "nombre": "Juan Pérez", "numeroDocumentoIdentidad": "46779327", "tipoDocumentoIdentidad": "1" },
+        "impuestos": { "igv": "27.00" },
+        "valorVenta": { "importeTotal": "177.00" }
+      }
+    }]
+  }'`,
+  },
+]} />
 
 ## ¿Qué hace `check_api_version`?
 
-`check_api_version` es una utilidad de `src/openubl/version.py` que verifica en runtime que la versión del SDK Python coincida con la versión de la API REST:
+`check_api_version` es una utilidad del SDK que verifica en runtime que la versión del cliente coincida con la versión de la API REST:
 
-```python
-from openubl.version import check_api_version
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.version import check_api_version
 
 result = check_api_version("http://localhost:8000")
 assert result["ok"], f"Desfase: SDK {result['sdk_version']} vs API {result['api_version']}"
-```
+print(result)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { checkApiVersion } from "@openubl/sdk";
+
+const result = await checkApiVersion("http://localhost:8000");
+if (!result.ok) {
+  throw new Error("Desfase: SDK " + result.sdkVersion + " vs API " + result.apiVersion);
+}
+console.log(result);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X GET "http://localhost:8000/api/v1/version"`,
+  },
+]} />
 
 El código realiza lo siguiente:
 
 1. Consulta `GET /api/v1/version`.
 2. Obtiene la versión reportada por la API.
-3. La compara con `openubl.__version__`.
-4. Devuelve un diccionario con:
+3. La compara con la versión del SDK.
+4. Devuelve un objeto con:
 
 | Campo | Descripción |
 |-------|-------------|
 | `ok` | `True` si las versiones coinciden, `False` en caso contrario |
-| `sdk_version` | Versión instalada del paquete `openubl` |
-| `api_version` | Versión reportada por la API |
+| `sdk_version` / `sdkVersion` | Versión instalada del SDK |
+| `api_version` / `apiVersion` | Versión reportada por la API |
 
 Esto ayuda a detectar desfases entre el cliente y el servidor, especialmente en despliegues donde la API se actualiza independientemente del SDK.
 
@@ -196,26 +481,57 @@ Esto ayuda a detectar desfases entre el cliente y el servidor, especialmente en 
 
 La tasa de IGV por defecto es `0.18` (18 %), definida en `src/openubl/models/defaults.py`:
 
-```python
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from pydantic import BaseModel
+from decimal import Decimal
+
 class Defaults(BaseModel):
     igvTasa: Decimal = Decimal("0.18")
-    icbTasa: Decimal = Decimal("0.2")
-```
+    icbTasa: Decimal = Decimal("0.2")`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `// Defaults y ContentEnricher son utilidades del paquete Python openubl.
+// Desde TypeScript envía el campo igv calculado manualmente en cada línea.`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `# Defaults y ContentEnricher son utilidades del paquete Python openubl.
+# Incluye el campo igv calculado manualmente en cada línea del JSON enviado.`,
+  },
+]} />
 
 Para usar una tasa diferente, crea una instancia de `Defaults` y pásala al `ContentEnricher`:
 
-```python
-from decimal import Decimal
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from decimal import Decimal
 from openubl.enricher import ContentEnricher
-from openubl.models import Defaults, Invoice
+from openubl.models import Defaults, Invoice, Proveedor, Cliente, DocumentoVentaDetalle
 
 invoice = Invoice(
     serie="F001",
     numero=1,
+    proveedor=Proveedor(ruc="20100100100", razonSocial="Mi Empresa S.A.C."),
+    cliente=Cliente(
+        nombre="Cliente Ejemplo",
+        numeroDocumentoIdentidad="46779327",
+        tipoDocumentoIdentidad="1",
+    ),
     detalles=[
-        {"descripcion": "Item", "cantidad": 1, "precio": 100}
+        DocumentoVentaDetalle(descripcion="Item", cantidad=1, precio=100)
     ],
-    # ... otros campos
 )
 
 enricher = ContentEnricher(
@@ -224,11 +540,82 @@ enricher = ContentEnricher(
 enricher.enrich(invoice)
 
 print(invoice.igvTotal)      # 10.00
-print(invoice.importeTotal)  # 110.00
-```
+print(invoice.importeTotal)  # 110.00`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client, zInvoice } from "@openubl/sdk";
+
+const invoice = zInvoice.parse({
+  serie: "F001",
+  numero: 1,
+  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },
+  cliente: {
+    nombre: "Cliente Ejemplo",
+    numeroDocumentoIdentidad: "46779327",
+    tipoDocumentoIdentidad: "1",
+  },
+  detalles: [
+    {
+      descripcion: "Item",
+      cantidad: 1,
+      precio: 100,
+      igv: 10,        // calculado manualmente con tasa 10%
+      valorVenta: 100,
+      precioVenta: 110,
+    },
+  ],
+  igvTotal: 10,
+  valorVentaTotal: 100,
+  importeTotal: 110,
+});
+
+const { data, error } = await client.post("/api/v1/invoice/create", {
+  body: invoice,
+});
+
+if (error) {
+  throw new Error(JSON.stringify(error));
+}
+
+console.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/invoice/create" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "serie": "F001",
+    "numero": 1,
+    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },
+    "cliente": {
+      "nombre": "Cliente Ejemplo",
+      "numeroDocumentoIdentidad": "46779327",
+      "tipoDocumentoIdentidad": "1"
+    },
+    "detalles": [
+      {
+        "descripcion": "Item",
+        "cantidad": 1,
+        "precio": 100,
+        "igv": 10,
+        "valorVenta": 100,
+        "precioVenta": 110
+      }
+    ],
+    "igvTotal": 10,
+    "valorVentaTotal": 100,
+    "importeTotal": 110
+  }'`,
+  },
+]} />
 
 Si usas la API REST, no puedes cambiar la tasa directamente por parámetro de consulta. Debes enviar el campo `igv` calculado manualmente en cada línea, o bien usar la biblioteca Python con un `ContentEnricher` personalizado.
 
-:::note
+::::note
 SUNAT solo reconoce tasas oficiales vigentes. Asegúrate de que la tasa configurada cumpla la normativa aplicable.
-:::
+::::

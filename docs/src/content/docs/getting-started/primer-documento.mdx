@@ -20,7 +20,7 @@ Este ejemplo crea una factura electrónica (`Invoice`), enriquece sus campos cal
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client } from "@openubl/sdk";`,
+    code: `import { client, zInvoice } from "@openubl/sdk";`,
   },
   {
     id: 'curl',
@@ -39,19 +39,121 @@ Define solo los datos de negocio. openUBL calculará los totales, impuestos y pr
     id: 'python',
     label: 'Python',
     lang: 'python',
-    code: `invoice = Invoice(\n    serie="F001",\n    numero=1,\n    proveedor=Proveedor(\n        ruc="12345678901",\n        razonSocial="Mi Empresa S.A.C.",\n        nombreComercial="Mi Empresa",\n        address={\n            "ubigeo": "150101",\n            "departamento": "Lima",\n            "provincia": "Lima",\n            "distrito": "Lima",\n            "direccion": "Av. Ejemplo 123",\n        },\n    ),\n    cliente=Cliente(\n        tipoDocumentoIdentidad="6",\n        numeroDocumentoIdentidad="98765432101",\n        nombre="Cliente Ejemplo S.A.C.",\n        address={\n            "ubigeo": "150101",\n            "departamento": "Lima",\n            "provincia": "Lima",\n            "distrito": "Lima",\n            "direccion": "Calle Ficticia 456",\n        },\n    ),\n    detalles=[\n        DocumentoVentaDetalle(\n            cantidad=2,\n            descripcion="Producto de ejemplo",\n            precio=50.00,\n            unidadMedida="NIU",\n        )\n    ],\n    moneda="PEN",\n)`,
+    code: `invoice = Invoice(
+    serie="F001",
+    numero=1,
+    proveedor=Proveedor(
+        ruc="12345678901",
+        razonSocial="Mi Empresa S.A.C.",
+        nombreComercial="Mi Empresa",
+        address={
+            "ubigeo": "150101",
+            "departamento": "Lima",
+            "provincia": "Lima",
+            "distrito": "Lima",
+            "direccion": "Av. Ejemplo 123",
+        },
+    ),
+    cliente=Cliente(
+        tipoDocumentoIdentidad="6",
+        numeroDocumentoIdentidad="98765432101",
+        nombre="Cliente Ejemplo S.A.C.",
+        address={
+            "ubigeo": "150101",
+            "departamento": "Lima",
+            "provincia": "Lima",
+            "distrito": "Lima",
+            "direccion": "Calle Ficticia 456",
+        },
+    ),
+    detalles=[
+        DocumentoVentaDetalle(
+            cantidad=2,
+            descripcion="Producto de ejemplo",
+            precio=50.00,
+            unidadMedida="NIU",
+        )
+    ],
+    moneda="PEN",
+)`,
   },
   {
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, type Invoice } from "@openubl/sdk";\n\nconst invoice: Invoice = {\n  serie: "F001",\n  numero: 1,\n  tipoOperacion: "0101",\n  moneda: "PEN",\n  proveedor: {\n    ruc: "12345678901",\n    razonSocial: "Mi Empresa S.A.C.",\n    nombreComercial: "Mi Empresa",\n    address: {\n      ubigeo: "150101",\n      departamento: "Lima",\n      provincia: "Lima",\n      distrito: "Lima",\n      direccion: "Av. Ejemplo 123",\n      codigoPais: "PE",\n    },\n  },\n  cliente: {\n    tipoDocumentoIdentidad: "6",\n    numeroDocumentoIdentidad: "98765432101",\n    nombre: "Cliente Ejemplo S.A.C.",\n  },\n  detalles: [\n    {\n      cantidad: 2,\n      descripcion: "Producto de ejemplo",\n      precio: 50.00,\n      unidadMedida: "NIU",\n      tipoAfectacionIGV: "10",\n    },\n  ],\n};\n\nconst { data, error } = await client.POST("/api/v1/invoice/create", {\n  body: invoice,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+    code: `const invoice = zInvoice.parse({
+  serie: "F001",
+  numero: 1,
+  tipoOperacion: "0101",
+  moneda: "PEN",
+  proveedor: {
+    ruc: "12345678901",
+    razonSocial: "Mi Empresa S.A.C.",
+    nombreComercial: "Mi Empresa",
+    address: {
+      ubigeo: "150101",
+      departamento: "Lima",
+      provincia: "Lima",
+      distrito: "Lima",
+      direccion: "Av. Ejemplo 123",
+      codigoPais: "PE",
+    },
+  },
+  cliente: {
+    tipoDocumentoIdentidad: "6",
+    numeroDocumentoIdentidad: "98765432101",
+    nombre: "Cliente Ejemplo S.A.C.",
+  },
+  detalles: [
+    {
+      cantidad: 2,
+      descripcion: "Producto de ejemplo",
+      precio: 50.00,
+      unidadMedida: "NIU",
+      tipoAfectacionIGV: "10",
+    },
+  ],
+});`,
   },
   {
     id: 'curl',
     label: 'cURL',
     lang: 'bash',
-    code: `curl -X POST http://localhost:8000/api/v1/invoice/create \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "serie": "F001",\n    "numero": 1,\n    "proveedor": {\n      "ruc": "12345678901",\n      "razonSocial": "Mi Empresa S.A.C.",\n      "nombreComercial": "Mi Empresa",\n      "address": {\n        "ubigeo": "150101",\n        "departamento": "Lima",\n        "provincia": "Lima",\n        "distrito": "Lima",\n        "direccion": "Av. Ejemplo 123"\n      }\n    },\n    "cliente": {\n      "tipoDocumentoIdentidad": "6",\n      "numeroDocumentoIdentidad": "98765432101",\n      "nombre": "Cliente Ejemplo S.A.C.",\n      "address": {\n        "ubigeo": "150101",\n        "departamento": "Lima",\n        "provincia": "Lima",\n        "distrito": "Lima",\n        "direccion": "Calle Ficticia 456"\n      }\n    },\n    "detalles": [\n      {\n        "cantidad": 2,\n        "descripcion": "Producto de ejemplo",\n        "precio": 50.00,\n        "unidadMedida": "NIU"\n      }\n    ],\n    "moneda": "PEN"\n  }'`,
+    code: `curl -X POST http://localhost:8000/api/v1/invoice/create \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "serie": "F001",
+    "numero": 1,
+    "tipoOperacion": "0101",
+    "moneda": "PEN",
+    "proveedor": {
+      "ruc": "12345678901",
+      "razonSocial": "Mi Empresa S.A.C.",
+      "nombreComercial": "Mi Empresa",
+      "address": {
+        "ubigeo": "150101",
+        "departamento": "Lima",
+        "provincia": "Lima",
+        "distrito": "Lima",
+        "direccion": "Av. Ejemplo 123",
+        "codigoPais": "PE"
+      }
+    },
+    "cliente": {
+      "tipoDocumentoIdentidad": "6",
+      "numeroDocumentoIdentidad": "98765432101",
+      "nombre": "Cliente Ejemplo S.A.C."
+    },
+    "detalles": [
+      {
+        "cantidad": 2,
+        "descripcion": "Producto de ejemplo",
+        "precio": 50.00,
+        "unidadMedida": "NIU",
+        "tipoAfectacionIGV": "10"
+      }
+    ]
+  }'`,
   },
 ]} />
 
@@ -60,10 +162,8 @@ Define solo los datos de negocio. openUBL calculará los totales, impuestos y pr
 `ContentEnricher` calcula los campos faltantes de cada línea y los totales del documento:
 
 - `fechaEmision` → fecha actual (si no se proporcionó)
-- `valorVenta` = cantidad × precio
-- `igv` = valorVenta × tasa IGV (solo para afectación gravada)
-- `precioVenta` = valorVenta + igv
-- `valorVentaTotal`, `igvTotal`, `importeTotal`
+- `valorVenta`, `igv`, `precioVenta` → por cada línea
+- `valorVentaTotal`, `igvTotal`, `importeTotal` → a nivel de documento
 
 <CodeTabs tabs={[
   {
@@ -84,8 +184,7 @@ assert invoice.importeTotal == 118.00`,
     label: 'TypeScript',
     lang: 'typescript',
     code: `// El endpoint de la API enriquece automáticamente al crear el documento.
-// Reutiliza la llamada del paso 2 o realízala de nuevo:
-const { data, error } = await client.POST("/api/v1/invoice/create", {
+const { data, error } = await client.post("/api/v1/invoice/create", {
   body: invoice,
 });
 
@@ -93,7 +192,6 @@ if (error) {
   throw new Error(JSON.stringify(error));
 }
 
-// La respuesta contiene el XML ya enriquecido:
 console.log(data.xml);`,
   },
   {
@@ -107,7 +205,7 @@ curl -X POST http://localhost:8000/api/v1/invoice/create \
   },
 ]} />
 
-:::tip[Tasas personalizadas]
+::::tip[Tasas personalizadas]
 Puedes pasar un objeto `Defaults` para usar una tasa de IGV o ICBPER diferente:
 
 <CodeTabs tabs={[
@@ -135,7 +233,7 @@ enricher = ContentEnricher(defaults=Defaults(igvTasa=0.18, icbTasa=0.20))`,
 # El endpoint aplica esos valores al enriquecer el documento.`,
   },
 ]} />
-:::
+::::
 
 ## Paso 4: Renderizar a XML
 
@@ -151,14 +249,7 @@ print(xml)`,
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `const { data, error } = await client.POST("/api/v1/invoice/create", {
-  body: invoice,
-});
-
-if (error) {
-  throw new Error(JSON.stringify(error));
-}
-
+    code: `// Reutiliza la llamada del paso 3.
 console.log(data.xml);`,
   },
   {
@@ -185,48 +276,90 @@ Necesitas el certificado y la clave privada en formato PEM. Si tienes un archivo
     id: 'python',
     label: 'Python',
     lang: 'python',
-    code: `from openubl.signer import load_pfx, sign_ubl_xml\n\nwith open("certificado.pfx", "rb") as f:\n    key_pem, cert_pem = load_pfx(f.read(), password="mi-password")\n\nsigned_xml = sign_ubl_xml(xml, cert_pem=cert_pem, key_pem=key_pem)\nprint(signed_xml)`,
+    code: `from openubl.signer import load_pfx, sign_ubl_xml
+
+with open("certificado.pfx", "rb") as f:
+    key_pem, cert_pem = load_pfx(f.read(), password="mi-password")
+
+signed_xml = sign_ubl_xml(xml, cert_pem=cert_pem, key_pem=key_pem)
+print(signed_xml)`,
   },
   {
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client } from "@openubl/sdk";\n\nconst { data, error } = await client.POST("/api/v1/sign", {\n  body: {\n    xml,\n    cert_pem: certPem,\n    key_pem: keyPem,\n  },\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.signed_xml);`,
+    code: `import { zSignXmlApiV1SignPostBody } from "@openubl/sdk";
+
+const body = zSignXmlApiV1SignPostBody.parse({
+  xml,
+  cert_pem: certPem,
+  key_pem: keyPem,
+});
+
+const { data, error } = await client.post("/api/v1/sign", {
+  body,
+});
+
+if (error) {
+  throw new Error(JSON.stringify(error));
+}
+
+console.log(data.signed_xml);`,
   },
   {
     id: 'curl',
     label: 'cURL',
     lang: 'bash',
-    code: `curl -X POST http://localhost:8000/api/v1/sign \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "xml": "<?xml version=\\"1.0\\"?><Invoice>...</Invoice>",\n    "cert_pem": "-----BEGIN CERTIFICATE-----\\nMIIC...\\n-----END CERTIFICATE-----",\n    "key_pem": "-----BEGIN PRIVATE KEY-----\\nMIIE...\\n-----END PRIVATE KEY-----"\n  }'`,
+    code: `curl -X POST http://localhost:8000/api/v1/sign \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "xml": "<?xml version=\\"1.0\\"?><Invoice>...</Invoice>",
+    "cert_pem": "-----BEGIN CERTIFICATE-----\\nMIIC...\\n-----END CERTIFICATE-----",
+    "key_pem": "-----BEGIN PRIVATE KEY-----\\nMIIE...\\n-----END PRIVATE KEY-----"
+  }'`,
   },
 ]} />
 
-:::note
-En producción utiliza un certificado emitido por una autoridad certificadora reconocida por SUNAT.
-:::
-
 ## Paso 6: Validación explícita con SunatValidator
-
-Antes de enviar el documento a SUNAT, valida que cumpla las reglas de negocio documentadas:
 
 <CodeTabs tabs={[
   {
     id: 'python',
     label: 'Python',
     lang: 'python',
-    code: `from openubl.validator import SunatValidator\n\nvalidator = SunatValidator()\nerrors = validator.validate_invoice(xml)\n\nassert len(errors) == 0, f"Errores de validación: {errors}"`,
+    code: `from openubl.validator import SunatValidator
+
+validator = SunatValidator()
+errors = validator.validate_invoice(xml)
+
+assert len(errors) == 0, f"Errores de validación: {errors}"`,
   },
   {
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client } from "@openubl/sdk";\n\nconst { data, error } = await client.POST("/api/v1/invoice/create", {\n  params: {\n    query: { validate: true },\n  },\n  body: invoice,\n});\n\nif (error) {\n  // La API devuelve 422 cuando el XML no cumple las reglas SUNAT.\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log("Factura válida");\nconsole.log(data.xml);`,
+    code: `const { data, error } = await client.post("/api/v1/invoice/create", {
+  params: {
+    query: { validate: true },
+  },
+  body: invoice,
+});
+
+if (error) {
+  // La API devuelve 422 cuando el XML no cumple las reglas SUNAT.
+  throw new Error(JSON.stringify(error));
+}
+
+console.log("Factura válida");
+console.log(data.xml);`,
   },
   {
     id: 'curl',
     label: 'cURL',
     lang: 'bash',
-    code: `curl -X POST "http://localhost:8000/api/v1/invoice/create?validate=true" \\\n  -H "Content-Type: application/json" \\\n  -d @invoice.json`,
+    code: `curl -X POST "http://localhost:8000/api/v1/invoice/create?validate=true" \\
+  -H "Content-Type: application/json" \\
+  -d @invoice.json`,
   },
 ]} />
 

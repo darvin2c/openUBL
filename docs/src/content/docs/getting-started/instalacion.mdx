@@ -3,42 +3,133 @@ title: Instalación
 description: Instala openUBL con pip, uv o desde fuente. Configura el SDK de TypeScript.
 ---
 
+import CodeTabs from '../../../components/CodeTabs.astro';
+
 ## Python
 
 ### Con pip
 
-```bash
-pip install openubl
-```
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'bash',
+    code: `pip install openubl`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'bash',
+    code: `# No aplica: este comando instala el paquete Python.`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `# No aplica: este comando instala el paquete Python.`,
+  },
+]} />
 
 ### Con uv
 
-```bash
-uv add openubl
-```
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'bash',
+    code: `uv add openubl`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'bash',
+    code: `# No aplica: este comando instala el paquete Python.`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `# No aplica: este comando instala el paquete Python.`,
+  },
+]} />
 
 ### Desde fuente
 
-```bash
-git clone https://github.com/project-openubl/openubl.git
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'bash',
+    code: `git clone https://github.com/project-openubl/openubl.git
 cd openubl
-uv pip install -e .
-```
+uv pip install -e .`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'bash',
+    code: `# No aplica: este comando instala el paquete Python desde fuente.`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `# No aplica: este comando instala el paquete Python desde fuente.`,
+  },
+]} />
 
 ## TypeScript SDK
 
 Requiere Node.js 18 o superior.
 
-```bash
-cd sdk/typescript
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'bash',
+    code: `# No aplica: este comando instala el SDK TypeScript.`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'bash',
+    code: `cd sdk/typescript
 npm install
 npm run generate
-npm run build
-```
+npm run build`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `# No aplica: este comando instala el SDK TypeScript.`,
+  },
+]} />
 
 ## Verificación
 
-```python
-import openubl
-print(openubl.__version__)
-```
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `import openubl
+
+print(openubl.__version__)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { checkApiVersion } from "@openubl/sdk";
+
+const result = await checkApiVersion("http://localhost:8000");
+console.log(result);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X GET "http://localhost:8000/api/v1/version"`,
+  },
+]} />

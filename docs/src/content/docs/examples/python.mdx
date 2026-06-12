@@ -1,44 +1,56 @@
 ---
-title: Ejemplo en Python
-description: Crea una factura, obtén el XML y fírmalo usando Python con httpx o requests.
+title: Ejemplos de uso
+description: Crea facturas, notas de crédito y comunicaciones de baja con openUBL en Python, TypeScript o cURL.
 ---
 
-El siguiente ejemplo usa `httpx`, pero puedes reemplazarlo por `requests` simplemente cambiando `httpx.Client` por `requests.Session`.
+import CodeTabs from '../../../components/CodeTabs.astro';
+
+Los siguientes ejemplos asumen que el servidor está corriendo en `http://localhost:8000`. El primer ejemplo usa `httpx`, pero puedes reemplazarlo por `requests` sin cambiar la lógica.
 
 ## Crear y firmar una factura
 
-```python
-import os
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `import os
 import httpx
+
+from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
 
 BASE_URL = "http://localhost:8000"
 
-invoice = {
-    "serie": "F001",
-    "numero": 1,
-    "proveedor": {
-        "ruc": "20100111111",
-        "razonSocial": "Mi Empresa S.A.C.",
-    },
-    "cliente": {
-        "nombre": "Juan Perez",
-        "numeroDocumentoIdentidad": "12345678",
-        "tipoDocumentoIdentidad": "1",
-    },
-    "detalles": [
-        {"descripcion": "Producto A", "cantidad": 2, "precio": 100.00}
+invoice = Invoice(
+    serie="F001",
+    numero=1,
+    proveedor=Proveedor(
+        ruc="20100111111",
+        razonSocial="Mi Empresa S.A.C.",
+    ),
+    cliente=Cliente(
+        nombre="Juan Perez",
+        numeroDocumentoIdentidad="12345678",
+        tipoDocumentoIdentidad="1",
+    ),
+    detalles=[
+        DocumentoVentaDetalle(
+            descripcion="Producto A",
+            cantidad=2,
+            precio=100.00,
+        )
     ],
-    "moneda": "PEN",
-}
+    moneda="PEN",
+)
 
 
 def main():
     with httpx.Client(base_url=BASE_URL) as client:
         # 1. Crear la factura
-        r = client.post("/api/v1/invoice/create", json=invoice)
+        r = client.post("/api/v1/invoice/create", json=invoice.model_dump(mode="json"))
         r.raise_for_status()
         xml = r.json()["xml"]
-        print("XML generado:\n", xml)
+        print("XML generado:\\n", xml)
 
         # 2. Firmar el XML
         cert_pem = os.getenv("CERT_PEM", "")
@@ -55,64 +67,443 @@ def main():
         )
         r2.raise_for_status()
         signed_xml = r2.json()["signed_xml"]
-        print("XML firmado:\n", signed_xml)
+        print("XML firmado:\\n", signed_xml)
 
 
 if __name__ == "__main__":
-    main()
-```
+    main()`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client, zInvoice, zSignXmlApiV1SignPostBody } from "@openubl/sdk";
+
+const invoice = zInvoice.parse({
+  serie: "F001",
+  numero: 1,
+  tipoOperacion: "0101",
+  moneda: "PEN",
+  proveedor: {
+    ruc: "20100111111",
+    razonSocial: "Mi Empresa S.A.C.",
+  },
+  cliente: {
+    nombre: "Juan Perez",
+    numeroDocumentoIdentidad: "12345678",
+    tipoDocumentoIdentidad: "1",
+  },
+  detalles: [
+    {
+      descripcion: "Producto A",
+      cantidad: 2,
+      precio: 100.00,
+      unidadMedida: "NIU",
+      tipoAfectacionIGV: "10",
+    },
+  ],
+});
+
+const { data, error } = await client.post("/api/v1/invoice/create", {
+  body: invoice,
+});
+
+if (error) {
+  throw new Error(JSON.stringify(error));
+}
+
+const xml = data.xml;
+
+const body = zSignXmlApiV1SignPostBody.parse({
+  xml,
+  cert_pem: process.env.CERT_PEM,
+  key_pem: process.env.KEY_PEM,
+  signature_id: "SignSUNAT",
+});
+
+const { data: signData, error: signError } = await client.post("/api/v1/sign", {
+  body,
+});
+
+if (signError) {
+  throw new Error(JSON.stringify(signError));
+}
+
+console.log(signData.signed_xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `BASE_URL="http://localhost:8000"
+
+# 1. Crear la factura
+XML=$(curl -s -X POST "http://localhost:8000/api/v1/invoice/create" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "serie": "F001",
+    "numero": 1,
+    "tipoOperacion": "0101",
+    "moneda": "PEN",
+    "proveedor": {
+      "ruc": "20100111111",
+      "razonSocial": "Mi Empresa S.A.C."
+    },
+    "cliente": {
+      "nombre": "Juan Perez",
+      "numeroDocumentoIdentidad": "12345678",
+      "tipoDocumentoIdentidad": "1"
+    },
+    "detalles": [
+      {
+        "descripcion": "Producto A",
+        "cantidad": 2,
+        "precio": 100.00,
+        "unidadMedida": "NIU",
+        "tipoAfectacionIGV": "10"
+      }
+    ]
+  }' | jq -r '.xml')
+
+# 2. Firmar el XML
+curl -X POST "http://localhost:8000/api/v1/sign" \\
+  -H "Content-Type: application/json" \\
+  -d "{
+    \"xml\": \"$XML\",
+    \"cert_pem\": \"$CERT_PEM\",
+    \"key_pem\": \"$KEY_PEM\",
+    \"signature_id\": \"SignSUNAT\"
+  }"`,
+  },
+]} />
 
 ## Usar `requests`
 
-```python
-import requests
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `import requests
+
+from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
+
+invoice = Invoice(
+    serie="F001",
+    numero=1,
+    proveedor=Proveedor(
+        ruc="20100111111",
+        razonSocial="Mi Empresa S.A.C.",
+    ),
+    cliente=Cliente(
+        nombre="Juan Perez",
+        numeroDocumentoIdentidad="12345678",
+        tipoDocumentoIdentidad="1",
+    ),
+    detalles=[
+        DocumentoVentaDetalle(
+            descripcion="Producto A",
+            cantidad=2,
+            precio=100.00,
+        )
+    ],
+    moneda="PEN",
+)
 
 with requests.Session() as s:
-    r = s.post(f"{BASE_URL}/api/v1/invoice/create", json=invoice)
+    r = s.post("http://localhost:8000/api/v1/invoice/create", json=invoice.model_dump(mode="json"))
     r.raise_for_status()
     xml = r.json()["xml"]
-    print(xml)
-```
+    print(xml)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client, zInvoice } from "@openubl/sdk";
+
+const invoice = zInvoice.parse({
+  serie: "F001",
+  numero: 1,
+  tipoOperacion: "0101",
+  moneda: "PEN",
+  proveedor: {
+    ruc: "20100111111",
+    razonSocial: "Mi Empresa S.A.C.",
+  },
+  cliente: {
+    nombre: "Juan Perez",
+    numeroDocumentoIdentidad: "12345678",
+    tipoDocumentoIdentidad: "1",
+  },
+  detalles: [
+    {
+      descripcion: "Producto A",
+      cantidad: 2,
+      precio: 100.00,
+      unidadMedida: "NIU",
+      tipoAfectacionIGV: "10",
+    },
+  ],
+});
+
+const { data, error } = await client.post("/api/v1/invoice/create", {
+  body: invoice,
+});
+
+if (error) {
+  throw new Error(JSON.stringify(error));
+}
+
+console.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST http://localhost:8000/api/v1/invoice/create \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "serie": "F001",
+    "numero": 1,
+    "tipoOperacion": "0101",
+    "moneda": "PEN",
+    "proveedor": {
+      "ruc": "20100111111",
+      "razonSocial": "Mi Empresa S.A.C."
+    },
+    "cliente": {
+      "nombre": "Juan Perez",
+      "numeroDocumentoIdentidad": "12345678",
+      "tipoDocumentoIdentidad": "1"
+    },
+    "detalles": [
+      {
+        "descripcion": "Producto A",
+        "cantidad": 2,
+        "precio": 100.00,
+        "unidadMedida": "NIU",
+        "tipoAfectacionIGV": "10"
+      }
+    ]
+  }'`,
+  },
+]} />
 
 ## Nota de crédito
 
-```python
-credit_note = {
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `import httpx
+
+from openubl.models import CreditNote, Proveedor, Cliente, DocumentoVentaDetalle
+
+BASE_URL = "http://localhost:8000"
+
+proveedor = Proveedor(
+    ruc="20100111111",
+    razonSocial="Mi Empresa S.A.C.",
+)
+cliente = Cliente(
+    nombre="Juan Perez",
+    numeroDocumentoIdentidad="12345678",
+    tipoDocumentoIdentidad="1",
+)
+detalles = [
+    DocumentoVentaDetalle(
+        descripcion="Producto A",
+        cantidad=2,
+        precio=100.00,
+    )
+]
+
+credit_note = CreditNote(
+    serie="BC01",
+    numero=1,
+    comprobanteAfectadoSerieNumero="F001-1",
+    sustentoDescripcion="Anulación de venta",
+    proveedor=proveedor,
+    cliente=cliente,
+    detalles=detalles,
+    moneda="PEN",
+)
+
+with httpx.Client(base_url=BASE_URL) as client:
+    r = client.post("/api/v1/credit-note/create", json=credit_note.model_dump(mode="json"))
+    r.raise_for_status()
+    print(r.json()["xml"])`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client, zCreditNote } from "@openubl/sdk";
+
+const creditNote = zCreditNote.parse({
+  serie: "BC01",
+  numero: 1,
+  comprobanteAfectadoSerieNumero: "F001-1",
+  sustentoDescripcion: "Anulación de venta",
+  moneda: "PEN",
+  proveedor: {
+    ruc: "20100111111",
+    razonSocial: "Mi Empresa S.A.C.",
+  },
+  cliente: {
+    nombre: "Juan Perez",
+    numeroDocumentoIdentidad: "12345678",
+    tipoDocumentoIdentidad: "1",
+  },
+  detalles: [
+    {
+      descripcion: "Producto A",
+      cantidad: 2,
+      precio: 100.00,
+      unidadMedida: "NIU",
+      tipoAfectacionIGV: "10",
+    },
+  ],
+});
+
+const { data, error } = await client.post("/api/v1/credit-note/create", {
+  body: creditNote,
+});
+
+if (error) {
+  throw new Error(JSON.stringify(error));
+}
+
+console.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST http://localhost:8000/api/v1/credit-note/create \\
+  -H "Content-Type: application/json" \\
+  -d '{
     "serie": "BC01",
     "numero": 1,
     "comprobanteAfectadoSerieNumero": "F001-1",
     "sustentoDescripcion": "Anulación de venta",
-    "proveedor": invoice["proveedor"],
-    "cliente": invoice["cliente"],
-    "detalles": invoice["detalles"],
     "moneda": "PEN",
-}
-
-with httpx.Client(base_url=BASE_URL) as client:
-    r = client.post("/api/v1/credit-note/create", json=credit_note)
-    r.raise_for_status()
-    print(r.json()["xml"])
-```
+    "proveedor": {
+      "ruc": "20100111111",
+      "razonSocial": "Mi Empresa S.A.C."
+    },
+    "cliente": {
+      "nombre": "Juan Perez",
+      "numeroDocumentoIdentidad": "12345678",
+      "tipoDocumentoIdentidad": "1"
+    },
+    "detalles": [
+      {
+        "descripcion": "Producto A",
+        "cantidad": 2,
+        "precio": 100.00,
+        "unidadMedida": "NIU",
+        "tipoAfectacionIGV": "10"
+      }
+    ]
+  }'`,
+  },
+]} />
 
 ## Comunicación de baja
 
-```python
-voided = {
-    "numero": 1,
-    "fechaEmisionComprobantes": "2024-01-15",
-    "proveedor": invoice["proveedor"],
-    "comprobantes": [
-        {
-            "serie": "F001",
-            "numero": 1,
-            "tipoComprobante": "01",
-            "descripcionSustento": "Error en datos del cliente",
-        }
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `import httpx
+
+from openubl.models import VoidedDocuments, VoidedDocumentsItem, Proveedor
+from datetime import date
+
+BASE_URL = "http://localhost:8000"
+
+proveedor = Proveedor(
+    ruc="20100111111",
+    razonSocial="Mi Empresa S.A.C.",
+)
+
+voided = VoidedDocuments(
+    numero=1,
+    fechaEmisionComprobantes=date(2024, 1, 15),
+    proveedor=proveedor,
+    comprobantes=[
+        VoidedDocumentsItem(
+            serie="F001",
+            numero=1,
+            tipoComprobante="01",
+            descripcionSustento="Error en datos del cliente",
+        )
     ],
-}
+)
 
 with httpx.Client(base_url=BASE_URL) as client:
-    r = client.post("/api/v1/voided-documents/create", json=voided)
+    r = client.post("/api/v1/voided-documents/create", json=voided.model_dump(mode="json"))
     r.raise_for_status()
-    print(r.json()["xml"])
-```
+    print(r.json()["xml"])`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client, zVoidedDocuments } from "@openubl/sdk";
+
+const voided = zVoidedDocuments.parse({
+  numero: 1,
+  fechaEmisionComprobantes: "2024-01-15",
+  proveedor: {
+    ruc: "20100111111",
+    razonSocial: "Mi Empresa S.A.C.",
+  },
+  comprobantes: [
+    {
+      serie: "F001",
+      numero: 1,
+      tipoComprobante: "01",
+      descripcionSustento: "Error en datos del cliente",
+    },
+  ],
+});
+
+const { data, error } = await client.post("/api/v1/voided-documents/create", {
+  body: voided,
+});
+
+if (error) {
+  throw new Error(JSON.stringify(error));
+}
+
+console.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST http://localhost:8000/api/v1/voided-documents/create \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "numero": 1,
+    "fechaEmisionComprobantes": "2024-01-15",
+    "proveedor": {
+      "ruc": "20100111111",
+      "razonSocial": "Mi Empresa S.A.C."
+    },
+    "comprobantes": [
+      {
+        "serie": "F001",
+        "numero": 1,
+        "tipoComprobante": "01",
+        "descripcionSustento": "Error en datos del cliente"
+      }
+    ]
+  }'`,
+  },
+]} />
