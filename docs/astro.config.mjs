@@ -94,16 +94,12 @@ export default defineConfig({
 						{ label: 'Catálogo 23 — Régimen de retención', slug: 'catalogs/catalogo-23' },
 					],
 				},
-				{
-					label: 'SDKs',
-					items: [
-						{ label: 'TypeScript', slug: 'sdk/typescript' },
-						{ label: 'Python', slug: 'sdk/python' },
-						{ label: 'Java', slug: 'sdk/java' },
-						{ label: 'Go', slug: 'sdk/go' },
-						{ label: 'C#', slug: 'sdk/csharp' },
-					],
-				},
+			{
+			label: 'SDK',
+				items: [
+					{ label: 'TypeScript', slug: 'sdk/typescript' },
+				],
+			},
 				{
 					label: 'API',
 					items: [
