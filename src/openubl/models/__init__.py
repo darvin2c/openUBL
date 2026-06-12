@@ -10,6 +10,7 @@ from .catalog import (
     Catalog19,
     Catalog22,
     Catalog23,
+    Catalog51,
 )
 from .common import Address, Cliente, Proveedor
 from .defaults import DateProvider, Defaults
@@ -38,6 +39,7 @@ __all__ = [
     "Catalog19",
     "Catalog22",
     "Catalog23",
+    "Catalog51",
     "Address",
     "Cliente",
     "Proveedor",

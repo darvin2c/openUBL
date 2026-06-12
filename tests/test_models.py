@@ -57,10 +57,10 @@ class TestInvoiceModel:
     def test_tipo_documento_identidad_accepted(self):
         """
         Catálogo N.° 06 de SUNAT (RS N° 300-2014/SUNAT Anexo 8).
-        El modelo acepta cualquier string; validación contra catálogo está en el validator.
+        El modelo acepta únicamente los valores del catálogo.
         """
-        cliente = Cliente(nombre="Test", numeroDocumentoIdentidad="12345678", tipoDocumentoIdentidad="99")
-        assert cliente.tipoDocumentoIdentidad == "99"
+        cliente = Cliente(nombre="Test", numeroDocumentoIdentidad="12345678", tipoDocumentoIdentidad="1")
+        assert cliente.tipoDocumentoIdentidad == "1"
 
 
 class TestCreditNoteModel:

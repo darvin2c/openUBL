@@ -7,6 +7,7 @@ from decimal import Decimal
 
 from pydantic import BaseModel, Field
 
+from .catalog import Catalog2, Catalog7, Catalog51
 from .common import Cliente, Proveedor
 
 
@@ -20,10 +21,10 @@ class DocumentoVentaDetalle(BaseModel):
     - Tipo de afectación del IGV (Catálogo N.° 07)
     """
     descripcion: str
-    cantidad: Decimal
-    precio: Decimal
+    cantidad: Decimal = Field(gt=0)
+    precio: Decimal = Field(ge=0)
     unidadMedida: str = "NIU"
-    tipoAfectacionIGV: str = "10"  # Catalog7 default: GRAVADO_OPERACION_ONEROSA
+    tipoAfectacionIGV: Catalog7 = Catalog7.GRAVADO_OPERACION_ONEROSA
     igv: Decimal | None = None
     valorVenta: Decimal | None = None
     precioVenta: Decimal | None = None
@@ -41,13 +42,13 @@ class Invoice(BaseModel):
         pattern=r"^[FBfb][A-Za-z0-9]{2,3}$",
         description="Serie de factura (F001) o boleta (B001)",
     )
-    numero: int
+    numero: int = Field(ge=1)
     proveedor: Proveedor
     cliente: Cliente
     detalles: list[DocumentoVentaDetalle]
-    moneda: str = "PEN"
+    moneda: Catalog2 = Catalog2.PEN
     fechaEmision: date | None = None
     igvTotal: Decimal | None = None
     valorVentaTotal: Decimal | None = None
     importeTotal: Decimal | None = None
-    tipoOperacion: str = "0101"  # Default: Venta interna
+    tipoOperacion: Catalog51 = Catalog51.VENTA_INTERNA

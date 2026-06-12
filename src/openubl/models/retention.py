@@ -7,6 +7,7 @@ from decimal import Decimal
 
 from pydantic import BaseModel, Field
 
+from .catalog import Catalog23
 from .common import Cliente, Proveedor
 from .perception import ComprobanteAfectado, PercepcionRetencionOperacion
 
@@ -24,6 +25,6 @@ class Retention(BaseModel):
     )
     importeTotalRetenido: Decimal
     importeTotalPagado: Decimal
-    tipoRegimen: str  # Catalog23
+    tipoRegimen: Catalog23
     tipoRegimenPorcentaje: Decimal
     operaciones: list[PercepcionRetencionOperacion]
