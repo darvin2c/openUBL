@@ -3,6 +3,7 @@ title: Catálogo 20 — Motivo de traslado
 description: Códigos SUNAT de motivos de traslado para guías de remisión en openUBL.
 ---
 
+import CodeTabs from '../../../components/CodeTabs.astro';
 
 Catálogo SUNAT que clasifica el motivo por el cual se realiza el traslado de bienes. Es requerido en la Guía de Remisión Remitente y otros documentos de transporte.
 
@@ -27,17 +28,44 @@ Se utiliza en el campo `motivoTraslado` de modelos de guía de remisión o docum
 
 ## Ejemplo
 
-```python
-from openubl.models.catalog import Catalog20
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.models.catalog import Catalog20
 
 # Seleccionar el motivo de traslado
 motivo = Catalog20.VENTA.value  # "01"
 
-print(f"Motivo de traslado: {motivo}")
-```
+print(f"Motivo de traslado: {motivo}")`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `// Los catálogos SUNAT son constantes de cadena. En TypeScript se usan
+// directamente los valores al construir el JSON de cualquier documento.
+const motivoTraslado = "01"; // Catalog20.VENTA
 
-```python
-from openubl.models.catalog import Catalog20
+console.log(\`Motivo de traslado: \${motivoTraslado}\`);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `# El catálogo 20 no requiere llamada REST. Se usa el valor literal "01"
+# dentro del JSON enviado al endpoint de creación correspondiente.
+echo "Motivo de traslado: 01"`,
+  },
+]} />
+
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.models.catalog import Catalog20
 
 motivos_comunes = {
     "Venta": Catalog20.VENTA.value,
@@ -46,5 +74,31 @@ motivos_comunes = {
 }
 
 for nombre, codigo in motivos_comunes.items():
-    print(f"{nombre}: {codigo}")
-```
+    print(f"{nombre}: {codigo}")`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `// Mapa de motivos de traslado usando los valores literales del catálogo.
+const motivosComunes = {
+  Venta: "01",
+  Devolución: "06",
+  "Traslado entre establecimientos": "04",
+};
+
+for (const [nombre, codigo] of Object.entries(motivosComunes)) {
+  console.log(\`\${nombre}: \${codigo}\`);
+}`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `# No hay llamada REST para consultar un catálogo; estos valores se usan
+# directamente en el campo motivoTraslado del JSON de creación.
+echo "Venta: 01"
+echo "Devolución: 06"
+echo "Traslado entre establecimientos: 04"`,
+  },
+]} />

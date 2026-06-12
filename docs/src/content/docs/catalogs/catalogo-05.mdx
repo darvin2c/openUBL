@@ -3,6 +3,7 @@ title: Catálogo 05 — Tipo de tributo
 description: Códigos SUNAT de tributos aplicables a líneas y totales de comprobantes electrónicos en openUBL.
 ---
 
+import CodeTabs from '../../../components/CodeTabs.astro';
 
 Catálogo SUNAT que clasifica los tributos que afectan una línea o el total de un comprobante electrónico. Es fundamental para construir los nodos `TaxTotal` y `TaxSubtotal` del XML UBL 2.1.
 
@@ -33,8 +34,12 @@ No es necesario pasar estos códigos manualmente en la mayoría de modelos de ve
 
 ## Ejemplo
 
-```python
-from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
 from decimal import Decimal
 
 # Línea gravada: el renderer asignará automáticamente tributo 1000 (IGV)
@@ -56,5 +61,50 @@ invoice = Invoice(
         )
     ],
     moneda="PEN",
-)
-```
+)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client, zInvoice } from "@openubl/sdk";
+
+const invoice = zInvoice.parse({
+  serie: "F001",
+  numero: 125,
+  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },
+  cliente: {
+    nombre: "Cliente Ejemplo",
+    numeroDocumentoIdentidad: "20123456789",
+    tipoDocumentoIdentidad: "6",
+  },
+  detalles: [
+    {
+      descripcion: "Producto gravado",
+      cantidad: 1,
+      precio: 100.00,
+      tipoAfectacionIGV: "10",
+    },
+  ],
+  moneda: "PEN",
+});
+
+const { data, error } = await client.post("/api/v1/invoice/create", { body: invoice });
+if (error) throw new Error(JSON.stringify(error));`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST http://localhost:8000/api/v1/invoice/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "serie": "F001",
+    "numero": 125,
+    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },
+    "cliente": { "nombre": "Cliente Ejemplo", "numeroDocumentoIdentidad": "20123456789", "tipoDocumentoIdentidad": "6" },
+    "detalles": [{ "descripcion": "Producto gravado", "cantidad": 1, "precio": 100.00, "tipoAfectacionIGV": "10" }],
+    "moneda": "PEN"
+  }'`,
+  },
+]} />

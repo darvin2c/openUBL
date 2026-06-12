@@ -3,6 +3,7 @@ title: Catálogo 22 — Régimen de percepción
 description: Códigos SUNAT de regímenes de percepción aplicables al Comprobante de Percepción en openUBL.
 ---
 
+import CodeTabs from '../../../components/CodeTabs.astro';
 
 Catálogo SUNAT que identifica el régimen de percepción aplicado en un Comprobante de Percepción Electrónico (tipo 40). Determina la tasa y el escenario en el que se realiza la percepción.
 
@@ -24,8 +25,12 @@ Debe combinarse con `tipoRegimenPorcentaje` para indicar la tasa exacta de perce
 
 ## Ejemplo
 
-```python
-from datetime import date
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from datetime import date
 from decimal import Decimal
 from openubl.models import (
     Perception,
@@ -63,5 +68,77 @@ percepcion = Perception(
             ),
         )
     ],
-)
-```
+)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { client, zPerception } from "@openubl/sdk";
+
+const perception = zPerception.parse({
+  serie: "P001",
+  numero: 1,
+  fechaEmision: "2026-06-10",
+  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },
+  cliente: {
+    nombre: "Cliente Ejemplo",
+    numeroDocumentoIdentidad: "20123456789",
+    tipoDocumentoIdentidad: "6",
+  },
+  importeTotalPercibido: 30.00,
+  importeTotalCobrado: 1030.00,
+  tipoRegimen: "01",
+  tipoRegimenPorcentaje: 0.03,
+  operaciones: [
+    {
+      numeroOperacion: 1,
+      fechaOperacion: "2026-06-10",
+      importeOperacion: 1000.00,
+      comprobante: {
+        tipoComprobante: "01",
+        serieNumero: "F001-1",
+        fechaEmision: "2026-06-10",
+        importeTotal: 1000.00,
+        moneda: "PEN",
+      },
+    },
+  ],
+});
+
+const { data, error } = await client.post("/api/v1/perception/create", { body: perception });
+if (error) throw new Error(JSON.stringify(error));`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST http://localhost:8000/api/v1/perception/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "serie": "P001",
+    "numero": 1,
+    "fechaEmision": "2026-06-10",
+    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },
+    "cliente": { "nombre": "Cliente Ejemplo", "numeroDocumentoIdentidad": "20123456789", "tipoDocumentoIdentidad": "6" },
+    "importeTotalPercibido": 30.00,
+    "importeTotalCobrado": 1030.00,
+    "tipoRegimen": "01",
+    "tipoRegimenPorcentaje": 0.03,
+    "operaciones": [
+      {
+        "numeroOperacion": 1,
+        "fechaOperacion": "2026-06-10",
+        "importeOperacion": 1000.00,
+        "comprobante": {
+          "tipoComprobante": "01",
+          "serieNumero": "F001-1",
+          "fechaEmision": "2026-06-10",
+          "importeTotal": 1000.00,
+          "moneda": "PEN"
+        }
+      }
+    ]
+  }'`,
+  },
+]} />
