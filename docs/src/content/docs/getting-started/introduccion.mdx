@@ -7,20 +7,11 @@ openUBL es un SDK y API REST para generar, firmar y validar documentos electrón
 
 ## Tres formas de usar openUBL
 
-Puedes integrar openUBL según el lenguaje y la arquitectura de tu proyecto:
+Puedes usar openUBL como biblioteca Python nativa, consumir la API REST con cualquier cliente HTTP, o integrar el SDK TypeScript. La elección depende de tu stack y de si prefieres levantar un servidor. Lee los detalles en [Arquitectura](/openUBL/getting-started/arquitectura/) y la guía de decisión en [Cómo elegir](/openUBL/getting-started/como-elegir/).
 
-1. **Python nativo** — para aplicaciones Python que generan XML localmente. Usa `openubl.models`, `ContentEnricher`, `render_invoice` y `sign_ubl_xml`.
-2. **API REST** — para centralizar la generación y firma en un servicio compartido. Levantas el servidor FastAPI y cualquier lenguaje puede consumirlo vía HTTP.
-3. **SDK TypeScript** — para backends Node.js/Deno/Bun. Ofrece helpers tipados generados desde OpenAPI y validación runtime con Zod.
-
-| Necesitas... | Usa |
-|---|---|
-| Generar XML dentro de un backend Python | Python nativo |
-| Centralizar la generación/firma en un servicio | API REST |
-| Type safety y autocompletado en TypeScript | SDK TypeScript |
-| Llamar desde curl/Postman/otro lenguaje | API REST |
-
-Para decidir cuál te conviene según tu escala y equipo, lee [Cómo elegir](./como-elegir/).
+:::tip[¿Necesitas levantar un servidor?]
+Para entender si tu modo de uso requiere levantar el servidor API, empieza por [Arquitectura](/openUBL/getting-started/arquitectura/).
+:::
 
 ## Documentos soportados
 
@@ -33,13 +24,3 @@ Para decidir cuál te conviene según tu escala y equipo, lee [Cómo elegir](./c
 | `SummaryDocuments` | Resumen diario de boletas |
 | `Perception` | Percepción |
 | `Retention` | Retención |
-
-## Arquitectura
-
-openUBL se compone de tres capas:
-
-1. **Modelos Pydantic** — Validación de datos y serialización a XML UBL 2.1.
-2. **Firma digital** — Firma XAdES-EPES con certificado digital.
-3. **API REST** — Endpoints tipados con FastAPI y documentación OpenAPI.
-
-El flujo típico es: construir un modelo → renderizar a XML → firmar → enviar a SUNAT.

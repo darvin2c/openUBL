@@ -19,14 +19,15 @@ openUBL se puede usar de tres maneras. Esta página te ayuda a elegir la más ad
 
 ## Diagrama de decisión
 
-```text
-¿Tu proyecto es TypeScript?
-  Sí → Usa el SDK TypeScript (@openubl/sdk).
-  No → ¿Tu proyecto es Python?
-         Sí → ¿Varios sistemas necesitan generar documentos?
-                Sí → API REST.
-                No → Python nativo.
-         No → API REST (la llaman desde cualquier lenguaje).
+```mermaid
+flowchart TD
+    A[¿Quieres usar openUBL?] --> B{¿Tu proyecto es TypeScript?}
+    B -->|Sí| C[SDK TypeScript]
+    B -->|No| D{¿Tu proyecto es Python?}
+    D -->|Sí| E{¿Varios sistemas lo usarán?}
+    E -->|Sí| F[API REST]
+    E -->|No| G[Python nativo]
+    D -->|No| F
 ```
 
 ## Ejemplo mínimo de cada modo
@@ -86,6 +87,7 @@ console.log(data.xml);
 
 ## ¿Y después?
 
-- Si elegiste Python nativo, empieza con [Tu primer documento](./primer-documento/).
-- Si elegiste la API REST o el SDK TypeScript, primero [instala](./instalacion/) y levanta el servidor.
-- Si tienes dudas durante la integración, consulta la [guía de troubleshooting](../guides/troubleshooting/).
+- Si elegiste **Python nativo**, empieza con [Tu primer documento](/openUBL/getting-started/primer-documento/).
+- Si elegiste la **API REST**, **Python vía HTTP** o **cURL**, primero [instala Python](/openUBL/getting-started/instalar-python/) y luego [levanta el servidor](/openUBL/getting-started/levantar-servidor/).
+- Si elegiste el **SDK TypeScript**, instálalo desde la [guía del SDK](/openUBL/sdk/instalacion/) y asegúrate de tener el [servidor levantado](/openUBL/getting-started/levantar-servidor/).
+- Si tienes dudas durante la integración, consulta la [guía de troubleshooting](/openUBL/guides/troubleshooting/).

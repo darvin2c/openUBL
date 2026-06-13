@@ -1,0 +1,43 @@
+---
+title: Instalación SDK TypeScript
+description: Instala el SDK TypeScript de openUBL desde npm o desde el código fuente.
+---
+
+El SDK TypeScript de openUBL se publica como `@openubl/sdk` y se genera a partir de `openapi.json`. Proporciona clientes tipados y validación runtime con Zod para todos los endpoints de la API REST.
+
+## Requisitos
+
+- Node.js 18 o superior.
+- El servidor API de openUBL debe estar corriendo en la URL que uses (por defecto `http://localhost:8000`).
+
+## Instalación desde npm
+
+```bash
+npm install @openubl/sdk
+```
+
+## Build desde fuente (solo contribuidores)
+
+Si estás modificando el SDK o quieres generarlo desde el repositorio:
+
+```bash
+cd sdk/typescript
+npm install
+npm run generate
+npm run build
+```
+
+## Verificación
+
+Puedes comprobar la conexión con la API usando `checkApiVersion`:
+
+```typescript
+import { checkApiVersion } from "@openubl/sdk";
+
+const result = await checkApiVersion("http://localhost:8000");
+console.log(result);
+```
+
+:::note[El SDK necesita la API]
+Si la API no está corriendo, el SDK no puede generar, firmar ni validar documentos. Asegúrate de haber [levantado el servidor](/openUBL/getting-started/levantar-servidor/) antes de ejecutar tus primeras llamadas.
+:::

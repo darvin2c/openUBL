@@ -5,6 +5,10 @@ description: Crea tu primera factura electrónica con openUBL paso a paso.
 
 import CodeTabs from '../../../components/CodeTabs.astro';
 
+:::caution[Requisito para clientes HTTP]
+Si usas Python nativo, este tutorial funciona directamente. Si usas cURL, el SDK TypeScript o Python vía HTTP, asegúrate de tener el servidor corriendo en `http://localhost:8000` (ver [Levantar el servidor](/openUBL/getting-started/levantar-servidor/)).
+:::
+
 Este ejemplo crea una factura electrónica (`Invoice`), enriquece sus campos calculados, la renderiza a XML UBL 2.1, la firma digitalmente y la valida contra las reglas de SUNAT.
 
 ## Paso 1: Importar el modelo
