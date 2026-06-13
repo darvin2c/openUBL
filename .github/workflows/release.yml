@@ -185,7 +185,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   release-notes:
-    needs: [publish-pypi, publish-npm]
+    needs: [release, publish-pypi, publish-npm]
     if: needs.release.outputs.version != ''
     runs-on: ubuntu-latest
     permissions:
