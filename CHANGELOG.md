@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0](https://github.com/darvin2c/openUBL/compare/v0.2.3..v1.0.0) - 2026-06-13
+
+### Features
+
+- *(signer)* Migra firma digital SUNAT a RSA-SHA-256/SHA-256 ([#27](https://github.com/darvin2c/openUBL/issues/27)) - ([874fdcb](https://github.com/darvin2c/openUBL/commit/874fdcb74bce77746884fc7a382018943503e643))
+
+### Miscellaneous Tasks
+
+- Corrige dependencias de release-notes - ([06aea00](https://github.com/darvin2c/openUBL/commit/06aea00c81e5084f842f28a3ff71bc58754d003f))
+- Publicaciones idempotentes para npm y PyPI - ([e9ddd5f](https://github.com/darvin2c/openUBL/commit/e9ddd5f717503f9503e8849f4cc3249d0e1f89fc))
+## [0.2.3](https://github.com/darvin2c/openUBL/compare/v0.2.2..v0.2.3) - 2026-06-13
+
+### Miscellaneous Tasks
+
+- Evita doble bump y re-publica tag pendiente - ([0ed6733](https://github.com/darvin2c/openUBL/commit/0ed67332201c81eb9bcbccfd02ed59e289780461))
 ## [0.2.2](https://github.com/darvin2c/openUBL/compare/v0.2.1..v0.2.2) - 2026-06-13
 
 ### Miscellaneous Tasks

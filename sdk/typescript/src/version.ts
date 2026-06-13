@@ -1,4 +1,4 @@
-export const SDK_VERSION = "0.2.3";
+export const SDK_VERSION = "1.0.0";
 
 export async function checkApiVersion(
   baseUrl: string = "http://localhost:8000"
