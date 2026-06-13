@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1](https://github.com/darvin2c/openUBL/compare/v1.0.0..v1.0.1) - 2026-06-13
+
+### Miscellaneous Tasks
+
+- Configura basedpyright en dev y elimina referencias a XBuilder ([#28](https://github.com/darvin2c/openUBL/issues/28)) - ([b994607](https://github.com/darvin2c/openUBL/commit/b9946076eb54184853a221d8bddd53bbea2f32c3))
 ## [1.0.0](https://github.com/darvin2c/openUBL/compare/v0.2.3..v1.0.0) - 2026-06-13
 
 ### Features
