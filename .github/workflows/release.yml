@@ -47,12 +47,25 @@ jobs:
             echo "found=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
+          # Si el mergeCommit ya está en un tag, re-publicar ese tag si aún no tiene release.
+          TAGS=$(git tag --contains "$MERGE_OID" | grep '^v' | sort -V)
+          LATEST_TAG=$(echo "$TAGS" | tail -1)
+          if [ -n "$LATEST_TAG" ]; then
+            VERSION="${LATEST_TAG#v}"
+            if gh release view "$LATEST_TAG" >/dev/null 2>&1; then
+              echo "found=false" >> "$GITHUB_OUTPUT"
+            else
+              echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+              echo "skip_bump=true" >> "$GITHUB_OUTPUT"
+            fi
+            exit 0
+          fi
           echo "found=true" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Calculate new version
-        if: steps.check.outputs.found == 'true'
+        if: steps.check.outputs.found == 'true' && steps.check.outputs.skip_bump != 'true'
         id: version
         run: |
           CURRENT=$(grep '^version\s*=\s*' pyproject.toml | head -1 | sed 's/.*"\([0-9]\+\.[0-9]\+\.[0-9]\+\)".*/\1/')
@@ -68,36 +81,23 @@ jobs:
           echo "version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
           echo "New version: $NEW_VERSION"
 
-      - name: Check if GitHub Release already exists
-        if: steps.version.outputs.version != ''
-        id: exists
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-          if gh release view "v${VERSION}" >/dev/null 2>&1; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "exists=false" >> "$GITHUB_OUTPUT"
-          fi
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - uses: astral-sh/setup-uv@v3
-        if: steps.exists.outputs.exists == 'false'
+        if: steps.check.outputs.skip_bump != 'true' && steps.version.outputs.version != ''
       - uses: actions/setup-node@v4
-        if: steps.exists.outputs.exists == 'false'
+        if: steps.check.outputs.skip_bump != 'true' && steps.version.outputs.version != ''
         with:
           node-version: 22
 
       - name: Install npm dependencies
-        if: steps.exists.outputs.exists == 'false'
+        if: steps.check.outputs.skip_bump != 'true' && steps.version.outputs.version != ''
         run: cd sdk/typescript && npm ci
 
       - name: Bump version
-        if: steps.exists.outputs.exists == 'false'
+        if: steps.check.outputs.skip_bump != 'true' && steps.version.outputs.version != ''
         run: uv run python scripts/bump_version.py ${{ steps.version.outputs.version }}
 
       - name: Generate changelog
-        if: steps.exists.outputs.exists == 'false'
+        if: steps.check.outputs.skip_bump != 'true' && steps.version.outputs.version != ''
         uses: orhun/git-cliff-action@v4
         with:
           config: cliff.toml
@@ -107,27 +107,28 @@ jobs:
           GITHUB_REPO: ${{ github.repository }}
 
       - name: Commit, tag and push
-        if: steps.exists.outputs.exists == 'false'
+        if: steps.check.outputs.skip_bump != 'true' && steps.version.outputs.version != ''
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
-          if ! git rev-parse "v${VERSION}" >/dev/null 2>&1; then
-            git commit -m "release: v${VERSION}"
-            git tag -a "v${VERSION}" -m "Release v${VERSION}"
-            git push origin main
-            git push origin "v${VERSION}"
-          else
-            echo "Tag v${VERSION} already exists, skipping commit/tag."
-          fi
+          git commit -m "release: v${VERSION}"
+          git tag -a "v${VERSION}" -m "Release v${VERSION}"
+          git push origin main
+          git push origin "v${VERSION}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Output version for publish
-        if: steps.exists.outputs.exists == 'false'
+        if: steps.check.outputs.version != '' || steps.version.outputs.version != ''
         id: release
-        run: echo "version=${{ steps.version.outputs.version }}" >> "$GITHUB_OUTPUT"
+        run: |
+          if [ -n "${{ steps.check.outputs.version }}" ]; then
+            echo "version=${{ steps.check.outputs.version }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=${{ steps.version.outputs.version }}" >> "$GITHUB_OUTPUT"
+          fi
 
   publish-pypi:
     needs: release
