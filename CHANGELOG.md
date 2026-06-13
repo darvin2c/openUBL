@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1](https://github.com/darvin2c/openUBL/compare/v0.2.0..v0.2.1) - 2026-06-13
+
+### Features
+
+- *(api,docs)* Typed XML responses and improved TypeScript examples ([#24](https://github.com/darvin2c/openUBL/issues/24)) - ([d919ba6](https://github.com/darvin2c/openUBL/commit/d919ba6a2f04378cd386ef20b248403fd7c71a3a))
+
+### Documentation
+
+- *(getting-started)* Reorganiza guía inicial, añade arquitectura e instala diagramas Mermaid ([#25](https://github.com/darvin2c/openUBL/issues/25)) - ([de22d69](https://github.com/darvin2c/openUBL/commit/de22d6941b86c4279a0a08aa38d086e256c01b75))
+
+### Miscellaneous Tasks
+
+- Restaura flujo automático de release con PR y tag - ([5413c4f](https://github.com/darvin2c/openUBL/commit/5413c4f6cef60088403af6da7bb1d3b3abac9a31))
 ## [0.2.0](https://github.com/darvin2c/openUBL/compare/v0.1.4..v0.2.0) - 2026-06-11
 
 ### Features
@@ -14,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Bug Fixes
 
 - Corregir regex en cliff.toml que ignoraba todos los commits - ([772ddf0](https://github.com/darvin2c/openUBL/commit/772ddf0ac6d847307b11f46cb474380b0decfbc3))
-## [0.1.3](https://github.com/darvin2c/openUBL/compare/v0.1.2..v0.1.3) - 2026-06-11
+## [0.1.4](https://github.com/darvin2c/openUBL/compare/v0.1.2..v0.1.4) - 2026-06-11
 
 ### Features
 
