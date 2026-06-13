@@ -1,0 +1,38 @@
+---
+title: Levantar el servidor
+description: Levanta la API REST de openUBL con uvicorn para atender peticiones HTTP.
+---
+
+La API REST de openUBL requiere que el paquete Python esté instalado. Si aún no lo has hecho, sigue primero [Instalar Python](/openUBL/getting-started/instalar-python/).
+
+## Iniciar el servidor
+
+Ejecuta uvicorn apuntando al objeto `app` de `openubl.main`:
+
+```bash
+uv run uvicorn openubl.main:app --reload
+```
+
+Por defecto el servidor escucha en `http://localhost:8000`.
+
+## Verificar que responde
+
+Puedes comprobar el estado de la API con cURL:
+
+```bash
+curl -X GET "http://localhost:8000/api/v1/version"
+```
+
+## Explorar la documentación interactiva
+
+FastAPI expone Swagger UI en:
+
+```text
+http://localhost:8000/docs
+```
+
+Allí puedes ver todos los endpoints disponibles, sus esquemas de entrada/salida y probar las peticiones directamente desde el navegador.
+
+:::note[¿Es obligatorio este paso?]
+Este paso es obligatorio para usar cURL, el SDK TypeScript o Python vía HTTP. **No es necesario** si usas openUBL como biblioteca Python nativa.
+:::

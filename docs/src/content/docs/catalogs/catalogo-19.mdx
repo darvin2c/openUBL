@@ -3,6 +3,7 @@ title: Catálogo 19 — Tipo de operación (resumen diario)
 description: Códigos SUNAT de operaciones para ítems del Resumen Diario en openUBL.
 ---
 
+import CodeTabs from '../../../components/CodeTabs.astro';
 
 Catálogo SUNAT que indica la acción que se realiza sobre un comprobante dentro de un Resumen Diario (`SummaryDocuments`). Permite adicionar, modificar o anular boletas y notas asociadas.
 
@@ -24,8 +25,12 @@ El valor `1` (Adicionar) se usa para reportar nuevas boletas emitidas en el día
 
 ## Ejemplo
 
-```python
-from datetime import date
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from datetime import date
 from decimal import Decimal
 from openubl.models import (
     SummaryDocuments,
@@ -60,5 +65,62 @@ resumen = SummaryDocuments(
             ),
         )
     ],
-)
-```
+)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { createSummaryDocuments } from "@openubl/sdk";
+import { zSummaryDocuments } from "@openubl/sdk/zod.gen";
+
+const summary = zSummaryDocuments.parse({
+  numero: 1,
+  fechaEmisionComprobantes: "2026-06-10",
+  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },
+  comprobantes: [
+    {
+      tipoOperacion: "1",
+      comprobante: {
+        tipoComprobante: "03",
+        serieNumero: "B001-1",
+        cliente: {
+          nombre: "Cliente Ejemplo",
+          numeroDocumentoIdentidad: "12345678",
+          tipoDocumentoIdentidad: "1",
+        },
+        impuestos: { igv: 3.60 },
+        valorVenta: { importeTotal: 23.60, gravado: 20.00 },
+      },
+    },
+  ],
+});
+
+const { data, error } = await createSummaryDocuments({ body: summary });
+if (error) throw new Error(JSON.stringify(error));`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST http://localhost:8000/api/v1/summary-documents/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "numero": 1,
+    "fechaEmisionComprobantes": "2026-06-10",
+    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },
+    "comprobantes": [
+      {
+        "tipoOperacion": "1",
+        "comprobante": {
+          "tipoComprobante": "03",
+          "serieNumero": "B001-1",
+          "cliente": { "nombre": "Cliente Ejemplo", "numeroDocumentoIdentidad": "12345678", "tipoDocumentoIdentidad": "1" },
+          "impuestos": { "igv": 3.60 },
+          "valorVenta": { "importeTotal": 23.60, "gravado": 20.00 }
+        }
+      }
+    ]
+  }'`,
+  },
+]} />

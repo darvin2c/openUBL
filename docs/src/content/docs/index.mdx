@@ -5,16 +5,16 @@ template: splash
 hero:
   tagline: Biblioteca Python y API REST para generar, firmar y validar comprobantes electrónicos SUNAT.
   actions:
-    - text: Comenzar
-      link: /openUBL/getting-started/introduccion/
-      icon: right-arrow
-    - text: Ver en GitHub
-      link: https://github.com/darvin2c/openUBL
-      icon: github
-      variant: minimal
-      attrs:
-        target: _blank
-        rel: noopener noreferrer
+  - text: Comenzar
+    link: /openUBL/getting-started/arquitectura/
+    icon: right-arrow
+  - text: Ver en GitHub
+    link: https://github.com/darvin2c/openUBL
+    icon: github
+    variant: minimal
+    attrs:
+      target: _blank
+      rel: noopener noreferrer
 ---
 
 import SectionLabel from '../../components/SectionLabel.astro';
@@ -80,42 +80,9 @@ import FeatureGrid from '../../components/FeatureGrid.astro';
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, type Invoice, type Proveedor, type Cliente, type DocumentoVentaDetalle } from "@openubl/sdk";
-
-const proveedor: Proveedor = {
-  ruc: "20100066603",
-  razonSocial: "Softgreen S.A.C.",
-};
-
-const cliente: Cliente = {
-  nombre: "Carlos",
-  numeroDocumentoIdentidad: "12121212121",
-  tipoDocumentoIdentidad: "6",
-};
-
-const detalle: DocumentoVentaDetalle = {
-  descripcion: "Item",
-  cantidad: 10,
-  precio: 100,
-};
-
-const invoice: Invoice = {
-  serie: "F001",
-  numero: 1,
-  proveedor,
-  cliente,
-  detalles: [detalle],
-};
-
-const { data, error } = await client.POST("/api/v1/invoice/create", {
-  body: invoice,
-});
-
-if (error) {
-  throw new Error(JSON.stringify(error));
-}
-
-console.log(data.xml); // XML UBL 2.1 generado`,
+    code: `import { createInvoice, type Proveedor, type Cliente, type DocumentoVentaDetalle } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";\n\nconst proveedor: Proveedor = {\n  ruc: "20100066603",\n  razonSocial: "Softgreen S.A.C.",\n};\n\nconst cliente: Cliente = {\n  nombre: "Carlos",\n  numeroDocumentoIdentidad: "12121212121",\n  tipoDocumentoIdentidad: "6",\n};\n\nconst detalle: DocumentoVentaDetalle = {\n  descripcion: "Item",\n  cantidad: 10,\n  precio: 100,\n};\n\nconst invoice = zInvoice.parse({\n  serie: "F001",\n  numero: 1,\n  proveedor,\n  cliente,\n  detalles: [detalle],\n  moneda: "PEN",\n});\n\nconst { data, error } = await createInvoice({\n  body: invoice,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml); // XML UBL 2.…
+    `,
   },
   {
     id: 'curl',
@@ -153,7 +120,7 @@ console.log(data.xml); // XML UBL 2.1 generado`,
   { title: 'Generar XML', description: 'Crea XML UBL 2.1 conforme a las especificaciones de SUNAT para todos los documentos electrónicos soportados.', icon: 'document' },
   { title: 'Firmar documentos', description: 'Firma digitalmente tus comprobantes con el estándar XAdES-EPES requerido por SUNAT.', icon: 'approve-check' },
   { title: 'Validar con SUNAT', description: 'Valida la estructura y contenido de tus documentos antes del envío oficial.', icon: 'seti:python' },
-  { title: 'SDK Multi-lenguaje', description: 'Genera clientes tipados en TypeScript, Java, Go, Python y C# desde OpenAPI.', icon: 'seti:javascript' },
+  { title: 'SDK TypeScript', description: 'Cliente tipado con Zod y @hey-api/client-fetch generado desde OpenAPI.', icon: 'seti:javascript' },
   { title: 'API REST', description: 'Integra vía API REST con tipado Pydantic y documentación OpenAPI interactiva.', icon: 'laptop' },
   { title: 'Clientes tipados', description: 'Usa clientes TypeScript con autocompletado de endpoints y validación estática.', icon: 'open-book' },
 ]} />
@@ -177,10 +144,7 @@ console.log(data.xml); // XML UBL 2.1 generado`,
 
 ## Soporte multi-lenguaje
 
-openUBL se puede usar desde múltiples lenguajes y plataformas:
+openUBL se puede usar desde Python y TypeScript:
 
-- **Python** — Biblioteca nativa con modelos Pydantic
-- **TypeScript / JavaScript** — SDK npm `@openubl/sdk`
-- **Java** — Cliente generado con OpenAPI Generator
-- **Go** — Cliente generado con OpenAPI Generator
-- **C#** — Cliente generado con OpenAPI Generator
+ +- **Python** — Biblioteca nativa con modelos Pydantic
+ +- **TypeScript / JavaScript** — SDK npm `@openubl/sdk`

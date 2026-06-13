@@ -5,8 +5,9 @@ RS N° 300-2014/SUNAT - Resumen Diario (RC).
 from datetime import date
 from decimal import Decimal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
+from .catalog import Catalog1, Catalog19
 from .common import Cliente, Proveedor
 
 
@@ -18,15 +19,14 @@ class ComprobanteImpuestos(BaseModel):
 
 class ComprobanteValorVenta(BaseModel):
     """Valores de venta del comprobante resumido."""
-    importeTotal: Decimal
+    importeTotal: Decimal = Field(ge=0)
     gravado: Decimal | None = None
     exonerado: Decimal | None = None
     inafecto: Decimal | None = None
 
-
 class ComprobanteAfectado(BaseModel):
     """Comprobante afectado para notas."""
-    tipoComprobante: str
+    tipoComprobante: Catalog1
     serieNumero: str
     fechaEmision: date
     importeTotal: Decimal
@@ -35,7 +35,7 @@ class ComprobanteAfectado(BaseModel):
 
 class Comprobante(BaseModel):
     """Comprobante dentro del resumen diario."""
-    tipoComprobante: str
+    tipoComprobante: Catalog1
     serieNumero: str
     cliente: Cliente
     impuestos: ComprobanteImpuestos
@@ -49,7 +49,7 @@ class SummaryDocumentsItem(BaseModel):
     RS N° 300-2014/SUNAT, Anexo 1:
     - Tipo de operación: Catálogo N.° 19 (ADICIONAR, MODIFICAR, ANULADO)
     """
-    tipoOperacion: str  # Catalog19
+    tipoOperacion: Catalog19
     comprobante: Comprobante
 
 

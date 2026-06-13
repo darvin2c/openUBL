@@ -1,0 +1,39 @@
+---
+title: Instalar Python
+description: Instala el paquete openUBL en Python con pip, uv o desde fuente.
+---
+
+openUBL se distribuye como paquete Python. Puedes instalarlo desde PyPI o clonar el repositorio para trabajar con el código fuente.
+
+## Con pip
+
+```bash
+pip install openubl
+```
+
+## Con uv
+
+```bash
+uv add openubl
+```
+
+## Desde fuente
+
+```bash
+git clone https://github.com/darvin2c/openUBL.git
+cd openUBL
+uv pip install -e .
+```
+
+## Verificación
+
+Comprueba que la instalación funcionó importando el paquete:
+
+```python
+import openubl
+print(openubl.__version__)
+```
+
+:::tip[¿Sigues con la API REST o el SDK TypeScript?]
+Si vas a usar la API REST, el SDK TypeScript o cualquier cliente HTTP, el siguiente paso es [levantar el servidor](/openUBL/getting-started/levantar-servidor/).
+:::

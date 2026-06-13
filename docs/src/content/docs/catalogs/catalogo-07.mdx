@@ -3,6 +3,7 @@ title: Catálogo 07 — Tipo de afectación del IGV
 description: Códigos SUNAT de afectación del IGV por línea de comprobante en openUBL.
 ---
 
+import CodeTabs from '../../../components/CodeTabs.astro';
 
 Catálogo SUNAT que indica la afectación del Impuesto General a las Ventas (IGV) para cada línea de un comprobante de venta. Determina si la línea es gravada, exonerada o inafecta, y por tanto qué tributo del Catálogo 05 se aplica.
 
@@ -24,8 +25,12 @@ openUBL usa este valor para decidir si calcula IGV y qué categoría de tributo 
 
 ## Ejemplo
 
-```python
-from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
 from decimal import Decimal
 
 invoice = Invoice(
@@ -58,5 +63,67 @@ invoice = Invoice(
         ),
     ],
     moneda="PEN",
-)
-```
+)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
+
+const invoice = zInvoice.parse({
+  serie: "F001",
+  numero: 127,
+  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },
+  cliente: {
+    nombre: "Cliente Ejemplo",
+    numeroDocumentoIdentidad: "20123456789",
+    tipoDocumentoIdentidad: "6",
+  },
+  detalles: [
+    {
+      descripcion: "Producto gravado",
+      cantidad: 2,
+      precio: 50.00,
+      tipoAfectacionIGV: "10",
+    },
+    {
+      descripcion: "Producto exonerado",
+      cantidad: 1,
+      precio: 100.00,
+      tipoAfectacionIGV: "20",
+    },
+    {
+      descripcion: "Producto inafecto",
+      cantidad: 1,
+      precio: 80.00,
+      tipoAfectacionIGV: "30",
+    },
+  ],
+  moneda: "PEN",
+});
+
+const { data, error } = await createInvoice({ body: invoice });
+if (error) throw new Error(JSON.stringify(error));`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST http://localhost:8000/api/v1/invoice/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "serie": "F001",
+    "numero": 127,
+    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },
+    "cliente": { "nombre": "Cliente Ejemplo", "numeroDocumentoIdentidad": "20123456789", "tipoDocumentoIdentidad": "6" },
+    "detalles": [
+      { "descripcion": "Producto gravado", "cantidad": 2, "precio": 50.00, "tipoAfectacionIGV": "10" },
+      { "descripcion": "Producto exonerado", "cantidad": 1, "precio": 100.00, "tipoAfectacionIGV": "20" },
+      { "descripcion": "Producto inafecto", "cantidad": 1, "precio": 80.00, "tipoAfectacionIGV": "30" }
+    ],
+    "moneda": "PEN"
+  }'`,
+  },
+]} />

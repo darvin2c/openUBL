@@ -3,6 +3,8 @@ title: Factura Electrónica
 description: Guía completa para generar Facturas (01) y Boletas (03) con openUBL.
 ---
 
+import CodeTabs from '../../../components/CodeTabs.astro';
+
 La **Factura Electrónica** (código SUNAT `01`) y la **Boleta Electrónica** (código SUNAT `03`) son los comprobantes de venta más usados en el sistema de emisión electrónica de SUNAT. openUBL genera el XML UBL 2.1 listo para firmar digitalmente y enviar a SUNAT.
 
 - **Factura (01)**: se emite ante operaciones con clientes que tienen RUC y que necesitan crédito fiscal.
@@ -82,8 +84,12 @@ Para emitir un comprobante con varios productos o servicios, incluye cada uno co
 openUBL no expone un campo específico de descuento global por línea. Para reflejar un descuento, disminuye el `precio` unitario de la línea correspondiente o agrega una línea adicional con valor negativo que represente el descuento, siempre que el total final siga siendo mayor a 0.
 :::
 
-```python
-from decimal import Decimal
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from decimal import Decimal
 from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
 
 invoice = Invoice(
@@ -107,8 +113,80 @@ invoice = Invoice(
             precio=Decimal("150.00"),
         ),
     ],
-)
-```
+)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
+
+const invoice = zInvoice.parse({
+  serie: "F001",
+  numero: 5,
+  proveedor: {
+    ruc: "20100100100",
+    razonSocial: "Mi Empresa S.A.C.",
+  },
+  cliente: {
+    nombre: "Juan Pérez",
+    numeroDocumentoIdentidad: "46779327",
+    tipoDocumentoIdentidad: "1",
+  },
+  detalles: [
+    {
+      descripcion: "Laptop Dell XPS 13",
+      cantidad: 1,
+      precio: 4800.00,
+    },
+    {
+      descripcion: "Mouse inalámbrico",
+      cantidad: 2,
+      precio: 150.00,
+    },
+  ],
+});
+
+const { data, error } = await createInvoice({
+  body: invoice,
+});
+
+if (error) throw new Error(JSON.stringify(error));`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/invoice/create" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "serie": "F001",
+    "numero": 5,
+    "proveedor": {
+      "ruc": "20100100100",
+      "razonSocial": "Mi Empresa S.A.C."
+    },
+    "cliente": {
+      "nombre": "Juan Pérez",
+      "numeroDocumentoIdentidad": "46779327",
+      "tipoDocumentoIdentidad": "1"
+    },
+    "detalles": [
+      {
+        "descripcion": "Laptop Dell XPS 13",
+        "cantidad": 1,
+        "precio": 4800.00
+      },
+      {
+        "descripcion": "Mouse inalámbrico",
+        "cantidad": 2,
+        "precio": 150.00
+      }
+    ]
+  }'`,
+  },
+]} />
 
 ## Tipos de operación (Catálogo 51)
 
@@ -134,14 +212,72 @@ Cada línea define su tipo de afectación mediante `tipoAfectacionIGV`. openUBL 
 
 Ejemplo de una línea exonerada:
 
-```python
-DocumentoVentaDetalle(
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `DocumentoVentaDetalle(
     descripcion="Medicamento exonerado",
     cantidad=Decimal("2"),
     precio=Decimal("50.00"),
     tipoAfectacionIGV="20",
-)
-```
+)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
+
+const invoice = zInvoice.parse({
+  // ... cabecera y otras líneas ...
+  detalles: [
+    {
+      descripcion: "Medicamento exonerado",
+      cantidad: 2,
+      precio: 50.00,
+      tipoAfectacionIGV: "20",
+    },
+  ],
+});
+
+const { data, error } = await createInvoice({
+  body: invoice,
+});
+
+if (error) throw new Error(JSON.stringify(error));`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/invoice/create" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "serie": "F001",
+    "numero": 1,
+    "proveedor": {
+      "ruc": "20100100100",
+      "razonSocial": "Mi Empresa S.A.C."
+    },
+    "cliente": {
+      "nombre": "Juan Pérez",
+      "numeroDocumentoIdentidad": "46779327",
+      "tipoDocumentoIdentidad": "1"
+    },
+    "detalles": [
+      {
+        "descripcion": "Medicamento exonerado",
+        "cantidad": 2,
+        "precio": 50.00,
+        "tipoAfectacionIGV": "20"
+      }
+    ]
+  }'`,
+  },
+]} />
 
 ## Monedas extranjeras (USD, EUR)
 
@@ -155,21 +291,78 @@ El campo `moneda` acepta códigos del Catálogo N.° 02:
 
 Cuando emitas en moneda extranjera, establece `moneda` en `USD` o `EUR`. El enriquecimiento calcula los totales en esa moneda; SUNAT recibirá el XML con `DocumentCurrencyCode` correspondiente.
 
-```python
-Invoice(
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `Invoice(
     serie="F001",
     numero=10,
     moneda="USD",
     # ... proveedor, cliente y detalles
-)
-```
+)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
+
+const invoice = zInvoice.parse({
+  serie: "F001",
+  numero: 10,
+  moneda: "USD",
+  // ... proveedor, cliente y detalles ...
+});
+
+const { data, error } = await createInvoice({
+  body: invoice,
+});
+
+if (error) throw new Error(JSON.stringify(error));`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/invoice/create" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "serie": "F001",
+    "numero": 10,
+    "moneda": "USD",
+    "proveedor": {
+      "ruc": "20100100100",
+      "razonSocial": "Mi Empresa S.A.C."
+    },
+    "cliente": {
+      "nombre": "Juan Pérez",
+      "numeroDocumentoIdentidad": "46779327",
+      "tipoDocumentoIdentidad": "1"
+    },
+    "detalles": [
+      {
+        "descripcion": "Servicio de consultoría",
+        "cantidad": 1,
+        "precio": 1000.00
+      }
+    ]
+  }'`,
+  },
+]} />
 
 ## Ejemplo en Python
 
 Este ejemplo crea una factura, la enriquece, renderiza el XML UBL 2.1 y la valida contra las reglas SUNAT:
 
-```python
-from decimal import Decimal
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from decimal import Decimal
 from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
 from openubl.enricher import ContentEnricher
 from openubl.renderer import render_invoice
@@ -211,15 +404,84 @@ if errors:
     print("Errores de validación:", errors)
 else:
     print("XML generado correctamente")
-    print(xml[:500])
-```
+    print(xml[:500])`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
+
+const invoice = zInvoice.parse({
+  serie: "F001",
+  numero: 1,
+  proveedor: {
+    ruc: "20100100100",
+    razonSocial: "Mi Empresa S.A.C.",
+  },
+  cliente: {
+    nombre: "Juan Pérez",
+    numeroDocumentoIdentidad: "46779327",
+    tipoDocumentoIdentidad: "1",
+  },
+  detalles: [
+    {
+      descripcion: "Laptop Dell XPS 13",
+      cantidad: 1,
+      precio: 5000.00,
+    },
+  ],
+});
+
+const { data, error } = await createInvoice({
+  body: invoice,
+});
+
+if (error) throw new Error(JSON.stringify(error));
+
+console.log("XML generado correctamente");
+console.log(data.xml.slice(0, 500));`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/invoice/create" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "serie": "F001",
+    "numero": 1,
+    "proveedor": {
+      "ruc": "20100100100",
+      "razonSocial": "Mi Empresa S.A.C."
+    },
+    "cliente": {
+      "nombre": "Juan Pérez",
+      "numeroDocumentoIdentidad": "46779327",
+      "tipoDocumentoIdentidad": "1"
+    },
+    "detalles": [
+      {
+        "descripcion": "Laptop Dell XPS 13",
+        "cantidad": 1,
+        "precio": 5000.00
+      }
+    ]
+  }'`,
+  },
+]} />
 
 ## Ejemplo con enriquecimiento automático
 
 Si usas la API REST, el enriquecimiento se ejecuta automáticamente. Desde Python también puedes personalizar las tasas o la fecha:
 
-```python
-from openubl.enricher import ContentEnricher
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.enricher import ContentEnricher
 from openubl.models.defaults import Defaults, DateProvider
 from datetime import date
 
@@ -236,15 +498,128 @@ class FixedDateProvider(DateProvider):
         return date(2026, 6, 11)
 
 enricher = ContentEnricher(date_provider=FixedDateProvider())
-enricher.enrich(invoice)
-```
+enricher.enrich(invoice)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `// El enriquecimiento automático y las tasas de IGV/ICBPER se aplican
+// en el servidor al llamar a POST /api/v1/invoice/create.
+// Para forzar una fecha de emisión específica, envía fechaEmision en el body.
 
-## Ejemplo API REST (curl)
+const { data, error } = await createInvoice({
+  body: invoice,
+});
+
+if (error) throw new Error(JSON.stringify(error));`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `# El enriquecimiento automático y las tasas se aplican en el servidor.
+# Para forzar una fecha de emisión, incluye el campo fechaEmision en el JSON:
+curl -X POST "http://localhost:8000/api/v1/invoice/create" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "serie": "F001",
+    "numero": 1,
+    "fechaEmision": "2026-06-11",
+    "proveedor": {
+      "ruc": "20100100100",
+      "razonSocial": "Mi Empresa S.A.C."
+    },
+    "cliente": {
+      "nombre": "Juan Pérez",
+      "numeroDocumentoIdentidad": "46779327",
+      "tipoDocumentoIdentidad": "1"
+    },
+    "detalles": [
+      {
+        "descripcion": "Laptop Dell XPS 13",
+        "cantidad": 1,
+        "precio": 5000.00
+      }
+    ]
+  }'`,
+  },
+]} />
+
+## Ejemplo API REST
 
 Genera una factura o boleta llamando al endpoint de creación:
 
-```bash
-curl -X POST "http://localhost:8000/api/v1/invoice/create?validate=true" \
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `import httpx
+from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
+
+invoice = Invoice(
+    serie="F001",
+    numero=1,
+    proveedor=Proveedor(ruc="20100100100", razonSocial="Mi Empresa S.A.C."),
+    cliente=Cliente(
+        nombre="Juan Pérez",
+        numeroDocumentoIdentidad="46779327",
+        tipoDocumentoIdentidad="1",
+    ),
+    detalles=[
+        DocumentoVentaDetalle(
+            descripcion="Laptop Dell XPS 13",
+            cantidad=1,
+            precio=5000.00,
+        ),
+    ],
+)
+
+with httpx.Client(base_url="http://localhost:8000") as client:
+    response = client.post("/api/v1/invoice/create?validate=true", json=invoice.model_dump(mode="json"))
+    print(response.json())`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
+
+const invoice = zInvoice.parse({
+  serie: "F001",
+  numero: 1,
+  proveedor: {
+    ruc: "20100100100",
+    razonSocial: "Mi Empresa S.A.C.",
+  },
+  cliente: {
+    nombre: "Juan Pérez",
+    numeroDocumentoIdentidad: "46779327",
+    tipoDocumentoIdentidad: "1",
+  },
+  detalles: [
+    {
+      descripcion: "Laptop Dell XPS 13",
+      cantidad: 1,
+      precio: 5000.00,
+    },
+  ],
+});
+
+const { data, error } = await createInvoice({
+  query: { validate: true },
+  body: invoice,
+});
+
+if (error) throw new Error(JSON.stringify(error));`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/invoice/create?validate=true" \
   -H "Content-Type: application/json" \
   -d '{
     "serie": "F001",
@@ -261,20 +636,109 @@ curl -X POST "http://localhost:8000/api/v1/invoice/create?validate=true" \
     "detalles": [
       {
         "descripcion": "Laptop Dell XPS 13",
-        "cantidad": "1",
-        "precio": "5000.00"
+        "cantidad": 1,
+        "precio": 5000.00
       }
     ]
-  }'
-```
+  }'`,
+  },
+]} />
 
 Para omitir la validación SUNAT (por ejemplo, mientras depuras el JSON), usa `?validate=false`:
 
-```bash
-curl -X POST "http://localhost:8000/api/v1/invoice/create?validate=false" \
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `import httpx
+from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
+
+invoice = Invoice(
+    serie="F001",
+    numero=1,
+    proveedor=Proveedor(ruc="20100100100", razonSocial="Mi Empresa S.A.C."),
+    cliente=Cliente(
+        nombre="Juan Pérez",
+        numeroDocumentoIdentidad="46779327",
+        tipoDocumentoIdentidad="1",
+    ),
+    detalles=[
+        DocumentoVentaDetalle(
+            descripcion="Laptop Dell XPS 13",
+            cantidad=1,
+            precio=5000.00,
+        ),
+    ],
+)
+
+with httpx.Client(base_url="http://localhost:8000") as client:
+    response = client.post("/api/v1/invoice/create?validate=false", json=invoice.model_dump(mode="json"))
+    print(response.json())`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
+
+const invoice = zInvoice.parse({
+  serie: "F001",
+  numero: 1,
+  proveedor: {
+    ruc: "20100100100",
+    razonSocial: "Mi Empresa S.A.C.",
+  },
+  cliente: {
+    nombre: "Juan Pérez",
+    numeroDocumentoIdentidad: "46779327",
+    tipoDocumentoIdentidad: "1",
+  },
+  detalles: [
+    {
+      descripcion: "Laptop Dell XPS 13",
+      cantidad: 1,
+      precio: 5000.00,
+    },
+  ],
+});
+
+const { data, error } = await createInvoice({
+  query: { validate: false },
+  body: invoice,
+});
+
+if (error) throw new Error(JSON.stringify(error));`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/invoice/create?validate=false" \
   -H "Content-Type: application/json" \
-  -d '{ ... }'
-```
+  -d '{
+    "serie": "F001",
+    "numero": 1,
+    "proveedor": {
+      "ruc": "20100100100",
+      "razonSocial": "Mi Empresa S.A.C."
+    },
+    "cliente": {
+      "nombre": "Juan Pérez",
+      "numeroDocumentoIdentidad": "46779327",
+      "tipoDocumentoIdentidad": "1"
+    },
+    "detalles": [
+      {
+        "descripcion": "Laptop Dell XPS 13",
+        "cantidad": 1,
+        "precio": 5000.00
+      }
+    ]
+  }'`,
+  },
+]} />
 
 ## Respuesta esperada de la API
 
@@ -298,3 +762,4 @@ Si la validación SUNAT detecta errores, la API responde con estado `422 Unproce
 ```
 
 El campo `xml` contiene el documento UBL 2.1 completo, listo para firmar digitalmente con el endpoint `POST /api/v1/sign` o con la librería de firmado de openUBL.
+    `,

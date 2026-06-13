@@ -3,6 +3,7 @@ title: Catálogo 23 — Régimen de retención
 description: Códigos SUNAT de regímenes de retención aplicables al Comprobante de Retención en openUBL.
 ---
 
+import CodeTabs from '../../../components/CodeTabs.astro';
 
 Catálogo SUNAT que identifica el régimen de retención aplicado en un Comprobante de Retención Electrónico (tipo 20). Determina la tasa y el escenario en el que se retiene el pago al proveedor.
 
@@ -24,8 +25,12 @@ Debe combinarse con `tipoRegimenPorcentaje` para indicar la tasa exacta de reten
 
 ## Ejemplo
 
-```python
-from datetime import date
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from datetime import date
 from decimal import Decimal
 from openubl.models import (
     Retention,
@@ -62,5 +67,76 @@ retencion = Retention(
             ),
         )
     ],
-)
-```
+)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { createRetention } from "@openubl/sdk";
+import { zRetention } from "@openubl/sdk/zod.gen";
+
+const retention = zRetention.parse({
+  serie: "R001",
+  numero: 1,
+  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },
+  cliente: {
+    nombre: "Proveedor Ejemplo",
+    numeroDocumentoIdentidad: "20123456790",
+    tipoDocumentoIdentidad: "6",
+  },
+  importeTotalRetenido: 30.00,
+  importeTotalPagado: 970.00,
+  tipoRegimen: "01",
+  tipoRegimenPorcentaje: 0.03,
+  operaciones: [
+    {
+      numeroOperacion: 1,
+      fechaOperacion: "2026-06-10",
+      importeOperacion: 1000.00,
+      comprobante: {
+        tipoComprobante: "01",
+        serieNumero: "F001-10",
+        fechaEmision: "2026-06-09",
+        importeTotal: 1000.00,
+        moneda: "PEN",
+      },
+    },
+  ],
+});
+
+const { data, error } = await createRetention({ body: retention });
+if (error) throw new Error(JSON.stringify(error));`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST http://localhost:8000/api/v1/retention/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "serie": "R001",
+    "numero": 1,
+    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },
+    "cliente": { "nombre": "Proveedor Ejemplo", "numeroDocumentoIdentidad": "20123456790", "tipoDocumentoIdentidad": "6" },
+    "importeTotalRetenido": 30.00,
+    "importeTotalPagado": 970.00,
+    "tipoRegimen": "01",
+    "tipoRegimenPorcentaje": 0.03,
+    "operaciones": [
+      {
+        "numeroOperacion": 1,
+        "fechaOperacion": "2026-06-10",
+        "importeOperacion": 1000.00,
+        "comprobante": {
+          "tipoComprobante": "01",
+          "serieNumero": "F001-10",
+          "fechaEmision": "2026-06-09",
+          "importeTotal": 1000.00,
+          "moneda": "PEN"
+        }
+      }
+    ]
+  }'`,
+  },
+]} />

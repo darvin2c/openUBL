@@ -1,17 +1,17 @@
 ---
 title: Ejemplo en TypeScript
-description: Crea una factura, obtén el XML y fírmalo usando TypeScript y fetch.
+description: Crea una factura, obtén el XML y fírmala usando el SDK TypeScript de openUBL.
 ---
 
-Este ejemplo usa `fetch` nativo (disponible en Node.js 18+, Deno y Bun). Si prefieres tipos estáticos, puedes usar el [SDK de TypeScript](/sdk/typescript) basado en `openapi-fetch`.
+Este ejemplo usa el SDK `@openubl/sdk` con validación runtime mediante los schemas Zod generados desde OpenAPI.
 
 ## Crear y firmar una factura
 
 ```typescript
-const BASE_URL = "http://localhost:8000";
+import { createInvoice, signXml } from "@openubl/sdk";
+import { zInvoice, zSignXmlBody } from "@openubl/sdk/zod.gen";
 
-// 1. Definir la factura
-const invoice = {
+const invoice = zInvoice.parse({
   serie: "F001",
   numero: 1,
   proveedor: {
@@ -31,77 +31,52 @@ const invoice = {
     },
   ],
   moneda: "PEN",
-};
+});
 
 async function createAndSign() {
-  // 2. Crear el XML
-  const createRes = await fetch(`${BASE_URL}/api/v1/invoice/create`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(invoice),
+  // 1. Crear el XML
+  const { data: createData, error: createError } = await createInvoice({
+    body: invoice,
   });
 
-  if (!createRes.ok) {
-    const err = await createRes.json();
-    throw new Error(`Error al crear factura: ${JSON.stringify(err)}`);
+  if (createError) {
+    throw new Error(`Error al crear factura: ${JSON.stringify(createError)}`);
   }
 
-  const { xml } = (await createRes.json()) as { xml: string };
+  const xml = createData.xml;
   console.log("XML generado:\n", xml);
 
-  // 3. Firmar el XML
+  // 2. Firmar el XML
   const certPem = process.env.CERT_PEM ?? "";
   const keyPem = process.env.KEY_PEM ?? "";
 
-  const signRes = await fetch(`${BASE_URL}/api/v1/sign`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      xml,
-      cert_pem: certPem,
-      key_pem: keyPem,
-      signature_id: "SignSUNAT",
-    }),
+  const body = zSignXmlBody.parse({
+    xml,
+    cert_pem: certPem,
+    key_pem: keyPem,
   });
 
-  if (!signRes.ok) {
-    const err = await signRes.json();
-    throw new Error(`Error al firmar: ${JSON.stringify(err)}`);
+  const { data: signData, error: signError } = await signXml({ body });
+
+  if (signError) {
+    throw new Error(`Error al firmar: ${JSON.stringify(signError)}`);
   }
 
-  const { signed_xml } = (await signRes.json()) as { signed_xml: string };
-  console.log("XML firmado:\n", signed_xml);
+  console.log("XML firmado:\n", signData.signed_xml);
 }
 
 createAndSign();
-```
-
-## Con el SDK tipado
-
-Si generaste los tipos con `openapi-typescript`, el cliente te ofrece autocompletado de endpoints y validación en tiempo de compilación:
-
-```typescript
-import createClient from "openapi-fetch";
-import type { paths } from "./openubl-types";
-
-const client = createClient<paths>({ baseUrl: BASE_URL });
-
-const { data, error } = await client.POST("/api/v1/invoice/create", {
-  body: invoice,
-});
-
-if (error) throw error;
-console.log(data.xml);
 ```
 
 ## Variantes rápidas
 
 ### Nota de crédito
 
-Reemplaza el endpoint y el payload:
-
 ```typescript
-const creditNote = {
+import { createCreditNote } from "@openubl/sdk";
+import { zCreditNote } from "@openubl/sdk/zod.gen";
+
+const creditNote = zCreditNote.parse({
   serie: "BC01",
   numero: 1,
   comprobanteAfectadoSerieNumero: "F001-1",
@@ -110,19 +85,21 @@ const creditNote = {
   cliente: invoice.cliente,
   detalles: invoice.detalles,
   moneda: "PEN",
-};
-
-await fetch(`${BASE_URL}/api/v1/credit-note/create`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(creditNote),
 });
+
+const { data, error } = await createCreditNote({ body: creditNote });
+
+if (error) throw error;
+console.log(data.xml);
 ```
 
 ### Comunicación de baja
 
 ```typescript
-const voided = {
+import { createVoidedDocuments } from "@openubl/sdk";
+import { zVoidedDocuments } from "@openubl/sdk/zod.gen";
+
+const voided = zVoidedDocuments.parse({
   numero: 1,
   fechaEmisionComprobantes: "2024-01-15",
   proveedor: invoice.proveedor,
@@ -134,11 +111,30 @@ const voided = {
       descripcionSustento: "Error en datos del cliente",
     },
   ],
-};
+});
 
-await fetch(`${BASE_URL}/api/v1/voided-documents/create`, {
+const { data, error } = await createVoidedDocuments({ body: voided });
+
+if (error) throw error;
+console.log(data.xml);
+```
+
+## Con `fetch` nativo
+
+Si prefieres no usar el SDK, puedes llamar a la API directamente con `fetch`:
+
+```typescript
+const BASE_URL = "http://localhost:8000";
+
+const createRes = await fetch(`${BASE_URL}/api/v1/invoice/create`, {
   method: "POST",
   headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(voided),
+  body: JSON.stringify(invoice),
 });
+
+if (!createRes.ok) {
+  throw new Error(`Error: ${await createRes.text()}`);
+}
+
+const { xml } = (await createRes.json()) as { xml: string };
 ```

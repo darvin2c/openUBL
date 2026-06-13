@@ -3,6 +3,7 @@ title: Catálogo 06 — Tipo de documento de identidad
 description: Códigos SUNAT de tipos de documento de identidad para emisores y clientes en openUBL.
 ---
 
+import CodeTabs from '../../../components/CodeTabs.astro';
 
 Catálogo SUNAT que identifica el tipo de documento de identidad del emisor o del adquirente/usuario de un comprobante electrónico.
 
@@ -27,8 +28,12 @@ SUNAT exige que el emisor siempre se identifique con RUC (`6`). El cliente puede
 
 ## Ejemplo
 
-```python
-from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
 from decimal import Decimal
 
 invoice = Invoice(
@@ -52,5 +57,54 @@ invoice = Invoice(
         )
     ],
     moneda="PEN",
-)
-```
+)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
+
+const invoice = zInvoice.parse({
+  serie: "F001",
+  numero: 126,
+  proveedor: {
+    ruc: "20100100100",
+    razonSocial: "Mi Empresa S.A.C.",
+  },
+  cliente: {
+    nombre: "Juan Pérez",
+    numeroDocumentoIdentidad: "12345678",
+    tipoDocumentoIdentidad: "1",
+  },
+  detalles: [
+    {
+      descripcion: "Producto A",
+      cantidad: 1,
+      precio: 80.00,
+      tipoAfectacionIGV: "10",
+    },
+  ],
+  moneda: "PEN",
+});
+
+const { data, error } = await createInvoice({ body: invoice });
+if (error) throw new Error(JSON.stringify(error));`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST http://localhost:8000/api/v1/invoice/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "serie": "F001",
+    "numero": 126,
+    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },
+    "cliente": { "nombre": "Juan Pérez", "numeroDocumentoIdentidad": "12345678", "tipoDocumentoIdentidad": "1" },
+    "detalles": [{ "descripcion": "Producto A", "cantidad": 1, "precio": 80.00, "tipoAfectacionIGV": "10" }],
+    "moneda": "PEN"
+  }'`,
+  },
+]} />

@@ -3,6 +3,7 @@ Common models for electronic documents.
 Based on RS N° 300-2014/SUNAT - Sistema de Emisión Electrónica.
 """
 from pydantic import BaseModel, Field
+from .catalog import Catalog6
 
 
 class Address(BaseModel):
@@ -42,5 +43,5 @@ class Cliente(BaseModel):
     - Número de documento: según tipo
     """
     nombre: str
-    numeroDocumentoIdentidad: str
-    tipoDocumentoIdentidad: str  # Catalog6 code
+    numeroDocumentoIdentidad: str = Field(min_length=1, pattern=r"^\w+$")
+    tipoDocumentoIdentidad: Catalog6

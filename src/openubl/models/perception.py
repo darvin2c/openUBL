@@ -7,8 +7,8 @@ from decimal import Decimal
 
 from pydantic import BaseModel, Field
 
+from .catalog import Catalog2, Catalog22
 from .common import Cliente, Proveedor
-
 
 class ComprobanteAfectado(BaseModel):
     """Comprobante afectado por la percepción."""
@@ -16,7 +16,7 @@ class ComprobanteAfectado(BaseModel):
     serieNumero: str
     fechaEmision: date
     importeTotal: Decimal
-    moneda: str
+    moneda: Catalog2
 
 
 class PercepcionRetencionOperacion(BaseModel):
@@ -37,12 +37,12 @@ class Perception(BaseModel):
         pattern=r"^P\d{3}$",
         description="Serie de percepción (P###)",
     )
-    numero: int
+    numero: int = Field(ge=1)
     fechaEmision: date
     proveedor: Proveedor
     cliente: Cliente
     importeTotalPercibido: Decimal
     importeTotalCobrado: Decimal
-    tipoRegimen: str  # Catalog22
+    tipoRegimen: Catalog22
     tipoRegimenPorcentaje: Decimal
     operaciones: list[PercepcionRetencionOperacion]

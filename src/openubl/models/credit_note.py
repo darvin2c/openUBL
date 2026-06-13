@@ -7,6 +7,7 @@ from decimal import Decimal
 
 from pydantic import BaseModel, Field
 
+from .catalog import Catalog2
 from .common import Cliente, Proveedor
 from .invoice import DocumentoVentaDetalle
 
@@ -22,13 +23,13 @@ class CreditNote(BaseModel):
         pattern=r"^[BCbc][A-Za-z0-9]{2,3}$",
         description="Serie de nota de crédito",
     )
-    numero: int
+    numero: int = Field(ge=1)
     comprobanteAfectadoSerieNumero: str
     sustentoDescripcion: str
     proveedor: Proveedor
     cliente: Cliente
     detalles: list[DocumentoVentaDetalle]
-    moneda: str = "PEN"
+    moneda: Catalog2 = Catalog2.PEN
     fechaEmision: date | None = None
     igvTotal: Decimal | None = None
     valorVentaTotal: Decimal | None = None

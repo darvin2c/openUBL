@@ -1,9 +1,17 @@
 ---
 title: Introducción
-description: ¿Qué es openUBL? Arquitectura y documentos soportados para facturación electrónica SUNAT.
+description: ¿Qué es openUBL? Arquitectura, documentos soportados y cómo empezar con facturación electrónica SUNAT.
 ---
 
 openUBL es un SDK y API REST para generar, firmar y validar documentos electrónicos conformes a SUNAT (Perú). Produce XML UBL 2.1 listo para envío a la plataforma de facturación electrónica.
+
+## Tres formas de usar openUBL
+
+Puedes usar openUBL como biblioteca Python nativa, consumir la API REST con cualquier cliente HTTP, o integrar el SDK TypeScript. La elección depende de tu stack y de si prefieres levantar un servidor. Lee los detalles en [Arquitectura](/openUBL/getting-started/arquitectura/) y la guía de decisión en [Cómo elegir](/openUBL/getting-started/como-elegir/).
+
+:::tip[¿Necesitas levantar un servidor?]
+Para entender si tu modo de uso requiere levantar el servidor API, empieza por [Arquitectura](/openUBL/getting-started/arquitectura/).
+:::
 
 ## Documentos soportados
 
@@ -16,13 +24,3 @@ openUBL es un SDK y API REST para generar, firmar y validar documentos electrón
 | `SummaryDocuments` | Resumen diario de boletas |
 | `Perception` | Percepción |
 | `Retention` | Retención |
-
-## Arquitectura
-
-openUBL se compone de tres capas:
-
-1. **Modelos Pydantic** — Validación de datos y serialización a XML UBL 2.1.
-2. **Firma digital** — Firma XAdES-EPES con certificado digital.
-3. **API REST** — Endpoints tipados con FastAPI y documentación OpenAPI.
-
-El flujo típico es: construir un modelo → renderizar a XML → firmar → enviar a SUNAT.

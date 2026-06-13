@@ -98,46 +98,16 @@ debit_note = DebitNote(
 )
 
 xml = render_debit_note(debit_note)
-errors = SunatValidator().validate_credit_note(xml)
-assert errors == []
+errors = SunatValidator().validate_debit_note(xml)
+assert errors == [], errors
 print(xml)`,
   },
   {
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client } from "@openubl/sdk";
-
-const { data, error } = await client.POST("/api/v1/debit-note/create?validate=true", {
-  body: {
-    serie: "FC01",
-    numero: 1,
-    comprobanteAfectadoSerieNumero: "F001-45",
-    sustentoDescripcion: "Intereses moratorios",
-    proveedor: {
-      ruc: "20100100100",
-      razonSocial: "Mi Empresa S.A.C.",
-    },
-    cliente: {
-      nombre: "Juan Pérez",
-      numeroDocumentoIdentidad: "46779327",
-      tipoDocumentoIdentidad: "1",
-    },
-    detalles: [
-      {
-        descripcion: "Intereses moratorios - Laptop Dell XPS 13",
-        cantidad: "1",
-        precio: "150.00",
-      },
-    ],
-  },
-});
-
-if (error) {
-  throw new Error(JSON.stringify(error));
-}
-
-console.log(data.xml);`,
+    code: `import { createDebitNote } from "@openubl/sdk";
+import { zDebitNote } from "@openubl/sdk/zod.gen";\n\nconst debitNote = zDebitNote.parse({\n  serie: \"FC01\",\n  numero: 1,\n  comprobanteAfectadoSerieNumero: \"F001-45\",\n  sustentoDescripcion: \"Intereses moratorios\",\n  proveedor: {\n    ruc: \"20100100100\",\n    razonSocial: \"Mi Empresa S.A.C.\",\n  },\n  cliente: {\n    nombre: \"Juan Pérez\",\n    numeroDocumentoIdentidad: \"46779327\",\n    tipoDocumentoIdentidad: \"1\",\n  },\n  detalles: [\n    {\n      descripcion: \"Intereses moratorios - Laptop Dell XPS 13\",\n      cantidad: \"1\",\n      precio: \"150.00\",\n    },\n  ],\n});\n\nconst { data, error } = await createDebitNote({ query: { validate: true }, body: debitNote });\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
   },
   {
     id: 'curl',
@@ -161,44 +131,27 @@ console.log(data.xml);`,
 
 `ContentEnricher` calcula `fechaEmision`, `valorVenta`, `igv`, `precioVenta`, `valorVentaTotal`, `igvTotal` e `importeTotal`.
 
-```python
-from openubl.models import (
-    DebitNote, Proveedor, Cliente, DocumentoVentaDetalle,
-)
-from openubl.enricher import ContentEnricher
-from openubl.renderer import render_debit_note
-from openubl.validator import SunatValidator
-from decimal import Decimal
-
-debit_note = DebitNote(
-    serie="FC01",
-    numero=1,
-    comprobanteAfectadoSerieNumero="F001-45",
-    sustentoDescripcion="Intereses moratorios",
-    proveedor=Proveedor(
-        ruc="20100100100",
-        razonSocial="Mi Empresa S.A.C.",
-    ),
-    cliente=Cliente(
-        nombre="Juan Pérez",
-        numeroDocumentoIdentidad="46779327",
-        tipoDocumentoIdentidad="1",
-    ),
-    detalles=[
-        DocumentoVentaDetalle(
-            descripcion="Intereses moratorios - Laptop Dell XPS 13",
-            cantidad=Decimal("1"),
-            precio=Decimal("150.00"),
-        ),
-    ],
-)
-
-ContentEnricher().enrich(debit_note)
-xml = render_debit_note(debit_note)
-errors = SunatValidator().validate_credit_note(xml)
-assert errors == []
-print(xml)
-```
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.models import (\n    DebitNote, Proveedor, Cliente, DocumentoVentaDetalle,\n)\nfrom openubl.enricher import ContentEnricher\nfrom openubl.renderer import render_debit_note\nfrom openubl.validator import SunatValidator\nfrom decimal import Decimal\n\ndebit_note = DebitNote(\n    serie="FC01",\n    numero=1,\n    comprobanteAfectadoSerieNumero="F001-45",\n    sustentoDescripcion="Intereses moratorios",\n    proveedor=Proveedor(\n        ruc="20100100100",\n        razonSocial="Mi Empresa S.A.C.",\n    ),\n    cliente=Cliente(\n        nombre="Juan Pérez",\n        numeroDocumentoIdentidad="46779327",\n        tipoDocumentoIdentidad="1",\n    ),\n    detalles=[\n        DocumentoVentaDetalle(\n            descripcion="Intereses moratorios - Laptop Dell XPS 13",\n            cantidad=Decimal("1"),\n            precio=Decimal("150.00"),\n        ),\n    ],\n)\n\nContentEnricher().enrich(debit_note)\nxml = render_debit_note(debit_note)\nerrors = SunatValidator().validate_debit_note(xml)\nassert errors == [], errors\nprint(xml)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { createDebitNote } from "@openubl/sdk";
+import { zDebitNote } from "@openubl/sdk/zod.gen";\n\nconst debitNote = zDebitNote.parse({\n  serie: "FC01",\n  numero: 1,\n  comprobanteAfectadoSerieNumero: "F001-45",\n  sustentoDescripcion: "Intereses moratorios",\n  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },\n  cliente: { nombre: "Juan Pérez", numeroDocumentoIdentidad: "46779327", tipoDocumentoIdentidad: "1" },\n  detalles: [\n    { descripcion: "Intereses moratorios - Laptop Dell XPS 13", cantidad: "1", precio: "150.00" },\n  ],\n});\n\nconst { data, error } = await createDebitNote({ body: debitNote });\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/debit-note/create" \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "serie": "FC01",\n    "numero": 1,\n    "comprobanteAfectadoSerieNumero": "F001-45",\n    "sustentoDescripcion": "Intereses moratorios",\n    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },\n    "cliente": { "nombre": "Juan Pérez", "numeroDocumentoIdentidad": "46779327", "tipoDocumentoIdentidad": "1" },\n    "detalles": [{\n      "descripcion": "Intereses moratorios - Laptop Dell XPS 13",\n      "cantidad": "1",\n      "precio": "150.00"\n    }]\n  }'`,
+  },
+]} />
 
 <CodeTabs tabs={[
   {
@@ -241,38 +194,8 @@ print(xml)`,
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client } from "@openubl/sdk";
-
-const { data, error } = await client.POST("/api/v1/debit-note/create?validate=true", {
-  body: {
-    serie: "FC01",
-    numero: 1,
-    comprobanteAfectadoSerieNumero: "F001-45",
-    sustentoDescripcion: "Intereses moratorios",
-    proveedor: {
-      ruc: "20100100100",
-      razonSocial: "Mi Empresa S.A.C.",
-    },
-    cliente: {
-      nombre: "Juan Pérez",
-      numeroDocumentoIdentidad: "46779327",
-      tipoDocumentoIdentidad: "1",
-    },
-    detalles: [
-      {
-        descripcion: "Intereses moratorios",
-        cantidad: "1",
-        precio: "150.00",
-      },
-    ],
-  },
-});
-
-if (error) {
-  throw new Error(JSON.stringify(error));
-}
-
-console.log(data.xml);`,
+    code: `import { createDebitNote } from "@openubl/sdk";
+import { zDebitNote } from "@openubl/sdk/zod.gen";\n\nconst debitNote = zDebitNote.parse({\n  serie: \"FC01\",\n  numero: 1,\n  comprobanteAfectadoSerieNumero: \"F001-45\",\n  sustentoDescripcion: \"Intereses moratorios\",\n  proveedor: {\n    ruc: \"20100100100\",\n    razonSocial: \"Mi Empresa S.A.C.\",\n  },\n  cliente: {\n    nombre: \"Juan Pérez\",\n    numeroDocumentoIdentidad: \"46779327\",\n    tipoDocumentoIdentidad: \"1\",\n  },\n  detalles: [\n    {\n      descripcion: \"Intereses moratorios\",\n      cantidad: \"1\",\n      precio: \"150.00\",\n    },\n  ],\n});\n\nconst { data, error } = await createDebitNote({ body: debitNote });\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
   },
   {
     id: 'curl',
@@ -289,6 +212,34 @@ console.log(data.xml);`,
     "cliente": { "nombre": "Juan Pérez", "numeroDocumentoIdentidad": "46779327", "tipoDocumentoIdentidad": "1" },
     "detalles": [{ "descripcion": "Intereses moratorios", "cantidad": "1", "precio": "150.00" }]
   }'`,
+  },
+]} />
+
+## Casos especiales
+
+### Múltiples cargos
+
+Puedes incluir varias líneas de débito en una sola nota. El enriquecedor suma los importes y calcula los totales.
+
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.models import (\n    DebitNote, Proveedor, Cliente, DocumentoVentaDetalle,\n)\nfrom openubl.enricher import ContentEnricher\nfrom openubl.renderer import render_debit_note\nfrom openubl.validator import SunatValidator\nfrom decimal import Decimal\n\ndebit_note = DebitNote(\n    serie="FD01",\n    numero=1,\n    comprobanteAfectadoSerieNumero="F001-45",\n    sustentoDescripcion="Intereses y recargos",\n    proveedor=Proveedor(ruc="20100100100", razonSocial="Mi Empresa S.A.C."),\n    cliente=Cliente(\n        nombre="Juan Pérez",\n        numeroDocumentoIdentidad="46779327",\n        tipoDocumentoIdentidad="1",\n    ),\n    detalles=[\n        DocumentoVentaDetalle(\n            descripcion="Intereses moratorios",\n            cantidad=Decimal("1"),\n            precio=Decimal("80.00"),\n        ),\n        DocumentoVentaDetalle(\n            descripcion="Recargo administrativo",\n            cantidad=Decimal("1"),\n            precio=Decimal("20.00"),\n        ),\n    ],\n)\n\nContentEnricher().enrich(debit_note)\nxml = render_debit_note(debit_note)\nerrors = SunatValidator().validate_debit_note(xml)\nassert errors == [], errors\nprint(xml)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { createDebitNote } from "@openubl/sdk";
+import { zDebitNote } from "@openubl/sdk/zod.gen";\n\nconst debitNote = zDebitNote.parse({\n  serie: "FD01",\n  numero: 1,\n  comprobanteAfectadoSerieNumero: "F001-45",\n  sustentoDescripcion: "Intereses y recargos",\n  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },\n  cliente: { nombre: "Juan Pérez", numeroDocumentoIdentidad: "46779327", tipoDocumentoIdentidad: "1" },\n  detalles: [\n    { descripcion: "Intereses moratorios", cantidad: "1", precio: "80.00" },\n    { descripcion: "Recargo administrativo", cantidad: "1", precio: "20.00" },\n  ],\n});\n\nconst { data, error } = await createDebitNote({ body: debitNote });\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/debit-note/create" \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "serie": "FD01",\n    "numero": 1,\n    "comprobanteAfectadoSerieNumero": "F001-45",\n    "sustentoDescripcion": "Intereses y recargos",\n    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },\n    "cliente": { "nombre": "Juan Pérez", "numeroDocumentoIdentidad": "46779327", "tipoDocumentoIdentidad": "1" },\n    "detalles": [\n      { "descripcion": "Intereses moratorios", "cantidad": "1", "precio": "80.00" },\n      { "descripcion": "Recargo administrativo", "cantidad": "1", "precio": "20.00" }\n    ]\n  }'`,
   },
 ]} />
 

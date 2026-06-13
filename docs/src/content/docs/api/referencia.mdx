@@ -1,205 +1,415 @@
 ---
-title: Referencia de la API
-description: Endpoints disponibles en la API REST de openUBL.
+title: Referencia de endpoints
+description: Endpoints y modelos de la API REST de openUBL.
 ---
 
-La API REST de openUBL expone un conjunto de endpoints para generar XML de comprobantes electrónicos SUNAT y firmarlos digitalmente. Todos los endpoints de creación devuelven un objeto JSON con la clave `xml`, salvo `/sign` que devuelve `signed_xml`.
+Esta referencia se genera automáticamente desde `openapi.json`. No editar manualmente.
 
 ## Endpoints
 
-| Método | Endpoint | Descripción | Cuerpo | Query params | Respuesta |
-|--------|----------|-------------|--------|--------------|-----------|
-| `GET` | `/api/v1/version` | Devuelve la versión actual de la API | — | — | `{"version": "0.1.1"}` |
-| `POST` | `/api/v1/invoice/create` | Genera el XML de una **Factura Electrónica** (tipo 01) | `Invoice` | `validate` (bool, default `true`) | `{"xml": string}` |
-| `POST` | `/api/v1/credit-note/create` | Genera el XML de una **Nota de Crédito** (tipo 07) | `CreditNote` | `validate` (bool, default `true`) | `{"xml": string}` |
-| `POST` | `/api/v1/debit-note/create` | Genera el XML de una **Nota de Débito** (tipo 08) | `DebitNote` | `validate` (bool, default `true`) | `{"xml": string}` |
-| `POST` | `/api/v1/voided-documents/create` | Genera el XML de una **Comunicación de Baja** (RA) | `VoidedDocuments` | `validate` (bool, default `true`) | `{"xml": string}` |
-| `POST` | `/api/v1/summary-documents/create` | Genera el XML de un **Resumen Diario** (RC) | `SummaryDocuments` | `validate` (bool, default `true`) | `{"xml": string}` |
-| `POST` | `/api/v1/perception/create` | Genera el XML de un **Comprobante de Percepción** (tipo 40) | `Perception` | `validate` (bool, default `true`) | `{"xml": string}` |
-| `POST` | `/api/v1/retention/create` | Genera el XML de un **Comprobante de Retención** (tipo 20) | `Retention` | `validate` (bool, default `true`) | `{"xml": string}` |
-| `POST` | `/api/v1/sign` | Firma un XML con certificado y clave PEM | `SignPayload` | — | `{"signed_xml": string}` |
+| Método | Ruta | Cuerpo | Respuesta |
+|--------|------|--------|-----------|
+| POST | `/api/v1/credit-note/create` | [`CreditNote`](#creditnote) | [`XmlResponse`](#xmlresponse) |
+| POST | `/api/v1/debit-note/create` | [`DebitNote`](#debitnote) | [`XmlResponse`](#xmlresponse) |
+| POST | `/api/v1/invoice/create` | [`Invoice`](#invoice) | [`XmlResponse`](#xmlresponse) |
+| POST | `/api/v1/perception/create` | [`Perception`](#perception) | [`XmlResponse`](#xmlresponse) |
+| POST | `/api/v1/retention/create` | [`Retention`](#retention) | [`XmlResponse`](#xmlresponse) |
+| POST | `/api/v1/sign` | — | [`SignedXmlResponse`](#signedxmlresponse) |
+| POST | `/api/v1/summary-documents/create` | [`SummaryDocuments`](#summarydocuments) | [`XmlResponse`](#xmlresponse) |
+| GET | `/api/v1/version` | — | — |
+| POST | `/api/v1/voided-documents/create` | [`VoidedDocuments`](#voideddocuments) | [`XmlResponse`](#xmlresponse) |
 
-### `GET /api/v1/version`
+## Modelos
 
-Devuelve la versión actual de openUBL. Útil para verificar compatibilidad entre SDKs y la API desplegada.
+### `Address`
 
-```json
-{
-  "version": "0.1.1"
-}
-```
+Dirección según esquema UBL 2.1 de SUNAT.
 
-### Parámetro de consulta `validate`
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `codigoPais` | string | No | default: `PE` |
+| `departamento` | union | No | — |
+| `direccion` | union | No | — |
+| `distrito` | union | No | — |
+| `provincia` | union | No | — |
+| `ubigeo` | union | No | — |
+| `urbanizacion` | union | No | — |
 
-Todos los endpoints de creación (`/api/v1/*/create`) aceptan el parámetro `?validate=true|false`. Cuando está activo (`true`, valor por defecto), openUBL ejecuta las validaciones SUNAT y del esquema UBL 2.1 sobre el XML generado antes de responder. Si el XML no cumple las reglas, la API devuelve `422 Unprocessable Entity` con el listado de errores detectados.
+### `Catalog1`
 
-Usa `?validate=false` únicamente cuando necesites inspeccionar el XML crudo generado a partir de un payload; en producción se recomienda dejar la validación activada.
+Tipo de Comprobante - Catálogo N.° 01
 
-## Autenticación
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| Valores | enum | — | `01`, `03`, `07`, `08`, `09`, `20`, `40` |
 
-La API REST de openUBL es pública por defecto y no requiere autenticación ni tokens de acceso. Cualquier cliente que pueda alcanzar el servidor puede consumir los endpoints. Si expones la API en Internet, colócala detrás de un proxy o gateway con las medidas de seguridad que consideres necesarias.
+### `Catalog19`
 
-## Esquemas de solicitud
+Tipo de Operación - Resumen Diario - Catálogo N.° 19
 
-### `Invoice`
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| Valores | enum | — | `1`, `2`, `3` |
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `serie` | `string` | Serie de la factura (p. ej. `F001`) o boleta (`B001`). Patrón: `^[FBfb][A-Za-z0-9]{2,3}$` |
-| `numero` | `integer` | Correlativo del comprobante |
-| `proveedor` | `Proveedor` | Datos del emisor |
-| `cliente` | `Cliente` | Datos del adquirente |
-| `detalles` | `DocumentoVentaDetalle[]` | Líneas de producto o servicio |
-| `moneda` | `string` | Código de moneda (default `PEN`) |
-| `fechaEmision` | `date` | Fecha de emisión (opcional) |
-| `igvTotal` | `Decimal` | Total IGV (opcional, se calcula automáticamente) |
-| `valorVentaTotal` | `Decimal` | Valor de venta total (opcional) |
-| `importeTotal` | `Decimal` | Importe total (opcional) |
-| `tipoOperacion` | `string` | Tipo de operación (default `0101`) |
+### `Catalog2`
 
-### `CreditNote`
+Tipo de Moneda - Catálogo N.° 02
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `serie` | `string` | Serie (`BC…` o `FC…`). Patrón: `^[BCbc][A-Za-z0-9]{2,3}$` |
-| `numero` | `integer` | Correlativo |
-| `comprobanteAfectadoSerieNumero` | `string` | Serie-número del comprobante afectado |
-| `sustentoDescripcion` | `string` | Descripción del sustento |
-| `proveedor` | `Proveedor` | Datos del emisor |
-| `cliente` | `Cliente` | Datos del adquirente |
-| `detalles` | `DocumentoVentaDetalle[]` | Líneas de detalle |
-| `moneda` | `string` | Código de moneda (default `PEN`) |
-| `fechaEmision` | `date` | Fecha de emisión (opcional) |
-| `igvTotal` | `Decimal` | Total IGV (opcional) |
-| `valorVentaTotal` | `Decimal` | Valor de venta total (opcional) |
-| `importeTotal` | `Decimal` | Importe total (opcional) |
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| Valores | enum | — | `PEN`, `USD`, `EUR` |
 
-### `DebitNote`
+### `Catalog22`
 
-Idéntico a `CreditNote` en estructura; representa una Nota de Débito Electrónica (tipo 08).
+Régimen de Percepción - Catálogo N.° 22
 
-### `VoidedDocuments`
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| Valores | enum | — | `01`, `02`, `03` |
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `numero` | `integer` | Correlativo del documento de baja |
-| `fechaEmisionComprobantes` | `date` | Fecha de emisión de los comprobantes que se dan de baja |
-| `fechaEmision` | `date` | Fecha de emisión del comunicado (opcional) |
-| `proveedor` | `Proveedor` | Datos del emisor |
-| `comprobantes` | `VoidedDocumentsItem[]` | Listado de comprobantes a dar de baja |
+### `Catalog23`
 
-#### `VoidedDocumentsItem`
+Régimen de Retención - Catálogo N.° 23
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `serie` | `string` | Serie del comprobante |
-| `numero` | `integer` | Número del comprobante |
-| `tipoComprobante` | `string` | Código del tipo de comprobante (Catálogo 01) |
-| `descripcionSustento` | `string` | Motivo de la baja |
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| Valores | enum | — | `01`, `02`, `03` |
 
-### `SummaryDocuments`
+### `Catalog51`
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `numero` | `integer` | Correlativo del resumen |
-| `fechaEmisionComprobantes` | `date` | Fecha de emisión de los comprobantes resumidos |
-| `proveedor` | `Proveedor` | Datos del emisor |
-| `comprobantes` | `SummaryDocumentsItem[]` | Ítems del resumen |
+Tipo de Operación - Catálogo N.° 51
 
-#### `SummaryDocumentsItem`
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| Valores | enum | — | `0101`, `0102`, `0103`, `0104`, `0105`, `0106`, `0107`, `0108`, `0110`, `0200`, `0201`, `0202`, `0203`, `0204`, `0205`, `0206`, `0207` |
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `tipoOperacion` | `string` | `1`=ADICIONAR, `2`=MODIFICAR, `3`=ANULADO (Catálogo 19) |
-| `comprobante` | `Comprobante` | Datos del comprobante resumido |
+### `Catalog6`
 
-### `Perception`
+Tipo de Documento de Identidad - Catálogo N.° 06
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `serie` | `string` | Serie (`P###`). Patrón: `^P\d{3}$` |
-| `numero` | `integer` | Correlativo |
-| `fechaEmision` | `date` | Fecha de emisión |
-| `proveedor` | `Proveedor` | Datos del emisor |
-| `cliente` | `Cliente` | Datos del adquirente |
-| `importeTotalPercibido` | `Decimal` | Importe total percibido |
-| `importeTotalCobrado` | `Decimal` | Importe total cobrado |
-| `tipoRegimen` | `string` | Régimen (Catálogo 22) |
-| `tipoRegimenPorcentaje` | `Decimal` | Porcentaje del régimen |
-| `operaciones` | `PercepcionRetencionOperacion[]` | Operaciones de percepción |
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| Valores | enum | — | `0`, `1`, `4`, `6`, `7` |
 
-### `Retention`
+### `Catalog7`
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `serie` | `string` | Serie (`R###`). Patrón: `^R\d{3}$` |
-| `importeTotalRetenido` | `Decimal` | Importe total retenido |
-| `importeTotalPagado` | `Decimal` | Importe total pagado |
-| `tipoRegimen` | `string` | Régimen (Catálogo 23) |
-| `tipoRegimenPorcentaje` | `Decimal` | Porcentaje del régimen |
-| `operaciones` | `PercepcionRetencionOperacion[]` | Operaciones de retención |
+Tipo de Afectación del IGV - Catálogo N.° 07
 
-### `SignPayload` (`/sign`)
-
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `xml` | `string` | XML a firmar |
-| `cert_pem` | `string` | Certificado en formato PEM |
-| `key_pem` | `string` | Clave privada en formato PEM |
-| `signature_id` | `string` | Identificador de la firma (default `SignSUNAT`) |
-
-## Tipos auxiliares
-
-### `Proveedor`
-
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `ruc` | `string` | RUC del emisor (11 dígitos) |
-| `razonSocial` | `string` | Razón social |
-| `nombreComercial` | `string` | Nombre comercial (opcional) |
-| `address` | `Address` | Dirección (opcional) |
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| Valores | enum | — | `10`, `20`, `30` |
 
 ### `Cliente`
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `nombre` | `string` | Nombre o razón social |
-| `numeroDocumentoIdentidad` | `string` | Número de documento |
-| `tipoDocumentoIdentidad` | `string` | Código del tipo de documento (Catálogo 06) |
+Datos del adquirente o usuario.
+
+RS N° 300-2014/SUNAT, Anexo 1:
+- Tipo de documento: Catálogo N.° 06
+- Número de documento: según tipo
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `nombre` | string | Sí | — |
+| `numeroDocumentoIdentidad` | string | Sí | `pattern`; min 1 |
+| `tipoDocumentoIdentidad` | [`Catalog6`](#catalog6) | Sí | — |
+
+### `Comprobante`
+
+Comprobante dentro del resumen diario.
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `cliente` | [`Cliente`](#cliente) | Sí | — |
+| `comprobanteAfectado` | union | No | — |
+| `impuestos` | [`ComprobanteImpuestos`](#comprobanteimpuestos) | Sí | — |
+| `serieNumero` | string | Sí | — |
+| `tipoComprobante` | [`Catalog1`](#catalog1) | Sí | — |
+| `valorVenta` | [`ComprobanteValorVenta`](#comprobantevalorventa) | Sí | — |
+
+### `ComprobanteImpuestos`
+
+Impuestos del comprobante resumido.
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `icb` | union | No | — |
+| `igv` | union | Sí | — |
+
+### `ComprobanteValorVenta`
+
+Valores de venta del comprobante resumido.
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `exonerado` | union | No | — |
+| `gravado` | union | No | — |
+| `importeTotal` | union | Sí | — |
+| `inafecto` | union | No | — |
+
+### `CreditNote`
+
+Nota de Crédito Electrónica - Tipo 07.
+
+RS N° 300-2014/SUNAT, Anexo 1:
+- Serie: debe iniciar con B/C o F/E según tipo de documento afectado
+- Debe referenciar el comprobante afectado
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `cliente` | [`Cliente`](#cliente) | Sí | — |
+| `comprobanteAfectadoSerieNumero` | string | Sí | — |
+| `detalles` | array | Sí | — |
+| `fechaEmision` | union | No | — |
+| `igvTotal` | union | No | — |
+| `importeTotal` | union | No | — |
+| `moneda` | [`Catalog2`](#catalog2) | No | default: `PEN` |
+| `numero` | integer | Sí | ≥ 1.0 |
+| `proveedor` | [`Proveedor`](#proveedor) | Sí | — |
+| `serie` | string | Sí | `pattern` |
+| `sustentoDescripcion` | string | Sí | — |
+| `valorVentaTotal` | union | No | — |
+
+### `DebitNote`
+
+Nota de Débito Electrónica - Tipo 08.
+
+RS N° 300-2014/SUNAT, Anexo 1:
+- Serie: debe iniciar con B/C o F/E según tipo de documento afectado
+- Debe referenciar el comprobante afectado
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `cliente` | [`Cliente`](#cliente) | Sí | — |
+| `comprobanteAfectadoSerieNumero` | string | Sí | — |
+| `detalles` | array | Sí | — |
+| `fechaEmision` | union | No | — |
+| `igvTotal` | union | No | — |
+| `importeTotal` | union | No | — |
+| `moneda` | [`Catalog2`](#catalog2) | No | default: `PEN` |
+| `numero` | integer | Sí | ≥ 1.0 |
+| `proveedor` | [`Proveedor`](#proveedor) | Sí | — |
+| `serie` | string | Sí | `pattern` |
+| `sustentoDescripcion` | string | Sí | — |
+| `valorVentaTotal` | union | No | — |
 
 ### `DocumentoVentaDetalle`
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `descripcion` | `string` | Descripción del bien o servicio |
-| `cantidad` | `Decimal` | Cantidad |
-| `precio` | `Decimal` | Precio unitario (sin IGV) |
-| `unidadMedida` | `string` | Unidad de medida (default `NIU`) |
-| `tipoAfectacionIGV` | `string` | Tipo de afectación (default `10`) |
-| `igv` | `Decimal` | IGV de la línea (opcional) |
-| `valorVenta` | `Decimal` | Valor de venta (opcional) |
-| `precioVenta` | `Decimal` | Precio de venta (opcional) |
+Línea de detalle de un documento de venta.
 
-## Códigos de respuesta
+RS N° 300-2014/SUNAT, Anexo 1:
+- Descripción del bien o servicio
+- Cantidad y unidad de medida (Catálogo N.° 03)
+- Valor unitario (sin IGV)
+- Tipo de afectación del IGV (Catálogo N.° 07)
 
-- `200 OK` — XML generado o firmado correctamente.
-- `422 Unprocessable Entity` — El documento no pasa las validaciones SUNAT (`validate=true`) o el cuerpo de la petición es inválido.
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `cantidad` | union | Sí | — |
+| `descripcion` | string | Sí | — |
+| `igv` | union | No | — |
+| `precio` | union | Sí | — |
+| `precioVenta` | union | No | — |
+| `tipoAfectacionIGV` | [`Catalog7`](#catalog7) | No | default: `10` |
+| `unidadMedida` | string | No | default: `NIU` |
+| `valorVenta` | union | No | — |
 
-## Códigos de error SUNAT
+### `HTTPValidationError`
 
-openUBL reporta los siguientes códigos de error basados en las reglas de validación SUNAT implementadas en `validator.py`. Cuando `?validate=true`, un documento inválido devuelve `422 Unprocessable Entity` con una lista de mensajes como los de la siguiente tabla.
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `detail` | array | No | — |
 
-| Código | Significado |
-|--------|-------------|
-| **ERROR 1001** | Formato de `ID` inválido. Debe coincidir con el patrón `{serie}-{número}`, por ejemplo `F001-123`. |
-| **ERROR 1007** | El `schemeID` del emisor debe ser `6` (RUC). |
-| **ERROR 1008** | El RUC del emisor debe tener exactamente 11 dígitos. |
-| **ERROR 1037** | El `RegistrationName` (razón social) del emisor es obligatorio. |
-| **ERROR 2015** | El `schemeID` del cliente/adquirente es obligatorio. |
-| **ERROR 2062** | El importe total a pagar (`PayableAmount`) debe ser mayor a 0. |
-| **ERROR 2070** | El código de moneda (`DocumentCurrencyCode`) es obligatorio. |
-| **ERROR 2072** | El `CustomizationID` debe ser `2.0` para facturas, notas de crédito y notas de débito; o `1.0` para comunicaciones de baja. |
-| **ERROR 2074** | El `UBLVersionID` debe ser `2.1` para facturas, notas de crédito y notas de débito; o `2.0` para comunicaciones de baja. |
-| **ERROR 3278** | El `LineExtensionAmount` no cuadra con la sumatoria de los valores de venta de las líneas. |
-| **ERROR 3294** | El `TaxTotal` no cuadra con la sumatoria de los impuestos de las líneas. |
-| **ERROR 3305** | El `TaxInclusiveAmount` es obligatorio en el total del comprobante. |
+### `Invoice`
+
+Factura Electrónica - Tipo 01.
+
+RS N° 300-2014/SUNAT, Anexo 1:
+- Serie: debe iniciar con F (factura) o B (boleta)
+- Número: correlativo
+- Tipo de operación: Catálogo N.° 51, default 0101 (Venta interna)
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `cliente` | [`Cliente`](#cliente) | Sí | — |
+| `detalles` | array | Sí | — |
+| `fechaEmision` | union | No | — |
+| `igvTotal` | union | No | — |
+| `importeTotal` | union | No | — |
+| `moneda` | [`Catalog2`](#catalog2) | No | default: `PEN` |
+| `numero` | integer | Sí | ≥ 1.0 |
+| `proveedor` | [`Proveedor`](#proveedor) | Sí | — |
+| `serie` | string | Sí | `pattern` |
+| `tipoOperacion` | [`Catalog51`](#catalog51) | No | default: `0101` |
+| `valorVentaTotal` | union | No | — |
+
+### `PercepcionRetencionOperacion`
+
+Operación de percepción.
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `comprobante` | [`openubl__models__perception__ComprobanteAfectado`](#openubl__models__perception__comprobanteafectado) | Sí | — |
+| `fechaOperacion` | string | Sí | — |
+| `importeOperacion` | union | Sí | — |
+| `numeroOperacion` | integer | Sí | — |
+
+### `Perception`
+
+Comprobante de Percepción Electrónico - Tipo 40.
+
+RS N° 274-2015/SUNAT, Anexo 1:
+- Serie: P### (P001, P002, etc.)
+- Régimen: Catálogo N.° 22
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `cliente` | [`Cliente`](#cliente) | Sí | — |
+| `fechaEmision` | string | Sí | — |
+| `importeTotalCobrado` | union | Sí | — |
+| `importeTotalPercibido` | union | Sí | — |
+| `numero` | integer | Sí | ≥ 1.0 |
+| `operaciones` | array | Sí | — |
+| `proveedor` | [`Proveedor`](#proveedor) | Sí | — |
+| `serie` | string | Sí | `pattern` |
+| `tipoRegimen` | [`Catalog22`](#catalog22) | Sí | — |
+| `tipoRegimenPorcentaje` | union | Sí | — |
+
+### `Proveedor`
+
+Datos del emisor del comprobante.
+
+RS N° 300-2014/SUNAT, Anexo 1:
+- RUC del emisor: 11 dígitos numéricos (Catálogo N.° 06, valor 6)
+- Razón social: obligatoria
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `address` | union | No | — |
+| `nombreComercial` | union | No | — |
+| `razonSocial` | string | Sí | — |
+| `ruc` | string | Sí | `pattern`; min 11; max 11 |
+
+### `Retention`
+
+Comprobante de Retención Electrónico - Tipo 20.
+
+RS N° 274-2015/SUNAT, Anexo 1:
+- Serie: R### (R001, R002, etc.)
+- Régimen: Catálogo N.° 23
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `importeTotalPagado` | union | Sí | — |
+| `importeTotalRetenido` | union | Sí | — |
+| `operaciones` | array | Sí | — |
+| `serie` | string | Sí | `pattern` |
+| `tipoRegimen` | [`Catalog23`](#catalog23) | Sí | — |
+| `tipoRegimenPorcentaje` | union | Sí | — |
+
+### `SignedXmlResponse`
+
+Response containing signed XML document.
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `signed_xml` | string | Sí | — |
+
+### `SummaryDocuments`
+
+Resumen Diario - RC.
+
+RS N° 300-2014/SUNAT, Anexo 1:
+- Identificador: RC-YYYYMMDD-NNNN
+- Fecha de emisión de los comprobantes resumidos
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `comprobantes` | array | Sí | — |
+| `fechaEmisionComprobantes` | string | Sí | — |
+| `numero` | integer | Sí | — |
+| `proveedor` | [`Proveedor`](#proveedor) | Sí | — |
+
+### `SummaryDocumentsItem`
+
+Item del resumen diario.
+
+RS N° 300-2014/SUNAT, Anexo 1:
+- Tipo de operación: Catálogo N.° 19 (ADICIONAR, MODIFICAR, ANULADO)
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `comprobante` | [`Comprobante`](#comprobante) | Sí | — |
+| `tipoOperacion` | [`Catalog19`](#catalog19) | Sí | — |
+
+### `ValidationError`
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `ctx` | object | No | — |
+| `input` | — | No | — |
+| `loc` | array | Sí | — |
+| `msg` | string | Sí | — |
+| `type` | string | Sí | — |
+
+### `VoidedDocuments`
+
+Comunicación de Baja - RA.
+
+RS N° 300-2014/SUNAT, Anexo 1:
+- Identificador: RA-YYYYMMDD-NNNN
+- Fecha de emisión de los comprobantes que se dan de baja
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `comprobantes` | array | Sí | — |
+| `fechaEmision` | union | No | — |
+| `fechaEmisionComprobantes` | string | Sí | — |
+| `numero` | integer | Sí | ≥ 1.0 |
+| `proveedor` | [`Proveedor`](#proveedor) | Sí | — |
+
+### `VoidedDocumentsItem`
+
+Item de comunicación de baja.
+
+RS N° 300-2014/SUNAT, Anexo 1:
+- Tipo de comprobante: Catálogo N.° 01
+- Serie y número del comprobante a dar de baja
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `descripcionSustento` | string | Sí | — |
+| `numero` | integer | Sí | ≥ 1.0 |
+| `serie` | string | Sí | — |
+| `tipoComprobante` | [`Catalog1`](#catalog1) | Sí | — |
+
+### `XmlResponse`
+
+Response containing generated XML document.
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `xml` | string | Sí | — |
+
+### `openubl__models__perception__ComprobanteAfectado`
+
+Comprobante afectado por la percepción.
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `fechaEmision` | string | Sí | — |
+| `importeTotal` | union | Sí | — |
+| `moneda` | [`Catalog2`](#catalog2) | Sí | — |
+| `serieNumero` | string | Sí | — |
+| `tipoComprobante` | string | Sí | — |
+
+### `openubl__models__summary__ComprobanteAfectado`
+
+Comprobante afectado para notas.
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `fechaEmision` | string | Sí | — |
+| `importeTotal` | union | Sí | — |
+| `moneda` | string | Sí | — |
+| `serieNumero` | string | Sí | — |
+| `tipoComprobante` | [`Catalog1`](#catalog1) | Sí | — |

@@ -3,6 +3,7 @@ title: Catálogo 01 — Tipo de comprobante
 description: Códigos SUNAT de tipos de comprobante electrónico soportados por openUBL.
 ---
 
+import CodeTabs from '../../../components/CodeTabs.astro';
 
 Catálogo SUNAT que identifica el tipo de comprobante de pago electrónico generado por el emisor. Es uno de los valores más importantes de la firma XML y del nombre del archivo ZIP enviado a SUNAT.
 
@@ -35,8 +36,12 @@ También forma parte del nombre del archivo ZIP:
 
 ## Ejemplo
 
-```python
-from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
 from decimal import Decimal
 
 invoice = Invoice(
@@ -57,7 +62,53 @@ invoice = Invoice(
         )
     ],
     moneda="PEN",
-)
-```
+)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
+
+const invoice = zInvoice.parse({
+  serie: "F001",
+  numero: 123,
+  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },
+  cliente: {
+    nombre: "Cliente Ejemplo",
+    numeroDocumentoIdentidad: "12345678",
+    tipoDocumentoIdentidad: "1",
+  },
+  detalles: [
+    {
+      descripcion: "Producto A",
+      cantidad: 2,
+      precio: 50.00,
+      tipoAfectacionIGV: "10",
+    },
+  ],
+  moneda: "PEN",
+});
+
+const { data, error } = await createInvoice({ body: invoice });
+if (error) throw new Error(JSON.stringify(error));`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST http://localhost:8000/api/v1/invoice/create \
+  -H "Content-Type: application/json" \
+  -d '{
+    "serie": "F001",
+    "numero": 123,
+    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },
+    "cliente": { "nombre": "Cliente Ejemplo", "numeroDocumentoIdentidad": "12345678", "tipoDocumentoIdentidad": "1" },
+    "detalles": [{ "descripcion": "Producto A", "cantidad": 2, "precio": 50.00, "tipoAfectacionIGV": "10" }],
+    "moneda": "PEN"
+  }'`,
+  },
+]} />
 
 En este ejemplo el modelo `Invoice` representa el tipo de comprobante `01` (Factura).

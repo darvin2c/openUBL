@@ -1,49 +1,40 @@
-# Starlight Starter Kit: Basics
+# Documentación de openUBL
 
-[![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
+Sitio de documentación de openUBL, generado con [Astro Starlight](https://starlight.astro.build). Contiene guías de uso, referencia de API y documentación del SDK TypeScript.
 
+## Comandos
+
+Los comandos se ejecutan desde la raíz del repositorio:
+
+| Comando | Acción |
+|---|---|
+| `npm install` | Instala las dependencias del workspace |
+| `npm run docs:dev` | Inicia el servidor de desarrollo en `localhost:4321` |
+| `npm run docs:build` | Compila el sitio estático en `docs/dist/` |
+| `npm run docs:preview` | Previsualiza la compilación localmente |
+
+## Cómo editar contenido
+
+Los archivos de documentación viven en `src/content/docs/`. Cada archivo `.mdx` se expone como una ruta según su ruta relativa dentro de ese directorio.
+
+- Guías de inicio rápido: `src/content/docs/getting-started/`
+- Guías por documento: `src/content/docs/guides/`
+- Ejemplos: `src/content/docs/examples/`
+- Referencia API: `src/content/docs/api/referencia.mdx` (generado)
+- SDK TypeScript: `src/content/docs/sdk/typescript.mdx` (generado)
+
+## Regenerar documentación generada
+
+No edites manualmente estos archivos; se regeneran desde fuentes oficiales:
+
+```bash
+# Regenera openapi.json desde la app FastAPI
+npm run generate:openapi
+
+# Regenera docs/src/content/docs/api/referencia.mdx y docs/src/content/docs/sdk/typescript.mdx
+npm run generate:docs
 ```
-npm create astro@latest -- --template starlight
-```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Sitio publicado
 
-## 🚀 Project Structure
-
-Inside of your Astro + Starlight project, you'll see the following folders and files:
-
-```
-.
-├── public/
-├── src/
-│   ├── assets/
-│   ├── content/
-│   │   └── docs/
-│   └── content.config.ts
-├── astro.config.mjs
-├── package.json
-└── tsconfig.json
-```
-
-Starlight looks for `.md` or `.mdx` files in the `src/content/docs/` directory. Each file is exposed as a route based on its file name.
-
-Images can be added to `src/assets/` and embedded in Markdown with a relative link.
-
-Static assets, like favicons, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Check out [Starlight’s docs](https://starlight.astro.build/), read [the Astro documentation](https://docs.astro.build), or jump into the [Astro Discord server](https://astro.build/chat).
+La documentación se publica en [https://darvin2c.github.io/openUBL](https://darvin2c.github.io/openUBL).

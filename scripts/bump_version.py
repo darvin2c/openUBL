@@ -17,7 +17,6 @@ FILES = {
     "pyproject": REPO_ROOT / "pyproject.toml",
     "root_package": REPO_ROOT / "package.json",
     "ts_package": REPO_ROOT / "sdk" / "typescript" / "package.json",
-    "ts_version": REPO_ROOT / "sdk" / "typescript" / "src" / "version.ts",
 }
 
 
@@ -57,16 +56,6 @@ def rewrite_package_json(path: Path, version: str) -> None:
     data = json.loads(path.read_text(encoding="utf-8"))
     data["version"] = version
     path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-
-
-def rewrite_ts_version(path: Path, version: str) -> None:
-    content = path.read_text(encoding="utf-8")
-    new_content = re.sub(
-        r'export const SDK_VERSION = "[^"]*"',
-        f'export const SDK_VERSION = "{version}"',
-        content,
-    )
-    path.write_text(new_content, encoding="utf-8")
 
 
 def run_export_openapi() -> None:
@@ -110,7 +99,6 @@ def main() -> int:
     rewrite_pyproject(FILES["pyproject"], version)
     rewrite_package_json(FILES["root_package"], version)
     rewrite_package_json(FILES["ts_package"], version)
-    rewrite_ts_version(FILES["ts_version"], version)
 
     run_export_openapi()
     run_ts_generate()

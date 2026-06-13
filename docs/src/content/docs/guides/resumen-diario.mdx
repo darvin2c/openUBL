@@ -10,11 +10,11 @@ El **Resumen Diario** (tipo `RC`) consolida las boletas de venta (`03`) y notas 
 ## Campos requeridos
 
 | Campo | Tipo | Descripción | Validación |
-|-------|------|-------------|------------|
-| `numero` | `integer` | Correlativo del resumen | Ej: `1` genera `RC-YYYYMMDD-001`. Mayor a 0. |
-| `fechaEmisionComprobantes` | `date` | Fecha de emisión de los comprobantes resumidos | `YYYY-MM-DD`. |
-| `proveedor` | `Proveedor` | Datos del emisor | `ruc` de 11 dígitos y `razonSocial` obligatorios. |
-| `comprobantes` | `SummaryDocumentsItem[]` | Lista de comprobantes a resumir | Al menos un ítem. |
+|---|---|---|---|
+| `numero` | `int` | Número correlativo del resumen diario. | > 0 |
+| `fechaEmisionComprobantes` | `date` | Fecha de emisión de los comprobantes incluidos. | Obligatorio |
+| `proveedor` | `Proveedor` | Datos del emisor. | RUC válido |
+| `comprobantes` | `list[SummaryDocumentsItem]` | Lista de comprobantes a declarar. | Mínimo 1 |
 
 ## Campos opcionales
 
@@ -23,41 +23,34 @@ El modelo `SummaryDocuments` no tiene campos opcionales a nivel raíz. Los total
 ## Ítem del resumen (`SummaryDocumentsItem`)
 
 | Campo | Tipo | Descripción | Validación |
-|-------|------|-------------|------------|
-| `tipoOperacion` | `string` | Tipo de operación | Catálogo N.° 19: `1` Adicionar, `2` Modificar, `3` Anulado. |
-| `comprobante` | `Comprobante` | Comprobante a resumir | Ver detalle abajo. |
+|---|---|---|---|
+| `tipoOperacion` | `str` | Tipo de operación: `1` adicionar, `2` modificar, `3` anular. | Catálogo 19 |
+| `comprobante` | `Comprobante` | Datos del comprobante resumido. | Obligatorio |
 
 ### `Comprobante`
 
 | Campo | Tipo | Descripción | Validación |
-|-------|------|-------------|------------|
-| `tipoComprobante` | `string` | Tipo de comprobante | Catálogo N.° 01: `03` Boleta, `07` Nota de crédito, `08` Nota de débito. |
-| `serieNumero` | `string` | Serie y número | Ej: `B001-123`. |
-| `cliente` | `Cliente` | Datos del adquirente | Campos obligatorios del cliente. |
-| `impuestos` | `ComprobanteImpuestos` | Impuestos | `igv` obligatorio; `icb` opcional. |
-| `valorVenta` | `ComprobanteValorVenta` | Valores de venta | `importeTotal` obligatorio; `gravado`, `exonerado`, `inafecto` opcionales. |
-| `comprobanteAfectado` | `ComprobanteAfectado` | Comprobante afectado para notas | Opcional; requerido para notas de crédito/débito. |
+|---|---|---|---|
+| `tipoComprobante` | `str` | Tipo de comprobante (`03`, `07`, `08`). | Catálogo 1 |
+| `serieNumero` | `str` | Serie y número (`B001-123`). | Formato SUNAT |
+| `cliente` | `Cliente` | Adquirente o usuario. | Obligatorio |
+| `impuestos` | `ComprobanteImpuestos` | IGV e ISC. | Obligatorio |
+| `valorVenta` | `ComprobanteValorVenta` | Valor de venta por tipo. | Obligatorio |
 
 ### `ComprobanteAfectado`
 
 | Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `tipoComprobante` | `string` | Tipo del comprobante afectado. |
-| `serieNumero` | `string` | Serie-número del comprobante afectado. |
-| `fechaEmision` | `date` | Fecha de emisión. |
-| `importeTotal` | `Decimal` | Importe total. |
-| `moneda` | `string` | Moneda. |
+|---|---|---|
+| `tipoComprobante` | `str` | Tipo de comprobante afectado. |
+| `serieNumero` | `str` | Serie y número del comprobante afectado. |
 
 ## Reglas SUNAT aplicables
 
 | Código / Regla | Descripción |
-|----------------|-------------|
-| `2074` (Voided/Summary) | `UBLVersionID` debe ser `2.0`. |
-| `2072` (Voided/Summary) | `CustomizationID` debe ser `1.0`. |
-| Identificador | `RC-YYYYMMDD-NNNN`. |
-| Frecuencia | Se debe enviar el mismo día de emisión de las boletas o al día siguiente hábil como máximo. |
-| Contenido | Solo se pueden resumir boletas (`03`) y sus notas de crédito/débito (`07`/`08`). |
-| Validación | Una vez aceptado, las boletas quedan validadas ante SUNAT. |
+|---|---|
+| `RC` | Resumen diario de boletas electrónicas. |
+| Tipo de operación | `1` Adicionar, `2` Modificar, `3` Anular. |
+| Validez | Las boletas solo tienen validez tras ser comunicadas en un RC aceptado por SUNAT. |
 
 ## Ejemplo completo
 <CodeTabs tabs={[
@@ -112,33 +105,36 @@ print(xml)`,
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client } from "@openubl/sdk";
+    code: `import { createSummaryDocuments } from "@openubl/sdk";
+import { zSummaryDocuments } from "@openubl/sdk/zod.gen";
 
-const { data, error } = await client.POST("/api/v1/summary-documents/create?validate=true", {
-  body: {
-    numero: 1,
-    fechaEmisionComprobantes: "2025-06-10",
-    proveedor: {
-      ruc: "20100100100",
-      razonSocial: "Mi Empresa S.A.C.",
-    },
-    comprobantes: [
-      {
-        tipoOperacion: "1",
-        comprobante: {
-          tipoComprobante: "03",
-          serieNumero: "B001-45",
-          cliente: {
-            nombre: "Juan Pérez",
-            numeroDocumentoIdentidad: "46779327",
-            tipoDocumentoIdentidad: "1",
-          },
-          impuestos: { igv: "27.00" },
-          valorVenta: { importeTotal: "177.00" },
-        },
-      },
-    ],
+const summary = zSummaryDocuments.parse({
+  numero: 1,
+  fechaEmisionComprobantes: "2025-06-10",
+  proveedor: {
+    ruc: "20100100100",
+    razonSocial: "Mi Empresa S.A.C.",
   },
+  comprobantes: [
+    {
+      tipoOperacion: "1",
+      comprobante: {
+        tipoComprobante: "03",
+        serieNumero: "B001-45",
+        cliente: {
+          nombre: "Juan Pérez",
+          numeroDocumentoIdentidad: "46779327",
+          tipoDocumentoIdentidad: "1",
+        },
+        impuestos: { igv: "27.00" },
+        valorVenta: { importeTotal: "177.00" },
+      },
+    },
+  ],
+});
+
+const { data, error } = await createSummaryDocuments({query: { validate: true },
+  body: summary,
 });
 
 if (error) {
@@ -176,15 +172,78 @@ console.log(data.xml);`,
 
 openUBL expone `validate_schema` para validar el XML generado contra el XSD de SUNAT:
 
-```python
-from openubl.validator import SunatValidator
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.validator import SunatValidator
 
 errors = SunatValidator().validate_schema(
     xml,
     "sunat_schemas/xsd_2.1/2.0/maindoc/UBLPE-SummaryDocuments-1.0.xsd",
 )
-print(errors)  # [] si es válido
-```
+print(errors)  # [] si es válido`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { createSummaryDocuments } from "@openubl/sdk";
+import { zSummaryDocuments } from "@openubl/sdk/zod.gen";
+
+const summary = zSummaryDocuments.parse({
+  numero: 1,
+  fechaEmisionComprobantes: "2025-06-10",
+  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },
+  comprobantes: [{
+    tipoOperacion: "1",
+    comprobante: {
+      tipoComprobante: "03",
+      serieNumero: "B001-45",
+      cliente: { nombre: "Juan Pérez", numeroDocumentoIdentidad: "46779327", tipoDocumentoIdentidad: "1" },
+      impuestos: { igv: "27.00" },
+      valorVenta: { importeTotal: "177.00" },
+    },
+  }],
+});
+
+const { data, error } = await createSummaryDocuments({
+  query: { validate: true },
+  body: summary,
+});
+
+if (error) {
+  throw new Error(JSON.stringify(error));
+}
+
+console.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/summary-documents/create?validate=true" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "numero": 1,
+    "fechaEmisionComprobantes": "2025-06-10",
+    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },
+    "comprobantes": [{
+      "tipoOperacion": "1",
+      "comprobante": {
+        "tipoComprobante": "03",
+        "serieNumero": "B001-45",
+        "cliente": { "nombre": "Juan Pérez", "numeroDocumentoIdentidad": "46779327", "tipoDocumentoIdentidad": "1" },
+        "impuestos": { "igv": "27.00" },
+        "valorVenta": { "importeTotal": "177.00" }
+      }
+    }]
+  }'`,
+  },
+]} />
+
+## Endpoint
 
 <CodeTabs tabs={[
   {
@@ -232,33 +291,36 @@ print(xml)`,
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client } from "@openubl/sdk";
+    code: `import { createSummaryDocuments } from "@openubl/sdk";
+import { zSummaryDocuments } from "@openubl/sdk/zod.gen";
 
-const { data, error } = await client.POST("/api/v1/summary-documents/create?validate=true", {
-  body: {
-    numero: 1,
-    fechaEmisionComprobantes: "2025-06-10",
-    proveedor: {
-      ruc: "20100100100",
-      razonSocial: "Mi Empresa S.A.C.",
-    },
-    comprobantes: [
-      {
-        tipoOperacion: "1",
-        comprobante: {
-          tipoComprobante: "03",
-          serieNumero: "B001-45",
-          cliente: {
-            nombre: "Juan Pérez",
-            numeroDocumentoIdentidad: "46779327",
-            tipoDocumentoIdentidad: "1",
-          },
-          impuestos: { igv: "27.00" },
-          valorVenta: { importeTotal: "177.00" },
-        },
-      },
-    ],
+const summary = zSummaryDocuments.parse({
+  numero: 1,
+  fechaEmisionComprobantes: "2025-06-10",
+  proveedor: {
+    ruc: "20100100100",
+    razonSocial: "Mi Empresa S.A.C.",
   },
+  comprobantes: [
+    {
+      tipoOperacion: "1",
+      comprobante: {
+        tipoComprobante: "03",
+        serieNumero: "B001-45",
+        cliente: {
+          nombre: "Juan Pérez",
+          numeroDocumentoIdentidad: "46779327",
+          tipoDocumentoIdentidad: "1",
+        },
+        impuestos: { igv: "27.00" },
+        valorVenta: { importeTotal: "177.00" },
+      },
+    },
+  ],
+});
+
+const { data, error } = await createSummaryDocuments({
+  body: summary,
 });
 
 if (error) {
@@ -291,12 +353,43 @@ console.log(data.xml);`,
   },
 ]} />
 
+## Casos especiales
+
+### Modificación y anulación
+
+Además de adicionar (`tipoOperacion: "1"`), puedes modificar (`"2"`) o anular (`"3"`) boletas previamente comunicadas en un resumen diario.
+
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `from openubl.models import (\n    SummaryDocuments, SummaryDocumentsItem, Comprobante,\n    ComprobanteImpuestos, ComprobanteValorVenta,\n    Proveedor, Cliente,\n)\nfrom openubl.renderer import render_summary_documents\nfrom openubl.validator import SunatValidator\nfrom decimal import Decimal\nfrom datetime import date\n\ncliente = Cliente(\n    nombre="Juan Pérez",\n    numeroDocumentoIdentidad="46779327",\n    tipoDocumentoIdentidad="1",\n)\n\nsummary = SummaryDocuments(\n    numero=2,\n    fechaEmisionComprobantes=date(2025, 6, 10),\n    proveedor=Proveedor(ruc="20100100100", razonSocial="Mi Empresa S.A.C."),\n    comprobantes=[\n        SummaryDocumentsItem(\n            tipoOperacion="2",  # Modificar\n            comprobante=Comprobante(\n                tipoComprobante="03",\n                serieNumero="B001-45",\n                cliente=cliente,\n                impuestos=ComprobanteImpuestos(igv=Decimal("28.00")),\n                valorVenta=ComprobanteValorVenta(importeTotal=Decimal("178.00")),\n            ),\n        ),\n        SummaryDocumentsItem(\n            tipoOperacion="3",  # Anular\n            comprobante=Comprobante(\n                tipoComprobante="03",\n                serieNumero="B001-46",\n                cliente=cliente,\n                impuestos=ComprobanteImpuestos(igv=Decimal("0.00")),\n                valorVenta=ComprobanteValorVenta(importeTotal=Decimal("0.00")),\n            ),\n        ),\n    ],\n)\n\nxml = render_summary_documents(summary)\nerrors = SunatValidator().validate_schema(\n    xml,\n    "sunat_schemas/xsd_2.1/2.0/maindoc/UBLPE-SummaryDocuments-1.0.xsd",\n)\nassert errors == [], errors\nprint(xml)`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { createSummaryDocuments } from "@openubl/sdk";
+import { zSummaryDocuments } from "@openubl/sdk/zod.gen";\n\nconst cliente = {\n  nombre: "Juan Pérez",\n  numeroDocumentoIdentidad: "46779327",\n  tipoDocumentoIdentidad: "1",\n};\n\nconst summary = zSummaryDocuments.parse({\n  numero: 2,\n  fechaEmisionComprobantes: "2025-06-10",\n  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },\n  comprobantes: [\n    {\n      tipoOperacion: "2",\n      comprobante: {\n        tipoComprobante: "03",\n        serieNumero: "B001-45",\n        cliente,\n        impuestos: { igv: "28.00" },\n        valorVenta: { importeTotal: "178.00" },\n      },\n    },\n    {\n      tipoOperacion: "3",\n      comprobante: {\n        tipoComprobante: "03",\n        serieNumero: "B001-46",\n        cliente,\n        impuestos: { igv: "0.00" },\n        valorVenta: { importeTotal: "0.00" },\n      },\n    },\n  ],\n});\n\nconst { data, error } = await createSummaryDocuments({\n  body: summary,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST "http://localhost:8000/api/v1/summary-documents/create" \\\n  -H "Content-Type: application/json" \\\n  -d '{\n    "numero": 2,\n    "fechaEmisionComprobantes": "2025-06-10",\n    "proveedor": { "ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C." },\n    "comprobantes": [\n      {\n        "tipoOperacion": "2",\n        "comprobante": {\n          "tipoComprobante": "03",\n          "serieNumero": "B001-45",\n          "cliente": { "nombre": "Juan Pérez", "numeroDocumentoIdentidad": "46779327", "tipoDocumentoIdentidad": "1" },\n          "impuestos": { "igv": "28.00" },\n          "valorVenta": { "importeTotal": "178.00" }\n        }\n      },\n      {\n        "tipoOperacion": "3",\n        "comprobante": {\n          "tipoComprobante": "03",\n          "serieNumero": "B001-46",\n          "cliente": { "nombre": "Juan Pérez", "numeroDocumentoIdentidad": "46779327", "tipoDocumentoIdentidad": "1" },\n          "impuestos": { "igv": "0.00" },\n          "valorVenta": { "importeTotal": "0.00" }\n        }\n      }\n    ]\n  }'`,
+  },
+]} />
+
 ## Respuesta esperada
 
 ```json
 {
-  "xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>..."
+  "xml": "<?xml version='1.0' encoding='UTF-8'?\u003e...",
+  "document_type": "RC",
+  "document_id": "20100100100-RC-20250610-1"
 }
 ```
 
 Si `validate=true` y el cuerpo no cumple las reglas, la API devuelve un error `422` con el detalle de la validación.
+    `,

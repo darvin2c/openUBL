@@ -1,6 +1,6 @@
 # @openubl/sdk
 
-SDK de TypeScript para openUBL. Ofrece tipos generados a partir del esquema OpenAPI y un cliente con autocompletado para todos los endpoints de la API REST.
+SDK de TypeScript para openUBL. Ofrece tipos, cliente fetch y schemas Zod generados automáticamente desde el esquema OpenAPI.
 
 ## Instalación
 
@@ -10,70 +10,109 @@ npm install @openubl/sdk
 
 ## Uso
 
-Importa el cliente y los tipos. El cliente está construido con `openapi-fetch`, por lo que cada llamada cuenta con tipado completo de rutas, cuerpo de solicitud y respuesta.
+Hay tres formas de crear un documento, de menor a mayor control:
+
+### 1. Helper tipado (recomendado)
 
 ```typescript
-import { client, type Invoice, type Proveedor, type Cliente, type DocumentoVentaDetalle } from "@openubl/sdk";
+import { createInvoice, SDK_VERSION, checkApiVersion } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
 
-const proveedor: Proveedor = {
-  ruc: "20100066603",
-  razonSocial: "Softgreen S.A.C.",
-};
-
-const cliente: Cliente = {
-  nombre: "Carlos",
-  numeroDocumentoIdentidad: "12121212121",
-  tipoDocumentoIdentidad: "6",
-};
-
-const detalle: DocumentoVentaDetalle = {
-  descripcion: "Item",
-  cantidad: 10,
-  precio: 100,
-};
-
-const invoice: Invoice = {
+const invoice = zInvoice.parse({
   serie: "F001",
   numero: 1,
-  proveedor,
-  cliente,
-  detalles: [detalle],
-};
-
-const { data, error } = await client.POST("/api/v1/invoice/create", {
-  body: invoice,
+  proveedor: { ruc: "20100066603", razonSocial: "Softgreen S.A.C." },
+  cliente: { nombre: "Carlos", numeroDocumentoIdentidad: "12121212121", tipoDocumentoIdentidad: "6" },
+  detalles: [{ descripcion: "Item", cantidad: 10, precio: 100 }],
 });
 
-if (error) {
-  throw new Error(JSON.stringify(error));
-}
+const { data, error } = await createInvoice({ body: invoice });
+if (error) throw new Error(JSON.stringify(error));
 
 console.log(data.xml); // XML UBL 2.1 generado
 ```
 
+### 2. Cliente genérico
+
+```typescript
+import { client } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
+
+const invoice = zInvoice.parse({ /* ... */ });
+
+const { data, error } = await client.post("/api/v1/invoice/create", { body: invoice });
+if (error) throw new Error(JSON.stringify(error));
+
+console.log(data.xml);
+```
+
+### 3. `fetch` nativo
+
+Si prefieres no usar el cliente, puedes llamar directamente a la API REST. Mira el ejemplo completo en la [guía de TypeScript](https://darvin2c.github.io/openUBL/examples/typescript).
+
+## Helpers disponibles
+
+| Helper | Endpoint | Body schema |
+|---|---|---|
+| `createInvoice` | `POST /api/v1/invoice/create` | `zInvoice` |
+| `createCreditNote` | `POST /api/v1/credit-note/create` | `zCreditNote` |
+| `createDebitNote` | `POST /api/v1/debit-note/create` | `zDebitNote` |
+| `createVoidedDocuments` | `POST /api/v1/voided-documents/create` | `zVoidedDocuments` |
+| `createSummaryDocuments` | `POST /api/v1/summary-documents/create` | `zSummaryDocuments` |
+| `createPerception` | `POST /api/v1/perception/create` | `zPerception` |
+| `createRetention` | `POST /api/v1/retention/create` | `zRetention` |
+| `signXml` | `POST /api/v1/sign` | `zSignXmlBody` |
+| `getVersion` | `GET /api/v1/version` | — |
+
+## Validación runtime con Zod
+
+Los schemas Zod viven en `@openubl/sdk/zod.gen` y se regeneran automáticamente desde `openapi.json`. Puedes usarlos para validar cualquier payload antes de enviarlo:
+
+```typescript
+import { zInvoice, zProveedor, zCliente, zDocumentoVentaDetalle } from "@openubl/sdk/zod.gen";
+
+const proveedor = zProveedor.parse({ ruc: "20100066603", razonSocial: "Softgreen S.A.C." });
+const cliente = zCliente.parse({ nombre: "Carlos", numeroDocumentoIdentidad: "12121212121", tipoDocumentoIdentidad: "6" });
+const detalle = zDocumentoVentaDetalle.parse({ descripcion: "Item", cantidad: 10, precio: 100 });
+const invoice = zInvoice.parse({ serie: "F001", numero: 1, proveedor, cliente, detalles: [detalle] });
+```
+
+Los helpers también ejecutan validación automática en el `body` de la petición, así que pasar un objeto mal formado devolverá un error tipado.
+
+## Manejo de errores
+
+Todas las llamadas devuelven `{ data, error }`. Comprueba siempre `error` antes de usar `data`:
+
+```typescript
+const { data, error } = await createInvoice({ body: invoice });
+
+if (error) {
+  // Puede ser un z.ZodError o el error devuelto por la API
+  throw new Error(JSON.stringify(error));
+}
+
+console.log(data.xml);
+```
+
 ## Validación de versión
 
-El SDK expone `checkApiVersion` para verificar en runtime que la versión de la API coincide con la del SDK:
+Verifica que tu SDK y la API compartan la misma versión:
 
 ```typescript
 import { checkApiVersion } from "@openubl/sdk";
 
 const result = await checkApiVersion("http://localhost:8000");
 if (!result.ok) {
-  throw new Error(
-    `Desfase de versión: SDK ${result.sdkVersion} vs API ${result.apiVersion}`
-  );
+  throw new Error(`Desfase de versión: SDK ${result.sdkVersion} vs API ${result.apiVersion}`);
 }
 ```
-
-Si la API no responde o las versiones difieren, la función lanza un error o retorna `ok: false`.
 
 ## Desarrollo
 
 ```bash
 cd sdk/typescript
 npm install
-npm run generate   # regenera src/openubl-types.ts desde openapi.json
+npm run generate   # regenera src/ desde openapi.json
 npm run build      # compila TypeScript
 npm test           # ejecuta la suite de tests
 ```

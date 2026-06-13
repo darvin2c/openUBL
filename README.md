@@ -26,6 +26,8 @@ pip install openubl
 
 ```python
 from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
+from openubl.renderer import render_invoice
+from openubl.enricher import ContentEnricher
 
 invoice = Invoice(
     serie="F001",
@@ -35,7 +37,10 @@ invoice = Invoice(
     detalles=[DocumentoVentaDetalle(descripcion="Item", cantidad=10, precio=100)],
 )
 
-xml = invoice.to_xml()
+enricher = ContentEnricher()
+enricher.enrich(invoice)
+
+xml = render_invoice(invoice)
 print(xml)  # XML UBL 2.1 listo para firmar
 ```
 
@@ -46,18 +51,20 @@ npm install @openubl/sdk
 ```
 
 ```typescript
-import { client, type Invoice } from "@openubl/sdk";
+import { createInvoice, SDK_VERSION, checkApiVersion } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
 
-const invoice: Invoice = {
+const invoice = zInvoice.parse({
   serie: "F001",
   numero: 1,
   proveedor: { ruc: "20100066603", razonSocial: "Softgreen S.A.C." },
   cliente: { nombre: "Carlos", numeroDocumentoIdentidad: "12121212121", tipoDocumentoIdentidad: "6" },
   detalles: [{ descripcion: "Item", cantidad: 10, precio: 100 }],
-};
+});
 
-const { data } = await client.POST("/api/v1/invoice/create", { body: invoice });
-console.log(data?.xml); // XML UBL 2.1 generado
+const { data, error } = await createInvoice({ body: invoice });
+if (error) throw new Error(JSON.stringify(error));
+console.log(data.xml); // XML UBL 2.1 generado
 ```
 
 ## Levantar la API REST
@@ -102,7 +109,6 @@ if (!result.ok) throw new Error(`Desfase: SDK ${result.sdkVersion} vs API ${resu
 ## Documentación
 
 - [Documentación completa](https://darvin2c.github.io/openUBL)
-- [Guía de Python SDK](https://darvin2c.github.io/openUBL/sdk/python)
 - [Guía de TypeScript SDK](https://darvin2c.github.io/openUBL/sdk/typescript)
 - [Referencia de API](https://darvin2c.github.io/openUBL/api/referencia)
 
@@ -113,7 +119,6 @@ Consulta `AGENTS.md` para el contexto técnico completo del proyecto.
 ## Licencia
 
 MIT © openUBL
-# Test release flow v2
 
 
 

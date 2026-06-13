@@ -33,7 +33,7 @@ class SignedXmlResponse(BaseModel):
 validator = SunatValidator()
 
 
-@router.get("/version")
+@router.get("/version", operation_id="getVersion")
 def get_version():
     """Return the current API version.
 
@@ -54,7 +54,7 @@ def _validate_xml(xml_string: str, doc_type: str) -> list[str]:
     return []
 
 
-@router.post("/invoice/create", response_model=XmlResponse)
+@router.post("/invoice/create", response_model=XmlResponse, operation_id="createInvoice")
 def create_invoice(doc: Invoice, validate: bool = Query(default=True)):
     """Generate an Invoice XML document.
 
@@ -74,7 +74,7 @@ def create_invoice(doc: Invoice, validate: bool = Query(default=True)):
     return {"xml": xml}
 
 
-@router.post("/credit-note/create", response_model=XmlResponse)
+@router.post("/credit-note/create", response_model=XmlResponse, operation_id="createCreditNote")
 def create_credit_note(doc: CreditNote, validate: bool = Query(default=True)):
     """Generate a CreditNote XML document.
 
@@ -94,7 +94,7 @@ def create_credit_note(doc: CreditNote, validate: bool = Query(default=True)):
     return {"xml": xml}
 
 
-@router.post("/debit-note/create", response_model=XmlResponse)
+@router.post("/debit-note/create", response_model=XmlResponse, operation_id="createDebitNote")
 def create_debit_note(doc: DebitNote, validate: bool = Query(default=True)):
     """Generate a DebitNote XML document.
 
@@ -114,7 +114,7 @@ def create_debit_note(doc: DebitNote, validate: bool = Query(default=True)):
     return {"xml": xml}
 
 
-@router.post("/voided-documents/create", response_model=XmlResponse)
+@router.post("/voided-documents/create", response_model=XmlResponse, operation_id="createVoidedDocuments")
 def create_voided_documents(doc: VoidedDocuments, validate: bool = Query(default=True)):
     """Generate a VoidedDocuments XML document.
 
@@ -134,7 +134,7 @@ def create_voided_documents(doc: VoidedDocuments, validate: bool = Query(default
     return {"xml": xml}
 
 
-@router.post("/summary-documents/create", response_model=XmlResponse)
+@router.post("/summary-documents/create", response_model=XmlResponse, operation_id="createSummaryDocuments")
 def create_summary_documents(doc: SummaryDocuments, validate: bool = Query(default=True)):
     """Generate a SummaryDocuments XML document.
 
@@ -148,7 +148,7 @@ def create_summary_documents(doc: SummaryDocuments, validate: bool = Query(defau
     return {"xml": xml}
 
 
-@router.post("/perception/create", response_model=XmlResponse)
+@router.post("/perception/create", response_model=XmlResponse, operation_id="createPerception")
 def create_perception(doc: Perception, validate: bool = Query(default=True)):
     """Generate a Perception XML document.
 
@@ -162,7 +162,7 @@ def create_perception(doc: Perception, validate: bool = Query(default=True)):
     return {"xml": xml}
 
 
-@router.post("/retention/create", response_model=XmlResponse)
+@router.post("/retention/create", response_model=XmlResponse, operation_id="createRetention")
 def create_retention(doc: Retention, validate: bool = Query(default=True)):
     """Generate a Retention XML document.
 
@@ -176,7 +176,7 @@ def create_retention(doc: Retention, validate: bool = Query(default=True)):
     return {"xml": xml}
 
 
-@router.post("/sign", response_model=SignedXmlResponse)
+@router.post("/sign", response_model=SignedXmlResponse, operation_id="signXml")
 def sign_xml(payload: dict):
     """Sign an arbitrary UBL XML document with a PEM certificate/key pair or a PFX/P12 container.
 
