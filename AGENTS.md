@@ -65,15 +65,15 @@ Cuando un PR se mergea a `main` con un label `release:patch`, `release:minor` o 
 | `release:minor` | `#f59e0b` | Feature → `0.1.0` → `0.2.0` |
 | `release:major` | `#ef4444` | Breaking → `0.1.0` → `1.0.0` |
 
-1. GitHub Actions ejecuta automáticamente `.github/workflows/create-release-pr.yml`, que:
+1. GitHub Actions ejecuta automáticamente `.github/workflows/release.yml`, que:
    - Detecta el último PR mergeado con label `release:*`.
    - Calcula la nueva versión SemVer.
    - Ejecuta `scripts/bump_version.py` y regenera `CHANGELOG.md`.
-   - Crea una rama `release/vX.Y.Z` y un PR con label `release`.
-2. Al mergear ese PR, `.github/workflows/tag-on-release-pr.yml` crea el tag `vX.Y.Z` y el GitHub Release.
-3. El tag `v*` dispara `.github/workflows/publish-npm.yml` y `.github/workflows/publish-pypi.yml` para publicar en npm y PyPI.
+   - Crea el commit `release: vX.Y.Z` y el tag anotado `vX.Y.Z`.
+   - Empuja el tag, lo que dispara `.github/workflows/publish-npm.yml` y `.github/workflows/publish-pypi.yml`.
+2. npm y PyPI publican automáticamente la nueva versión.
 
-Si el workflow no se dispara o el PR de release no se crea, verifica que el PR original tenga exactamente un label `release:patch`, `release:minor` o `release:major`.
+Si el workflow no se dispara, verifica que el PR mergeado tenga exactamente un label `release:patch`, `release:minor` o `release:major`.
 
 ## Reglas de dominio (no inventar)
 
