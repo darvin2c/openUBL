@@ -5,7 +5,7 @@
 
 **Genera, firma y valida documentos electrónicos UBL 2.1 para SUNAT (Perú) — sin complicaciones.**
 
-openUBL es una biblioteca Python con API REST incluida. Genera XML válido para facturas, notas de crédito, notas de débito, comunicaciones de baja, resúmenes diarios, percepciones y retenciones. Firma digitalmente con certificados XAdES-EPES y valida contra las reglas SUNAT antes de enviar.
+openUBL es una biblioteca Python con API REST incluida. Genera XML válido para facturas, notas de crédito, notas de débito, comunicaciones de baja, resúmenes diarios, percepciones y retenciones. Firma digitalmente con XMLDSig (RSA-SHA-256 / SHA-256) y valida contra las reglas SUNAT antes de enviar.
 
 ## ¿Por qué openUBL?
 

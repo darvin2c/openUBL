@@ -94,7 +94,11 @@ class TestApiSign:
         })
         assert response.status_code == 200
         assert "signed_xml" in response.json()
-        assert "ds:Signature" in response.json()["signed_xml"]
+        signed_xml = response.json()["signed_xml"]
+        assert "ds:Signature" in signed_xml
+        assert "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256" in signed_xml
+        assert "http://www.w3.org/2001/04/xmlenc#sha256" in signed_xml
+        assert "http://www.w3.org/2000/09/xmldsig#rsa-sha1" not in signed_xml
 
     def test_api_sign_with_pfx(self):
         """
@@ -142,6 +146,9 @@ class TestApiSign:
         data = response.json()
         assert "signed_xml" in data
         assert "ds:Signature" in data["signed_xml"]
+        assert "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256" in data["signed_xml"]
+        assert "http://www.w3.org/2001/04/xmlenc#sha256" in data["signed_xml"]
+        assert "http://www.w3.org/2000/09/xmldsig#rsa-sha1" not in data["signed_xml"]
 
     def test_api_sign_with_pfx_passes_sunat_validation(self):
         """
@@ -190,6 +197,8 @@ class TestApiSign:
         signed_xml = response.json()["signed_xml"]
         errors = SunatValidator().validate_signed_xml(signed_xml)
         assert errors == []
+        assert "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256" in signed_xml
+        assert "http://www.w3.org/2001/04/xmlenc#sha256" in signed_xml
 
     def test_api_sign_missing_credentials(self):
         """

@@ -272,7 +272,7 @@ El XML generado es válido UBL 2.1 y está listo para firmar y enviar a SUNAT.
 
 ## Paso 5: Firma digital
 
-SUNAT exige que el XML esté firmado digitalmente con un certificado X.509 válido. openUBL usa RSA-SHA1, digestión SHA1 y canonicalización C14N, colocando la firma dentro de `UBLExtension/ExtensionContent`.
+SUNAT exige que el XML esté firmado digitalmente con un certificado X.509 válido. openUBL usa **RSA-SHA-256**, digestión **SHA-256** y canonicalización **C14N**, colocando la firma XMLDSig dentro de `UBLExtension/ExtensionContent`, conforme a la estructura exigida por SUNAT y a los requisitos SHA-2 de INDECOPI/IOFE y la Directiva PCM 002-2024.
 
 Necesitas el certificado y la clave privada en formato PEM. Si tienes un archivo `.pfx`, conviértelo primero:
 

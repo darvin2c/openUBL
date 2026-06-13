@@ -2,6 +2,7 @@
 Tests for XML digital signing.
 
 RS N° 300-2014/SUNAT Anexo 1 - Firma Digital con certificado X.509.
+Algoritmos SHA-256 según INDECOPI/IOFE y PCM Directiva 002-2024.
 """
 from decimal import Decimal
 from datetime import date
@@ -41,11 +42,15 @@ class TestSign:
     def test_sign_invoice_with_pem(self):
         """
         RS N° 300-2014/SUNAT Anexo 1 - firma con certificado X.509.
-        Verifica estructura completa de firma.
+        Verifica estructura completa de firma y algoritmos SHA-256.
         """
         signed = sign_ubl_xml(self.xml, self.cert_pem, self.key_pem)
         assert "ds:Signature" in signed
         assert "SignSUNAT" in signed
+        assert "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256" in signed
+        assert "http://www.w3.org/2001/04/xmlenc#sha256" in signed
+        assert "http://www.w3.org/2000/09/xmldsig#rsa-sha1" not in signed
+        assert "http://www.w3.org/2000/09/xmldsig#sha1" not in signed
 
     def test_signature_id_is_signsunat(self):
         """
@@ -84,9 +89,6 @@ class TestSign:
         Verifica que la firma criptográfica es matemáticamente válida.
         """
         from signxml.verifier import XMLVerifier
-        # SUNAT requires RSA-SHA1; temporarily disable algorithm restriction for verification
-        XMLVerifier.check_signature_alg_expected = lambda self, alg: None
-        XMLVerifier.check_digest_alg_expected = lambda self, alg: None
         signed = sign_ubl_xml(self.xml, self.cert_pem, self.key_pem)
         root = etree.fromstring(signed.encode("utf-8"))
         XMLVerifier().verify(root, x509_cert=self.cert_pem)

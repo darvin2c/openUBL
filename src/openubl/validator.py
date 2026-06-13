@@ -1,9 +1,18 @@
 """
 SUNAT validation engine for UBL 2.1 XML documents.
-Based on "Reglas de validación actualizado al 24.04.2026" from SUNAT.
+
+Based on "Reglas de validación actualizado al 24.04.2026" from SUNAT,
+plus SHA-256 algorithm requirements from INDECOPI/IOFE and PCM
+Directiva N.° 002-2024-PCM/SGTD.
 """
 import re
 from lxml import etree
+
+
+_RSA_SHA256 = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"
+_SHA256 = "http://www.w3.org/2001/04/xmlenc#sha256"
+_SHA1_SIG = "http://www.w3.org/2000/09/xmldsig#rsa-sha1"
+_SHA1_DIG = "http://www.w3.org/2000/09/xmldsig#sha1"
 
 
 class SunatValidator:
@@ -152,7 +161,7 @@ class SunatValidator:
         return errors
 
     def validate_signed_xml(self, xml_string: str) -> list[str]:
-        """Validate signed XML structure."""
+        """Validate signed XML structure and SHA-256 algorithms."""
         errors = []
         try:
             root = etree.fromstring(xml_string.encode("utf-8"))
@@ -192,6 +201,17 @@ class SunatValidator:
         sig_method = root.xpath("//ds:SignedInfo/ds:SignatureMethod/@Algorithm", namespaces=ns)
         if not sig_method:
             errors.append("ERROR 2089: ds:SignatureMethod/@Algorithm es obligatorio")
+        else:
+            alg = sig_method[0]
+            if alg == _SHA1_SIG:
+                errors.append(
+                    "ERROR 2089: SHA-1 (rsa-sha1) está deprecado; "
+                    "use RSA-SHA-256 según INDECOPI/IOFE y PCM Directiva 002-2024"
+                )
+            elif alg != _RSA_SHA256:
+                errors.append(
+                    f"ERROR 2089: ds:SignatureMethod/@Algorithm debe ser {_RSA_SHA256}"
+                )
 
         # ERROR 2091: Reference URI
         ref_uri = root.xpath("//ds:SignedInfo/ds:Reference/@URI", namespaces=ns)
@@ -207,6 +227,17 @@ class SunatValidator:
         digest_method = root.xpath("//ds:SignedInfo/ds:Reference/ds:DigestMethod/@Algorithm", namespaces=ns)
         if not digest_method:
             errors.append("ERROR 2095: ds:DigestMethod/@Algorithm es obligatorio")
+        else:
+            alg = digest_method[0]
+            if alg == _SHA1_DIG:
+                errors.append(
+                    "ERROR 2095: SHA-1 (sha1) está deprecado; "
+                    "use SHA-256 según INDECOPI/IOFE y PCM Directiva 002-2024"
+                )
+            elif alg != _SHA256:
+                errors.append(
+                    f"ERROR 2095: ds:DigestMethod/@Algorithm debe ser {_SHA256}"
+                )
 
         # ERROR 2097: DigestValue
         digest_val = root.xpath("//ds:SignedInfo/ds:Reference/ds:DigestValue", namespaces=ns)

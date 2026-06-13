@@ -186,14 +186,26 @@ curl -X POST "http://localhost:8000/api/v1/sign" \\
 
 ## Algoritmo de firma
 
-openUBL utiliza los parámetros requeridos por SUNAT:
+openUBL firma con **XMLDSig** (no XAdES-EPES), colocando la firma dentro de `ext:UBLExtensions/ext:UBLExtension/ext:ExtensionContent`, conforme a la estructura exigida por SUNAT en el **Manual del Programador** y las *Reglas de validación actualizado al 24.04.2026*.
 
-| Parámetro | Valor |
-|-----------|-------|
-| Canonicalización | C14N |
-| Digest | SHA-256 |
-| Firma | RSA-SHA256 |
+Los algoritmos aplicados son los exigidos por la infraestructura de certificación peruana:
+
+| Parámetro | URI / Valor |
+|-----------|-------------|
+| Canonicalización | `http://www.w3.org/TR/2001/REC-xml-c14n-20010315` (C14N) |
+| Digest | `http://www.w3.org/2001/04/xmlenc#sha256` (SHA-256) |
+| Firma | `http://www.w3.org/2001/04/xmldsig-more#rsa-sha256` (RSA-SHA-256) |
 | Transform | Enveloped Signature |
+
+### Base normativa
+
+- **RS N.° 300-2014/SUNAT** y modificatorias: establecen la estructura XMLDSig y la ubicación de la firma en `UBLExtension/ExtensionContent`.
+- **Resolución de Secretaría N.° 007-2024-PCM/SGTD**: aprueba la **Directiva N.° 002-2024-PCM/SGTD**, que regula el uso de la firma digital en entidades públicas y remite a estándares ETSI y a la Guía de Acreditación de Aplicaciones de Software de la IOFE/INDECOPI.
+- **INDECOPI/IOFE — Guía de Acreditación de Entidades de Certificación**: exige algoritmos de firma de la familia SHA-2 (RSA-SHA-256/384/512 o ECDSA) para certificados digitales. La política de certificación de Entidades de Certificación acreditadas (2024) ya fija **RSA 4096 bits — SHA-256** como configuración mínima.
+
+:::caution[SHA-1 deprecado]
+El algoritmo **SHA-1 / RSA-SHA1** fue el usado históricamente, pero hoy es considerado débil. `SunatValidator` rechazará explícitamente cualquier firma o digest que use SHA-1, reportando los errores 2089 y 2095.
+:::
 
 ## Flujo completo
 

@@ -221,6 +221,78 @@ class TestValidatorSignedXml:
         errors = self.validator.validate_signed_xml(bad_xml)
         assert any("2101" in e for e in errors)
 
+    def test_signed_xml_uses_sha256(self):
+        """
+        INDECOPI/IOFE y PCM Directiva 002-2024 exigen SHA-256.
+        """
+        from openubl.signer import sign_ubl_xml
+        from cryptography.hazmat.primitives.asymmetric import rsa
+        from cryptography.hazmat.primitives import serialization, hashes
+        from cryptography.x509 import CertificateBuilder, Name, NameAttribute
+        from cryptography.x509.oid import NameOID
+        import datetime
+
+        invoice = Invoice(
+            serie="F001", numero=1,
+            proveedor=Proveedor(ruc="20100066603", razonSocial="Test"),
+            cliente=Cliente(nombre="Test", numeroDocumentoIdentidad="12345678", tipoDocumentoIdentidad="1"),
+            detalles=[DocumentoVentaDetalle(descripcion="Item1", cantidad=Decimal("1"), precio=Decimal("100"))],
+            fechaEmision=date(2024, 1, 1),
+        )
+        enricher = ContentEnricher()
+        enricher.enrich(invoice)
+        xml = render_invoice(invoice)
+
+        key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        cert = CertificateBuilder().subject_name(Name([NameAttribute(NameOID.COMMON_NAME, "Test")])).issuer_name(Name([NameAttribute(NameOID.COMMON_NAME, "Test")])).serial_number(1).not_valid_before(datetime.datetime.utcnow()).not_valid_after(datetime.datetime.utcnow() + datetime.timedelta(days=1)).public_key(key.public_key()).sign(key, hashes.SHA256())
+        key_pem = key.private_bytes(serialization.Encoding.PEM, serialization.PrivateFormat.TraditionalOpenSSL, serialization.NoEncryption()).decode()
+        cert_pem = cert.public_bytes(serialization.Encoding.PEM).decode()
+
+        signed = sign_ubl_xml(xml, cert_pem, key_pem)
+        errors = self.validator.validate_signed_xml(signed)
+        assert errors == []
+
+    def test_signed_xml_rejects_sha1(self):
+        """
+        SHA-1 debe ser rechazado según INDECOPI/IOFE y PCM Directiva 002-2024.
+        """
+        from openubl.signer import sign_ubl_xml
+        from cryptography.hazmat.primitives.asymmetric import rsa
+        from cryptography.hazmat.primitives import serialization, hashes
+        from cryptography.x509 import CertificateBuilder, Name, NameAttribute
+        from cryptography.x509.oid import NameOID
+        import datetime
+
+        invoice = Invoice(
+            serie="F001", numero=1,
+            proveedor=Proveedor(ruc="20100066603", razonSocial="Test"),
+            cliente=Cliente(nombre="Test", numeroDocumentoIdentidad="12345678", tipoDocumentoIdentidad="1"),
+            detalles=[DocumentoVentaDetalle(descripcion="Item1", cantidad=Decimal("1"), precio=Decimal("100"))],
+            fechaEmision=date(2024, 1, 1),
+        )
+        enricher = ContentEnricher()
+        enricher.enrich(invoice)
+        xml = render_invoice(invoice)
+
+        key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        cert = CertificateBuilder().subject_name(Name([NameAttribute(NameOID.COMMON_NAME, "Test")])).issuer_name(Name([NameAttribute(NameOID.COMMON_NAME, "Test")])).serial_number(1).not_valid_before(datetime.datetime.utcnow()).not_valid_after(datetime.datetime.utcnow() + datetime.timedelta(days=1)).public_key(key.public_key()).sign(key, hashes.SHA256())
+        key_pem = key.private_bytes(serialization.Encoding.PEM, serialization.PrivateFormat.TraditionalOpenSSL, serialization.NoEncryption()).decode()
+        cert_pem = cert.public_bytes(serialization.Encoding.PEM).decode()
+
+        signed = sign_ubl_xml(xml, cert_pem, key_pem)
+        root = etree.fromstring(signed.encode("utf-8"))
+        ns = {"ds": "http://www.w3.org/2000/09/xmldsig#"}
+        sig_method = root.xpath("//ds:SignatureMethod", namespaces=ns)[0]
+        sig_method.set("Algorithm", "http://www.w3.org/2000/09/xmldsig#rsa-sha1")
+        digest_method = root.xpath("//ds:DigestMethod", namespaces=ns)[0]
+        digest_method.set("Algorithm", "http://www.w3.org/2000/09/xmldsig#sha1")
+        bad_xml = etree.tostring(root, encoding="unicode")
+
+        errors = self.validator.validate_signed_xml(bad_xml)
+        assert any("2089" in e for e in errors)
+        assert any("2095" in e for e in errors)
+        assert any("SHA-1" in e for e in errors)
+
 
 class TestValidatorVoidedDocuments:
     def test_voided_documents_ubl_version_20(self):
