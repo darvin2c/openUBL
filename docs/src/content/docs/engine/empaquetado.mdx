@@ -79,7 +79,8 @@ with open("20100100100-01-F001-1.zip", "wb") as f:
     code: `// El empaquetado ZIP no está expuesto como endpoint REST.
 // Debe realizarse con la librería Python openubl.packager.
 // Flujo típico: crear el documento vía API, firmar el XML y luego empaquetar con Python.
-import { client, zInvoice } from "@openubl/sdk";
+import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
 
 const invoice = zInvoice.parse({
   serie: "F001",
@@ -91,7 +92,7 @@ const invoice = zInvoice.parse({
   detalles: [{ descripcion: "Producto A", cantidad: 1, precio: 100, unidadMedida: "NIU", tipoAfectacionIGV: "10" }],
 });
 
-const { data, error } = await client.post("/api/v1/invoice/create", {
+const { data, error } = await createInvoice({
   body: invoice,
 });
 
@@ -156,10 +157,10 @@ zip_retencion = package_retention(xml_retencion, ruc="20100100100", serie="R001"
     code: `// El empaquetado ZIP no está expuesto como endpoint REST.
 // Debe realizarse con la librería Python openubl.packager.
 // Los endpoints de creación devuelven el XML listo para empaquetar.
-import { client } from "@openubl/sdk";
+import { createVoidedDocuments } from "@openubl/sdk";
 
 // Crea comunicación de baja, resumen diario, percepción o retención.
-const { data, error } = await client.post("/api/v1/voided-documents/create", {
+const { data, error } = await createVoidedDocuments({
   body: { /* ... */ },
 });
 

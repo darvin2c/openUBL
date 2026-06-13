@@ -119,7 +119,8 @@ invoice = Invoice(
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zInvoice } from "@openubl/sdk";
+    code: `import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
 
 const invoice = zInvoice.parse({
   serie: "F001",
@@ -147,7 +148,7 @@ const invoice = zInvoice.parse({
   ],
 });
 
-const { data, error } = await client.post("/api/v1/invoice/create", {
+const { data, error } = await createInvoice({
   body: invoice,
 });
 
@@ -227,7 +228,8 @@ Ejemplo de una línea exonerada:
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zInvoice } from "@openubl/sdk";
+    code: `import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
 
 const invoice = zInvoice.parse({
   // ... cabecera y otras líneas ...
@@ -241,7 +243,7 @@ const invoice = zInvoice.parse({
   ],
 });
 
-const { data, error } = await client.post("/api/v1/invoice/create", {
+const { data, error } = await createInvoice({
   body: invoice,
 });
 
@@ -305,7 +307,8 @@ Cuando emitas en moneda extranjera, establece `moneda` en `USD` o `EUR`. El enri
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zInvoice } from "@openubl/sdk";
+    code: `import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
 
 const invoice = zInvoice.parse({
   serie: "F001",
@@ -314,7 +317,7 @@ const invoice = zInvoice.parse({
   // ... proveedor, cliente y detalles ...
 });
 
-const { data, error } = await client.post("/api/v1/invoice/create", {
+const { data, error } = await createInvoice({
   body: invoice,
 });
 
@@ -407,7 +410,8 @@ else:
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zInvoice } from "@openubl/sdk";
+    code: `import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
 
 const invoice = zInvoice.parse({
   serie: "F001",
@@ -430,7 +434,7 @@ const invoice = zInvoice.parse({
   ],
 });
 
-const { data, error } = await client.post("/api/v1/invoice/create", {
+const { data, error } = await createInvoice({
   body: invoice,
 });
 
@@ -504,7 +508,7 @@ enricher.enrich(invoice)`,
 // en el servidor al llamar a POST /api/v1/invoice/create.
 // Para forzar una fecha de emisión específica, envía fechaEmision en el body.
 
-const { data, error } = await client.post("/api/v1/invoice/create", {
+const { data, error } = await createInvoice({
   body: invoice,
 });
 
@@ -580,7 +584,8 @@ with httpx.Client(base_url="http://localhost:8000") as client:
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zInvoice } from "@openubl/sdk";
+    code: `import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
 
 const invoice = zInvoice.parse({
   serie: "F001",
@@ -603,10 +608,8 @@ const invoice = zInvoice.parse({
   ],
 });
 
-const { data, error } = await client.post("/api/v1/invoice/create", {
-  params: {
-    query: { validate: true },
-  },
+const { data, error } = await createInvoice({
+  query: { validate: true },
   body: invoice,
 });
 
@@ -677,7 +680,8 @@ with httpx.Client(base_url="http://localhost:8000") as client:
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zInvoice } from "@openubl/sdk";
+    code: `import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
 
 const invoice = zInvoice.parse({
   serie: "F001",
@@ -700,10 +704,8 @@ const invoice = zInvoice.parse({
   ],
 });
 
-const { data, error } = await client.post("/api/v1/invoice/create", {
-  params: {
-    query: { validate: false },
-  },
+const { data, error } = await createInvoice({
+  query: { validate: false },
   body: invoice,
 });
 
@@ -760,3 +762,4 @@ Si la validación SUNAT detecta errores, la API responde con estado `422 Unproce
 ```
 
 El campo `xml` contiene el documento UBL 2.1 completo, listo para firmar digitalmente con el endpoint `POST /api/v1/sign` o con la librería de firmado de openUBL.
+    `,

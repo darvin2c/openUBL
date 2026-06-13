@@ -1,0 +1,131 @@
+---
+title: Troubleshooting
+description: Soluciones a los problemas más comunes al integrar openUBL.
+---
+
+## El SDK TypeScript devuelve un error de validación
+
+Los schemas Zod viven en `@openubl/sdk/zod.gen`. Cuando `zInvoice.parse(...)` (o cualquier otro schema) falla, devuelve un `z.ZodError` con el detalle de cada campo inválido:
+
+```typescript
+import { zInvoice } from "@openubl/sdk/zod.gen";
+
+try {
+  const invoice = zInvoice.parse({ /* ... */ });
+} catch (error) {
+  if (error instanceof z.ZodError) {
+    console.error(error.issues);
+  }
+}
+```
+
+Si el error viene del helper (`createInvoice`, `createCreditNote`, etc.), estará en la propiedad `error` del resultado:
+
+```typescript
+const { data, error } = await createInvoice({ body: invoice });
+if (error) {
+  console.error(JSON.stringify(error, null, 2));
+}
+```
+
+Revisa los mensajes de `error.issues` para saber qué campo falló y por qué.
+
+## Los ejemplos usan `params: { query: ... }` y el SDK no envía el query param
+
+El cliente `@hey-api/client-fetch` espera `query` a nivel raíz de las opciones, no anidado dentro de `params`. Si usas:
+
+```typescript
+// ❌ Incorrecto
+await client.post("/api/v1/invoice/create", {
+  params: { query: { validate: true } },
+  body: invoice,
+});
+```
+
+corrígelo a:
+
+```typescript
+// ✅ Correcto
+await createInvoice({
+  query: { validate: true },
+  body: invoice,
+});
+```
+
+Lo mismo aplica para `validate: false` cuando quieres omitir la validación SUNAT.
+
+## La API responde 422
+
+Un `422 Unprocessable Entity` significa que el `SunatValidator` rechazó el XML generado. Lee el `detail` del error para identificar la regla que falló:
+
+```typescript
+const { data, error } = await createInvoice({ body: invoice });
+
+if (error) {
+  console.error(JSON.stringify(error, null, 2));
+}
+```
+
+Para depurar el JSON sin que la validación se interponga, desactívala temporalmente:
+
+```typescript
+const { data, error } = await createInvoice({
+  query: { validate: false },
+  body: invoice,
+});
+
+if (error) {
+  console.error(JSON.stringify(error, null, 2));
+} else {
+  console.log(data.xml); // revisa el XML generado
+}
+```
+
+Recuerda volver a `validate: true` antes de enviar a SUNAT.
+
+## `checkApiVersion` dice que las versiones no coinciden
+
+El SDK y la API deben compartir la misma versión SemVer. Si ves un desfase:
+
+```typescript
+import { checkApiVersion } from "@openubl/sdk";
+
+const result = await checkApiVersion("http://localhost:8000");
+if (!result.ok) {
+  throw new Error(`Desfase: SDK ${result.sdkVersion} vs API ${result.apiVersion}`);
+}
+```
+
+Actualiza el paquete del SDK (`npm install @openubl/sdk@latest`) o la imagen/versión de la API para que coincidan.
+
+## No puedo firmar con mi certificado
+
+openUBL espera el certificado y la clave privada en formato PEM. Si tienes un `.pfx`, conviértelo:
+
+```bash
+# Extraer clave privada
+openssl pkcs12 -in certificado.pfx -nocerts -nodes -out key.pem
+
+# Extraer certificado
+openssl pkcs12 -in certificado.pfx -nokeys -out cert.pem
+```
+
+Verifica que el certificado no esté vencido:
+
+```bash
+openssl x509 -in cert.pem -noout -dates
+```
+
+Si la firma sigue fallando, asegúrate de que el XML no esté alterado entre la generación y la firma.
+
+## Los totales no cuadran
+
+Si generas XML en Python, usa `ContentEnricher` para calcular `valorVenta`, `igv`, `precioVenta`, `valorVentaTotal`, `igvTotal` e `importeTotal`:
+
+```python
+from openubl.enricher import ContentEnricher
+
+ContentEnricher().enrich(invoice)
+```
+
+Si pasas los totales manualmente (por ejemplo en `SummaryDocuments`, `Perception` o `Retention`), deben ser consistentes con las líneas del documento. La API también enriquece automáticamente cuando llamas a los endpoints de creación.

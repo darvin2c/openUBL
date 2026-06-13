@@ -54,7 +54,8 @@ La **Comunicación de Baja** (tipo `RA`) informa a SUNAT la anulación de factur
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zVoidedDocuments } from "@openubl/sdk";\n\nconst voided = zVoidedDocuments.parse({\n  numero: 1,\n  fechaEmisionComprobantes: \"2025-06-10\",\n  proveedor: {\n    ruc: \"20100100100\",\n    razonSocial: \"Mi Empresa S.A.C.\",\n  },\n  comprobantes: [\n    {\n      serie: \"F001\",\n      numero: 45,\n      tipoComprobante: \"01\",\n      descripcionSustento: \"Error en datos del cliente\",\n    },\n  ],\n});\n\nconst { data, error } = await client.post(\"/api/v1/voided-documents/create?validate=true\", {\n  body: voided,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+    code: `import { createVoidedDocuments } from "@openubl/sdk";
+import { zVoidedDocuments } from "@openubl/sdk/zod.gen";\n\nconst voided = zVoidedDocuments.parse({\n  numero: 1,\n  fechaEmisionComprobantes: \"2025-06-10\",\n  proveedor: {\n    ruc: \"20100100100\",\n    razonSocial: \"Mi Empresa S.A.C.\",\n  },\n  comprobantes: [\n    {\n      serie: \"F001\",\n      numero: 45,\n      tipoComprobante: \"01\",\n      descripcionSustento: \"Error en datos del cliente\",\n    },\n  ],\n});\n\nconst { data, error } = await createVoidedDocuments({ query: { validate: true }, body: voided });\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
   },
   {
     id: 'curl',
@@ -77,7 +78,8 @@ La **Comunicación de Baja** (tipo `RA`) informa a SUNAT la anulación de factur
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zVoidedDocuments } from "@openubl/sdk";\n\nconst voided = zVoidedDocuments.parse({\n  numero: 1,\n  fechaEmisionComprobantes: "2025-06-10",\n  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },\n  comprobantes: [\n    {\n      serie: "F001",\n      numero: 45,\n      tipoComprobante: "01",\n      descripcionSustento: "Error en datos del cliente",\n    },\n  ],\n});\n\nconst { data, error } = await client.post(\"/api/v1/voided-documents/create\", {\n  body: voided,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+    code: `import { createVoidedDocuments } from "@openubl/sdk";
+import { zVoidedDocuments } from "@openubl/sdk/zod.gen";\n\nconst voided = zVoidedDocuments.parse({\n  numero: 1,\n  fechaEmisionComprobantes: "2025-06-10",\n  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },\n  comprobantes: [\n    {\n      serie: "F001",\n      numero: 45,\n      tipoComprobante: "01",\n      descripcionSustento: "Error en datos del cliente",\n    },\n  ],\n});\n\nconst { data, error } = await createVoidedDocuments({ body: voided });\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
   },
   {
     id: 'curl',
@@ -100,7 +102,8 @@ La **Comunicación de Baja** (tipo `RA`) informa a SUNAT la anulación de factur
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zVoidedDocuments } from "@openubl/sdk";\n\nconst voided = zVoidedDocuments.parse({\n  numero: 1,\n  fechaEmisionComprobantes: \"2025-06-10\",\n  proveedor: {\n    ruc: \"20100100100\",\n    razonSocial: \"Mi Empresa S.A.C.\",\n  },\n  comprobantes: [\n    {\n      serie: \"F001\",\n      numero: 45,\n      tipoComprobante: \"01\",\n      descripcionSustento: \"Error en datos del cliente\",\n    },\n  ],\n});\n\nconst { data, error } = await client.post(\"/api/v1/voided-documents/create\", {\n  body: voided,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+    code: `import { createVoidedDocuments } from "@openubl/sdk";
+import { zVoidedDocuments } from "@openubl/sdk/zod.gen";\n\nconst voided = zVoidedDocuments.parse({\n  numero: 1,\n  fechaEmisionComprobantes: \"2025-06-10\",\n  proveedor: {\n    ruc: \"20100100100\",\n    razonSocial: \"Mi Empresa S.A.C.\",\n  },\n  comprobantes: [\n    {\n      serie: \"F001\",\n      numero: 45,\n      tipoComprobante: \"01\",\n      descripcionSustento: \"Error en datos del cliente\",\n    },\n  ],\n});\n\nconst { data, error } = await createVoidedDocuments({ body: voided });\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
   },
   {
     id: 'curl',
@@ -127,7 +130,8 @@ Una misma comunicación de baja puede anular varios comprobantes emitidos el mis
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zVoidedDocuments } from "@openubl/sdk";\n\nconst voided = zVoidedDocuments.parse({\n  numero: 2,\n  fechaEmisionComprobantes: "2025-06-10",\n  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },\n  comprobantes: [\n    {\n      serie: "F001",\n      numero: 10,\n      tipoComprobante: "01",\n      descripcionSustento: "Error en datos del cliente",\n    },\n    {\n      serie: "B001",\n      numero: 20,\n      tipoComprobante: "03",\n      descripcionSustento: "Duplicidad de emisión",\n    },\n  ],\n});\n\nconst { data, error } = await client.post("/api/v1/voided-documents/create", {\n  body: voided,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+    code: `import { createVoidedDocuments } from "@openubl/sdk";
+import { zVoidedDocuments } from "@openubl/sdk/zod.gen";\n\nconst voided = zVoidedDocuments.parse({\n  numero: 2,\n  fechaEmisionComprobantes: "2025-06-10",\n  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },\n  comprobantes: [\n    {\n      serie: "F001",\n      numero: 10,\n      tipoComprobante: "01",\n      descripcionSustento: "Error en datos del cliente",\n    },\n    {\n      serie: "B001",\n      numero: 20,\n      tipoComprobante: "03",\n      descripcionSustento: "Duplicidad de emisión",\n    },\n  ],\n});\n\nconst { data, error } = await createVoidedDocuments({ body: voided });\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
   },
   {
     id: 'curl',

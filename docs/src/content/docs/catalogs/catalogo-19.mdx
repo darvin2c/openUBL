@@ -71,7 +71,8 @@ resumen = SummaryDocuments(
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zSummaryDocuments } from "@openubl/sdk";
+    code: `import { createSummaryDocuments } from "@openubl/sdk";
+import { zSummaryDocuments } from "@openubl/sdk/zod.gen";
 
 const summary = zSummaryDocuments.parse({
   numero: 1,
@@ -95,7 +96,7 @@ const summary = zSummaryDocuments.parse({
   ],
 });
 
-const { data, error } = await client.post("/api/v1/summary-documents/create", { body: summary });
+const { data, error } = await createSummaryDocuments({ body: summary });
 if (error) throw new Error(JSON.stringify(error));`,
   },
   {

@@ -63,7 +63,8 @@ enricher = ContentEnricher()`,
     label: 'TypeScript',
     lang: 'typescript',
     code: `// El enriquecimiento ocurre automáticamente al llamar a POST /api/v1/invoice/create.
-import { client, zInvoice } from "@openubl/sdk";
+import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
 
 const invoice = zInvoice.parse({
   serie: "F001",
@@ -75,7 +76,7 @@ const invoice = zInvoice.parse({
   detalles: [{ descripcion: "Producto A", cantidad: 1, precio: 100, unidadMedida: "NIU", tipoAfectacionIGV: "10" }],
 });
 
-const { data, error } = await client.post("/api/v1/invoice/create", {
+const { data, error } = await createInvoice({
   body: invoice,
 });
 
@@ -126,7 +127,8 @@ enricher = ContentEnricher(
     lang: 'typescript',
     code: `// Las tasas de IGV/ICBPER se configuran en el servidor.
 // El endpoint aplica esos valores al enriquecer el documento.
-import { client, zInvoice } from "@openubl/sdk";
+import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
 
 const invoice = zInvoice.parse({
   serie: "F001",
@@ -138,7 +140,7 @@ const invoice = zInvoice.parse({
   detalles: [{ descripcion: "Producto A", cantidad: 1, precio: 100, unidadMedida: "NIU", tipoAfectacionIGV: "10" }],
 });
 
-const { data, error } = await client.post("/api/v1/invoice/create", {
+const { data, error } = await createInvoice({
   body: invoice,
 });
 
@@ -185,7 +187,8 @@ print(provider.now())  # 2026-06-11 (fecha actual)`,
     label: 'TypeScript',
     lang: 'typescript',
     code: `// El enriquecimiento automático en el servidor aplica la fecha actual cuando no se envía fechaEmision.
-import { client, zInvoice } from "@openubl/sdk";
+import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
 
 const invoice = zInvoice.parse({
   serie: "F001",
@@ -197,7 +200,7 @@ const invoice = zInvoice.parse({
   detalles: [{ descripcion: "Producto A", cantidad: 1, precio: 100, unidadMedida: "NIU", tipoAfectacionIGV: "10" }],
 });
 
-const { data, error } = await client.post("/api/v1/invoice/create", {
+const { data, error } = await createInvoice({
   body: invoice,
 });
 
@@ -250,7 +253,8 @@ enricher = ContentEnricher(date_provider=FixedDateProvider())`,
     lang: 'typescript',
     code: `// El control de fechas deterministas se realiza con la librería Python (openubl.models.defaults.DateProvider).
 // En TypeScript envía explicitamente fechaEmision para obtener resultados reproducibles.
-import { client, zInvoice } from "@openubl/sdk";
+import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
 
 const invoice = zInvoice.parse({
   serie: "F001",
@@ -263,7 +267,7 @@ const invoice = zInvoice.parse({
   detalles: [{ descripcion: "Producto A", cantidad: 1, precio: 100, unidadMedida: "NIU", tipoAfectacionIGV: "10" }],
 });
 
-const { data, error } = await client.post("/api/v1/invoice/create", {
+const { data, error } = await createInvoice({
   body: invoice,
 });
 
@@ -338,7 +342,8 @@ assert invoice.importeTotal == Decimal("2360.00")`,
     label: 'TypeScript',
     lang: 'typescript',
     code: `// El enriquecimiento ocurre automáticamente al llamar a POST /api/v1/invoice/create.
-import { client, zInvoice } from "@openubl/sdk";
+import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
 
 const invoice = zInvoice.parse({
   serie: "F001",
@@ -353,7 +358,7 @@ const invoice = zInvoice.parse({
   ],
 });
 
-const { data, error } = await client.post("/api/v1/invoice/create", {
+const { data, error } = await createInvoice({
   body: invoice,
 });
 
@@ -437,7 +442,8 @@ assert invoice.igvTotal == Decimal("18.00")`,
     label: 'TypeScript',
     lang: 'typescript',
     code: `// El enriquecimiento ocurre automáticamente al llamar a POST /api/v1/invoice/create.
-import { client, zInvoice } from "@openubl/sdk";
+import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
 
 const invoice = zInvoice.parse({
   serie: "F001",
@@ -452,7 +458,7 @@ const invoice = zInvoice.parse({
   ],
 });
 
-const { data, error } = await client.post("/api/v1/invoice/create", {
+const { data, error } = await createInvoice({
   body: invoice,
 });
 

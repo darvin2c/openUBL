@@ -49,7 +49,8 @@ with httpx.Client(base_url="http://localhost:8000") as client:
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zInvoice } from "@openubl/sdk";
+    code: `import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
 
 const invoice = zInvoice.parse({
   serie: "F001",
@@ -76,7 +77,7 @@ const invoice = zInvoice.parse({
   ],
 });
 
-const { data, error } = await client.post("/api/v1/invoice/create", {
+const { data, error } = await createInvoice({
   body: invoice,
 });
 
@@ -158,16 +159,17 @@ with httpx.Client(base_url="http://localhost:8000") as client:
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zSignXmlApiV1SignPostBody } from "@openubl/sdk";
+    code: `import { signXml } from "@openubl/sdk";
+import { zSignXmlBody } from "@openubl/sdk/zod.gen";
 
-const body = zSignXmlApiV1SignPostBody.parse({
+const body = zSignXmlBody.parse({
   xml: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>...",
   cert_pem: process.env.CERT_PEM,
   key_pem: process.env.KEY_PEM,
   signature_id: "SignSUNAT",
 });
 
-const { data, error } = await client.post("/api/v1/sign", {
+const { data, error } = await signXml({
   body,
 });
 
@@ -244,7 +246,8 @@ with httpx.Client(base_url="http://localhost:8000") as client:
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zCreditNote } from "@openubl/sdk";
+    code: `import { createCreditNote } from "@openubl/sdk";
+import { zCreditNote } from "@openubl/sdk/zod.gen";
 
 const creditNote = zCreditNote.parse({
   serie: "BC01",
@@ -272,7 +275,7 @@ const creditNote = zCreditNote.parse({
   ],
 });
 
-const { data, error } = await client.post("/api/v1/credit-note/create", {
+const { data, error } = await createCreditNote({
   body: creditNote,
 });
 
@@ -341,14 +344,15 @@ with httpx.Client(base_url="http://localhost:8000") as client:
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zInvoice } from "@openubl/sdk";
+    code: `import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
 import fs from "node:fs/promises";
 
 const invoice = zInvoice.parse(
   JSON.parse(await fs.readFile("invoice.json", "utf-8"))
 );
 
-const { data, error } = await client.post("/api/v1/invoice/create", {
+const { data, error } = await createInvoice({
   body: invoice,
 });
 

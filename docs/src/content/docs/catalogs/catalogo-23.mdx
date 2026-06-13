@@ -73,7 +73,8 @@ retencion = Retention(
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zRetention } from "@openubl/sdk";
+    code: `import { createRetention } from "@openubl/sdk";
+import { zRetention } from "@openubl/sdk/zod.gen";
 
 const retention = zRetention.parse({
   serie: "R001",
@@ -104,7 +105,7 @@ const retention = zRetention.parse({
   ],
 });
 
-const { data, error } = await client.post("/api/v1/retention/create", { body: retention });
+const { data, error } = await createRetention({ body: retention });
 if (error) throw new Error(JSON.stringify(error));`,
   },
   {

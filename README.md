@@ -26,6 +26,8 @@ pip install openubl
 
 ```python
 from openubl.models import Invoice, Proveedor, Cliente, DocumentoVentaDetalle
+from openubl.renderer import render_invoice
+from openubl.enricher import ContentEnricher
 
 invoice = Invoice(
     serie="F001",
@@ -35,7 +37,10 @@ invoice = Invoice(
     detalles=[DocumentoVentaDetalle(descripcion="Item", cantidad=10, precio=100)],
 )
 
-xml = invoice.to_xml()
+enricher = ContentEnricher()
+enricher.enrich(invoice)
+
+xml = render_invoice(invoice)
 print(xml)  # XML UBL 2.1 listo para firmar
 ```
 
@@ -46,7 +51,7 @@ npm install @openubl/sdk
 ```
 
 ```typescript
-import { client, SDK_VERSION, checkApiVersion } from "@openubl/sdk";
+import { createInvoice, SDK_VERSION, checkApiVersion } from "@openubl/sdk";
 import { zInvoice } from "@openubl/sdk/zod.gen";
 
 const invoice = zInvoice.parse({
@@ -57,8 +62,9 @@ const invoice = zInvoice.parse({
   detalles: [{ descripcion: "Item", cantidad: 10, precio: 100 }],
 });
 
-const { data } = await client.post("/api/v1/invoice/create", { body: invoice });
-console.log(data?.xml); // XML UBL 2.1 generado
+const { data, error } = await createInvoice({ body: invoice });
+if (error) throw new Error(JSON.stringify(error));
+console.log(data.xml); // XML UBL 2.1 generado
 ```
 
 ## Levantar la API REST
@@ -113,7 +119,6 @@ Consulta `AGENTS.md` para el contexto técnico completo del proyecto.
 ## Licencia
 
 MIT © openUBL
-# Test release flow v2
 
 
 

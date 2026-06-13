@@ -105,7 +105,8 @@ print(xml)`,
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zSummaryDocuments } from "@openubl/sdk";
+    code: `import { createSummaryDocuments } from "@openubl/sdk";
+import { zSummaryDocuments } from "@openubl/sdk/zod.gen";
 
 const summary = zSummaryDocuments.parse({
   numero: 1,
@@ -132,7 +133,7 @@ const summary = zSummaryDocuments.parse({
   ],
 });
 
-const { data, error } = await client.post("/api/v1/summary-documents/create?validate=true", {
+const { data, error } = await createSummaryDocuments({query: { validate: true },
   body: summary,
 });
 
@@ -188,7 +189,8 @@ print(errors)  # [] si es válido`,
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zSummaryDocuments } from "@openubl/sdk";
+    code: `import { createSummaryDocuments } from "@openubl/sdk";
+import { zSummaryDocuments } from "@openubl/sdk/zod.gen";
 
 const summary = zSummaryDocuments.parse({
   numero: 1,
@@ -206,8 +208,8 @@ const summary = zSummaryDocuments.parse({
   }],
 });
 
-const { data, error } = await client.post("/api/v1/summary-documents/create", {
-  params: { query: { validate: true } },
+const { data, error } = await createSummaryDocuments({
+  query: { validate: true },
   body: summary,
 });
 
@@ -289,7 +291,8 @@ print(xml)`,
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zSummaryDocuments } from "@openubl/sdk";
+    code: `import { createSummaryDocuments } from "@openubl/sdk";
+import { zSummaryDocuments } from "@openubl/sdk/zod.gen";
 
 const summary = zSummaryDocuments.parse({
   numero: 1,
@@ -316,7 +319,7 @@ const summary = zSummaryDocuments.parse({
   ],
 });
 
-const { data, error } = await client.post("/api/v1/summary-documents/create", {
+const { data, error } = await createSummaryDocuments({
   body: summary,
 });
 
@@ -367,7 +370,8 @@ Además de adicionar (`tipoOperacion: "1"`), puedes modificar (`"2"`) o anular (
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zSummaryDocuments } from "@openubl/sdk";\n\nconst cliente = {\n  nombre: "Juan Pérez",\n  numeroDocumentoIdentidad: "46779327",\n  tipoDocumentoIdentidad: "1",\n};\n\nconst summary = zSummaryDocuments.parse({\n  numero: 2,\n  fechaEmisionComprobantes: "2025-06-10",\n  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },\n  comprobantes: [\n    {\n      tipoOperacion: "2",\n      comprobante: {\n        tipoComprobante: "03",\n        serieNumero: "B001-45",\n        cliente,\n        impuestos: { igv: "28.00" },\n        valorVenta: { importeTotal: "178.00" },\n      },\n    },\n    {\n      tipoOperacion: "3",\n      comprobante: {\n        tipoComprobante: "03",\n        serieNumero: "B001-46",\n        cliente,\n        impuestos: { igv: "0.00" },\n        valorVenta: { importeTotal: "0.00" },\n      },\n    },\n  ],\n});\n\nconst { data, error } = await client.post("/api/v1/summary-documents/create", {\n  body: summary,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+    code: `import { createSummaryDocuments } from "@openubl/sdk";
+import { zSummaryDocuments } from "@openubl/sdk/zod.gen";\n\nconst cliente = {\n  nombre: "Juan Pérez",\n  numeroDocumentoIdentidad: "46779327",\n  tipoDocumentoIdentidad: "1",\n};\n\nconst summary = zSummaryDocuments.parse({\n  numero: 2,\n  fechaEmisionComprobantes: "2025-06-10",\n  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },\n  comprobantes: [\n    {\n      tipoOperacion: "2",\n      comprobante: {\n        tipoComprobante: "03",\n        serieNumero: "B001-45",\n        cliente,\n        impuestos: { igv: "28.00" },\n        valorVenta: { importeTotal: "178.00" },\n      },\n    },\n    {\n      tipoOperacion: "3",\n      comprobante: {\n        tipoComprobante: "03",\n        serieNumero: "B001-46",\n        cliente,\n        impuestos: { igv: "0.00" },\n        valorVenta: { importeTotal: "0.00" },\n      },\n    },\n  ],\n});\n\nconst { data, error } = await createSummaryDocuments({\n  body: summary,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
   },
   {
     id: 'curl',
@@ -388,3 +392,4 @@ Además de adicionar (`tipoOperacion: "1"`), puedes modificar (`"2"`) o anular (
 ```
 
 Si `validate=true` y el cuerpo no cumple las reglas, la API devuelve un error `422` con el detalle de la validación.
+    `,

@@ -68,7 +68,8 @@ invoice = Invoice(
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zInvoice } from "@openubl/sdk";
+    code: `import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
 
 const invoice = zInvoice.parse({
   serie: "F001",
@@ -90,7 +91,7 @@ const invoice = zInvoice.parse({
   moneda: "PEN",
 });
 
-const { data, error } = await client.post("/api/v1/invoice/create", { body: invoice });
+const { data, error } = await createInvoice({ body: invoice });
 if (error) throw new Error(JSON.stringify(error));`,
   },
   {

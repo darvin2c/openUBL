@@ -53,11 +53,12 @@ xml = response.json()["xml"]`,
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zInvoice } from "@openubl/sdk";
+    code: `import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
 
 const invoice = zInvoice.parse({ ... });
 
-const { data, error } = await client.post("/api/v1/invoice/create?validate=false", { body: invoice });
+const { data, error } = await createInvoice({query: { validate: false }, body: invoice });
 
 if (error) throw new Error(JSON.stringify(error));
 
@@ -158,3 +159,4 @@ else:
 
 - <a href="https://cpe.sunat.gob.pe/" target="_blank" rel="noopener noreferrer">RS N° 300-2014/SUNAT</a> — Sistema de Emisión Electrónica
 - <a href="https://cpe.sunat.gob.pe/sites/default/files/inline-files/Validacion%20de%20comprobantes%20de%20pago%20electronicos.pdf" target="_blank" rel="noopener noreferrer">Reglas de validación SUNAT</a>
+    `,

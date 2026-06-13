@@ -20,7 +20,9 @@ Este ejemplo crea una factura electrónica (`Invoice`), enriquece sus campos cal
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zInvoice } from "@openubl/sdk";`,
+    code: `import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
+    `,
   },
   {
     id: 'curl',
@@ -184,7 +186,7 @@ assert invoice.importeTotal == 118.00`,
     label: 'TypeScript',
     lang: 'typescript',
     code: `// El endpoint de la API enriquece automáticamente al crear el documento.
-const { data, error } = await client.post("/api/v1/invoice/create", {
+const { data, error } = await createInvoice({
   body: invoice,
 });
 
@@ -242,8 +244,7 @@ enricher = ContentEnricher(defaults=Defaults(igvTasa=0.18, icbTasa=0.20))`,
     id: 'python',
     label: 'Python',
     lang: 'python',
-    code: `xml = invoice.to_xml()
-print(xml)`,
+    code: `from openubl.renderer import render_invoice\n\nxml = render_invoice(invoice)\nprint(xml)`,
   },
   {
     id: 'typescript',
@@ -288,15 +289,15 @@ print(signed_xml)`,
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { zSignXmlApiV1SignPostBody } from "@openubl/sdk";
+    code: `import { zSignXmlBody } from "@openubl/sdk/zod.gen";
 
-const body = zSignXmlApiV1SignPostBody.parse({
+const body = zSignXmlBody.parse({
   xml,
   cert_pem: certPem,
   key_pem: keyPem,
 });
 
-const { data, error } = await client.post("/api/v1/sign", {
+const { data, error } = await signXml({
   body,
 });
 
@@ -338,10 +339,8 @@ assert len(errors) == 0, f"Errores de validación: {errors}"`,
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `const { data, error } = await client.post("/api/v1/invoice/create", {
-  params: {
-    query: { validate: true },
-  },
+    code: `const { data, error } = await createInvoice({
+  query: { validate: true },
   body: invoice,
 });
 

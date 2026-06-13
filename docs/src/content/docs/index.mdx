@@ -80,7 +80,9 @@ import FeatureGrid from '../../components/FeatureGrid.astro';
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zInvoice, type Proveedor, type Cliente, type DocumentoVentaDetalle } from "@openubl/sdk";\n\nconst proveedor: Proveedor = {\n  ruc: "20100066603",\n  razonSocial: "Softgreen S.A.C.",\n};\n\nconst cliente: Cliente = {\n  nombre: "Carlos",\n  numeroDocumentoIdentidad: "12121212121",\n  tipoDocumentoIdentidad: "6",\n};\n\nconst detalle: DocumentoVentaDetalle = {\n  descripcion: "Item",\n  cantidad: 10,\n  precio: 100,\n};\n\nconst invoice = zInvoice.parse({\n  serie: "F001",\n  numero: 1,\n  proveedor,\n  cliente,\n  detalles: [detalle],\n  moneda: "PEN",\n});\n\nconst { data, error } = await client.post("/api/v1/invoice/create", {\n  body: invoice,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml); // XML UBL 2.…`,
+    code: `import { createInvoice, type Proveedor, type Cliente, type DocumentoVentaDetalle } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";\n\nconst proveedor: Proveedor = {\n  ruc: "20100066603",\n  razonSocial: "Softgreen S.A.C.",\n};\n\nconst cliente: Cliente = {\n  nombre: "Carlos",\n  numeroDocumentoIdentidad: "12121212121",\n  tipoDocumentoIdentidad: "6",\n};\n\nconst detalle: DocumentoVentaDetalle = {\n  descripcion: "Item",\n  cantidad: 10,\n  precio: 100,\n};\n\nconst invoice = zInvoice.parse({\n  serie: "F001",\n  numero: 1,\n  proveedor,\n  cliente,\n  detalles: [detalle],\n  moneda: "PEN",\n});\n\nconst { data, error } = await createInvoice({\n  body: invoice,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml); // XML UBL 2.…
+    `,
   },
   {
     id: 'curl',

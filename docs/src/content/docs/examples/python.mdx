@@ -77,7 +77,7 @@ if __name__ == "__main__":
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zInvoice, zSignXmlApiV1SignPostBody } from "@openubl/sdk";
+    code: `import { createInvoice, signXml } from "@openubl/sdk";\nimport { zInvoice, zSignXmlBody } from "@openubl/sdk/zod.gen";
 
 const invoice = zInvoice.parse({
   serie: "F001",
@@ -104,7 +104,7 @@ const invoice = zInvoice.parse({
   ],
 });
 
-const { data, error } = await client.post("/api/v1/invoice/create", {
+const { data, error } = await createInvoice({
   body: invoice,
 });
 
@@ -114,14 +114,14 @@ if (error) {
 
 const xml = data.xml;
 
-const body = zSignXmlApiV1SignPostBody.parse({
+const body = zSignXmlBody.parse({
   xml,
   cert_pem: process.env.CERT_PEM,
   key_pem: process.env.KEY_PEM,
   signature_id: "SignSUNAT",
 });
 
-const { data: signData, error: signError } = await client.post("/api/v1/sign", {
+const { data: signData, error: signError } = await signXml({
   body,
 });
 
@@ -220,7 +220,8 @@ with requests.Session() as s:
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zInvoice } from "@openubl/sdk";
+    code: `import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
 
 const invoice = zInvoice.parse({
   serie: "F001",
@@ -247,7 +248,7 @@ const invoice = zInvoice.parse({
   ],
 });
 
-const { data, error } = await client.post("/api/v1/invoice/create", {
+const { data, error } = await createInvoice({
   body: invoice,
 });
 
@@ -340,7 +341,8 @@ with httpx.Client(base_url=BASE_URL) as client:
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zCreditNote } from "@openubl/sdk";
+    code: `import { createCreditNote } from "@openubl/sdk";
+import { zCreditNote } from "@openubl/sdk/zod.gen";
 
 const creditNote = zCreditNote.parse({
   serie: "BC01",
@@ -368,7 +370,7 @@ const creditNote = zCreditNote.parse({
   ],
 });
 
-const { data, error } = await client.post("/api/v1/credit-note/create", {
+const { data, error } = await createCreditNote({
   body: creditNote,
 });
 
@@ -454,7 +456,8 @@ with httpx.Client(base_url=BASE_URL) as client:
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zVoidedDocuments } from "@openubl/sdk";
+    code: `import { createVoidedDocuments } from "@openubl/sdk";
+import { zVoidedDocuments } from "@openubl/sdk/zod.gen";
 
 const voided = zVoidedDocuments.parse({
   numero: 1,
@@ -473,7 +476,7 @@ const voided = zVoidedDocuments.parse({
   ],
 });
 
-const { data, error } = await client.post("/api/v1/voided-documents/create", {
+const { data, error } = await createVoidedDocuments({
   body: voided,
 });
 
@@ -507,3 +510,4 @@ console.log(data.xml);`,
   }'`,
   },
 ]} />
+    `,

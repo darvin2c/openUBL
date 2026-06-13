@@ -74,7 +74,8 @@ percepcion = Perception(
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zPerception } from "@openubl/sdk";
+    code: `import { createPerception } from "@openubl/sdk";
+import { zPerception } from "@openubl/sdk/zod.gen";
 
 const perception = zPerception.parse({
   serie: "P001",
@@ -106,7 +107,7 @@ const perception = zPerception.parse({
   ],
 });
 
-const { data, error } = await client.post("/api/v1/perception/create", { body: perception });
+const { data, error } = await createPerception({ body: perception });
 if (error) throw new Error(JSON.stringify(error));`,
   },
   {

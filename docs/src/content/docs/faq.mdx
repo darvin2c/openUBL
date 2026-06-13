@@ -87,7 +87,8 @@ print(response.json()["xml"])`,
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zInvoice } from "@openubl/sdk";
+    code: `import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
 
 const invoice = zInvoice.parse({
   serie: "F001",
@@ -110,7 +111,7 @@ const invoice = zInvoice.parse({
   ],
 });
 
-const { data, error } = await client.post("/api/v1/invoice/create", {
+const { data, error } = await createInvoice({
   body: invoice,
 });
 
@@ -193,7 +194,8 @@ print(response.json()["xml"])`,
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zInvoice } from "@openubl/sdk";
+    code: `import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
 
 const invoice = zInvoice.parse({
   serie: "F001",
@@ -207,8 +209,8 @@ const invoice = zInvoice.parse({
   detalles: [{ descripcion: "Item", cantidad: 10, precio: 100 }],
 });
 
-const { data, error } = await client.post("/api/v1/invoice/create", {
-  params: { query: { validate: false } },
+const { data, error } = await createInvoice({
+  query: { validate: false },
   body: invoice,
 });
 
@@ -369,7 +371,8 @@ print(summary.model_dump_json(indent=2))`,
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zSummaryDocuments } from "@openubl/sdk";
+    code: `import { createSummaryDocuments } from "@openubl/sdk";
+import { zSummaryDocuments } from "@openubl/sdk/zod.gen";
 
 const summary = zSummaryDocuments.parse({
   numero: 1,
@@ -393,7 +396,7 @@ const summary = zSummaryDocuments.parse({
   ],
 });
 
-const { data, error } = await client.post("/api/v1/summary-documents/create", {
+const { data, error } = await createSummaryDocuments({
   body: summary,
 });
 
@@ -546,7 +549,8 @@ print(invoice.importeTotal)  # 110.00`,
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zInvoice } from "@openubl/sdk";
+    code: `import { createInvoice } from "@openubl/sdk";
+import { zInvoice } from "@openubl/sdk/zod.gen";
 
 const invoice = zInvoice.parse({
   serie: "F001",
@@ -572,7 +576,7 @@ const invoice = zInvoice.parse({
   importeTotal: 110,
 });
 
-const { data, error } = await client.post("/api/v1/invoice/create", {
+const { data, error } = await createInvoice({
   body: invoice,
 });
 
@@ -619,3 +623,28 @@ Si usas la API REST, no puedes cambiar la tasa directamente por parámetro de co
 ::::note
 SUNAT solo reconoce tasas oficiales vigentes. Asegúrate de que la tasa configurada cumpla la normativa aplicable.
 ::::
+
+## ¿Puedo usar el SDK sin levantar la API REST?
+
+No. El SDK `@openubl/sdk` es un cliente HTTP generado desde OpenAPI; necesita un servidor openUBL corriendo. Para generar XML sin servidor, usa la biblioteca Python nativa (`openubl.models`, `ContentEnricher` y `render_invoice`).
+
+## ¿Cuál es la diferencia entre `client.post` y `createInvoice`?
+
+`createInvoice` es el helper tipado generado desde OpenAPI. Conoce la URL, el body y los errores del endpoint, y te da autocompletado y validación automática. `client.post` es el cliente genérico de `@hey-api/client-fetch`; te permite llamar cualquier endpoint, pero sin el tipado específico del helper.
+
+```typescript
+// Helper tipado (recomendado)
+const { data, error } = await createInvoice({ body: invoice });
+
+// Cliente genérico
+const { data, error } = await client.post("/api/v1/invoice/create", { body: invoice });
+```
+
+## ¿Por qué los schemas Zod están en `@openubl/sdk/zod.gen`?
+
+Se generan automáticamente desde `openapi.json` junto con el cliente y los tipos. Están en un módulo separado (`zod.gen`) para que solo cargues Zod cuando necesites validación runtime. Si solo usas los helpers, no necesitas importar los schemas.
+
+## ¿Puedo usar el SDK en el navegador?
+
+Teóricamente sí, porque `@hey-api/client-fetch` usa `fetch`. Sin embargo, **nunca expongas certificados digitales ni claves privadas en el frontend**. La firma XML debe hacerse en un backend de confianza (Python o API REST) o, como máximo, enviar los PEM desde el servidor al endpoint `/api/v1/sign`.
+

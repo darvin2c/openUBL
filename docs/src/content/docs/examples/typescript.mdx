@@ -8,7 +8,8 @@ Este ejemplo usa el SDK `@openubl/sdk` con validación runtime mediante los sche
 ## Crear y firmar una factura
 
 ```typescript
-import { client, zInvoice, zSignXmlApiV1SignPostBody } from "@openubl/sdk";
+import { createInvoice, signXml } from "@openubl/sdk";
+import { zInvoice, zSignXmlBody } from "@openubl/sdk/zod.gen";
 
 const invoice = zInvoice.parse({
   serie: "F001",
@@ -34,12 +35,9 @@ const invoice = zInvoice.parse({
 
 async function createAndSign() {
   // 1. Crear el XML
-  const { data: createData, error: createError } = await client.post(
-    "/api/v1/invoice/create",
-    {
-      body: invoice,
-    },
-  );
+  const { data: createData, error: createError } = await createInvoice({
+    body: invoice,
+  });
 
   if (createError) {
     throw new Error(`Error al crear factura: ${JSON.stringify(createError)}`);
@@ -52,15 +50,13 @@ async function createAndSign() {
   const certPem = process.env.CERT_PEM ?? "";
   const keyPem = process.env.KEY_PEM ?? "";
 
-  const body = zSignXmlApiV1SignPostBody.parse({
+  const body = zSignXmlBody.parse({
     xml,
     cert_pem: certPem,
     key_pem: keyPem,
   });
 
-  const { data: signData, error: signError } = await client.post("/api/v1/sign", {
-    body,
-  });
+  const { data: signData, error: signError } = await signXml({ body });
 
   if (signError) {
     throw new Error(`Error al firmar: ${JSON.stringify(signError)}`);
@@ -77,7 +73,8 @@ createAndSign();
 ### Nota de crédito
 
 ```typescript
-import { client, zCreditNote } from "@openubl/sdk";
+import { createCreditNote } from "@openubl/sdk";
+import { zCreditNote } from "@openubl/sdk/zod.gen";
 
 const creditNote = zCreditNote.parse({
   serie: "BC01",
@@ -90,9 +87,7 @@ const creditNote = zCreditNote.parse({
   moneda: "PEN",
 });
 
-const { data, error } = await client.post("/api/v1/credit-note/create", {
-  body: creditNote,
-});
+const { data, error } = await createCreditNote({ body: creditNote });
 
 if (error) throw error;
 console.log(data.xml);
@@ -101,7 +96,8 @@ console.log(data.xml);
 ### Comunicación de baja
 
 ```typescript
-import { client, zVoidedDocuments } from "@openubl/sdk";
+import { createVoidedDocuments } from "@openubl/sdk";
+import { zVoidedDocuments } from "@openubl/sdk/zod.gen";
 
 const voided = zVoidedDocuments.parse({
   numero: 1,
@@ -117,9 +113,7 @@ const voided = zVoidedDocuments.parse({
   ],
 });
 
-const { data, error } = await client.post("/api/v1/voided-documents/create", {
-  body: voided,
-});
+const { data, error } = await createVoidedDocuments({ body: voided });
 
 if (error) throw error;
 console.log(data.xml);

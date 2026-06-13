@@ -106,7 +106,8 @@ print(xml)`,
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zDebitNote } from "@openubl/sdk";\n\nconst debitNote = zDebitNote.parse({\n  serie: \"FC01\",\n  numero: 1,\n  comprobanteAfectadoSerieNumero: \"F001-45\",\n  sustentoDescripcion: \"Intereses moratorios\",\n  proveedor: {\n    ruc: \"20100100100\",\n    razonSocial: \"Mi Empresa S.A.C.\",\n  },\n  cliente: {\n    nombre: \"Juan Pérez\",\n    numeroDocumentoIdentidad: \"46779327\",\n    tipoDocumentoIdentidad: \"1\",\n  },\n  detalles: [\n    {\n      descripcion: \"Intereses moratorios - Laptop Dell XPS 13\",\n      cantidad: \"1\",\n      precio: \"150.00\",\n    },\n  ],\n});\n\nconst { data, error } = await client.post(\"/api/v1/debit-note/create?validate=true\", {\n  body: debitNote,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+    code: `import { createDebitNote } from "@openubl/sdk";
+import { zDebitNote } from "@openubl/sdk/zod.gen";\n\nconst debitNote = zDebitNote.parse({\n  serie: \"FC01\",\n  numero: 1,\n  comprobanteAfectadoSerieNumero: \"F001-45\",\n  sustentoDescripcion: \"Intereses moratorios\",\n  proveedor: {\n    ruc: \"20100100100\",\n    razonSocial: \"Mi Empresa S.A.C.\",\n  },\n  cliente: {\n    nombre: \"Juan Pérez\",\n    numeroDocumentoIdentidad: \"46779327\",\n    tipoDocumentoIdentidad: \"1\",\n  },\n  detalles: [\n    {\n      descripcion: \"Intereses moratorios - Laptop Dell XPS 13\",\n      cantidad: \"1\",\n      precio: \"150.00\",\n    },\n  ],\n});\n\nconst { data, error } = await createDebitNote({ query: { validate: true }, body: debitNote });\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
   },
   {
     id: 'curl',
@@ -141,7 +142,8 @@ print(xml)`,
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zDebitNote } from "@openubl/sdk";\n\nconst debitNote = zDebitNote.parse({\n  serie: "FC01",\n  numero: 1,\n  comprobanteAfectadoSerieNumero: "F001-45",\n  sustentoDescripcion: "Intereses moratorios",\n  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },\n  cliente: { nombre: "Juan Pérez", numeroDocumentoIdentidad: "46779327", tipoDocumentoIdentidad: "1" },\n  detalles: [\n    { descripcion: "Intereses moratorios - Laptop Dell XPS 13", cantidad: "1", precio: "150.00" },\n  ],\n});\n\nconst { data, error } = await client.post("/api/v1/debit-note/create", {\n  body: debitNote,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+    code: `import { createDebitNote } from "@openubl/sdk";
+import { zDebitNote } from "@openubl/sdk/zod.gen";\n\nconst debitNote = zDebitNote.parse({\n  serie: "FC01",\n  numero: 1,\n  comprobanteAfectadoSerieNumero: "F001-45",\n  sustentoDescripcion: "Intereses moratorios",\n  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },\n  cliente: { nombre: "Juan Pérez", numeroDocumentoIdentidad: "46779327", tipoDocumentoIdentidad: "1" },\n  detalles: [\n    { descripcion: "Intereses moratorios - Laptop Dell XPS 13", cantidad: "1", precio: "150.00" },\n  ],\n});\n\nconst { data, error } = await createDebitNote({ body: debitNote });\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
   },
   {
     id: 'curl',
@@ -192,7 +194,8 @@ print(xml)`,
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zDebitNote } from "@openubl/sdk";\n\nconst debitNote = zDebitNote.parse({\n  serie: \"FC01\",\n  numero: 1,\n  comprobanteAfectadoSerieNumero: \"F001-45\",\n  sustentoDescripcion: \"Intereses moratorios\",\n  proveedor: {\n    ruc: \"20100100100\",\n    razonSocial: \"Mi Empresa S.A.C.\",\n  },\n  cliente: {\n    nombre: \"Juan Pérez\",\n    numeroDocumentoIdentidad: \"46779327\",\n    tipoDocumentoIdentidad: \"1\",\n  },\n  detalles: [\n    {\n      descripcion: \"Intereses moratorios\",\n      cantidad: \"1\",\n      precio: \"150.00\",\n    },\n  ],\n});\n\nconst { data, error } = await client.post(\"/api/v1/debit-note/create\", {\n  body: debitNote,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+    code: `import { createDebitNote } from "@openubl/sdk";
+import { zDebitNote } from "@openubl/sdk/zod.gen";\n\nconst debitNote = zDebitNote.parse({\n  serie: \"FC01\",\n  numero: 1,\n  comprobanteAfectadoSerieNumero: \"F001-45\",\n  sustentoDescripcion: \"Intereses moratorios\",\n  proveedor: {\n    ruc: \"20100100100\",\n    razonSocial: \"Mi Empresa S.A.C.\",\n  },\n  cliente: {\n    nombre: \"Juan Pérez\",\n    numeroDocumentoIdentidad: \"46779327\",\n    tipoDocumentoIdentidad: \"1\",\n  },\n  detalles: [\n    {\n      descripcion: \"Intereses moratorios\",\n      cantidad: \"1\",\n      precio: \"150.00\",\n    },\n  ],\n});\n\nconst { data, error } = await createDebitNote({ body: debitNote });\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
   },
   {
     id: 'curl',
@@ -229,7 +232,8 @@ Puedes incluir varias líneas de débito en una sola nota. El enriquecedor suma 
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zDebitNote } from "@openubl/sdk";\n\nconst debitNote = zDebitNote.parse({\n  serie: "FD01",\n  numero: 1,\n  comprobanteAfectadoSerieNumero: "F001-45",\n  sustentoDescripcion: "Intereses y recargos",\n  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },\n  cliente: { nombre: "Juan Pérez", numeroDocumentoIdentidad: "46779327", tipoDocumentoIdentidad: "1" },\n  detalles: [\n    { descripcion: "Intereses moratorios", cantidad: "1", precio: "80.00" },\n    { descripcion: "Recargo administrativo", cantidad: "1", precio: "20.00" },\n  ],\n});\n\nconst { data, error } = await client.post("/api/v1/debit-note/create", {\n  body: debitNote,\n});\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
+    code: `import { createDebitNote } from "@openubl/sdk";
+import { zDebitNote } from "@openubl/sdk/zod.gen";\n\nconst debitNote = zDebitNote.parse({\n  serie: "FD01",\n  numero: 1,\n  comprobanteAfectadoSerieNumero: "F001-45",\n  sustentoDescripcion: "Intereses y recargos",\n  proveedor: { ruc: "20100100100", razonSocial: "Mi Empresa S.A.C." },\n  cliente: { nombre: "Juan Pérez", numeroDocumentoIdentidad: "46779327", tipoDocumentoIdentidad: "1" },\n  detalles: [\n    { descripcion: "Intereses moratorios", cantidad: "1", precio: "80.00" },\n    { descripcion: "Recargo administrativo", cantidad: "1", precio: "20.00" },\n  ],\n});\n\nconst { data, error } = await createDebitNote({ body: debitNote });\n\nif (error) {\n  throw new Error(JSON.stringify(error));\n}\n\nconsole.log(data.xml);`,
   },
   {
     id: 'curl',

@@ -91,15 +91,16 @@ signed_xml = response.json()["signed_xml"]`,
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { client, zSignXmlApiV1SignPostBody } from "@openubl/sdk";
+    code: `import { signXml } from "@openubl/sdk";
+import { zSignXmlBody } from "@openubl/sdk/zod.gen";
 
-const body = zSignXmlApiV1SignPostBody.parse({
+const body = zSignXmlBody.parse({
   cert_pem: "-----BEGIN CERTIFICATE-----\\nMIIC...\\n-----END CERTIFICATE-----",
   key_pem: "-----BEGIN PRIVATE KEY-----\\nMIIE...\\n-----END PRIVATE KEY-----",
   xml: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>...",
 });
 
-const { data, error } = await client.post("/api/v1/sign", { body });
+const { data, error } = await signXml({ body });
 
 if (error) throw new Error(JSON.stringify(error));
 
@@ -150,17 +151,18 @@ signed_xml = response.json()["signed_xml"]`,
     label: 'TypeScript',
     lang: 'typescript',
     code: `import { readFile } from "fs/promises";
-import { client, zSignXmlApiV1SignPostBody } from "@openubl/sdk";
+import { signXml } from "@openubl/sdk";
+import { zSignXmlBody } from "@openubl/sdk/zod.gen";
 
 const pfxBase64 = (await readFile("certificado.pfx")).toString("base64");
 
-const body = zSignXmlApiV1SignPostBody.parse({
+const body = zSignXmlBody.parse({
   pfx_base64: pfxBase64,
   pfx_password: "mi_clave",
   xml: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>...",
 });
 
-const { data, error } = await client.post("/api/v1/sign", { body });
+const { data, error } = await signXml({ body });
 
 if (error) throw new Error(JSON.stringify(error));
 
@@ -198,3 +200,4 @@ openUBL utiliza los parámetros requeridos por SUNAT:
 1. Genera el XML con el endpoint correspondiente (`/invoice/create`, `/credit-note/create`, etc.).
 2. Envía el XML al endpoint `/api/v1/sign` con tu certificado.
 3. Recibe el XML firmado (`signed_xml`) listo para enviar a SUNAT.
+    `,
