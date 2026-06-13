@@ -25,6 +25,7 @@ check-sdk-sync = "scripts.check_sdk_sync:main"
 
 [dependency-groups]
 dev = [
+    "basedpyright>=1.39.0",
     "httpx>=0.28.1",
     "openpyxl>=3.1.5",
     "pytest>=9.0.3",

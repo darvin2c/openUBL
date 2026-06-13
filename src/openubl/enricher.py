@@ -1,6 +1,5 @@
 """
 ContentEnricher - Auto-calculates tax fields and totals.
-Based on XBuilder Java ContentEnricher pattern.
 
 RS N° 300-2014/SUNAT, Anexo 1:
 - IGV: 18% (Ley N° 30296)
