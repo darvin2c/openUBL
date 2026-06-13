@@ -13,7 +13,7 @@ openubl/
 │   ├── api/router.py      # Endpoints FastAPI
 │   ├── main.py            # App FastAPI
 │   ├── renderer.py        # Renderizado Jinja2 → XML UBL
-│   ├── signer.py          # Firma digital XAdES-EPES
+│   ├── signer.py          # Firma digital XMLDSig (RSA-SHA-256 / SHA-256)
 │   ├── validator.py       # Validación SUNAT sobre XML
 │   ├── enricher.py        # Enriquecimiento automático de campos
 │   └── version.py         # check_api_version() para sincronización runtime
