@@ -2,22 +2,21 @@
 XML Digital Signing for SUNAT electronic documents.
 Uses signxml for pure-Python XML signing.
 
-RS N° 300-2014/SUNAT, Anexo 1 - Firma Digital:
-- Certificado X.509
-- Algoritmo RSA-SHA1
-- Signature dentro de UBLExtension
+Normative basis:
+- RS N.° 300-2014/SUNAT and modifications: XMLDSig signature placed inside
+  ext:UBLExtensions/ext:UBLExtension/ext:ExtensionContent.
+- Resolución de Secretaría N.° 007-2024-PCM/SGTD: approves Directiva
+  N.° 002-2024-PCM/SGTD on the use of digital signatures by public entities.
+- INDECOPI/IOFE "Guía de Acreditación de Entidades de Certificación":
+  requires SHA-2 family signature algorithms (RSA-SHA-256/384/512 or ECDSA).
 
-Note: SUNAT requires RSA-SHA1 which signxml 4.x blocks by default.
-We temporarily disable the deprecated method check to support SUNAT's
-required signature algorithm.
+Algorithm URIs used:
+- SignatureMethod: http://www.w3.org/2001/04/xmldsig-more#rsa-sha256
+- DigestMethod: http://www.w3.org/2001/04/xmlenc#sha256
+- CanonicalizationMethod: http://www.w3.org/TR/2001/REC-xml-c14n-20010315
 """
 from lxml import etree
 from signxml import XMLSigner
-from signxml.signer import XMLSigner as _XMLSigner
-
-# SUNAT requires RSA-SHA1; signxml 4.x blocks it by default.
-# This is a known requirement for Peruvian electronic invoicing.
-_XMLSigner.check_deprecated_methods = lambda self: None
 
 
 def sign_ubl_xml(
@@ -31,8 +30,8 @@ def sign_ubl_xml(
 
     signer = XMLSigner(
         c14n_algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315",
-        digest_algorithm="sha1",
-        signature_algorithm="rsa-sha1",
+        digest_algorithm="sha256",
+        signature_algorithm="rsa-sha256",
     )
     signed_root = signer.sign(root, key=key_pem, cert=cert_pem)
 

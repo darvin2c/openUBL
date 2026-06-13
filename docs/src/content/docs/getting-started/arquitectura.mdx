@@ -12,7 +12,7 @@ El paquete Python (`src/openubl`) contiene el núcleo del proyecto. Cada capa ti
 - **`openubl.models`** — Modelos Pydantic para `Invoice`, `CreditNote`, `DebitNote`, `VoidedDocuments`, `SummaryDocuments`, `Perception`, `Retention` y sus tipos auxiliares. Valida los datos de entrada y define la estructura del XML resultante.
 - **`openubl.enricher`** — `ContentEnricher` calcula campos faltantes: totales, impuestos (IGV, ICBPER), precios de venta y valores por ítem.
 - **`openubl.renderer`** — Convierte un modelo en XML UBL 2.1 mediante plantillas Jinja2 (`render_invoice`, `render_credit_note`, etc.).
-- **`openubl.signer`** — Firma digital XAdES-EPES con certificado X.509 y clave privada en formato PEM (`sign_ubl_xml`).
+- **`openubl.signer`** — Firma digital XMLDSig con certificado X.509 y clave privada en formato PEM (`sign_ubl_xml`). Usa RSA-SHA-256 y SHA-256 según INDECOPI/IOFE y la Directiva PCM 002-2024.
 - **`openubl.validator`** — `SunatValidator` aplica reglas y esquemas XSD de SUNAT sobre el XML generado.
 - **`openubl.packager`** — Empaqueta el XML firmado en un ZIP con la convención de nombres de SUNAT (`package_invoice`, `package_voided_documents`, etc.).
 
@@ -24,7 +24,7 @@ Este motor funciona como biblioteca nativa: importas, creas el modelo, enriquece
 flowchart TB
     A[Modelo Pydantic<br/>Invoice, CreditNote, ...] -->|ContentEnricher| B[Campos calculados]
     B -->|renderer| C[XML UBL 2.1]
-    C -->|signer| D[XML firmado<br/>XAdES-EPES]
+    C -->|signer| D[XML firmado<br/>XMLDSig + SHA-256]
     D -->|validator| E{¿Válido?}
     E -->|Sí| F[ZIP SUNAT<br/>packager]
     E -->|No| G[Errores de validación]

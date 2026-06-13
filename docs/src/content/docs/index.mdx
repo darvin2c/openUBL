@@ -26,7 +26,7 @@ import FeatureGrid from '../../components/FeatureGrid.astro';
 
 <StatsRow items={[
   { value: 'UBL 2.1', label: 'Esquema oficial SUNAT', accent: 'red' },
-  { value: 'XAdES-EPES', label: 'Firma digital', accent: 'gold' },
+  { value: 'XMLDSig + SHA-256', label: 'Firma digital', accent: 'gold' },
   { value: '7+', label: 'Documentos SUNAT', accent: 'red' },
   { value: 'OpenAPI', label: 'SDKs tipados', accent: 'gold' },
 ]} />
@@ -118,7 +118,7 @@ import { zInvoice } from "@openubl/sdk/zod.gen";\n\nconst proveedor: Proveedor =
 
 <FeatureGrid features={[
   { title: 'Generar XML', description: 'Crea XML UBL 2.1 conforme a las especificaciones de SUNAT para todos los documentos electrónicos soportados.', icon: 'document' },
-  { title: 'Firmar documentos', description: 'Firma digitalmente tus comprobantes con el estándar XAdES-EPES requerido por SUNAT.', icon: 'approve-check' },
+  { title: 'Firmar documentos', description: 'Firma digitalmente tus comprobantes con XMLDSig y SHA-256 requeridos por SUNAT e INDECOPI/IOFE.', icon: 'approve-check' },
   { title: 'Validar con SUNAT', description: 'Valida la estructura y contenido de tus documentos antes del envío oficial.', icon: 'seti:python' },
   { title: 'SDK TypeScript', description: 'Cliente tipado con Zod y @hey-api/client-fetch generado desde OpenAPI.', icon: 'seti:javascript' },
   { title: 'API REST', description: 'Integra vía API REST con tipado Pydantic y documentación OpenAPI interactiva.', icon: 'laptop' },
@@ -135,7 +135,7 @@ import { zInvoice } from "@openubl/sdk/zod.gen";\n\nconst proveedor: Proveedor =
 		<strong>Renderizar</strong> — Convierte el modelo a XML UBL 2.1 con `render()` o `to_xml()`.
 	</li>
 	<li>
-		<strong>Firmar</strong> — Aplica firma digital XAdES-EPES con tu certificado PEM.
+		<strong>Firmar</strong> — Aplica firma digital XMLDSig con RSA-SHA-256 y SHA-256 usando tu certificado PEM.
 	</li>
 	<li>
 		<strong>Enviar</strong> — Envía el ZIP firmado a SUNAT y recibe el CDR de confirmación.

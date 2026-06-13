@@ -7,27 +7,30 @@ import CodeTabs from '../../components/CodeTabs.astro';
 
 Esta página responde preguntas frecuentes basadas en el comportamiento real del código de openUBL.
 
-## ¿Por qué SUNAT exige RSA-SHA1 si es obsoleto?
+## ¿Qué algoritmo de firma usa openUBL?
 
-La normativa técnica de SUNAT (RS N° 300-2014/SUNAT, Anexo 1) exige que los comprobantes electrónicos se firmen con el algoritmo **RSA-SHA1** y digestión **SHA1**. Aunque estos algoritmos están considerados obsoletos para usos generales, siguen siendo obligatorios para la facturación electrónica peruana.
+openUBL firma con **RSA-SHA-256** y digestión **SHA-256** (XMLDSig), siguiendo la estructura exigida por SUNAT (`UBLExtension/ExtensionContent`) y los requisitos de seguridad de la infraestructura de certificación peruana.
 
 En `src/openubl/signer.py` se configura explícitamente:
 
 ```python
 signer = XMLSigner(
     c14n_algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315",
-    digest_algorithm="sha1",
-    signature_algorithm="rsa-sha1",
+    digest_algorithm="sha256",
+    signature_algorithm="rsa-sha256",
 )
 ```
 
-La librería `signxml` 4.x bloquea RSA-SHA1 por defecto por considerarlo deprecado. Para cumplir con SUNAT, openUBL desactiva temporalmente esa verificación:
+### Base normativa
 
-```python
-_XMLSigner.check_deprecated_methods = lambda self: None
-```
+- **RS N.° 300-2014/SUNAT** y modificatorias: definen la estructura XMLDSig y la ubicación de la firma dentro de `UBLExtension/ExtensionContent`.
+- **Resolución de Secretaría N.° 007-2024-PCM/SGTD**: aprueba la **Directiva N.° 002-2024-PCM/SGTD** que regula el uso de la firma digital en entidades públicas.
+- **INDECOPI/IOFE — Guía de Acreditación de Entidades de Certificación**: exige algoritmos SHA-2 (RSA-SHA-256/384/512 o ECDSA) para certificados digitales.
 
-Esto no es una decisión de diseño de openUBL, sino una adaptación al requerimiento vigente de SUNAT.
+:::note
+Anteriormente se usaba RSA-SHA1/SHA1, pero esos algoritmos están deprecados por la Guía de Acreditación de INDECOPI/IOFE y por la Directiva PCM 002-2024. `SunatValidator` rechaza firmas con SHA-1 reportando los errores 2089 y 2095.
+:::
+
 
 ## ¿Puedo omitir campos de totales si uso la API REST?
 

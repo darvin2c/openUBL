@@ -70,7 +70,7 @@ Construyes el modelo Pydantic correspondiente (por ejemplo, `Invoice`), luego lo
 
 ### 2. Firma
 
-El XML se firma digitalmente con un certificado en formato PEM/PFX. openUBL usa el algoritmo **RSA-SHA1**, digestión **SHA1** y canonicalización **C14N**, ubicando la firma en `UBLExtension/ExtensionContent`.
+El XML se firma digitalmente con un certificado en formato PEM/PFX. openUBL usa el algoritmo **RSA-SHA-256**, digestión **SHA-256** y canonicalización **C14N**, ubicando la firma XMLDSig en `UBLExtension/ExtensionContent`. Esta configuración cumple con la estructura exigida por SUNAT y con los requisitos SHA-2 de INDECOPI/IOFE y la Directiva PCM 002-2024.
 
 ### 3. Envío a SUNAT
 
