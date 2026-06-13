@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Miscellaneous Tasks
 
+- Añade uv al job publish-npm - ([af9c5f0](https://github.com/darvin2c/openUBL/commit/af9c5f0c27d6c12d6c71cf7dee61d24d20db293f))
 - Workflow único de release con publish a npm/PyPI integrado - ([ece5933](https://github.com/darvin2c/openUBL/commit/ece59332a68096882db57e4db4680b4a239f4c4c))
 ## [0.2.1](https://github.com/darvin2c/openUBL/compare/v0.2.0..v0.2.1) - 2026-06-13
 

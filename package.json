@@ -1,6 +1,6 @@
 {
   "name": "@openubl/root",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "private": true,
   "scripts": {
     "generate:openapi": "uv run python scripts/export_openapi.py",
