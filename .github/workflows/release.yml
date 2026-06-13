@@ -142,8 +142,20 @@ jobs:
       - run: uv sync
       - run: uv run pytest -m "not e2e"
       - run: uv run python scripts/check_sdk_sync.py
+      - name: Check if version already exists on PyPI
+        id: pypi_check
+        run: |
+          VERSION="${{ needs.release.outputs.version }}"
+          if curl -s "https://pypi.org/pypi/openubl/${VERSION}/json" | grep -q '"version"'; then
+            echo "openubl ${VERSION} already on PyPI"
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
       - run: uv build
+        if: steps.pypi_check.outputs.publish == 'true'
       - uses: pypa/gh-action-pypi-publish@release/v1
+        if: steps.pypi_check.outputs.publish == 'true'
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
 
@@ -161,7 +173,14 @@ jobs:
           node-version: 22
           registry-url: "https://registry.npmjs.org"
       - run: cd sdk/typescript && npm ci && npm run generate && npm run build && npm test
-      - run: cd sdk/typescript && npm publish --access public
+      - name: Publish to npm (idempotent)
+        run: |
+          VERSION="${{ needs.release.outputs.version }}"
+          if npm view "@openubl/sdk@${VERSION}" version >/dev/null 2>&1; then
+            echo "@openubl/sdk@${VERSION} already published, skipping"
+          else
+            cd sdk/typescript && npm publish --access public
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
