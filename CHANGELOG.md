@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0](https://github.com/darvin2c/openUBL/compare/v1.0.1..v1.1.0) - 2026-06-14
+
+### Features
+
+- *(validation)* Implement remaining SUNAT rules and coverage audit ([#29](https://github.com/darvin2c/openUBL/issues/29)) - ([afc0edb](https://github.com/darvin2c/openUBL/commit/afc0edb56282d4b5c2c3bf91fca0687dc27ffea1))
 ## [1.0.1](https://github.com/darvin2c/openUBL/compare/v1.0.0..v1.0.1) - 2026-06-13
 
 ### Miscellaneous Tasks
