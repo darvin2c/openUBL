@@ -1,0 +1,1111 @@
+# Gap Report: SUNAT Validator Coverage
+
+
+## Invoice
+
+Implemented: 18 / Source rules: 244 / Missing: 227
+
+- `1004`: No existe el Tag UBL o es vacío
+  - Tag: `/Invoice/cbc:InvoiceTypeCode`
+  - Msg: El XML no contiene el tag o no existe informacion de InvoiceTypeCode
+- `1034`: El valor del Tag UBL es diferente al RUC del nombre del XML
+  - Msg: Número de RUC del nombre del archivo no coincide con el consignado en el contenido del archivo XML
+- `2014`: No existe el Tag UBL
+  - Msg: El XML no contiene el tag o no existe informacion del número de documento de identidad del receptor del documento
+- `2017`: Si 'Tipo de documento del adquiriente o usuario' es '6', el formato del Tag UBL es diferente a numérico de 11 dígitos
+  - Msg: El numero de documento de identidad del receptor debe ser  RUC
+- `2023`: El formato del Tag UBL es diferente de numérico de hasta 3 dígitos; o, es igual cero.
+  - Tag: `/Invoice/cac:InvoiceLine/cbc:ID`
+  - Msg: El Numero de orden del item no cumple con el formato establecido
+- `2024`: No existe el Tag UBL o es cero (0)
+  - Tag: `/Invoice/cac:InvoiceLine/cbc:InvoicedQuantity`
+  - Msg: El XML no contiene el tag InvoicedQuantity en el detalle de los Items o es cero (0)
+- `2025`: El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 10 decimales
+  - Msg: InvoicedQuantity El dato ingresado no cumple con el estandar
+- `2026`: No existe el Tag UBL o es vacío
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Item/cbc:Description`
+  - Msg: El XML no contiene el tag cac:Item/cbc:Description en el detalle de los Items
+- `2027`: El formato del Tag UBL es diferente a alfanumérico de 1 hasta 500 caracteres (se considera cualquier carácter, permite "
+  - Msg: El XML no contiene el tag o no existe informacion de cac:Item/cbc:Description del item
+- `2028`: No existe el Tag UBL
+  - Tag: `/Invoice/cac:InvoiceLine/cac:PricingReference/cac:AlternativeConditionPrice/cbc:PriceAmount (Valor)`
+  - Msg: Debe existir el tag cac:AlternativeConditionPrice
+- `2031`: Si existe el tag, el formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente 
+  - Msg: El dato ingresado en total valor de venta no cumple con el estandar
+- `2033`: El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero
+  - Tag: `/Invoice/cac:InvoiceLine/cac:TaxTotal/cac:TaxSubtotal/cbc:TaxAmount (Monto del tributo de la línea)`
+  - Msg: El dato ingresado en TaxAmount de la linea no cumple con el formato establecido
+- `2037`: No existe el Tag UBL o es vacío
+  - Tag: `/Invoice/cac:InvoiceLine/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cac:TaxScheme/cbc:ID (Código de tributo por línea)`
+  - Msg: El XML no contiene el tag cac:TaxCategory/cac:TaxScheme/cbc:ID del Item
+- `2048`: El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero
+  - Tag: `/Invoice/cac:TaxTotal/cac:TaxSubtotal/cbc:TaxAmount  (Monto de la sumatoria)`
+  - Msg: El dato ingresado en TaxAmount no cumple con el formato establecido
+- `2052`: No existe el Tag UBL o es vacío
+  - Tag: `/Invoice/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cac:TaxScheme/cbc:TaxTypeCode (Código internacional de tributo)`
+  - Msg: El XML no contiene el tag código de tributo internacional de impuestos globales
+- `2054`: No existe el Tag UBL o es vacío
+  - Tag: `/Invoice/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cac:TaxScheme/cbc:Name (Nombre de tributo)`
+  - Msg: El XML no contiene el tag TaxScheme Name de impuestos globales
+- `2064`: El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero
+  - Tag: `/Invoice/cac:LegalMonetaryTotal/cbc:ChargeTotalAmount`
+  - Msg: El dato ingresado en ChargeTotalAmount no cumple con el formato establecido
+- `2065`: El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero
+  - Tag: `/Invoice/cac:LegalMonetaryTotal/cbc:AllowanceTotalAmount`
+  - Msg: El dato ingresado en el campo Total Descuentos no cumple con el formato establecido
+- `2068`: No existe el Tag UBL
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Price/cbc:PriceAmount`
+  - Msg: El XML no contiene el tag cac:Price/cbc:PriceAmount en el detalle de los Items
+- `2108`: Si serie del documento no inicia con número:
+  - Tag: `/Invoice/cbc:IssueDate`
+  - Msg: Presentacion fuera de fecha
+- `2329`: El valor del Tag UBL es mayor a dos días de la fecha de envío del comprobante
+  - Msg: La fecha de emision se encuentra fuera del limite permitido
+- `2367`: El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 10 decimales y diferente de cero
+  - Tag: `/Invoice/cac:InvoiceLine/cac:PricingReference/cac:AlternativeConditionPrice/cbc:PriceAmount (Valor)`
+  - Msg: El dato ingresado en PriceAmount del Precio de venta unitario por item no cumple con el formato establecido
+- `2369`: El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 10 decimales y diferente de cero.
+  - Msg: El dato ingresado en PriceAmount del Valor de venta unitario por item no cumple con el formato establecido
+- `2370`: El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero
+  - Tag: `/Invoice/cac:InvoiceLine/cbc:LineExtensionAmount`
+  - Msg: El dato ingresado en LineExtensionAmount del item no cumple con el formato establecido
+- `2371`: Si 'Código de tributo por línea' es diferente a '2000' (ISC) o '9999' (Otros tributos), cuyo 'Monto base' es mayor a cer
+  - Tag: `/Invoice/cac:InvoiceLine/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cbc:TaxExemptionReasonCode (Afectación al IGV o IVAP cuando corresponda)`
+  - Msg: El XML no contiene el tag cbc:TaxExemptionReasonCode de Afectacion al IGV
+- `2373`: Si 'Código de tributo por línea' es '2000' (ISC) cuyo 'Monto base' es mayor a cero (cbc:TaxableAmount > 0), no existe el
+  - Tag: `/Invoice/cac:InvoiceLine/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cbc:TierRange (Tipo de sistema de ISC)`
+  - Msg: Si existe monto de ISC en el ITEM debe especificar el sistema de calculo
+- `2409`: Existe en el mismo ítem otro cac:AlternativeConditionPrice con el mismo valor del Tag UBL (cbc:PriceTypeCode)
+  - Msg: Existe mas de un tag cac:AlternativeConditionPrice con el mismo cbc:PriceTypeCode
+- `2416`: Si 'Código de tributo' es '9996' (Gratuita) y 'Código de leyenda' es '1002', el valor del Tag UBL es igual a 0 (cero)
+  - Msg: Si existe leyenda Transferencia Gratuita debe consignar Total Valor de Venta de Operaciones Gratuitas
+- `2503`: Si el Tag UBL existe y es menor o igual a 0 (cero)
+  - Tag: `/Invoice/cac:PrepaidPayment/cbc:PaidAmount (Importe del anticipo)`
+  - Msg: PaidAmount: monto anticipado por documento debe ser mayor a cero.
+- `2509`: Si existe Tag UBL con valor mayor a cero, la suma de los 'Importe del anticipo' es diferente al valor del tag UBL
+  - Tag: `/Invoice/cac:LegalMonetaryTotal/cbc:PrepaidAmount`
+  - Msg: Total de anticipos diferente a los montos anticipados por documento.
+- `2521`: Si 'Tipo de documento del emisor del anticipo' existe y 'Tipo de comprobante que se realizo el anticipo' es '03' (Boleta
+  - Msg: El dato ingresado debe indicar SERIE-CORRELATIVO del documento que se realizo el anticipo.
+- `2638`: Si existe alguna línea (/Invoice/cac:InvoiceLine/cac:TaxTotal/cac:TaxSubtotal) con 'Monto base' mayor a cero (cbc:Taxabl
+  - Msg: Si tiene operaciones de un tributo en alguna línea, debe consignar el tag del total del tributo
+- `2640`: Si existe en la línea un cac:TaxSubtotal con 'Código de tributo por línea' igual a '9996' cuyo 'Monto base' es mayor a c
+  - Msg: Operacion gratuita, solo debe consignar un monto referencial
+- `2641`: Si 'Código de tributo' es '9996' (Gratuita) y existe una línea con 'Valor referencial unitario por ítem en operaciones g
+  - Msg: Operacion gratuita,  debe consignar Total valor venta - operaciones gratuitas  mayor a cero
+- `2642`: Si 'Tipo de operación' es exportación '0200', '0201', '0202', '0203', '0204', '0205', '0206', '0207' o '0208', el valor 
+  - Msg: Operaciones de exportacion, deben consignar Tipo Afectacion igual a 40
+- `2644`: Si 'Afectación al IGV o IVAP' es '17' y  'Monto base' es mayor a cero, y existe otra línea con 'Afectación al IGV o IVAP
+  - Msg: Comprobante operacion sujeta IVAP solo debe tener ítems con código de afectación del IGV igual a 17
+- `2650`: Si 'Código de tributo' es '2000' y 'Monto base' es mayor a cero, y existe un ítem con código de 'Afectación al IGV o IVA
+  - Msg: Factura de operacion sujeta al IVAP , no debe consignar valor para ISC o debe ser 0
+- `2752`: Existe otro cac:InvoiceLine con el mismo valor del Tag UBL (cbc:ID)
+  - Msg: El número de ítem no puede estar duplicado.
+- `2797`: Si "Código de motivo de cargo/descuento" es '51' o '52' o '53' (Percepción) y "Tipo de moneda" del comprobante es "PEN",
+  - Msg: El Monto de percepcion no puede ser mayor al importe total del comprobante.
+- `2801`: Si el 'Tipo de documento de identidad del adquiriente o usuario' es '1', el formato del Tag UBL es diferente de numérico
+  - Msg: El DNI ingresado no cumple con el estandar.
+- `2802`: Si 'Tipo de documento del adquiriente o usuario' es '4' o '7' o '0' o 'A' o 'B' o 'C' o 'D' o 'E' o 'G', el formato del 
+  - Msg: El dato ingresado como numero de documento de identidad del receptor no cumple con el formato establecido
+- `2883`: No existe el atributo del Tag UBL o es vacío
+  - Tag: `/Invoice/cac:InvoiceLine/cbc:InvoicedQuantity@unitCode`
+  - Msg: Es obligatorio indicar la unidad de medida del ítem
+- `2892`: Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 3 enteros y hasta 5 decimales y diferen
+  - Tag: `/Invoice/cac:InvoiceLine/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cbc:PerUnitAmount (Monto unitario)`
+  - Msg: El valor del tag no cumple con el formato establecido
+- `2898`: Si 'Tipo de operación' es '2104' y el 'Código del concepto' es '7015' y el valor del tag es igual a '1' o '2', no existe
+  - Msg: Para los tipos de seguro 1 y 2, debe consignar el numero de poliza, la fecha de cobertura y el monto asegurado
+- `2899`: Si 'Tipo de operación' es '2104' y el 'Código del concepto' es '7015' y el valor del tag es igual a '3' y no existe en l
+  - Msg: Para el tipo de seguro 3 - Otros debe consignar el numero de poliza
+- `2936`: Si existe el atributo, el valor es diferente al Catálogo N.° 03
+  - Msg: El dato ingresado como unidad de medida no corresponde al valor esperado
+- `2949`: Si  'Código de tributo' es '7152' y la 'Fecha de emisión' es menor a '2019-08-01', el valor del Tag Ubl es mayor a cero
+  - Msg: El impuesto ICBPER no se encuentra vigente
+- `2955`: El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Allowancecharge/cbc:Amount (Monto de cargo/descuento)`
+  - Msg: El formato ingresado en el tag cac:InvoiceLine/cac:Allowancecharge/cbc:Amount no cumple con el formato establecido
+- `2956`: No existe el tag /Invoice/cac:TaxTotal
+  - Tag: `/Invoice/cac:TaxTotal/cbc:TaxAmount`
+  - Msg: El Monto total de impuestos es obligatorio
+- `2968`: Si 'Código de motivo de cargo/descuento' es igual a '63' y el formato del Tag UBL es diferente de decimal (positivo mayo
+  - Tag: `/Invoice/cac:AllowanceCharge/cbc:Amount (Monto de la retención)`
+  - Msg: El dato ingresado en cac:AllowanceCharge/cbc:Amount no cumple con el formato establecido.
+- `2992`: Si el 'Código de tributo' es diferente de '7152' y no existe el Tag UBL
+  - Tag: `/Invoice/cac:InvoiceLine/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cbc:Percent (Tasa del tributo)`
+  - Msg: El XML no contiene el tag de la tasa del tributo de la línea
+- `2993`: Si 'Código de tributo por línea' es igual a '1000' o '1016', y  'Monto base' mayor a cero (cbc:TaxableAmount > 0), el va
+  - Msg: El factor de afectación de IGV por linea debe ser diferente a 0.00.
+- `2996`: No existe el Tag UBL o es vacío
+  - Tag: `/Invoice/cac:InvoiceLine/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cac:TaxScheme/cbc:Name (Nombre de tributo)`
+  - Msg: El XML no contiene el tag o no existe información del nombre de tributo de la línea
+- `2999`: El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero
+  - Msg: El dato ingresado en el total valor de venta globales no cumple con el formato establecido
+- `3000`: Si el Tag UBL existe, el valor del Tag Ubl es diferente de 0 (cero), cuando el 'Código de tributo' es '9995', '9997' y '
+  - Msg: El monto total del impuestos sobre el valor de venta de operaciones gratuitas/inafectas/exoneradas debe ser igual a 0.00
+- `3003`: Si el 'Código de tributo' es diferente de '7152' y no existe el Tag UBL
+  - Tag: `/Invoice/cac:TaxTotal/cac:TaxSubtotal/cbc:TaxableAmount (Monto base)`
+  - Msg: El XML no contiene el tag o no existe información de total valor de venta globales
+- `3006`: Si el formato del Tag UBL es diferente a alfanumérico de 1 a 200 caractéres (se considera cualquier carácter incluido es
+  - Tag: `/Invoice/cbc:Note  (Descripción de la leyenda)`
+  - Msg: El dato ingresado en descripcion de leyenda no cumple con el formato establecido.
+- `3014`: El valor del atributo se repite en el comprobante
+  - Msg: El codigo de leyenda no debe repetirse en el comprobante.
+- `3016`: Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal (positivo mayor a cero) de 12 enteros y hasta 2 dec
+  - Tag: `/Invoice/cac:AllowanceCharge/cbc:BaseAmount (Monto base)`
+  - Msg: El dato ingresado en base monto por cargo/descuento globales no cumple con el formato establecido
+- `3019`: Si existe el tag, el formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente 
+  - Msg: El dato ingresado en total precio de venta no cumple con el formato establecido
+- `3020`: Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y difere
+  - Msg: El dato ingresado en el monto total de impuestos no cumple con el formato establecido
+- `3021`: Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y difere
+  - Msg: El dato ingresado en el monto total de impuestos por línea no cumple con el formato establecido
+- `3024`: Existe a nivel global más de un tag cac:TaxTotal
+  - Msg: El tag cac:TaxTotal no debe repetirse a nivel de totales
+- `3025`: Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 3 enteros y hasta 5 decimales
+  - Tag: `/Invoice/cac:AllowanceCharge/cbc:MultiplierFactorNumeric (Porcentaje de la retención expresado como factor)`
+  - Msg: El dato ingresado en factor de cargo o descuento global no cumple con el formato establecido.
+- `3026`: Existe en el mismo ítem más de un tag cac:TaxTotal
+  - Msg: El tag cac:TaxTotal no debe repetirse a nivel de Item
+- `3030`: Si Serie del documento no inicia con número, no existe el Tag UBL o es vacío
+  - Tag: `/Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyLegalEntity/cac:RegistrationAddress/cbc:AddressTypeCode`
+  - Msg: El XML no contiene el tag o no existe información del código de local anexo del emisor
+- `3031`: Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y difere
+  - Tag: `/Invoice/cac:InvoiceLine/cac:TaxTotal/cac:TaxSubtotal/cbc:TaxableAmount (Monto base)`
+  - Msg: El dato ingresado en TaxableAmount de la linea no cumple con el formato establecido
+- `3034`: Si 'Indicador PaymentMeans' es igual a 'Detraccion', no existe el Tag UBL o es vacío.
+  - Tag: `/Invoice/cac:PaymentMeans/cac:PayeeFinancialAccount/cbc:ID (Número de cuenta)`
+  - Msg: El xml no contiene el tag o no existe información en el nro de cuenta de detracción
+- `3035`: Si 'Indicador PaymentTerms' es igual a 'Detraccion', no existe el Tag UBL
+  - Tag: `/Invoice/cac:PaymentTerms/cbc:Amount (Monto de detraccion)`
+  - Msg: El xml no contiene el tag o no existe información en el monto de detraccion
+- `3037`: El formato del Tag UBL es diferente de decimal (positivo mayor a cero) de 12 enteros y hasta 2 decimales
+  - Msg: El dato ingresado en monto de detraccion no cumple con el formato establecido
+- `3050`: Si 'Código de tributo por línea' es igual a '2000' (ISC) o '9999' (Otros tributos), existe el tag UBL
+  - Msg: Afectación de IGV no corresponde al código de tributo de la linea.
+- `3052`: Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 3 enteros y hasta 5 decimales y diferen
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Allowancecharge/cbc:MultiplierFactorNumeric (Factor de cargo/descuento)`
+  - Msg: El factor de cargo/descuento por linea no cumple con el formato establecido.
+- `3053`: Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y difere
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Allowancecharge/cbc:BaseAmount (Monto base del cargo/descuento)`
+  - Msg: El Monto base de cargo/descuento por linea no cumple con el formato establecido.
+- `3059`: No existe el Tag UBL o es vacío
+  - Tag: `/Invoice/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cac:TaxScheme/cbc:ID (Código de tributo)`
+  - Msg: El XML no contiene el tag o no existe información de código de tributo.
+- `3063`: Si 'Tipo de operación' es igual a '1002', y no existe el tag con valor '3001'
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Item/cac:AdditionalItemProperty/cbc:NameCode (Código del concepto)`
+  - Msg: El XML no contiene el tag de matricula de embarcación en Detracciones para recursos hidrobiologicos.
+- `3065`: De existir 'Código del concepto' igual a '4048' y no existe el tag.
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Item/cac:AdditionalItemProperty/cac:UsabilityPeriod/cbc:StartDate`
+  - Msg: El XML no contiene tag de la fecha del concepto por linea.
+- `3067`: Existe en el mismo ítem más de un cac:TaxSubtotal con el mismo valor del Tag UBL (cbc:ID)
+  - Msg: El código de tributo no debe repetirse a nivel de item
+- `3068`: Existe a nivel global  más de un cac:TaxSubtotal con el mismo valor del Tag UBL (cbc:ID)
+  - Msg: El código de tributo no debe repetirse a nivel de totales
+- `3072`: Si existe 'Indicador de cargo', y no existe el Tag UBL o es vacío
+  - Tag: `/Invoice/cac:AllowanceCharge/cbc:AllowanceChargeReasonCode (Código de motivo de cargo/descuento: Retención de segunda categoría)`
+  - Msg: El XML no contiene el tag o no existe informacion de codigo de motivo de cargo/descuento global.
+- `3073`: No existe el Tag UBL o es vacío
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Allowancecharge/cbc:AllowanceChargeReasonCode (Código de cargo/descuento)`
+  - Msg: El XML no contiene el tag o no existe informacion de codigo de motivo de cargo/descuento por item.
+- `3074`: Si el Tag UBL existe, el valor del Tag Ubl es  0 (cero), cuando el código de motivo de cargo igual a '45'
+  - Tag: `/Invoice/cac:AllowanceCharge/cbc:Amount (Monto del cargo)`
+  - Msg: El monto del cargo para el para FISE debe ser igual mayor a 0.00
+- `3089`: Existe más de un Tag UBL cac:AccountingSupplierParty/cac:Party/cac:PartyIdentification
+  - Tag: `/Invoice/cac:AccountingSupplierParty/cac:Party/cac:PartyIdentification/cbc:ID (Número de RUC)`
+  - Msg: El XML contiene mas de un tag como elemento de numero de documento del emisor
+- `3090`: Existe más de un Tag UBL en el XML cac:AccountingCustomerParty/cac:Party/cac:PartyIdentification
+  - Tag: `/Invoice/cac:AccountingCustomerParty/cac:Party/cac:PartyIdentification/cbc:ID (Número de documento)`
+  - Msg: El XML contiene mas de un tag como elemento de numero de documento del receptor.
+- `3092`: El valor del tag UBL es igual a 0 o no existe, cuando el código de motivo de cargo es igual a '45'
+  - Msg: Para cargo/descuento FISE, debe ingresar monto base y debe ser mayor a 0.00
+- `3093`: Si 'Tipo de operación' es '2001 - Operación sujeta a percepción' y 'Forma de pago' es 'Contado', no existe un 'Código de
+  - Msg: Si operación es sujeta a percepción y la forma de pago es Contado, debe ingresar cargo para Percepción
+- `3098`: Si 'Tipo de operación' es '0201' o '0208', si el Tag UBL no existe o es vacio.
+  - Tag: `/Invoice/cac:Delivery/cac:DeliveryLocation/cac:Address/cac:Country/cbc:IdentificationCode (Código de país)`
+  - Msg: El XML no contiene el tag o no existe información del pais de uso, exploración o aprovechamiento
+- `3102`: Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 3 enteros y hasta 5 decimales y diferen
+  - Msg: El dato ingresado como factor de afectacion por linea no cumple con el formato establecido.
+- `3103`: Si 'Afectación al IGV o IVAP' es '10','11', '12', '13', '14', '15', '16' o '17', el valor del tag es diferente a la tasa
+  - Msg: El producto del factor y monto base de la afectación del IGV/IVAP no corresponde al monto de afectacion de linea.
+- `3104`: Si 'Código de tributo por línea' es igual a '2000' cuyo 'Monto base' es mayor a cero (cbc:TaxableAmount > 0), el valor d
+  - Msg: El factor de afectación de ISC por linea debe ser diferente a 0.00.
+- `3105`: Si 'Tipo de operación' es diferente de '2100', '2101', '2102', '2103', '2104' y '0112', y no existe en el ítem un cac:Ta
+  - Msg: El XML debe contener al menos un tributo por linea de afectacion por IGV
+- `3107`: Si 'Tipo de operación' es de exportación '0200' o '0201' o '0202' o '0203' o '0204' o '0205' o '0206' o '0207' o '0208' 
+  - Msg: El dato ingresado como codigo de tributo global es invalido para tipo de operación.
+- `3108`: Si  el 'Código de tributo por línea' es '2000' cuyo 'Monto base' es mayor a cero (cbc:TaxableAmount > 0), el valor del t
+  - Msg: El producto del factor y monto base de la afectación del ISC no corresponde al monto de afectacion de linea.
+- `3109`: Si el 'Código de tributo por línea' es '9999' cuyo 'Monto base' es mayor a cero (cbc:TaxableAmount > 0), el valor del ta
+  - Msg: El producto del factor y monto base de la afectación de otros tributos no corresponde al monto de afectacion de linea.
+- `3110`: Si 'Código de tributo por línea' es igual a '9996' cuyo 'Monto base' es mayor a cero (cbc:TaxableAmount > 0), y la 'Afec
+  - Msg: El monto de afectacion de IGV por linea debe ser igual a 0.00 para Exoneradas, Inafectas, Exportación, Gratuitas de exon
+- `3111`: Si 'Código de tributo por línea' es igual a '1000' o '1016' y
+  - Msg: El monto de afectación de IGV por linea debe ser diferente a 0.00.
+- `3114`: Si valor del tag es diferente 'false' para código de descuento igual a '63'
+  - Tag: `/Invoice/cac:AllowanceCharge/cbc:ChargeIndicator (Indicador de descuento)`
+  - Msg: El dato ingresado como indicador de cargo/descuento no corresponde al valor esperado.
+- `3115`: Si existe el atributo, el valor es diferente de 'TNE'
+  - Tag: `@unitCode (Unidad de Medida)`
+  - Msg: El dato ingresado como unidad de medida de cantidad de especie vendidas no corresponde al valor esperado.
+- `3117`: Si 'Tipo de operación' es igual a '1004', y no existe el tag o es vacio
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Delivery/cac:Despatch/cac:DespatchAddress/cac:AddressLine/cbc:Line`
+  - Msg: El XML no contiene el tag o no existe información de la dirección del punto de origen en Detracciones - Servicio de tran
+- `3118`: Si 'Tipo de operación' es igual a '1004', y no existe el tag o es vacio
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Delivery/cac:DeliveryLocation/cac:Address/cbc:ID (Código de Ubigeo)`
+  - Msg: El XML no contiene el tag o no existe información del ubigeo de punto de destino en Detracciones - Servicio de transport
+- `3119`: Si 'Tipo de operación' es igual a '1004', y no existe el tag
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Delivery/cac:DeliveryLocation/cac:Address/cac:AddressLine/cbc:Line (Dirección detallada)`
+  - Msg: El XML no contiene el tag o no existe información de la dirección del punto de destino en Detracciones - Servicio de tra
+- `3120`: Si 'Tipo de operación' es igual a '1004', y no existe el tag o es vacio
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Delivery/cac:Despatch/cbc:Instructions`
+  - Msg: El XML no contiene el tag o no existe información del Detalle del viaje en Detracciones - Servicio de transporte de carg
+- `3122`: Si 'Tipo de operación' es igual a '1004', y no existe el tag
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Delivery/cac:DeliveryTerms/cbc:Amount (Valor referencial)`
+  - Msg: El XML no contiene el tag o no existe información del monto del valor referencial en Detracciones - Servicios de transpo
+- `3123`: Si 'Tipo de operación' es igual a '1004', el formato del Tag UBL es diferente de decimal (positivo mayor a cero) de 12 e
+  - Msg: El dato ingresado como monto valor referencial en Detracciones - Servicios de transporte de carga no cumple con el forma
+- `3124`: Si 'Tipo de operación' es igual a '1004', y no existe o existe mas de un tipo valor referencial = 01
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Delivery/cac:DeliveryTerms/cbc:ID (Tipo valor Referencial)`
+  - Msg: Detracciones - Servicio de transporte de carga, debe tener un (y solo uno) Valor Referencial del Servicio de Transporte.
+- `3125`: Si 'Tipo de operación' es igual a '1004', y no existe o existe mas de un tipo valor referencial = 02
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Delivery/cac:DeliveryTerms/cbc:ID (Tipo valor Referencial)`
+  - Msg: Detracciones - Servicio de transporte de carga, debe tener un (y solo uno) Valor Referencial sobre la carga efectiva.
+- `3126`: Si 'Tipo de operación' es igual a '1004', y no existe o existe mas de un tipo valor referencial = 03
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Delivery/cac:DeliveryTerms/cbc:ID (Tipo valor Referencial)`
+  - Msg: Detracciones - Servicio de transporte de carga, debe tener un (y solo uno) Valor Referencial sobre la carga util nominal
+- `3127`: Si 'Indicador PaymentTerms' es igual a 'Detraccion', no existe el tag o es vacío
+  - Tag: `/Invoice/cac:PaymentTerms/cbc:PaymentMeansID (Código de bien o servicio)`
+  - Msg: El XML no contiene el tag o no existe información del Codigo de BBSS de detracción para el tipo de operación.
+- `3128`: Si  'Tipo de operación' es diferente de '1001', '1002', '1003' y '1004', el valor del Tag UBL es igual a 'Detraccion'
+  - Msg: El XML contiene información de codigo de bien y servicio de detracción que no corresponde al tipo de operación.
+- `3129`: Si 'Indicador PaymentTerms' es igual a 'Detraccion' y  'Tipo de operación' es '1004 - Operación Sujeta a Detracción- Ser
+  - Msg: El dato ingresado como codigo de BBSS de detracción no corresponde al valor esperado.
+- `3130`: Si 'Tipo de operación' es igual a '1002', y no existe el tag con valor '3002'
+  - Msg: El XML no contiene el tag de nombre de embarcación en Detracciones para recursos hidrobiologicos.
+- `3131`: Si 'Tipo de operación' es igual a '1002', y no existe el tag con valor '3003'
+  - Msg: El XML no contiene el tag de tipo de especie vendidas en Detracciones para recursos hidrobiologicos.
+- `3132`: Si 'Tipo de operación' es igual a '1002', y no existe el tag con valor '3004'
+  - Msg: El XML no contiene el tag de lugar de descarga en Detracciones para recursos hidrobiologicos.
+- `3133`: Si 'Tipo de operación' es igual a '1002', y no existe el tag con ID '3006'
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Item/cac:AdditionalItemProperty/cbc:NameCode (Código del concepto)`
+  - Msg: El XML no contiene el tag de cantidad de especies vendidas en Detracciones para recursos hidrobiologicos.
+- `3135`: De existir 'Código del concepto' '4005' y no existe el tag.
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Item/cac:AdditionalItemProperty/cac:UsabilityPeriod/cbc:DurationMeasure (Número de días de permanencia)`
+  - Msg: El XML no contiene tag de la cantidad del concepto por linea.
+- `3136`: Si 'Tipo de operación' es '0205 Exportación de servicios  - Servicios que conformen un Paquete Turístico', y no existe e
+  - Msg: El XML no contiene el tag de numero de documentos del huesped.
+- `3137`: Si 'Tipo de operación' es '0205 Exportación de servicios  - Servicios que conformen un Paquete Turístico', y no existe e
+  - Msg: El XML no contiene el tag de tipo de documentos del huesped.
+- `3138`: Si 'Tipo de operación' es '0205 Exportación de servicios  - Servicios que conformen un Paquete Turístico', y no existe e
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Item/cac:AdditionalItemProperty/cbc:NameCode (Código del concepto)`
+  - Msg: El XML no contiene el tag de codigo de pais de emision del documento de identidad
+- `3139`: Si 'Tipo de operación' es '0205 Exportación de servicios  - Servicios que conformen un Paquete Turístico', y no existe e
+  - Msg: El XML no contiene el tag de apellidos y nombres del huesped.
+- `3140`: Si 'Tipo de operación' es '0202 Exportación de servicios – prestación de servicios de hospedaje No Dom', y no existe el 
+  - Msg: El XML no contiene el tag de codigo del pais de residencia.
+- `3141`: Si 'Tipo de operación' es '0202 Exportación de servicios – prestación de servicios de hospedaje No Dom', y no existe el 
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Item/cac:AdditionalItemProperty/cbc:NameCode (Código del concepto)`
+  - Msg: El XML no contiene el tag de fecha de ingreso del pais.
+- `3142`: Si 'Tipo de operación' es '0202 Exportación de servicios – prestación de servicios de hospedaje No Dom', y no existe el 
+  - Msg: El XML no contiene el tag de fecha de ingreso al establecimiento.
+- `3143`: Si 'Tipo de operación' es '0202 Exportación de servicios – prestación de servicios de hospedaje No Dom', y no existe el 
+  - Msg: El XML no contiene el tag de fecha de salida del establecimiento.
+- `3144`: Si 'Tipo de operación' es '0202 Exportación de servicios – prestación de servicios de hospedaje No Dom', y no existe el 
+  - Msg: El XML no contiene el tag de fecha de consumo.
+- `3145`: Si 'Tipo de operación' es '0202 Exportación de servicios – prestación de servicios de hospedaje No Dom', y no existe el 
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Item/cac:AdditionalItemProperty/cbc:NameCode (Código del concepto)`
+  - Msg: El XML no contiene el tag de numero de dias de permanencia.
+- `3146`: Si existe un 'Código del concepto' con valor '5001' o '5002' o '5003' y no existe el tag con código '5000'
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Item/cac:AdditionalItemProperty/cbc:NameCode (Código del concepto)`
+  - Msg: El XML no contiene el tag de Proveedores Estado: Número de Expediente
+- `3147`: Si existe un 'Código del concepto' con valor '5000' o '5002' o '5003', y no existe el tag con código '5001'
+  - Msg: El XML no contiene el tag de Proveedores Estado: Código de Unidad Ejecutora
+- `3148`: Si existe un 'Código del concepto' con valor '5000' o '5001' o '5003', y no existe el tag con código '5002'
+  - Msg: El XML no contiene el tag de Proveedores Estado: N° de Proceso de Selección
+- `3149`: Si existe un 'Código del concepto' con valor '5000' o '5001' o '5002', y no existe el tag con código '5003'
+  - Msg: El XML no contiene el tag de Proveedores Estado: N° de Contrato
+- `3151`: Si 'Código de producto SUNAT' de la linea es '84121901' y el  indicador de primera vivienda = 3 (código concepto 7002), 
+  - Msg: El XML no contiene el tag de Créditos Hipotecarios: Partida Registral
+- `3152`: Si 'Código de producto SUNAT' de la linea es '84121901', y no existe el tag con código '7004'
+  - Msg: El XML no contiene el tag de Créditos Hipotecarios: Número de contrato
+- `3153`: Si 'Código de producto SUNAT' de la linea es '84121901', y no existe el tag con código '7005'
+  - Msg: El XML no contiene el tag de Créditos Hipotecarios: Fecha de otorgamiento del crédito
+- `3154`: Si 'Código de producto SUNAT' de la linea es '84121901' y el  indicador de primera vivienda = 3 (código concepto 7002), 
+  - Msg: El XML no contiene el tag de Créditos Hipotecarios: Dirección del predio - Código de ubigeo
+- `3155`: Si 'Código de producto SUNAT' de la linea es '84121901' y el  indicador de primera vivienda = 3 (código concepto 7002), 
+  - Msg: El XML no contiene el tag de Créditos Hipotecarios: Dirección del predio - Dirección completa
+- `3156`: Si 'Tipo de operación' es '0302 - BVME para transporte ferroviario de pasajeros', no existe el tag
+  - Tag: `/Invoice/cac:AccountingSupplierParty/cac:Party/cac:AgentParty/cac:PartyIdentification/cbc:ID`
+  - Msg: El XML no contiene el tag de BVME transporte ferroviario: Agente de Viajes: Numero de Ruc
+- `3158`: Si existe el numero de RUC del agente de ventas, y existe el tag, el valor es diferente a '6'
+  - Msg: El dato ingresado como Agente de Viajes-Tipo de documento no corresponde al valor esperado.
+- `3159`: Si 'Tipo de operación' es '0302 - BVME para transporte ferroviario de pasajeros', no existe el tag con código igual a '4
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Item/cac:AdditionalItemProperty/cbc:NameCode (Código del concepto)`
+  - Msg: El XML no contiene el tag de BVME transporte ferroviario: Pasajero - Apellidos y Nombres
+- `3160`: Si 'Tipo de operación' es '0302 - BVME para transporte ferroviario de pasajeros', no existe el tag con código igual a '4
+  - Msg: El XML no contiene el tag de BVME transporte ferroviario: Pasajero - Tipo de documento de identidad
+- `3161`: Si 'Tipo de operación' es '0302 - BVME para transporte ferroviario de pasajeros', no existe el tag con código igual a '4
+  - Msg: El XML no contiene el tag de BVME transporte ferroviario: Servicio transporte: Ciudad o lugar de origen - Código de ubig
+- `3162`: Si 'Tipo de operación' es '0302 - BVME para transporte ferroviario de pasajeros', no existe el tag con código igual a '4
+  - Msg: El XML no contiene el tag de BVME transporte ferroviario: Servicio transporte: Ciudad o lugar de origen - Dirección deta
+- `3163`: Si 'Tipo de operación' es '0302 - BVME para transporte ferroviario de pasajeros', no existe el tag con código igual a '4
+  - Msg: El XML no contiene el tag de BVME transporte ferroviario: Servicio transporte: Ciudad o lugar de destino - Código de ubi
+- `3164`: Si 'Tipo de operación' es '0302 - BVME para transporte ferroviario de pasajeros', no existe el tag con código igual a '4
+  - Msg: El XML no contiene el tag de BVME transporte ferroviario: Servicio transporte: Ciudad o lugar de destino - Dirección det
+- `3165`: Si 'Tipo de operación' es '0302 - BVME para transporte ferroviario de pasajeros', no existe el tag con código igual a '4
+  - Msg: El XML no contiene el tag de BVME transporte ferroviario: Servicio transporte:Número de asiento
+- `3166`: Si 'Tipo de operación' es '0302 - BVME para transporte ferroviario de pasajeros', no existe el tag con código igual a '4
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Item/cac:AdditionalItemProperty/cbc:NameCode (Código del concepto)`
+  - Msg: El XML no contiene el tag de BVME transporte ferroviario: Servicio transporte: Hora programada de inicio de viaje
+- `3167`: Si 'Tipo de operación' es '0302 - BVME para transporte ferroviario de pasajeros', no existe el tag con código igual a '4
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Item/cac:AdditionalItemProperty/cbc:NameCode (Código del concepto)`
+  - Msg: El XML no contiene el tag de BVME transporte ferroviario: Servicio transporte: Fecha programada de inicio de viaje
+- `3168`: Si 'Tipo de operación' es '0301 - Carta de porte aéreo (emitidas en el ámbito nacional)', no existe el tag con código '4
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Item/cac:AdditionalItemProperty/cbc:NameCode (Código del concepto)`
+  - Msg: El XML no contiene el tag de Carta Porte Aéreo:  Lugar de origen - Código de ubigeo
+- `3169`: Si 'Tipo de operación' es '0301 - Carta de porte aéreo (emitidas en el ámbito nacional)', no existe el tag con código '4
+  - Msg: El XML no contiene el tag de Carta Porte Aéreo:  Lugar de origen - Dirección detallada
+- `3170`: Si 'Tipo de operación' es '0301 - Carta de porte aéreo (emitidas en el ámbito nacional)', no existe el tag con código '4
+  - Msg: El XML no contiene el tag de Carta Porte Aéreo:  Lugar de destino - Código de ubigeo
+- `3171`: Si 'Tipo de operación' es '0301 - Carta de porte aéreo (emitidas en el ámbito nacional)', no existe el tag con código '4
+  - Msg: El XML no contiene el tag de Carta Porte Aéreo:  Lugar de destino - Dirección detallada
+- `3172`: De existir 'Código del concepto' igual a '4047' y no existe el tag.
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Item/cac:AdditionalItemProperty/cac:UsabilityPeriod/cbc:StartTime`
+  - Msg: El XML no contiene tag de la Hora del concepto por linea.
+- `3173`: Si 'Tipo de operación' es '0302 - BVME para transporte ferroviario de pasajeros', no existe el tag
+  - Tag: `/Invoice/cac:PaymentMeans/cbc:PaymentMeansCode`
+  - Msg: El XML no contiene el tag de BVME transporte ferroviario: Servicio transporte: Forma de Pago
+- `3175`: Si 'Tipo de operación' es '0302 - BVME para transporte ferroviario de pasajeros', no existe el tag
+  - Tag: `/Invoice/cac:PaymentMeans/cbc:PaymentID`
+  - Msg: El XML no contiene el tag de BVME transporte ferroviario: Servicio de transporte: Número de autorización de la transacci
+- `3195`: No existe el tag cac:InvoiceLine/cac:TaxTotal
+  - Tag: `/Invoice/cac:InvoiceLine/cac:TaxTotal/cbc:TaxAmount (Monto total de tributos del ítem)`
+  - Msg: El xml no contiene el tag de impuesto por linea (TaxtTotal).
+- `3204`: Si 'Tipo de operación' es '0302 - BVME para transporte ferroviario de pasajeros', no existe el tag con código igual a '4
+  - Msg: El XML no contiene el tag de BVME transporte ferroviario: Pasajero - Número de documento de identidad
+- `3205`: Si no existe el atributo o es vacío
+  - Tag: `/Invoice/cbc:InvoiceTypeCode@listID`
+  - Msg: Debe consignar el tipo de operación
+- `3208`: El atributo @currencyID del Tag UBL es diferente a "PEN"
+  - Tag: `@currencyID`
+  - Msg: La moneda del monto de la detracción debe ser PEN
+- `3210`: Si 'Código de tributo por línea' es diferente '2000' (ISC), existe el Tag UBL
+  - Msg: Solo debe consignar sistema de calculo si el tributo es ISC
+- `3211`: Si 'Importe del anticipo' existe y no existe el Tag UBL o es vacio
+  - Tag: `/Invoice/cac:PrepaidPayment/cbc:ID (Identificador del pago)`
+  - Msg: Falta identificador del pago del Monto de anticipo para relacionarlo con el comprobante que se realizo el  anticipo
+- `3212`: Si existe más de un 'Identificador de pago' con el mismo valor
+  - Msg: El comprobante contiene un identificador de pago repetido en los montos anticipados
+- `3213`: Si no existe documento con 'Tipo de comprobante que se realizó el anticipo' '02' o '03' con el mismo 'Identificador de p
+  - Msg: El comprobante contiene un pago anticipado pero no se ha consignado el documento que se realizo el anticipo
+- `3214`: Si 'Tipo de comprobante que se realizó el anticipo' es '02' o '03', y no existe un 'Importe del anticipo' con 'Identific
+  - Tag: `/Invoice/cac:AdditionalDocumentReference/cbc:DocumentStatusCode (Identificador del pago)`
+  - Msg: No existe información del Monto Anticipado para el comprobante que se realizo el anticipo
+- `3215`: Si 'Tipo de comprobante que se realizó el anticipo' es '02' o '03', y existe más de un comprobante de anticipo con el mi
+  - Msg: El comprobante contiene un identificador de pago repetido en los comprobantes que se realizo el anticipo
+- `3216`: Si 'Tipo de comprobante que se realizó el anticipo' es '02' o '03', y no existe el tag UBL
+  - Msg: Falta identificador del pago del comprobante para relacionarlo con el monto de  anticipo
+- `3217`: Si existe identificador de pago (cbc:DocumentStatusCode) y no existe el tag o es vacío
+  - Tag: `/Invoice/cac:AdditionalDocumentReference/cac:IssuerParty/cac:PartyIdentification/cbc:ID (Número de documento del emisor del anticipo)`
+  - Msg: Debe consignar Numero de RUC del emisor del comprobante de anticipo
+- `3220`: Si existe Tag UBL con valor mayor a cero, y no existe 'Total Anticipos' con monto mayor a cero
+  - Msg: Si consigna montos de anticipo debe informar el Total de Anticipos
+- `3223`: En una línea sólo pueden existir las siguientes combinaciones de códigos de tributos con 'Monto base' mayor a cero (cbc:
+  - Msg: La combinación de tributos no es permitida
+- `3224`: Si no existe en la misma línea un cac:TaxSubtotal con 'Código de tributo por línea' igual a '9996' cuyo 'Monto base' es 
+  - Msg: Si existe 'Valor referencial unitario en operac. no onerosas' con monto mayor a cero, la operacion debe ser gratuita (co
+- `3233`: El valor del tag UBL es igual a 0 o no existe, cuando el código de motivo de cargo es igual a '51' o '52' o '53'
+  - Msg: Para cargo Percepción, debe ingresar monto base y debe ser mayor a 0.00
+- `3234`: Si existe en la misma línea un cac:TaxSubtotal con 'Código de tributo por línea' igual a '9996' cuyo 'Monto base' es may
+  - Msg: El código de precio '02' es sólo para operaciones gratuitas
+- `3236`: Si el Tag UBL existe y el valor del Tag UBL es mayor a cero, el valor del tag es diferente de 'Cantidad de unidades por 
+  - Msg: El valor ingresado en el campo cac:TaxSubtotal/cbc:BaseUnitMeasure no corresponde al valor esperado
+- `3237`: Si 'Código de tributo por línea' es igual a '7152' y no existe el Tag UBL
+  - Msg: Debe consignar el campo cac:TaxSubtotal/cbc:BaseUnitMeasure a nivel de ítem
+- `3238`: Si 'Código de tributo por línea' es igual a '7152' y 'Cantidad de bolsas de plástico' es mayor a cero (cbc:BaseUnitMeasu
+  - Msg: El valor ingresado en el campo cac:TaxSubtotal/cbc:PerUnitAmount del ítem no corresponde al valor esperado
+- `3241`: Si 'Tipo de operación' es '2100' o '2101' o '2102' y no existe al menos una línea que contenga simultáneamente los códig
+  - Msg: Para el tipo de operación 2100, 2101 y 2102 (Creditos) debe consignar Numero de contrato, Fecha de otorgamiento y Monto 
+- `3242`: Si 'Tipo de operación' es '2104', y no existe al menos una línea que contenga el código '7015'
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Item/cac:AdditionalItemProperty/cbc:NameCode (Código del concepto)`
+  - Msg: Para el tipo de operación 2104 - Empresas del sistema de seguros, debe consignar Información adicional  a nivel de ítem
+- `3243`: De existir 'Código del concepto' igual a '7014' y no existe el tag.
+  - Tag: `/Invoice/cac:InvoiceLine/cac:Item/cac:AdditionalItemProperty/cac:UsabilityPeriod/cbc:StartDate (Fecha de inicio de vigencia)`
+  - Msg: El XML no contiene tag o no existe información de la fecha del concepto por linea
+- `3244`: No existe al menos un tag cac:PaymentTerms con cbc:ID igual a 'FormaPago'
+  - Tag: `/Invoice/cac:PaymentTerms/cbc:ID (Indicador)`
+  - Msg: Debe consignar la informacion del tipo de transaccion del comprobante
+- `3245`: Si el 'Indicador' es 'FormaPago' y no existe el tag UBL
+  - Tag: `/Invoice/cac:PaymentTerms/cbc:PaymentMeansID (Identificador de la cuota)`
+  - Msg: Debe informar si el tipo de transaccion es al Contado o al Credito
+- `3246`: Si el 'Indicador' es 'FormaPago', el valor del tag es diferente de:
+  - Msg: El tipo de transaccion o el identificador de la cuota no cumple con el formato esperado
+- `3247`: Si existe más de un tag cac:PaymentTerms con cbc:ID
+  - Msg: El tipo de transaccion no puede ser a la vez al Contado y al Credito
+- `3248`: Si existe más de un tag cac:PaymentTerms con cbc:ID
+  - Msg: El tipo de transaccion o el identificador de la cuota no debe repetirse en el comprobante
+- `3249`: Si el 'Indicador' es 'FormaPago', el valor del tag es 'Credito', el 'Tipo de Documento del adquiriente o usuario' es igu
+  - Msg: Si el tipo de transaccion es al Credito debe existir al menos información de una cuota de pago
+- `3250`: El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales
+  - Tag: `/Invoice/cac:PaymentTerms/cbc:Amount (Monto neto pendiente de pago)`
+  - Msg: El Monto neto pendiente de pago no cumple el formato definido
+- `3251`: Si existe un tag cac:PaymentTerms con cbc:ID
+  - Msg: Si el tipo de transaccion es al Credito debe consignarse el Monto neto pendiente de pago
+- `3252`: Si existe un tag cac:PaymentTerms con cbc:ID
+  - Msg: Si existe información de cuota de pago, el tipo de transaccion debe ser al credito
+- `3253`: Si el 'Indicador' es 'FormaPago', y el formato del Identificador de la cuota es: Cuota[0-9]{3} y si existe el tag, el fo
+  - Tag: `/Invoice/cac:PaymentTerms/cbc:Amount (Monto del pago único o de las cuotas)`
+  - Msg: El Monto del pago único o de las cuotas no cumple el formato definido
+- `3254`: Si existe un tag cac:PaymentTerms con cbc:ID
+  - Msg: Si se consigna información de la cuota de pago, debe indicarse el monto de la cuota
+- `3255`: Si el 'Indicador' es 'FormaPago', y el formato del 'Identificador de la cuota' es: Cuota[0-9]{3} y si existe el tag, el 
+  - Tag: `/Invoice/cac:PaymentTerms/cbc:PaymentDueDate (Fecha del pago único o de las cuotas)`
+  - Msg: Fecha del pago único o de las cuotas no cumple el formato definido
+- `3256`: Si existe un tag cac:PaymentTerms con cbc:ID
+  - Msg: Si se consigna información de la cuota de pago, debe indicarse la fecha del pago único o de las cuotas
+- `3262`: Si el valor del tag es '62' y el receptor del comprobante (/Invoice/cac:AccountingCustomerParty/cac:Party/cac:PartyIdent
+  - Msg: Si existe retencion de IGV en el comprobante, el receptor debe ser un Agente de Retencion
+- `3263`: Si 'Código de motivo de cargo/descuento' es '62', el valor del Tag UBL es diferente a  Importe de la operación' por 'Por
+  - Msg: El Importe de la retencion no tiene el valor correcto
+- `3264`: Si "Código de motivo de cargo/descuento" es '62' , el valor del Tag UBL es mayor a "Importe total"
+  - Msg: El importe total de la operación (base imponible de retencion) no puede ser mayor al importe total del comprobante.
+- `3265`: Si existe un tag cac:PaymentTerms con cbc:ID
+  - Msg: El Monto neto pendiente de pago debe ser menor o igual al Importe total del comprobante
+- `3266`: Si existe un tag cac:PaymentTerms con cbc:ID
+  - Msg: El Monto del pago único o de las cuotas debe ser menor o igual al Importe total del comprobante
+- `3267`: Si existe un tag cac:PaymentTerms con cbc:ID
+  - Msg: Fecha del pago único o de las cuotas no puede ser anterior o igual a la fecha de emisión del comprobante
+- `3270`: Si no existe en la misma línea un cac:TaxSubtotal con 'Código de tributo por línea' igual a '9996' cuyo 'Monto base' es 
+  - Msg: El precio unitario de la operación que está informando difiere de los cálculos realizados en base a la información remit
+- `3271`: Si no existe en la línea un cac:TaxSubtotal con 'Código de tributo por línea' igual a '9996' cuyo 'Monto base' es mayor 
+  - Msg: El valor de venta por ítem difiere de los importes consignados.
+- `3272`: Si no existe en la misma línea un cac:TaxSubtotal con 'Código de tributo por línea' igual a '2000' cuyo 'Monto base' es 
+  - Msg: La base imponible a nivel de línea difiere de la información consignada en el comprobante
+- `3273`: Si el 'Código de tributo' es '9995', el valor del Tag UBL es diferente a la sumatoria de 'Valor de venta por ítem' (cbc:
+  - Msg: La sumatoria del total valor de venta - Exportaciones de línea no corresponden al total
+- `3274`: Si el 'Código de tributo' es '9998', el valor del Tag UBL es diferente a la sumatoria de 'Valor de venta por ítem' (cbc:
+  - Msg: La sumatoria del total valor de venta - operaciones inafectas de línea no corresponden al total
+- `3275`: Si el 'Código de tributo' es '9997', el valor del Tag UBL es diferente a la sumatoria de 'Valor de venta por ítem' (cbc:
+  - Msg: La sumatoria del total valor de venta - operaciones exoneradas de línea no corresponden al total
+- `3276`: Si 'Código de tributo' es '9996', el valor del Tag UBL es diferente a la sumatoria de 'Valor de venta por item' (cbc:Lin
+  - Msg: La sumatoria del total valor de venta - operaciones gratuitas de línea no corresponden al total
+- `3277`: Si 'Código de tributo' es '1000' y  el Tag UBL existe, el valor del Tag UBL es diferente a la sumatoria de 'Valor de ven
+  - Msg: La sumatoria del total valor de venta - operaciones gravadas de línea no corresponden al total
+- `3279`: Si existe el Tag UBL, y es una factura sujeta al IVAP*, y el valor es diferente de la sumatoria de 'Total valor de venta
+  - Msg: La sumatoria del Total del valor de venta más los impuestos no concuerda con la base imponible
+- `3280`: Si el valor del tag difiere de la sumatoria del 'Total precio de venta' más 'Sumatoria otros cargos (que no afectan la b
+  - Msg: El importe total del comprobante no coincide con el valor calculado
+- `3282`: Si existe el tag 'Código de motivo de cargo/descuento' con valor igual a '04', '05', '06' o '20', el valor del tag UBL e
+  - Msg: Si se informa descuentos globales por anticipo debe existir 'Total de anticipos' con monto mayor a cero
+- `3287`: Si existe Tag UBL con valor mayor a cero, y no existe al menos un 'Cargos y/o descuentos globales' (cac:AllowanceCharge)
+  - Msg: Si se informa 'Total de anticipos' debe consignar los descuentos globales por anticipo con monto mayor a cero
+- `3290`: Si existe el tag 'Código de motivo de cargo/descuento' y existe 'Factor de cargo/descuento' con monto mayor a cero, el i
+  - Msg: El valor de cargo/descuento por ítem difiere de los importes consignados.
+- `3291`: Si  'Código de tributo' es '1000', el valor del Tag Ubl es diferente al resultado de multiplicar la sumatoria de los 'Mo
+  - Msg: El cálculo del IGV es Incorrecto
+- `3292`: Si el Tag UBL existe, el valor del Tag UBL es diferente a la sumatoria de 'Monto de tributo por línea' (cbc:TaxAmount)  
+  - Msg: El importe total de impuestos por línea no coincide con la sumatoria de los impuestos por línea.
+- `3293`: Si 'Código de tributo' es '1016' y  el Tag UBL existe, el valor del Tag UBL es diferente a la sumatoria de 'Valor de ven
+  - Msg: La sumatoria del total valor de venta - IVAP de línea no corresponden al total
+- `3295`: Si  'Código de tributo' es '1016', el valor del Tag UBL es diferente al resultado de multiplicar la sumatoria de los 'Mo
+  - Msg: El importe del IVAP no corresponden al determinado por la informacion consignada.
+- `3296`: Si 'Código de tributo' es '2000', si el Tag UBL existe y el valor del Tag UBL es diferente a la sumatoria de los 'Monto 
+  - Msg: La sumatoria del monto base - ISC de línea no corresponden al total
+- `3297`: Si existe el Tag y el 'Código de tributo' es '9999', el valor del Tag UBL es diferente a la sumatoria de los 'Montos bas
+  - Msg: La sumatoria del monto base - Otros tributos de línea no corresponden al total
+- `3298`: Si  'Código de tributo' es '2000', el valor del Tag Ubl es diferente de la sumatoria de los 'Monto de tributo de la líne
+  - Msg: La sumatoria del total del importe del tributo ISC de línea no corresponden al total
+- `3299`: Si  'Código de tributo' es '9999', el valor del Tag Ubl es diferente de la sumatoria de los 'Monto del tributo de la lín
+  - Msg: La sumatoria del total del importe del tributo Otros tributos de línea no corresponden al total
+- `3302`: Si  'Código de tributo' es '9996', el valor del Tag UBL es diferente de la sumatoria de 'Monto de IGV' (cbc:TaxAmount) q
+  - Msg: La sumatoria de los IGV de operaciones gratuitas de la línea (codigo tributo 9996) no corresponden al total
+- `3303`: Si existe el tag UBL, el valor absoluto es mayor a 1
+  - Tag: `/Invoice/cac:LegalMonetaryTotal/cbc:PayableRoundingAmount`
+  - Msg: El monto para el redondeo del Importe Total excede el valor permitido
+- `3306`: Si  'Código de tributo' es '7152', el valor del Tag Ubl es diferente de la sumatoria de los 'Monto del tributo de la lín
+  - Msg: La sumatoria del total del importe del tributo ICBPER de línea no corresponden al total
+- `3307`: Si existe el tag 'Código de motivo de cargo/descuento' y existe 'Factor de cargo/descuento' con monto mayor a cero, el i
+  - Msg: El valor de cargo/descuento global difiere de los importes consignados
+- `3308`: Si 'Tipo de operación' es diferente de '2001', el valor del Tag UBL es igual a 'Percepcion'
+  - Msg: Solo debe consignar informacion de percepciones si el tipo de operación es 2001-Operación sujeta a Percepcion
+- `3309`: Si 'Tipo de operación' es '2001 - Operación sujeta a percepción' y 'Forma de pago' es 'Contado', no existe un cac:Paymen
+  - Tag: `/Invoice/cac:PaymentTerms/cbc:ID (Indicador)`
+  - Msg: Si forma de pago es Contado debe consignar un Payment Terms con indicador Percepcion
+- `3310`: Si  'Indicador' es igual a 'Percepcion' y no existe el tag
+  - Tag: `/Invoice/cac:PaymentTerms/cbc:Amount (Monto total incluido la percepción)`
+  - Msg: Debe consignar el Monto total incluido la percepcion
+- `3311`: El formato del Tag UBL es diferente de decimal (positivo mayor a cero) de 12 enteros y hasta 2 decimales
+  - Msg: El Monto total incluido la percepción no cumple con el formato establecido
+- `3318`: Si 'Código de motivo de cargo/descuento' es igual a '63' y no existe el tag UBL
+  - Msg: Debe consignar la base de la retencion de segunda categoria
+- `3319`: Si existe un tag cac:PaymentTerms con cbc:ID
+  - Msg: La suma de las cuotas debe ser igual al Monto neto pendiente de pago.
+- `3330`: Si 'Tipo de operación' es '2001 - Operación sujeta a percepción' y 'Forma de pago' es diferente de 'Contado', el valor d
+  - Msg: Solo debe consignar informacion de percepciones si la forma de pago es "Contado"
+- `3461`: Si existe más de un tag cbc:PaymentMeansID dentro del mismo cac:PaymentTerms
+  - Msg: La forma de pago y/o número de cuota no pueden estar contenidos en el mismo cac:PaymentTerms
+- `3462`: Si existe alguna línea con ('Código de tributo por línea' igual a '1000' y 'Monto base' (cbc:TaxableAmount) mayor a cero
+  - Msg: La tasa del IGV debe ser la misma en todas las líneas o ítems del documento y debe corresponder con una tasa vigente.
+
+## CreditNote
+
+Implemented: 51 / Source rules: 108 / Missing: 96
+
+- `1034`: El Tag UBL es diferente al RUC del nombre del XML
+  - Tag: `/CreditNote/cac:AccountingSupplierParty/cac:Party/cac:PartyIdentification/cbc:ID (Número de RUC)`
+  - Msg: Número de RUC del nombre del archivo no coincide con el consignado en el contenido del archivo XML
+- `1079`: Si serie empieza con "B":
+  - Msg: Solo puede enviar el comprobante en un resumen diario
+- `2017`: Si "Tipo de documento de identidad del adquiriente" es RUC (6), el formato del Tag UBL es diferente a numérico de 11 díg
+  - Msg: El numero de documento de identidad del receptor debe ser  RUC
+- `2033`: El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero
+  - Tag: `/CreditNote/cac:CreditNoteLine/cac:TaxTotal/cac:TaxSubtotal/cbc:TaxAmount (Monto del tributo de la línea)`
+  - Msg: El dato ingresado en TaxAmount de la linea no cumple con el formato establecido
+- `2037`: No existe el Tag UBL o es vacío
+  - Tag: `/CreditNote/cac:CreditNoteLine/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cac:TaxScheme/cbc:ID (Código de tributo por línea)`
+  - Msg: El XML no contiene el tag cac:TaxCategory/cac:TaxScheme/cbc:ID del Item
+- `2048`: El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero
+  - Tag: `/CreditNote/cac:TaxTotal/cac:TaxSubtotal/cbc:TaxAmount (Sumatoria ICBPER)`
+  - Msg: El dato ingresado en TaxAmount no cumple con el formato establecido
+- `2052`: No existe el Tag UBL o es vacío
+  - Tag: `/CreditNote/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cac:TaxScheme/cbc:TaxTypeCode (Código internacional de tributo)`
+  - Msg: El XML no contiene el tag código de tributo internacional de impuestos globales
+- `2054`: No existe el Tag UBL o es vacío
+  - Tag: `/CreditNote/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cac:TaxScheme/cbc:Name (Nombre de tributo)`
+  - Msg: El XML no contiene el tag TaxScheme Name de impuestos globales
+- `2064`: El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero
+  - Tag: `/CreditNote/cac:LegalMonetaryTotal/cbc:ChargeTotalAmount`
+  - Msg: El dato ingresado en ChargeTotalAmount no cumple con el formato establecido
+- `2108`: Si serie del documento no inicia con número y:
+  - Tag: `/CreditNote/cbc:IssueDate`
+  - Msg: Presentacion fuera de fecha
+- `2329`: La fecha de emisión es mayor a dos días de la fecha de envío del comprobante
+  - Msg: La fecha de emision se encuentra fuera del limite permitido
+- `2367`: El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 10 decimales y diferente de cero
+  - Tag: `/CreditNote/cac:CreditNoteLine/cac:PricingReference/cac:AlternativeConditionPrice/cbc:PriceAmount (Valor)`
+  - Msg: El dato ingresado en PriceAmount del Precio de venta unitario por item no cumple con el formato establecido
+- `2369`: Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 10 decimales y difer
+  - Tag: `/CreditNote/cac:CreditNoteLine/cac:Price/cbc:PriceAmount`
+  - Msg: El dato ingresado en PriceAmount del Valor de venta unitario por item no cumple con el formato establecido
+- `2370`: El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero
+  - Tag: `/CreditNote/cac:CreditNoteLine/cbc:LineExtensionAmount`
+  - Msg: El dato ingresado en LineExtensionAmount del item no cumple con el formato establecido
+- `2371`: Si 'Código de tributo por línea' es diferente a '2000' (ISC) o '9999' (Otros tributos), cuyo 'Monto base' es mayor a cer
+  - Tag: `/CreditNote/cac:CreditNoteLine/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cbc:TaxExemptionReasonCode  (Afectación al IGV e IVAP cuando corresponda)`
+  - Msg: El XML no contiene el tag cbc:TaxExemptionReasonCode de Afectacion al IGV
+- `2373`: Si 'Código de tributo por línea' es '2000' (ISC) cuyo 'Monto base' es mayor a cero (cbc:TaxableAmount > 0), no existe el
+  - Tag: `/CreditNote/cac:CreditNoteLine/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cbc:TierRange (Tipo de sistema de ISC)`
+  - Msg: Si existe monto de ISC en el ITEM debe especificar el sistema de calculo
+- `2409`: Existe en el mismo ítem otro cac:AlternativeConditionPrice con el mismo valor del Tag UBL (cbc:PriceTypeCode)
+  - Msg: Existe mas de un tag cac:AlternativeConditionPrice con el mismo cbc:PriceTypeCode
+- `2638`: Si existe alguna línea (/CreditNote/cac:CreditNoteLine/cac:TaxTotal/cac:TaxSubtotal) con 'Monto base' mayor a cero (cbc:
+  - Msg: Si tiene operaciones de un tributo en alguna línea, debe consignar el tag del total del tributo
+- `2640`: Si existe en la línea un cac:TaxSubtotal con 'Código de tributo por línea' igual a '9996' cuyo 'Monto base' es mayor a c
+  - Msg: Operacion gratuita, solo debe consignar un monto referencial
+- `2641`: Si 'Código de tipo de tributo' es '9996' (Gratuita) y existe una línea con 'Valor referencial unitario por ítem en opera
+  - Msg: Operacion gratuita,  debe consignar Total valor venta - operaciones gratuitas  mayor a cero
+- `2642`: Si 'Código de tipo de nota de crédito' es '11', el valor del Tag UBL es diferente de '40'
+  - Msg: Operaciones de exportacion, deben consignar Tipo Afectacion igual a 40
+- `2644`: Si 'Código de tipo de nota de crédito' es '12', el valor del Tag UBL es diferente de '17'
+  - Msg: Comprobante operacion sujeta IVAP solo debe tener ítems con código de afectación del IGV igual a 17
+- `2892`: Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 3 enteros y hasta 5 decimales y diferen
+  - Tag: `/CreditNote/cac:CreditNoteLine/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cbc:PerUnitAmount (Monto unitario)`
+  - Msg: El valor del tag no cumple con el formato establecido
+- `2936`: Si existe el atributo, el valor es diferente al Catálogo N.° 03
+  - Msg: El dato ingresado como unidad de medida no corresponde al valor esperado
+- `2949`: Si  'Código de tributo' es '7152' y la 'Fecha de emisión' es menor a '2019-08-01', el valor del Tag Ubl es mayor a cero
+  - Msg: El impuesto ICBPER no se encuentra vigente
+- `2956`: No existe el tag /CreditNote/cac:TaxTotal
+  - Tag: `/CreditNote/cac:TaxTotal/cbc:TaxAmount`
+  - Msg: El Monto total de impuestos es obligatorio
+- `2992`: Si el 'Código de tributo' es diferente de '7152' y no existe el Tag UBL
+  - Tag: `/CreditNote/cac:CreditNoteLine/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cbc:Percent (Tasa del tributo)`
+  - Msg: El XML no contiene el tag de la tasa del tributo de la línea
+- `2993`: Si 'Código de tributo por línea' es igual a '1000' o '1016', y  'Monto base' mayor a cero (cbc:TaxableAmount > 0), el va
+  - Msg: El factor de afectación de IGV por linea debe ser diferente a 0.00.
+- `2996`: No existe el Tag UBL o es vacío
+  - Tag: `/CreditNote/cac:CreditNoteLine/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cac:TaxScheme/cbc:Name (Nombre de tributo)`
+  - Msg: El XML no contiene el tag o no existe información del nombre de tributo de la línea
+- `2999`: El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero
+  - Msg: El dato ingresado en el total valor de venta globales no cumple con el formato establecido
+- `3000`: Si el Tag UBL existe, el valor del Tag Ubl es diferente de 0 (cero), cuando el 'Código de tributo' es '9995', '9997' y '
+  - Msg: El monto total del impuestos sobre el valor de venta de operaciones gratuitas/inafectas/exoneradas debe ser igual a 0.00
+- `3003`: Si el 'Código de tributo' es diferente de '7152' y no existe el Tag UBL
+  - Tag: `/CreditNote/cac:TaxTotal/cac:TaxSubtotal/cbc:TaxableAmount (Monto base)`
+  - Msg: El XML no contiene el tag o no existe información de total valor de venta globales
+- `3006`: Si el formato del Tag UBL es diferente a alfanumérico de 1 a 200 caractéres (se considera cualquier carácter incluido es
+  - Tag: `/CreditNote/cbc:Note  (Descripción de la leyenda)`
+  - Msg: El dato ingresado en descripcion de leyenda no cumple con el formato establecido.
+- `3020`: Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y difere
+  - Msg: El dato ingresado en el monto total de impuestos no cumple con el formato establecido
+- `3021`: Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y difere
+  - Msg: El dato ingresado en el monto total de impuestos por línea no cumple con el formato establecido
+- `3024`: Existe a nivel global más de un tag cac:TaxTotal
+  - Msg: El tag cac:TaxTotal no debe repetirse a nivel de totales
+- `3026`: Existe en el mismo ítem más de un tag cac:TaxTotal
+  - Msg: El tag cac:TaxTotal no debe repetirse a nivel de Item
+- `3030`: Si 'Serie del comprobante' inicia con 'F' y 'Tipo de documento que modifica' es '01', no existe el Tag UBL o es vacío
+  - Tag: `/CreditNote/cac:AccountingSupplierParty/cac:Party/cac:PartyLegalEntity/cac:RegistrationAddress/cbc:AddressTypeCode`
+  - Msg: El XML no contiene el tag o no existe información del código de local anexo del emisor
+- `3031`: Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y difere
+  - Tag: `/CreditNote/cac:CreditNoteLine/cac:TaxTotal/cac:TaxSubtotal/cbc:TaxableAmount (Monto base)`
+  - Msg: El dato ingresado en TaxableAmount de la linea no cumple con el formato establecido
+- `3050`: Si 'Código de tributo por línea' es igual a '2000' (ISC) o '9999' (Otros tributos), existe el tag UBL
+  - Msg: Afectación de IGV no corresponde al código de tributo de la linea.
+- `3059`: No existe el Tag UBL o es vacío
+  - Tag: `/CreditNote/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cac:TaxScheme/cbc:ID (Código de tributo)`
+  - Msg: El XML no contiene el tag o no existe información de código de tributo.
+- `3067`: Existe en el mismo ítem más de un cac:TaxSubtotal con el mismo valor del Tag UBL (cbc:ID)
+  - Msg: El código de tributo no debe repetirse a nivel de item
+- `3068`: Existe a nivel global  más de un cac:TaxSubtotal con el mismo valor del Tag UBL (cbc:ID)
+  - Msg: El código de tributo no debe repetirse a nivel de totales
+- `3102`: Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 3 enteros y hasta 5 decimales y diferen
+  - Msg: El dato ingresado como factor de afectacion por linea no cumple con el formato establecido.
+- `3103`: Si 'Tipo de documento que modifica' es diferente de '30' y '42', y la 'Afectación al IGV o IVAP' es '10','11', '12', '13
+  - Msg: El producto del factor y monto base de la afectación del IGV/IVAP no corresponde al monto de afectacion de linea.
+- `3104`: Si 'Código de tributo por línea' es igual a '2000' cuyo 'Monto base' es mayor a cero (cbc:TaxableAmount > 0), el valor d
+  - Msg: El factor de afectación de ISC por linea debe ser diferente a 0.00.
+- `3105`: No existe en el ítem un cac:TaxSubtotal con cbc:ID con alguno de los siguientes valores: '1000', '1016', '9995', '9996',
+  - Msg: El XML debe contener al menos un tributo por linea de afectacion por IGV
+- `3107`: si "Código de tipo de nota de crédito" es 11 (Exportación) y existe un ID '2000' o '9999' a nivel global
+  - Msg: El dato ingresado como codigo de tributo global es invalido para tipo de operación.
+- `3108`: Si  el 'Código de tributo por línea' es '2000' cuyo 'Monto base' es mayor a cero (cbc:TaxableAmount > 0), el valor del t
+  - Msg: El producto del factor y monto base de la afectación del ISC no corresponde al monto de afectacion de linea.
+- `3109`: Si el 'Código de tributo por línea' es '9999' cuyo 'Monto base' es mayor a cero (cbc:TaxableAmount > 0), el valor del ta
+  - Msg: El producto del factor y monto base de la afectación de otros tributos no corresponde al monto de afectacion de linea.
+- `3110`: Si 'Código de tributo por línea' es igual a '9996' cuyo 'Monto base' es mayor a cero (cbc:TaxableAmount > 0), y la 'Afec
+  - Msg: El monto de afectacion de IGV por linea debe ser igual a 0.00 para Exoneradas, Inafectas, Exportación, Gratuitas de exon
+- `3111`: Si 'Código de tributo por línea' es igual a '1000' o '1016' y
+  - Msg: El monto de afectación de IGV por linea debe ser diferente a 0.00.
+- `3151`: Si código producto de Sunat de la linea es '84121901' y el  indicador de primera vivienda = 3 (código concepto 7002), y 
+  - Msg: El XML no contiene el tag de Créditos Hipotecarios: Partida Registral
+- `3152`: Si código producto de Sunat de la linea es '84121901', y no existe el tag con código '7004'
+  - Msg: El XML no contiene el tag de Créditos Hipotecarios: Número de contrato
+- `3153`: Si código producto de Sunat de la linea es '84121901', y no existe el tag con código '7005'
+  - Msg: El XML no contiene el tag de Créditos Hipotecarios: Fecha de otorgamiento del crédito
+- `3154`: Si código producto de Sunat de la linea es '84121901' y el  indicador de primera vivienda = 3 (código concepto 7002), no
+  - Msg: El XML no contiene el tag de Créditos Hipotecarios: Dirección del predio - Código de ubigeo
+- `3155`: Si código producto de Sunat de la linea es '84121901' y el  indicador de primera vivienda = 3 (código concepto 7002),  n
+  - Msg: El XML no contiene el tag de Créditos Hipotecarios: Dirección del predio - Dirección completa
+- `3195`: No existe el tag cac:CreditNoteLine/cac:TaxTotal
+  - Tag: `/CreditNote/cac:CreditNoteLine/cac:TaxTotal/cbc:TaxAmount (Monto total de impuestos por linea)`
+  - Msg: El xml no contiene el tag de impuesto por linea (TaxtTotal).
+- `3210`: Si 'Código de tributo por línea' es diferente '2000' (ISC), existe el Tag UBL
+  - Msg: Solo debe consignar sistema de calculo si el tributo es ISC
+- `3223`: En una línea sólo pueden existir las siguientes combinaciones de códigos de tributos con 'Monto base' mayor a cero (cbc:
+  - Msg: La combinación de tributos no es permitida
+- `3224`: Si no existe en misma la línea un cac:TaxSubtotal con 'Código de tributo por línea' igual a '9996' cuyo 'Monto base' es 
+  - Msg: Si existe 'Valor referencial unitario en operac. no onerosas' con monto mayor a cero, la operacion debe ser gratuita (co
+- `3236`: Si el Tag UBL existe y el valor del Tag UBL es mayor a cero, el valor del tag es diferente de 'Cantidad de unidades por 
+  - Msg: El valor ingresado en el campo cac:TaxSubtotal/cbc:BaseUnitMeasure no corresponde al valor esperado
+- `3237`: Si 'Código de tributo por línea' es igual a '7152' y no existe el Tag UBL
+  - Msg: Debe consignar el campo cac:TaxSubtotal/cbc:BaseUnitMeasure a nivel de ítem
+- `3238`: Si 'Código de tributo por línea' es igual a '7152' y 'Cantidad de bolsas de plástico' es mayor a cero (cbc:BaseUnitMeasu
+  - Msg: El valor ingresado en el campo cac:TaxSubtotal/cbc:PerUnitAmount del ítem no corresponde al valor esperado
+- `3243`: De existir 'Código del concepto' igual a '7014' y no existe el tag.
+  - Tag: `/CreditNote/cac:CreditNoteLine/cac:Item/cac:AdditionalItemProperty/cac:UsabilityPeriod/cbc:StartDate (Fecha de inicio de vigencia)`
+  - Msg: El XML no contiene tag o no existe información de la fecha del concepto por linea
+- `3245`: Si el 'Indicador' es 'FormaPago' y no existe el tag UBL
+  - Tag: `/CreditNote/cac:PaymentTerms/cbc:PaymentMeansID (Identificador de la cuota)`
+  - Msg: Debe informar si el tipo de transaccion es al Contado o al Credito
+- `3246`: Si el 'Indicador' es 'FormaPago', el valor del tag es diferente de:
+  - Msg: El tipo de transaccion o el identificador de la cuota no cumple con el formato esperado
+- `3248`: Si existe más de un tag cac:PaymentTerms con cbc:ID
+  - Msg: El tipo de transaccion o el identificador de la cuota no debe repetirse en el comprobante
+- `3249`: Si el 'Indicador' es 'FormaPago', el valor del tag es 'Credito', el 'Tipo de Documento del adquiriente o usuario' es igu
+  - Msg: Si el tipo de transaccion es al Credito debe existir al menos información de una cuota de pago
+- `3250`: El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales
+  - Tag: `/CreditNote/cac:PaymentTerms/cbc:Amount (Monto neto pendiente de pago)`
+  - Msg: El Monto neto pendiente de pago no cumple el formato definido
+- `3251`: Si existe un tag cac:PaymentTerms con cbc:ID
+  - Msg: Si el tipo de transaccion es al Credito debe consignarse el Monto neto pendiente de pago
+- `3252`: Si existe un tag cac:PaymentTerms con cbc:ID
+  - Msg: Si existe información de cuota de pago, el tipo de transaccion debe ser al credito
+- `3253`: Si el 'Indicador' es 'FormaPago', y el formato del 'Identificador de la cuota' es: Cuota[0-9]{3} y si existe el tag, el 
+  - Tag: `/CreditNote/cac:PaymentTerms/cbc:Amount (Monto del pago único o de las cuotas)`
+  - Msg: El Monto del pago único o de las cuotas no cumple el formato definido
+- `3254`: Si existe un tag cac:PaymentTerms con cbc:ID
+  - Msg: Si se consigna información de la cuota de pago, debe indicarse el monto de la cuota
+- `3255`: Si el 'Indicador' es 'FormaPago', y el formato del 'Identificador de la cuota' es: Cuota[0-9]{3} y si existe el tag, el 
+  - Tag: `/CreditNote/cac:PaymentTerms/cbc:PaymentDueDate (Fecha del pago único o de las cuotas)`
+  - Msg: Fecha del pago único o de las cuotas no cumple el formato definido
+- `3256`: Si existe un tag cac:PaymentTerms con cbc:ID
+  - Msg: Si se consigna información de la cuota de pago, debe indicarse la fecha del pago único o de las cuotas
+- `3271`: Si el 'Tipo de documento que modifica' es '01', y no existe en la línea un cac:TaxSubtotal con 'Código de tributo por lí
+  - Msg: El valor de venta por ítem difiere de los importes consignados.
+- `3272`: Si el 'Tipo de documento que modifica' es '01', y no existe en la misma línea un cac:TaxSubtotal con 'Código de tributo 
+  - Msg: La base imponible a nivel de línea difiere de la información consignada en el comprobante
+- `3273`: Si el 'Tipo de documento que modifica' es '01' y el 'Código de tributo' es '9995', el valor del Tag UBL es diferente a l
+  - Msg: La sumatoria del total valor de venta - Exportaciones de línea no corresponden al total
+- `3274`: Si el 'Tipo de documento que modifica' es '01' y el 'Código de tributo' es '9998', el valor del Tag UBL es diferente a l
+- `3275`: Si el 'Tipo de documento que modifica' es '01' y el 'Código de tributo' es '9997', el valor del Tag UBL es diferente a l
+  - Msg: La sumatoria del total valor de venta - operaciones exoneradas de línea no corresponden al total
+- `3276`: Si el 'Tipo de documento que modifica' es '01' y el 'Código de tributo' es '9996', el valor del Tag UBL es diferente a l
+  - Msg: La sumatoria del total valor de venta - operaciones gratuitas de línea no corresponden al total
+- `3277`: Si el Tag UBL existe y el 'Tipo de documento que modifica' es '01', y el 'Código de tributo' es '1000', el valor del Tag
+  - Msg: La sumatoria del total valor de venta - operaciones gravadas de línea no corresponden al total
+- `3280`: Si el 'Tipo de documento que modifica' es '01', el  'Total valor de venta - operaciones gravadas' más 'Total valor de ve
+  - Msg: El importe total del comprobante no coincide con el valor calculado
+- `3291`: Si el 'Tipo de documento que modifica' es '01' y el  'Código de tributo' es '1000', el valor del Tag Ubl es diferente al
+  - Msg: El cálculo del IGV es Incorrecto
+- `3292`: Si el Tag UBL existe y el 'Tipo de documento que modifica' es '01', el valor del Tag UBL es diferente a la sumatoria de 
+  - Msg: El importe total de impuestos por línea no coincide con la sumatoria de los impuestos por línea.
+- `3293`: Si el Tag UBL existe y el 'Tipo de documento que modifica' es '01', y el 'Código de tributo' es '1016', el valor del Tag
+  - Msg: La sumatoria del total valor de venta - IVAP de línea no corresponden al total
+- `3295`: Si el 'Tipo de documento que modifica' es '01' y el  'Código de tributo' es '1016', el valor del Tag Ubl es diferente al
+  - Msg: El importe del IVAP no corresponden al determinado por la informacion consignada.
+- `3296`: Si el Tag UBL existe y el 'Tipo de documento que modifica' es '01', el valor del Tag UBL es diferente a la sumatoria de 
+  - Msg: La sumatoria del monto base - ISC de línea no corresponden al total
+- `3297`: Si el Tag UBL existe y el 'Tipo de documento que modifica' es '01', y el 'Código de tributo' es '9999', el valor del Tag
+  - Msg: La sumatoria del monto base - Otros tributos de línea no corresponden al total
+- `3298`: Si el 'Tipo de documento que modifica' es '01' y el  'Código de tributo' es '2000', el valor del Tag Ubl es diferente de
+  - Msg: La sumatoria del total del importe del tributo ISC de línea no corresponden al total
+- `3299`: Si el 'Tipo de documento que modifica' es '01' y el  'Código de tributo' es '9999', el valor del Tag Ubl  y es diferente
+  - Msg: La sumatoria del total del importe del tributo Otros tributos de línea no corresponden al total
+- `3303`: Si el Tag UBL existe y el 'Tipo de documento que modifica' es '01', el valor absoluto es mayor a 1
+  - Tag: `/CreditNote/cac:LegalMonetaryTotal/cbc:PayableRoundingAmount`
+  - Msg: El monto para el redondeo del Importe Total excede el valor permitido
+- `3306`: Si el 'Tipo de documento que modifica' es '01' y el 'Código de tributo' es '7152', el valor del Tag Ubl es diferente de 
+  - Msg: La sumatoria del total del importe del tributo ICBPER de línea no corresponden al total
+- `3319`: Si el 'Indicador' es 'FormaPago', el valor del tag es 'Credito', el 'Tipo de Documento del adquiriente o usuario' es igu
+  - Msg: La suma de las cuotas debe ser igual al Monto neto pendiente de pago.
+- `3462`: Si el 'Tipo de documento que modifica' es '01' y existe alguna línea con ('Código de tributo por línea' igual a '1000' y
+  - Msg: La tasa del IGV debe ser la misma en todas las líneas o ítems del documento y debe corresponder con una tasa vigente.
+
+## DebitNote
+
+Implemented: 27 / Source rules: 103 / Missing: 92
+
+- `1034`: El Tag UBL es diferente al RUC del nombre del XML
+  - Tag: `/DebitNote/cac:AccountingSupplierParty/cac:Party/cac:PartyIdentification/cbc:ID (Número de RUC)`
+  - Msg: Número de RUC del nombre del archivo no coincide con el consignado en el contenido del archivo XML
+- `1079`: Si serie del documento no inicia con número y:
+  - Msg: Solo puede enviar el comprobante en un resumen diario
+- `2017`: Si "Tipo de documento de identidad del adquiriente" es RUC (6), el formato del Tag UBL es diferente a numérico de 11 díg
+  - Msg: El numero de documento de identidad del receptor debe ser  RUC
+- `2033`: El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero
+  - Tag: `/DebitNote/cac:DebitNoteLine/cac:TaxTotal/cac:TaxSubtotal/cbc:TaxAmount (Monto del tributo de la línea)`
+  - Msg: El dato ingresado en TaxAmount de la linea no cumple con el formato establecido
+- `2037`: No existe el Tag UBL o es vacío
+  - Tag: `/DebitNote/cac:DebitNoteLine/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cac:TaxScheme/cbc:ID (Código de tributo por línea)`
+  - Msg: El XML no contiene el tag cac:TaxCategory/cac:TaxScheme/cbc:ID del Item
+- `2048`: El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero
+  - Tag: `/DebitNote/cac:TaxTotal/cac:TaxSubtotal/cbc:TaxAmount (Sumatoria ICBPER)`
+  - Msg: El dato ingresado en TaxAmount no cumple con el formato establecido
+- `2052`: No existe el Tag UBL o es vacío
+  - Tag: `/DebitNote/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cac:TaxScheme/cbc:TaxTypeCode (Código internacional de tributo)`
+  - Msg: El XML no contiene el tag código de tributo internacional de impuestos globales
+- `2054`: No existe el Tag UBL o es vacío
+  - Tag: `/DebitNote/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cac:TaxScheme/cbc:Name (Nombre de tributo)`
+  - Msg: El XML no contiene el tag TaxScheme Name de impuestos globales
+- `2064`: El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero
+  - Tag: `/DebitNote/cac:RequestedMonetaryTotal/cbc:ChargeTotalAmount`
+  - Msg: El dato ingresado en ChargeTotalAmount no cumple con el formato establecido
+- `2108`: Si serie del documento no inicia con número y:
+  - Tag: `/DebitNote/cbc:IssueDate`
+  - Msg: Presentacion fuera de fecha
+- `2329`: El valor del Tag UBL es mayor a dos días de la fecha de envío del comprobante
+  - Msg: La fecha de emision se encuentra fuera del limite permitido
+- `2367`: El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 10 decimales y diferente de cero
+  - Tag: `/DebitNote/cac:DebitNoteLine/cac:PricingReference/cac:AlternativeConditionPrice/cbc:PriceAmount (Precio de venta unitario)`
+  - Msg: El dato ingresado en PriceAmount del Precio de venta unitario por item no cumple con el formato establecido
+- `2369`: Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 10 decimales y difer
+  - Tag: `/DebitNote/cac:DebitNoteLine/cac:Price/cbc:PriceAmount`
+  - Msg: El dato ingresado en PriceAmount del Valor de venta unitario por item no cumple con el formato establecido
+- `2370`: El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero
+  - Tag: `/DebitNote/cac:DebitNoteLine/cbc:LineExtensionAmount`
+  - Msg: El dato ingresado en LineExtensionAmount del item no cumple con el formato establecido
+- `2371`: Si 'Código de tributo por línea' es diferente a '2000' (ISC) o '9999' (Otros tributos), cuyo 'Monto base' es mayor a cer
+  - Tag: `/DebitNote/cac:DebitNoteLine/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cbc:TaxExemptionReasonCode  (Afectación al IGV o IVAP cuando corresponda)`
+  - Msg: El XML no contiene el tag cbc:TaxExemptionReasonCode de Afectacion al IGV
+- `2373`: Si 'Código de tributo por línea' es '2000' (ISC), no existe el Tag UBL
+  - Tag: `/DebitNote/cac:DebitNoteLine/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cbc:TierRange (Tipo de sistema de ISC)`
+  - Msg: Si existe monto de ISC en el ITEM debe especificar el sistema de calculo
+- `2409`: Existe en el mismo ítem otro cac:AlternativeConditionPrice con el mismo valor del Tag UBL (cbc:PriceTypeCode)
+  - Msg: Existe mas de un tag cac:AlternativeConditionPrice con el mismo cbc:PriceTypeCode
+- `2638`: Si existe alguna línea (/DebitNote/cac:DebitNoteLine/cac:TaxTotal/cac:TaxSubtotal) con 'Monto base' mayor a cero (cbc:Ta
+  - Msg: Si tiene operaciones de un tributo en alguna línea, debe consignar el tag del total del tributo
+- `2640`: Si existe en la línea un cac:TaxSubtotal con 'Código de tributo por línea' igual a '9996' cuyo 'Monto base' es mayor a c
+  - Msg: Operacion gratuita, solo debe consignar un monto referencial
+- `2641`: Si 'Código de tipo de tributo' es '9996' (Gratuita) y existe una línea con 'Valor referencial unitario por ítem en opera
+  - Msg: Operacion gratuita,  debe consignar Total valor venta - operaciones gratuitas  mayor a cero
+- `2642`: Si 'Código de tipo de nota de débito' es '11', el valor del Tag UBL es diferente de '40'
+  - Msg: Operaciones de exportacion, deben consignar Tipo Afectacion igual a 40
+- `2644`: Si 'Código de tipo de nota de débito' es '12', el valor del Tag UBL es diferente de '17'
+  - Msg: Comprobante operacion sujeta IVAP solo debe tener ítems con código de afectación del IGV igual a 17
+- `2752`: Existe otro cac:DebitNoteLine con el mismo valor del Tag UBL (cbc:ID)
+  - Msg: El número de ítem no puede estar duplicado.
+- `2892`: Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 3 enteros y hasta 5 decimales y diferen
+  - Tag: `/DebitNote/cac:DebitNoteLine/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cbc:PerUnitAmount (Monto unitario)`
+  - Msg: El valor del tag no cumple con el formato establecido
+- `2936`: Si existe el atributo, el valor es diferente al Catálogo N.° 03
+  - Msg: El dato ingresado como unidad de medida no corresponde al valor esperado
+- `2949`: Si  'Código de tributo' es '7152' y la 'Fecha de emisión' es menor a '2019-08-01', el valor del Tag Ubl es mayor a cero
+  - Msg: El impuesto ICBPER no se encuentra vigente
+- `2956`: No existe el tag /DebitNote/cac:TaxTotal
+  - Tag: `/DebitNote/cac:TaxTotal/cbc:TaxAmount`
+  - Msg: El Monto total de impuestos es obligatorio
+- `2992`: Si el 'Código de tributo' es diferente de '7152' y no existe el Tag UBL
+  - Tag: `/DebitNote/cac:DebitNoteLine/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cbc:Percent (Tasa del tributo)`
+  - Msg: El XML no contiene el tag de la tasa del tributo de la línea
+- `2993`: Si 'Código de tributo por línea' es igual a '1000' o '1016', y  'Monto base' mayor a cero (cbc:TaxableAmount > 0), el va
+  - Msg: El factor de afectación de IGV por linea debe ser diferente a 0.00.
+- `2996`: No existe el Tag UBL o es vacío
+  - Tag: `/DebitNote/cac:DebitNoteLine/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cac:TaxScheme/cbc:Name (Nombre de tributo)`
+  - Msg: El XML no contiene el tag o no existe información del nombre de tributo de la línea
+- `2999`: El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero
+  - Msg: El dato ingresado en el total valor de venta globales no cumple con el formato establecido
+- `3000`: Si el Tag UBL existe, el valor del Tag Ubl es diferente de 0 (cero), cuando el 'Código de tributo' es '9995', '9997' y '
+  - Msg: El monto total del impuestos sobre el valor de venta de operaciones gratuitas/inafectas/exoneradas debe ser igual a 0.00
+- `3003`: Si el 'Código de tributo' es diferente de '7152' y no existe el Tag UBL
+  - Tag: `/DebitNote/cac:TaxTotal/cac:TaxSubtotal/cbc:TaxableAmount (Monto base)`
+  - Msg: El XML no contiene el tag o no existe información de total valor de venta globales
+- `3006`: Si el formato del Tag UBL es diferente a alfanumérico de 1 a 200 caractéres (se considera cualquier carácter incluido es
+  - Tag: `/DebitNote/cbc:Note  (Descripción de la leyenda)`
+  - Msg: El dato ingresado en descripcion de leyenda no cumple con el formato establecido.
+- `3020`: Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y difere
+  - Msg: El dato ingresado en el monto total de impuestos no cumple con el formato establecido
+- `3021`: Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y difere
+  - Msg: El dato ingresado en el monto total de impuestos por línea no cumple con el formato establecido
+- `3024`: Existe a nivel global más de un tag cac:TaxTotal
+  - Msg: El tag cac:TaxTotal no debe repetirse a nivel de totales
+- `3026`: Existe en el mismo ítem más de un tag cac:TaxTotal
+  - Msg: El tag cac:TaxTotal no debe repetirse a nivel de Item
+- `3030`: Si 'Serie del comprobante' inicia con 'F' y 'Tipo de documento que modifica' es '01', no existe el Tag UBL o es vacío
+  - Tag: `/DebitNote/cac:AccountingSupplierParty/cac:Party/cac:PartyLegalEntity/cac:RegistrationAddress/cbc:AddressTypeCode`
+  - Msg: El XML no contiene el tag o no existe información del código de local anexo del emisor
+- `3031`: Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y difere
+  - Tag: `/DebitNote/cac:DebitNoteLine/cac:TaxTotal/cac:TaxSubtotal/cbc:TaxableAmount (Monto base)`
+  - Msg: El dato ingresado en TaxableAmount de la linea no cumple con el formato establecido
+- `3034`: Si 'Indicador PaymentMeans' es igual a 'Detraccion', no existe el Tag UBL o es vacío.
+  - Tag: `/DebitNote/cac:PaymentMeans/cac:PayeeFinancialAccount/cbc:ID (Número de cuenta)`
+  - Msg: El xml no contiene el tag o no existe información en el nro de cuenta de detracción
+- `3035`: Si 'Indicador PaymentTerms' es igual a 'Detraccion', no existe el Tag UBL
+  - Tag: `/DebitNote/cac:PaymentTerms/cbc:Amount (Monto de detraccion)`
+  - Msg: El xml no contiene el tag o no existe información en el monto de detraccion
+- `3037`: El formato del Tag UBL es diferente de decimal (positivo mayor a cero) de 12 enteros y hasta 2 decimales
+  - Msg: El dato ingresado en monto de detraccion no cumple con el formato establecido
+- `3050`: Si 'Código de tributo por línea' es igual a '2000' (ISC) o '9999' (Otros tributos), existe el tag UBL
+  - Msg: Afectación de IGV no corresponde al código de tributo de la linea.
+- `3059`: No existe el Tag UBL o es vacío
+  - Tag: `/DebitNote/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cac:TaxScheme/cbc:ID (Código de tributo)`
+  - Msg: El XML no contiene el tag o no existe información de código de tributo.
+- `3067`: Existe en el mismo ítem más de un cac:TaxSubtotal con el mismo valor del Tag UBL (cbc:ID)
+  - Msg: El código de tributo no debe repetirse a nivel de item
+- `3068`: Existe a nivel global  más de un cac:TaxSubtotal con el mismo valor del Tag UBL (cbc:ID)
+  - Msg: El código de tributo no debe repetirse a nivel de totales
+- `3102`: Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 3 enteros y hasta 5 decimales y diferen
+  - Msg: El dato ingresado como factor de afectacion por linea no cumple con el formato establecido.
+- `3103`: Si 'Tipo de documento que modifica' es diferente de '30' y '42', y la 'Afectación al IGV o IVAP' es '10','11', '12', '13
+  - Msg: El producto del factor y monto base de la afectación del IGV/IVAP no corresponde al monto de afectacion de linea.
+- `3104`: Si 'Código de tributo por línea' es igual a '2000' cuyo 'Monto base' es mayor a cero (cbc:TaxableAmount > 0), el valor d
+  - Msg: El factor de afectación de ISC por linea debe ser diferente a 0.00.
+- `3105`: No existe en el ítem un cac:TaxSubtotal con monto base mayor a cero (cbc:TaxableAmount > 0) y cbc:ID con alguno de los s
+  - Msg: El XML debe contener al menos un tributo por linea de afectacion por IGV
+- `3107`: Si  'Código de tipo de nota de débito' es '11' (Exportacion) y existe un ID '2000' o '9999' a nivel global
+  - Msg: El dato ingresado como codigo de tributo global es invalido para tipo de operación.
+- `3108`: Si  el 'Código de tributo por línea' es '2000' cuyo 'Monto base' es mayor a cero (cbc:TaxableAmount > 0), el valor del t
+  - Msg: El producto del factor y monto base de la afectación del ISC no corresponde al monto de afectacion de linea.
+- `3109`: Si el 'Código de tributo por línea' es '9999' cuyo 'Monto base' es mayor a cero (cbc:TaxableAmount > 0), el valor del ta
+  - Msg: El producto del factor y monto base de la afectación de otros tributos no corresponde al monto de afectacion de linea.
+- `3110`: Si 'Código de tributo por línea' es igual a '9996' cuyo 'Monto base' es mayor a cero (cbc:TaxableAmount > 0), y la 'Afec
+  - Msg: El monto de afectacion de IGV por linea debe ser igual a 0.00 para Exoneradas, Inafectas, Exportación, Gratuitas de exon
+- `3111`: Si 'Código de tributo por línea' es igual a '1000' o '1016' y
+  - Msg: El monto de afectación de IGV por linea debe ser diferente a 0.00.
+- `3127`: Si 'Indicador PaymentTerms' es igual a 'Detraccion', no existe el tag o es vacío
+  - Tag: `/DebitNote/cac:PaymentTerms/cbc:PaymentMeansID (Código de bien o servicio)`
+  - Msg: El XML no contiene el tag o no existe información del Codigo de BBSS de detracción para el tipo de operación.
+- `3151`: Si codigo producto de sunat de la linea es '84121901' y indicador de primera vivienda = 3 (Codigo concepto 7002), y no e
+  - Msg: El XML no contiene el tag de Créditos Hipotecarios: Partida Registral
+- `3152`: Si codigo producto de sunat de la linea es '84121901', y no existe el tag con codigo '7004'
+  - Msg: El XML no contiene el tag de Créditos Hipotecarios: Número de contrato
+- `3153`: Si codigo producto de sunat de la linea es '84121901', y no existe el tag con codigo '7005'
+  - Msg: El XML no contiene el tag de Créditos Hipotecarios: Fecha de otorgamiento del crédito
+- `3154`: Si codigo producto de sunat de la linea es '84121901' y indicador de primera vivienda = 3 (Codigo concepto 7002), no exi
+  - Msg: El XML no contiene el tag de Créditos Hipotecarios: Dirección del predio - Código de ubigeo
+- `3155`: Si codigo producto de sunat de la linea es '84121901' y indicador de primera vivienda = 3 (Codigo concepto 7002),  no ex
+  - Msg: El XML no contiene el tag de Créditos Hipotecarios: Dirección del predio - Dirección completa
+- `3195`: No existe el tag cac:DebitNoteLine/cac:TaxTotal
+  - Tag: `/DebitNote/cac:DebitNoteLine/cac:TaxTotal/cbc:TaxAmount (Monto total de impuestos por linea)`
+  - Msg: El xml no contiene el tag de impuesto por linea (TaxtTotal).
+- `3208`: Si 'Indicador PaymentTerms' es igual a 'Detraccion', el atributo @currencyID del Tag UBL es diferente a "PEN"
+  - Tag: `@currencyID`
+  - Msg: La moneda del monto de la detracción debe ser PEN
+- `3210`: Si 'Código de tributo por línea' es diferente '2000' (ISC), existe el Tag UBL
+  - Msg: Solo debe consignar sistema de calculo si el tributo es ISC
+- `3223`: En una línea sólo pueden existir las siguientes combinaciones de códigos de tributos con 'Monto base' mayor a cero (cbc:
+  - Msg: La combinación de tributos no es permitida
+- `3224`: Si no existe en misma la línea un cac:TaxSubtotal con 'Código de tributo por línea' igual a '9996' cuyo 'Monto base' es 
+  - Msg: Si existe 'Valor referencial unitario en operac. no onerosas' con monto mayor a cero, la operacion debe ser gratuita (co
+- `3236`: Si el Tag UBL existe y el valor del Tag UBL es mayor a cero, el valor del tag es diferente de 'Cantidad de unidades por 
+  - Msg: El valor ingresado en el campo cac:TaxSubtotal/cbc:BaseUnitMeasure no corresponde al valor esperado
+- `3237`: Si 'Código de tributo por línea' es igual a '7152' y no existe el Tag UBL
+  - Msg: Debe consignar el campo cac:TaxSubtotal/cbc:BaseUnitMeasure a nivel de ítem
+- `3238`: Si 'Código de tributo por línea' es igual a '7152' y 'Cantidad de bolsas de plástico' es mayor a cero (cbc:BaseUnitMeasu
+  - Msg: El valor ingresado en el campo cac:TaxSubtotal/cbc:PerUnitAmount del ítem no corresponde al valor esperado
+- `3243`: De existir 'Código del concepto' igual a '7014' y no existe el tag.
+  - Tag: `/DebitNote/cac:DebitNoteLine/cac:Item/cac:AdditionalItemProperty/cac:UsabilityPeriod/cbc:StartDate (Fecha de inicio de vigencia)`
+  - Msg: El XML no contiene tag o no existe información de la fecha del concepto por linea
+- `3270`: Si el 'Tipo de documento que modifica' es '01', y no existe en la misma línea un cac:TaxSubtotal con 'Código de tributo 
+  - Msg: El precio unitario de la operación que está informando difiere de los cálculos realizados en base a la información remit
+- `3271`: Si el 'Tipo de documento que modifica' es '01' y no existe en la línea un cac:TaxSubtotal con 'Código de tributo por lín
+  - Msg: El valor de venta por ítem difiere de los importes consignados.
+- `3272`: Si el 'Tipo de documento que modifica' es '01', y no existe en la misma línea un cac:TaxSubtotal con 'Código de tributo 
+  - Msg: La base imponible a nivel de línea difiere de la información consignada en el comprobante
+- `3273`: Si el 'Tipo de documento que modifica' es '01' y el 'Código de tributo' es '9995', el valor del Tag UBL es diferente a l
+  - Msg: La sumatoria del total valor de venta - Exportaciones de línea no corresponden al total
+- `3274`: Si el 'Tipo de documento que modifica' es '01' y el 'Código de tributo' es '9998', el valor del Tag UBL es diferente a l
+  - Msg: La sumatoria del total valor de venta - operaciones inafectas de línea no corresponden al total
+- `3275`: Si el 'Tipo de documento que modifica' es '01' y el 'Código de tributo' es '9997', el valor del Tag UBL es diferente a l
+  - Msg: La sumatoria del total valor de venta - operaciones exoneradas de línea no corresponden al total
+- `3276`: Si el 'Tipo de documento que modifica' es '01' y el  'Código de tributo' es '9996', el valor del Tag UBL es diferente a 
+  - Msg: La sumatoria del total valor de venta - operaciones gratuitas de línea no corresponden al total
+- `3277`: Si el 'Tipo de documento que modifica' es '01' y el  'Código de tributo' es '1000' y  el Tag UBL existe, el valor del Ta
+  - Msg: La sumatoria del total valor de venta - operaciones gravadas de línea no corresponden al total
+- `3280`: Si el 'Tipo de documento que modifica' es '01', el "Total valor de venta - operaciones gravadas" más "Total valor de ven
+  - Msg: El importe total del comprobante no coincide con el valor calculado
+- `3291`: Si el 'Tipo de documento que modifica' es '01' y el  'Código de tributo' es '1000', el valor del Tag Ubl es diferente al
+  - Msg: El cálculo del IGV es Incorrecto
+- `3292`: Si el Tag UBL existe y el 'Tipo de documento que modifica' es '01', el valor del Tag UBL es diferente a la sumatoria de 
+  - Msg: El importe total de impuestos por línea no coincide con la sumatoria de los impuestos por línea.
+- `3293`: Si el 'Tipo de documento que modifica' es '01', y el  'Código de tributo' es '1016' y el Tag UBL existe, el valor del Ta
+  - Msg: La sumatoria del total valor de venta - IVAP de línea no corresponden al total
+- `3295`: Si el 'Tipo de documento que modifica' es '01', y el  'Código de tributo' es '1016', el valor del Tag UBL es diferente a
+  - Msg: El importe del IVAP no corresponden al determinado por la informacion consignada.
+- `3296`: Si el Tag UBL existe y el 'Tipo de documento que modifica' es '01', y el 'Código de tributo' es '2000', y el valor del T
+  - Msg: La sumatoria del monto base - ISC de línea no corresponden al total
+- `3297`: Si el Tag UBL existe y el 'Tipo de documento que modifica' es '01', y el 'Código de tributo' es '9999', el valor del Tag
+  - Msg: La sumatoria del monto base - Otros tributos de línea no corresponden al total
+- `3298`: Si el 'Tipo de documento que modifica' es '01', y el  'Código de tributo' es '2000', el valor del Tag Ubl es diferente d
+  - Msg: La sumatoria del total del importe del tributo ISC de línea no corresponden al total
+- `3299`: Si el 'Tipo de documento que modifica' es '01', y el 'Código de tributo' es '9999', el valor del Tag Ubl  y es diferente
+  - Msg: La sumatoria del total del importe del tributo Otros tributos de línea no corresponden al total
+- `3302`: Si el 'Tipo de documento que modifica' es '01' y el 'Código de tributo' es '9996', el valor del Tag UBL es diferente de 
+  - Msg: La sumatoria de los IGV de operaciones gratuitas de la línea (codigo tributo 9996) no corresponden al total
+- `3303`: Si existe el tag UBL y el 'Tipo de documento que modifica' es igual a '01', el valor absoluto es mayor a 1
+  - Tag: `/DebitNote/cac:RequestedMonetaryTotal/cbc:PayableRoundingAmount`
+  - Msg: El monto para el redondeo del Importe Total excede el valor permitido
+- `3306`: Si el 'Tipo de documento que modifica' es '01', y el  'Código de tributo' es '7152', el valor del Tag Ubl es diferente d
+  - Msg: La sumatoria del total del importe del tributo ICBPER de línea no corresponden al total
+- `3462`: Si el 'Tipo de documento que modifica' es '01' y existe alguna línea con ('Código de tributo por línea' igual a '1000' y
+  - Msg: La tasa del IGV debe ser la misma en todas las líneas o ítems del documento y debe corresponder con una tasa vigente.
+
+## Retention
+
+Implemented: 24 / Source rules: 59 / Missing: 35
+
+- `1001`: El formato del Tag UBL no tiene el formato:
+- [R][A-Z0-9]{3}-[0-9]{1,8}
+- [0-9]{1,4}-[0-9]{1,8}
+- `1033`: Si la serie empieza con número, y el valor del Tag UBL se encuentra en el listado con indicador de estado igual a 2
+
+Si 
+- `1034`: El valor del Tag UBL es diferente al RUC del nombre del XML
+- `1037`: No existe el Tag UBL o es vacio
+- `1038`: Si el Tag UBL existe, el formato del Tag UBL es diferente a alfanumérico de hasta 1500 caracteres (se considera cualquie
+- `1049`: El valor del Tag UBL es diferente al nombre del archivo
+- `2110`: El valor del Tag UBL es diferente a "2.0"
+- `2111`: El Tag UBL está vacío
+- `2112`: El valor del Tag UBL es diferente a "1.0"
+- `2113`: El Tag UBL está vacío
+- `2133`: Si el Tag UBL existe, el formato del Tag UBL es diferente a alfanumérico de hasta 1500 caracteres (se considera cualquie
+- `2134`: No existe el Tag UBL o es vacio
+- `2511`: El valor del Tag UBL es diferente a 6
+- `2516`: No existe el Tag UBL o es vacio
+- `2548`: Si el Tag UBL existe, el valor es diferente a "PE"
+- `2600`: Si serie del documento no inicia con número:
+La diferencia entre la fecha de recepción del XML y el valor del Tag UBL es
+- `2617`: No existe ind_padrón igual a "03" en el listado para el valor del Tag UBL
+- `2618`: El valor del Tag UBL no está en el listado
+- `2619`: El valor del Tag UBL es diferente a la Tasa de retención del listado para el "Código del regimen de retención"
+- `2621`: El valor del Tag UBL no está en el listado
+- `2626`: Si "Tipo de documento relacionado" es diferente a "07", el "Número de documento relacionado" concatenado con el valor de
+- `2669`: El formato del Tag UBL es diferente a decimal positivo de 12 enteros y 2 decimales o es cero (0)
+- `2678`: No existe el Tag UBL o es vacio
+- `2691`: No existe el Tag UBL o es vacio
+- `2692`: El valor del Tag UBL es diferente a "01", "12", "07", "08", "20"
+- `2693`: El valor del Tag UBL esta vacío
+- `2694`: Si "Tipo de documento relacionado" es diferente a "12", el formato del Tag UBL es diferente a:
+(E001|((F|R)[A-Z0-9]{3})|
+- `2696`: El formato del Tag UBL es diferente a decimal positivo de 12 enteros y 2 decimales o es cero (0)
+- `2715`: Si "Tipo de documento relacionado" es diferente a "07", el valor del Tag UBL es diferente "PEN"
+- `2716`: Si el Tag UBL existe, el formato del Tag UBL es diferente a decimal positivo de 4 enteros y 6 decimales o es cero (0)
+- `2719`: Si "Tipo de documento relacionado" es diferente a "07" y "Tipo de moneda del documento relacionado" es diferente "PEN", 
+- `2721`: Si "Tipo de documento relacionado" es diferente a "07" y "Tipo de moneda del documento relacionado" es diferente "PEN", 
+- `2722`: Si "Tipo de documento relacionado" es diferente a "07" y "Tipo de moneda del documento relacionado" es diferente "PEN", 
+- `2749`: Si "Tipo de documento relacionado" es diferente a "07", el valor del Tag UBL es diferente "Tipo de moneda del documento 
+- `3207`: Si la serie empieza con número,  el Tag UBL no se encuentra en el listado
+
+## Perception
+
+Implemented: 55 / Source rules: 68 / Missing: 13
+
+- `1033`: Si la serie empieza con número, y el valor del Tag UBL se encuentra en el listado con indicador de estado igual a 2
+
+Si 
+- `2602`: El valor del Tag UBL no está en el listado
+- `2603`: El valor del Tag UBL es diferente al  Porcentaje de percepción del listado para el "Código del régimen de percepción"
+- `2605`: Si "Tipo de documento de identidad del cliente" es 6, el valor del Tag UBL no está en el listado
+- `2609`: Si el "Tipo de documento relacionado" es "01", "07" o "08" y el Tag UBL empieza con "F", el valor del Tag UBL no existe 
+- `2610`: Si el "Tipo de documento relacionado" es "01", "03", "07" o "08" y la "Serie del documento relacionado" empieza con "E00
+- `3207`: Si la serie empieza con número,  el Tag UBL no se encuentra en el listado
+- `3312`: Si no existe el "Indicador de emisión excepcional", el "Tipo de documento relacionado" es '01' y el valor del tag no emp
+- `3323`: Si el valor del "Indicador de emisión excepcional" es "01" y existe más de un (01) documento relacionado.
+- `3325`: Si el valor del "Indicador de emisión excepcional" es "01", el Tipo de documento relacionado es "01" y el valor del tag 
+- `3326`: Si el valor del "Indicador de emisión excepcional" es "01", el Tipo de documento relacionado es "01" y la "Serie y númer
+- `3328`: Si el "Tipo de documento relacionado" es '03' y el valor del tag no empieza con número, el 'Tipo de operación' del docum
+- `3329`: Si no existe el "Indicador de emisión excepcional", y el "Tipo de documento relacionado" es '01' y el valor del tag no e
+
+## VoidedDocuments
+
+Implemented: 24 / Source rules: 33 / Missing: 9
+
+- `0127`: 
+- `2011`: El valor del Tag UBL tiene un ind_condicion igual a "12" en el listado
+- `2105`: Si el 'Tipo de documento' es igual a '30', '34' o '42' y 'Serie del documento de baja' empieza con 'F', el 'Tipo de docu
+- `2323`: El 'Tipo de documento' concatenado con 'Serie del documento dado de baja' concatenado con el Tag UBL se encuentra en el 
+- `2324`: El valor del Tag UBL ya ha sido presentado anteriormente
+- `2375`: Si el "Tipo de documento" es '14' (Servicio Publico); o, "Tipo de documento" es '07' o '08' y "Serie del documento de ba
+- `2398`: El 'Tipo de documento' concatenado con 'Serie del documento dado de baja' concatenado con el Tag UBL se encuentra en el 
+- `2581`: Si la 'Serie del documento dado de baja' empieza con 'S' y el 'Número de RUC' pertenece al 'SEE-Empresas supervisadas'
+N
+- `2957`: Si la 'Serie del documento dado de baja' no inicia con número y la diferencia entre la fecha de recepción de la comunica
+
+## SummaryDocuments
+
+Implemented: 62 / Source rules: 73 / Missing: 15
+
+- `2016`: Si existe tag de "Adquiriente o usuario", el valor del Tag UBL es diferente al listado y guión (-)
+- `2256`: El Tag UBL no existe en el listado
+- `2268`: El valor del Tag UBL es diferente al listado
+- `2282`: Si el comprobante existe en el listado y el 'Código de operación del ítem' es '1'
+- `2517`: El valor del Tag UBL es diferente al listado
+- `2601`: Si el valor del Tag es mayor a cero y  no existe ind_padrón igual a "01" o “02” en el listado para el "Numero de RUC" de
+- `2605`: Si existe  informacion de percepcion y "Tipo de documento de identidad del adquiriente" es 6 y el "Numero de documento d
+- `2663`: Si el comprobante no existe en el listado y el 'Código de operacion del ítem' es '2' o '3'
+- `2891`: El valor del Tag UBL es diferente a la tasa del listado para el "Regimen de percepción"
+- `2896`: El valor del Tag UBL es diferente al listado
+- `2957`: Si la 'Serie del documento' no inicia con número y el 'Código de operación del ítem' es igual a '3': 
+La diferencia entr
+- `2987`: Si el comprobante existe en el listado: 
+el comprobante tiene el estado igual a (0 ó 2)
+- `2989`: Si "Tipo del documento del documento que modifica" es "03" y "Serie del documento que modifica" empieza con B, el compro
+- `2990`: Si "Tipo del documento del documento que modifica" es "03" y "Serie del documento que modifica" empieza con B, el compro
+- `3207`: Si "Tipo de documento" es 03, 07 o 08 y la serie empieza con número,  el Tag UBL no se encuentra en el listado
+
+## Signature
+
+Implemented: 17 / Source rules: 25 / Missing: 8
+
+- `2076`: No existe el Tag UBL
+- `2077`: El formato del Tag UBL es diferente a alfanumérico de hasta 3000 caracteres
+- `2078`: El Tag UBL debe ser igual al RUC del emisor o al RUC que se envía el comprobante
+- `2079`: No existe el Tag UBL
+- `2080`: El formato del Tag UBL es diferente a alfanumérico de hasta 3000 caracteres
+- `2081`: No existe el Tag UBL
+- `2082`: El formato del Tag UBL es diferente a alfanumérico de hasta 3000 caracteres
+- `2083`: No existe el Tag UBL
+
+## Summary
+
+Total unique missing codes: 302
