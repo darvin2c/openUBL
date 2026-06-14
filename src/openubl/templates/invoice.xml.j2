@@ -15,9 +15,9 @@
   <cbc:ID>{{ doc.serie }}-{{ doc.numero }}</cbc:ID>
   <cbc:IssueDate>{{ doc.fechaEmision }}</cbc:IssueDate>
   <cbc:IssueTime>00:00:00</cbc:IssueTime>
-  <cbc:InvoiceTypeCode listAgencyName="PE:SUNAT" listName="Tipo de Documento" listID="{{ doc.tipoOperacion }}" listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo01">01</cbc:InvoiceTypeCode>
-  <cbc:Note>{{ doc.tipoOperacion }}</cbc:Note>
-  <cbc:DocumentCurrencyCode listID="ISO 4217 Alpha" listName="Currency" listAgencyName="United Nations Economic Commission for Europe">{{ doc.moneda }}</cbc:DocumentCurrencyCode>
+  <cbc:InvoiceTypeCode listAgencyName="PE:SUNAT" listName="Tipo de Documento" listID="{{ doc.tipoOperacion.value }}" listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo01">01</cbc:InvoiceTypeCode>
+  <cbc:Note>{{ doc.tipoOperacion.value }}</cbc:Note>
+  <cbc:DocumentCurrencyCode listID="ISO 4217 Alpha" listName="Currency" listAgencyName="United Nations Economic Commission for Europe">{{ doc.moneda.value }}</cbc:DocumentCurrencyCode>
   <cac:Signature>
     <cbc:ID>SignSUNAT</cbc:ID>
     <cac:SignatoryParty>
@@ -58,10 +58,10 @@
     </cac:Party>
   </cac:AccountingCustomerParty>
   <cac:TaxTotal>
-    <cbc:TaxAmount currencyID="{{ doc.moneda }}">{{ doc.igvTotal | round(2) }}</cbc:TaxAmount>
+    <cbc:TaxAmount currencyID="{{ doc.moneda.value }}">{{ doc.igvTotal | round(2) }}</cbc:TaxAmount>
     <cac:TaxSubtotal>
-      <cbc:TaxableAmount currencyID="{{ doc.moneda }}">{{ doc.valorVentaTotal | round(2) }}</cbc:TaxableAmount>
-      <cbc:TaxAmount currencyID="{{ doc.moneda }}">{{ doc.igvTotal | round(2) }}</cbc:TaxAmount>
+      <cbc:TaxableAmount currencyID="{{ doc.moneda.value }}">{{ doc.valorVentaTotal | round(2) }}</cbc:TaxableAmount>
+      <cbc:TaxAmount currencyID="{{ doc.moneda.value }}">{{ doc.igvTotal | round(2) }}</cbc:TaxAmount>
       <cac:TaxCategory>
         <cac:TaxScheme>
           <cbc:ID>1000</cbc:ID>
@@ -76,29 +76,29 @@
     <cbc:PaymentMeansID>Contado</cbc:PaymentMeansID>
   </cac:PaymentTerms>
   <cac:LegalMonetaryTotal>
-    <cbc:LineExtensionAmount currencyID="{{ doc.moneda }}">{{ doc.valorVentaTotal | round(2) }}</cbc:LineExtensionAmount>
-    <cbc:TaxInclusiveAmount currencyID="{{ doc.moneda }}">{{ doc.importeTotal | round(2) }}</cbc:TaxInclusiveAmount>
-    <cbc:PayableAmount currencyID="{{ doc.moneda }}">{{ doc.importeTotal | round(2) }}</cbc:PayableAmount>
+    <cbc:LineExtensionAmount currencyID="{{ doc.moneda.value }}">{{ doc.valorVentaTotal | round(2) }}</cbc:LineExtensionAmount>
+    <cbc:TaxInclusiveAmount currencyID="{{ doc.moneda.value }}">{{ doc.importeTotal | round(2) }}</cbc:TaxInclusiveAmount>
+    <cbc:PayableAmount currencyID="{{ doc.moneda.value }}">{{ doc.importeTotal | round(2) }}</cbc:PayableAmount>
   </cac:LegalMonetaryTotal>
 {% for detalle in doc.detalles %}
   <cac:InvoiceLine>
     <cbc:ID>{{ loop.index }}</cbc:ID>
     <cbc:InvoicedQuantity unitCode="{{ detalle.unidadMedida }}">{{ detalle.cantidad | round(2) }}</cbc:InvoicedQuantity>
-    <cbc:LineExtensionAmount currencyID="{{ doc.moneda }}">{{ detalle.valorVenta | round(2) }}</cbc:LineExtensionAmount>
+    <cbc:LineExtensionAmount currencyID="{{ doc.moneda.value }}">{{ detalle.valorVenta | round(2) }}</cbc:LineExtensionAmount>
     <cac:PricingReference>
       <cac:AlternativeConditionPrice>
-        <cbc:PriceAmount currencyID="{{ doc.moneda }}">{{ detalle.precioVenta | round(2) }}</cbc:PriceAmount>
+        <cbc:PriceAmount currencyID="{{ doc.moneda.value }}">{{ detalle.precioVenta | round(2) }}</cbc:PriceAmount>
         <cbc:PriceTypeCode>01</cbc:PriceTypeCode>
       </cac:AlternativeConditionPrice>
     </cac:PricingReference>
     <cac:TaxTotal>
-      <cbc:TaxAmount currencyID="{{ doc.moneda }}">{{ detalle.igv | round(2) }}</cbc:TaxAmount>
+      <cbc:TaxAmount currencyID="{{ doc.moneda.value }}">{{ detalle.igv | round(2) }}</cbc:TaxAmount>
       <cac:TaxSubtotal>
-        <cbc:TaxableAmount currencyID="{{ doc.moneda }}">{{ detalle.valorVenta | round(2) }}</cbc:TaxableAmount>
-        <cbc:TaxAmount currencyID="{{ doc.moneda }}">{{ detalle.igv | round(2) }}</cbc:TaxAmount>
+        <cbc:TaxableAmount currencyID="{{ doc.moneda.value }}">{{ detalle.valorVenta | round(2) }}</cbc:TaxableAmount>
+        <cbc:TaxAmount currencyID="{{ doc.moneda.value }}">{{ detalle.igv | round(2) }}</cbc:TaxAmount>
         <cac:TaxCategory>
           <cbc:Percent>18.00</cbc:Percent>
-          <cbc:TaxExemptionReasonCode>{{ detalle.tipoAfectacionIGV }}</cbc:TaxExemptionReasonCode>
+          <cbc:TaxExemptionReasonCode>{{ detalle.tipoAfectacionIGV.value }}</cbc:TaxExemptionReasonCode>
           <cac:TaxScheme>
             <cbc:ID>1000</cbc:ID>
             <cbc:Name>IGV</cbc:Name>
@@ -111,7 +111,7 @@
       <cbc:Description>{{ detalle.descripcion }}</cbc:Description>
     </cac:Item>
     <cac:Price>
-      <cbc:PriceAmount currencyID="{{ doc.moneda }}">{{ detalle.precio | round(2) }}</cbc:PriceAmount>
+      <cbc:PriceAmount currencyID="{{ doc.moneda.value }}">{{ detalle.precio | round(2) }}</cbc:PriceAmount>
     </cac:Price>
   </cac:InvoiceLine>
 {% endfor %}
