@@ -1,0 +1,104 @@
+---
+title: Validaciones SUNAT
+description: Reglas de validación SUNAT implementadas en openUBL Server.
+---
+
+openUBL Server aplica las reglas de validación del Excel **"Reglas de validación actualizado al 24.04.2026"** publicado por SUNAT Perú en [https://cpe.sunat.gob.pe/guias-y-manuales](https://cpe.sunat.gob.pe/guias-y-manuales).
+
+## Fuente de verdad
+
+- **Documento**: Excel *Reglas de validación actualizado al 24.04.2026*.
+- **URL**: [https://cpe.sunat.gob.pe/guias-y-manuales](https://cpe.sunat.gob.pe/guias-y-manuales).
+- **Hojas consultadas**: Factura/Boleta, Nota de Crédito, Nota de Débito, Comunicación de Baja, Resumen Diario, Percepción, Retención, Firma.
+
+## Alcance
+
+openUBL implementa **todas las reglas de tipo ERROR que se pueden evaluar localmente**, es decir, sin consultar padrones, listados ni servicios web de SUNAT.
+
+La tabla inferior muestra que no quedan reglas ERROR localmente evaluables pendientes. Para el listado completo de códigos, descripciones y tests, consulta [Validaciones SUNAT detalladas](./validaciones-sunat-detallado).
+
+Las reglas que requieren listados/padrones quedan **documentadas como fuera de alcance** en `src/openubl/validator.py`, en los módulos `src/openubl/validators/_extra_*.py` y en esta página.
+
+## Tabla resumen por documento
+
+| Documento | Implementadas | Fuera de alcance | Pendientes |
+|-----------|--------------:|-----------------:|-----------:|
+| Invoice (factura/boleta) | 150 | 6 | 0 |
+| CreditNote | 120 | 2 | 0 |
+| DebitNote | 91 | 1 | 0 |
+| VoidedDocuments | 30 | 0 | 0 |
+| SummaryDocuments | 63 | 0 | 0 |
+| Perception | 52 | 11 | 0 |
+| Retention | 37 | 0 | 0 |
+| Firma digital | 25 | 0 | 0 |
+
+*(La columna "Pendientes" son reglas ERROR implementables localmente que aún no están en el validador.)*
+
+## Códigos fuera de alcance
+
+Ejemplos de reglas que requieren listados o padrones SUNAT y no se evalúan localmente:
+
+- `1033`, `2010`, `2011`, `3097`, `1078`, `3281`, `1086`, `3239`, `1083`, `2800`, `2040`, `2036`, `2377`, `2041`, `3071`, `3283-3289`, `3007`, `2964`, `2961`, `3027`, `2798`, `2792`, `2788`, `2505`, `2529`, `3218-3219`, `2520`, `3033`, `3174`, `3134`, `3116`, `3118`, `3150`, `2172`, `2016`, `2119-2121`, `2885`, `3209`, `2199`, `2209-2208`, `2663`, `3207`, `2987`, `2282`, `2957`, `2605`, `2989-2990`, `2517`, `2891`, `2601`, `2896`, `2256`, `2268`, `2375`, `2105`, `2398`, `2323`, `2617`, `3312`, `3328-3329`, `3310`, `2610`, `2618-2619`, `2621`, `2723`, etc.
+- Reglas que dependen del nombre del archivo ZIP o de la fecha de recepción de SUNAT: `2108`, `2329`, `1079`, `2600`, `2957`.
+
+## Formato de respuesta de errores
+
+Cuando `validar_sunat=true` y el XML no cumple una o más reglas, el endpoint responde HTTP 422:
+
+```json
+{
+  "detail": [
+    {"code": "2074", "message": "UBLVersionID - La versión del UBL no es correcta"}
+  ]
+}
+```
+
+El campo `code` es el código SUNAT exacto del Excel.
+
+## Ejemplos de errores
+
+### Factura con UBLVersionID incorrecto
+
+```bash
+curl -X POST http://localhost:8000/api/v1/invoice/create \
+  -H "Content-Type: application/json" \
+  -d '{"documento": {"serie": "F001", "numero": 1, "tipoOperacion": "0101", "fechaEmision": "2019-01-01", "cliente": {"tipoDocumento": "6", "numeroDocumento": "20100198109", "nombre": "Cliente Ejemplo"}, "items": [{"descripcion": "Item 1", "cantidad": 1, "valorUnitario": 100, "precioVenta": 118, "igv": 18, "tipoAfectacionIgv": "10"}]}, "validar_sunat": true}'
+```
+
+El XML renderizado tiene `cbc:UBLVersionID=2.1` por defecto, por lo que pasa. Si se mutara a `2.0`, se devolvería `code=2074`.
+
+### Firma con SHA-1
+
+Si un XML firmado usa SHA-1 en `ds:SignatureMethod` o `ds:DigestMethod`, la validación post-firma devuelve `code=2089` y `code=2095`.
+
+## Cómo verificar cobertura
+
+```bash
+# Resumen
+uv run pytest -m "not e2e" -q
+
+# Validadores extras
+uv run pytest tests/_test_validator_*.py -q
+```
+
+## Convención de tests
+
+`tests/test_validator.py` usa `@pytest.mark.parametrize` agrupado por tipo de documento. Cada entrada es `(code, mutator, expected)`:
+
+```python
+@pytest.mark.parametrize(
+    "code,mutator,expected",
+    [
+        ("2074", lambda r: _set_text(r, "cbc:UBLVersionID", "2.0"), True),
+        ...
+    ],
+)
+```
+
+Para agregar una regla, añade su mutator y su entrada en la tabla parametrizada.
+
+## Enlaces útiles
+
+- [Validaciones SUNAT detalladas](./validaciones-sunat-detallado): listado completo de códigos implementados, descripción de cada regla y test de cobertura.
+- [Código fuente del validador](https://github.com/openubl/openubl/tree/main/src/openubl/validator.py).
+- [Módulos extra de validación](https://github.com/openubl/openubl/tree/main/src/openubl/validators).

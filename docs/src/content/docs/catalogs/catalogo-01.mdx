@@ -5,7 +5,7 @@ description: Códigos SUNAT de tipos de comprobante electrónico soportados por 
 
 import CodeTabs from '../../../components/CodeTabs.astro';
 
-Catálogo SUNAT que identifica el tipo de comprobante de pago electrónico generado por el emisor. Es uno de los valores más importantes de la firma XML y del nombre del archivo ZIP enviado a SUNAT.
+Catálogo SUNAT que identifica el tipo de comprobante de pago electrónico generado por el emisor. Es uno de los valores más importantes del XML UBL generado por openUBL.
 
 ## Tabla de códigos
 
@@ -27,12 +27,6 @@ Se utiliza en los campos `tipoComprobante` de los modelos:
 - `VoidedDocumentsItem.tipoComprobante` para comunicaciones de baja.
 - `SummaryDocuments` → `Comprobante.tipoComprobante` en resúmenes diarios.
 - `PercepcionRetencionOperacion.comprobante.tipoComprobante` en percepciones y retenciones.
-
-También forma parte del nombre del archivo ZIP:
-
-```text
-{RUC}-{TIPO}-{SERIE}-{NUMERO}.zip
-```
 
 ## Ejemplo
 

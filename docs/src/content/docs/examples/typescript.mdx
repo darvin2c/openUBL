@@ -8,61 +8,48 @@ Este ejemplo usa el SDK `@openubl/sdk` con validación runtime mediante los sche
 ## Crear y firmar una factura
 
 ```typescript
-import { createInvoice, signXml } from "@openubl/sdk";
-import { zInvoice, zSignXmlBody } from "@openubl/sdk/zod.gen";
+import { createInvoice } from "@openubl/sdk";
+import { zInvoiceCreateRequest } from "@openubl/sdk/zod.gen";
 
-const invoice = zInvoice.parse({
-  serie: "F001",
-  numero: 1,
-  proveedor: {
-    ruc: "20100111111",
-    razonSocial: "Mi Empresa S.A.C.",
-  },
-  cliente: {
-    nombre: "Juan Perez",
-    numeroDocumentoIdentidad: "12345678",
-    tipoDocumentoIdentidad: "1",
-  },
-  detalles: [
-    {
-      descripcion: "Producto A",
-      cantidad: 2,
-      precio: 100.0,
+const request = zInvoiceCreateRequest.parse({
+  documento: {
+    serie: "F001",
+    numero: 1,
+    proveedor: {
+      ruc: "20100111111",
+      razonSocial: "Mi Empresa S.A.C.",
     },
-  ],
-  moneda: "PEN",
+    cliente: {
+      nombre: "Juan Perez",
+      numeroDocumentoIdentidad: "12345678",
+      tipoDocumentoIdentidad: "1",
+    },
+    detalles: [
+      {
+        descripcion: "Producto A",
+        cantidad: 2,
+        precio: 100.0,
+      },
+    ],
+    moneda: "PEN",
+  },
+  firmar: true,
+  validar_sunat: true,
+  credenciales: {
+    cert_pem: process.env.CERT_PEM ?? "",
+    key_pem: process.env.KEY_PEM ?? "",
+  },
 });
 
 async function createAndSign() {
-  // 1. Crear el XML
-  const { data: createData, error: createError } = await createInvoice({
-    body: invoice,
-  });
+  const { data, error } = await createInvoice({ body: request });
 
-  if (createError) {
-    throw new Error(`Error al crear factura: ${JSON.stringify(createError)}`);
+  if (error) {
+    throw new Error(`Error al crear factura: ${JSON.stringify(error)}`);
   }
 
-  const xml = createData.xml;
-  console.log("XML generado:\n", xml);
-
-  // 2. Firmar el XML
-  const certPem = process.env.CERT_PEM ?? "";
-  const keyPem = process.env.KEY_PEM ?? "";
-
-  const body = zSignXmlBody.parse({
-    xml,
-    cert_pem: certPem,
-    key_pem: keyPem,
-  });
-
-  const { data: signData, error: signError } = await signXml({ body });
-
-  if (signError) {
-    throw new Error(`Error al firmar: ${JSON.stringify(signError)}`);
-  }
-
-  console.log("XML firmado:\n", signData.signed_xml);
+  console.log("XML firmado:\n", data.xml);
+  console.log("Validado SUNAT:", data.validado_sunat, data.valid);
 }
 
 createAndSign();
@@ -74,21 +61,24 @@ createAndSign();
 
 ```typescript
 import { createCreditNote } from "@openubl/sdk";
-import { zCreditNote } from "@openubl/sdk/zod.gen";
+import { zCreditNoteCreateRequest } from "@openubl/sdk/zod.gen";
 
-const creditNote = zCreditNote.parse({
-  serie: "BC01",
-  numero: 1,
-  comprobanteAfectadoSerieNumero: "F001-1",
-  sustentoDescripcion: "Anulación de venta",
-  proveedor: invoice.proveedor,
-  cliente: invoice.cliente,
-  detalles: invoice.detalles,
-  moneda: "PEN",
+const request = zCreditNoteCreateRequest.parse({
+  documento: {
+    serie: "BC01",
+    numero: 1,
+    comprobanteAfectadoSerieNumero: "F001-1",
+    sustentoDescripcion: "Anulación de venta",
+    proveedor: { ruc: "20100111111", razonSocial: "Mi Empresa S.A.C." },
+    cliente: { nombre: "Juan Perez", numeroDocumentoIdentidad: "12345678", tipoDocumentoIdentidad: "1" },
+    detalles: [{ descripcion: "Producto A", cantidad: 2, precio: 100 }],
+    moneda: "PEN",
+  },
+  firmar: false,
+  validar_sunat: true,
 });
 
-const { data, error } = await createCreditNote({ body: creditNote });
-
+const { data, error } = await createCreditNote({ body: request });
 if (error) throw error;
 console.log(data.xml);
 ```
@@ -97,24 +87,27 @@ console.log(data.xml);
 
 ```typescript
 import { createVoidedDocuments } from "@openubl/sdk";
-import { zVoidedDocuments } from "@openubl/sdk/zod.gen";
+import { zVoidedDocumentsCreateRequest } from "@openubl/sdk/zod.gen";
 
-const voided = zVoidedDocuments.parse({
-  numero: 1,
-  fechaEmisionComprobantes: "2024-01-15",
-  proveedor: invoice.proveedor,
-  comprobantes: [
-    {
-      serie: "F001",
-      numero: 1,
-      tipoComprobante: "01",
-      descripcionSustento: "Error en datos del cliente",
-    },
-  ],
+const request = zVoidedDocumentsCreateRequest.parse({
+  documento: {
+    numero: 1,
+    fechaEmisionComprobantes: "2024-01-15",
+    proveedor: { ruc: "20100111111", razonSocial: "Mi Empresa S.A.C." },
+    comprobantes: [
+      {
+        serie: "F001",
+        numero: 1,
+        tipoComprobante: "01",
+        descripcionSustento: "Error en datos del cliente",
+      },
+    ],
+  },
+  firmar: false,
+  validar_sunat: true,
 });
 
-const { data, error } = await createVoidedDocuments({ body: voided });
-
+const { data, error } = await createVoidedDocuments({ body: request });
 if (error) throw error;
 console.log(data.xml);
 ```
@@ -129,12 +122,21 @@ const BASE_URL = "http://localhost:8000";
 const createRes = await fetch(`${BASE_URL}/api/v1/invoice/create`, {
   method: "POST",
   headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(invoice),
+  body: JSON.stringify({
+    documento: { /* ... */ },
+    firmar: false,
+    validar_sunat: true,
+  }),
 });
 
 if (!createRes.ok) {
-  throw new Error(`Error: ${await createRes.text()}`);
+  const err = await createRes.json();
+  throw new Error(`Error: ${JSON.stringify(err.detail)}`);
 }
 
-const { xml } = (await createRes.json()) as { xml: string };
+const { xml, firmado, validado_sunat, valid, errors } = await createRes.json();
 ```
+
+## Nota sobre alcance
+
+openUBL Server devuelve el XML técnico. El empaquetado ZIP, envío a SUNAT y procesamiento del CDR son responsabilidad del cliente operativo.
