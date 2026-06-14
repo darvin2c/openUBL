@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { client } from './client.gen.js';
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client/index.js';
 import type { CreateCreditNoteData, CreateCreditNoteErrors, CreateCreditNoteResponses, CreateDebitNoteData, CreateDebitNoteErrors, CreateDebitNoteResponses, CreateInvoiceData, CreateInvoiceErrors, CreateInvoiceResponses, CreatePerceptionData, CreatePerceptionErrors, CreatePerceptionResponses, CreateRetentionData, CreateRetentionErrors, CreateRetentionResponses, CreateSummaryDocumentsData, CreateSummaryDocumentsErrors, CreateSummaryDocumentsResponses, CreateVoidedDocumentsData, CreateVoidedDocumentsErrors, CreateVoidedDocumentsResponses, GetVersionData, GetVersionResponses, SignXmlData, SignXmlErrors, SignXmlResponses } from './types.gen.js';
-import { zCreateCreditNoteBody, zCreateCreditNoteQuery, zCreateCreditNoteResponse, zCreateDebitNoteBody, zCreateDebitNoteQuery, zCreateDebitNoteResponse, zCreateInvoiceBody, zCreateInvoiceQuery, zCreateInvoiceResponse, zCreatePerceptionBody, zCreatePerceptionQuery, zCreatePerceptionResponse, zCreateRetentionBody, zCreateRetentionQuery, zCreateRetentionResponse, zCreateSummaryDocumentsBody, zCreateSummaryDocumentsQuery, zCreateSummaryDocumentsResponse, zCreateVoidedDocumentsBody, zCreateVoidedDocumentsQuery, zCreateVoidedDocumentsResponse, zSignXmlBody, zSignXmlResponse } from './zod.gen.js';
+import { zCreateCreditNoteBody, zCreateCreditNoteResponse, zCreateDebitNoteBody, zCreateDebitNoteResponse, zCreateInvoiceBody, zCreateInvoiceResponse, zCreatePerceptionBody, zCreatePerceptionResponse, zCreateRetentionBody, zCreateRetentionResponse, zCreateSummaryDocumentsBody, zCreateSummaryDocumentsResponse, zCreateVoidedDocumentsBody, zCreateVoidedDocumentsResponse, zSignXmlBody, zSignXmlResponse } from './zod.gen.js';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -25,18 +25,12 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
  * Create Credit Note
  *
  * Generate a CreditNote XML document.
- *
- * The `validate` query parameter controls SUNAT validation and defaults to `true`.
- *
- * Returns:
- * 200: `{"xml": "..."}` with the generated XML.
- * 422: Validation failed or the request body is invalid.
  */
 export const createCreditNote = <ThrowOnError extends boolean = false>(options: Options<CreateCreditNoteData, ThrowOnError>): RequestResult<CreateCreditNoteResponses, CreateCreditNoteErrors, ThrowOnError> => (options.client ?? client).post<CreateCreditNoteResponses, CreateCreditNoteErrors, ThrowOnError>({
     requestValidator: async (data) => await z.object({
         body: zCreateCreditNoteBody,
         path: z.never().optional(),
-        query: zCreateCreditNoteQuery.optional()
+        query: z.never().optional()
     }).parseAsync(data),
     responseValidator: async (data) => await zCreateCreditNoteResponse.parseAsync(data),
     url: '/api/v1/credit-note/create',
@@ -51,18 +45,12 @@ export const createCreditNote = <ThrowOnError extends boolean = false>(options: 
  * Create Debit Note
  *
  * Generate a DebitNote XML document.
- *
- * The `validate` query parameter controls SUNAT validation and defaults to `true`.
- *
- * Returns:
- * 200: `{"xml": "..."}` with the generated XML.
- * 422: Validation failed or the request body is invalid.
  */
 export const createDebitNote = <ThrowOnError extends boolean = false>(options: Options<CreateDebitNoteData, ThrowOnError>): RequestResult<CreateDebitNoteResponses, CreateDebitNoteErrors, ThrowOnError> => (options.client ?? client).post<CreateDebitNoteResponses, CreateDebitNoteErrors, ThrowOnError>({
     requestValidator: async (data) => await z.object({
         body: zCreateDebitNoteBody,
         path: z.never().optional(),
-        query: zCreateDebitNoteQuery.optional()
+        query: z.never().optional()
     }).parseAsync(data),
     responseValidator: async (data) => await zCreateDebitNoteResponse.parseAsync(data),
     url: '/api/v1/debit-note/create',
@@ -78,17 +66,16 @@ export const createDebitNote = <ThrowOnError extends boolean = false>(options: O
  *
  * Generate an Invoice XML document.
  *
- * The `validate` query parameter controls SUNAT validation and defaults to `true`.
- *
- * Returns:
- * 200: `{"xml": "..."}` with the generated XML.
- * 422: Validation failed or the request body is invalid.
+ * - `documento`: modelo `Invoice`.
+ * - `credenciales`: opcional; obligatorio si `firmar=true`.
+ * - `firmar`: firma el XML antes de responder.
+ * - `validar_sunat`: ejecuta validación XSD + reglas SUNAT.
  */
 export const createInvoice = <ThrowOnError extends boolean = false>(options: Options<CreateInvoiceData, ThrowOnError>): RequestResult<CreateInvoiceResponses, CreateInvoiceErrors, ThrowOnError> => (options.client ?? client).post<CreateInvoiceResponses, CreateInvoiceErrors, ThrowOnError>({
     requestValidator: async (data) => await z.object({
         body: zCreateInvoiceBody,
         path: z.never().optional(),
-        query: zCreateInvoiceQuery.optional()
+        query: z.never().optional()
     }).parseAsync(data),
     responseValidator: async (data) => await zCreateInvoiceResponse.parseAsync(data),
     url: '/api/v1/invoice/create',
@@ -103,18 +90,12 @@ export const createInvoice = <ThrowOnError extends boolean = false>(options: Opt
  * Create Perception
  *
  * Generate a Perception XML document.
- *
- * The `validate` query parameter controls SUNAT validation and defaults to `true`.
- *
- * Returns:
- * 200: `{"xml": "..."}` with the generated XML.
- * 422: Validation failed or the request body is invalid.
  */
 export const createPerception = <ThrowOnError extends boolean = false>(options: Options<CreatePerceptionData, ThrowOnError>): RequestResult<CreatePerceptionResponses, CreatePerceptionErrors, ThrowOnError> => (options.client ?? client).post<CreatePerceptionResponses, CreatePerceptionErrors, ThrowOnError>({
     requestValidator: async (data) => await z.object({
         body: zCreatePerceptionBody,
         path: z.never().optional(),
-        query: zCreatePerceptionQuery.optional()
+        query: z.never().optional()
     }).parseAsync(data),
     responseValidator: async (data) => await zCreatePerceptionResponse.parseAsync(data),
     url: '/api/v1/perception/create',
@@ -129,18 +110,12 @@ export const createPerception = <ThrowOnError extends boolean = false>(options: 
  * Create Retention
  *
  * Generate a Retention XML document.
- *
- * The `validate` query parameter controls SUNAT validation and defaults to `true`.
- *
- * Returns:
- * 200: `{"xml": "..."}` with the generated XML.
- * 422: Validation failed or the request body is invalid.
  */
 export const createRetention = <ThrowOnError extends boolean = false>(options: Options<CreateRetentionData, ThrowOnError>): RequestResult<CreateRetentionResponses, CreateRetentionErrors, ThrowOnError> => (options.client ?? client).post<CreateRetentionResponses, CreateRetentionErrors, ThrowOnError>({
     requestValidator: async (data) => await z.object({
         body: zCreateRetentionBody,
         path: z.never().optional(),
-        query: zCreateRetentionQuery.optional()
+        query: z.never().optional()
     }).parseAsync(data),
     responseValidator: async (data) => await zCreateRetentionResponse.parseAsync(data),
     url: '/api/v1/retention/create',
@@ -154,11 +129,11 @@ export const createRetention = <ThrowOnError extends boolean = false>(options: O
 /**
  * Sign Xml
  *
- * Sign an arbitrary UBL XML document with a PEM certificate/key pair or a PFX/P12 container.
+ * Sign an arbitrary UBL XML document with PEM or PFX credentials.
  *
  * Required body fields (choose one credential mode):
  * * PEM mode: `cert_pem` and `key_pem`.
- * * PFX/P12 mode: `pfx_base64` (standard base64 of the file) and `pfx_password`.
+ * * PFX/P12 mode: `pfx_base64` and `pfx_password`.
  *
  * Optional body fields:
  * * `xml`: The XML string to sign.
@@ -186,18 +161,12 @@ export const signXml = <ThrowOnError extends boolean = false>(options: Options<S
  * Create Summary Documents
  *
  * Generate a SummaryDocuments XML document.
- *
- * The `validate` query parameter controls SUNAT validation and defaults to `true`.
- *
- * Returns:
- * 200: `{"xml": "..."}` with the generated XML.
- * 422: Validation failed or the request body is invalid.
  */
 export const createSummaryDocuments = <ThrowOnError extends boolean = false>(options: Options<CreateSummaryDocumentsData, ThrowOnError>): RequestResult<CreateSummaryDocumentsResponses, CreateSummaryDocumentsErrors, ThrowOnError> => (options.client ?? client).post<CreateSummaryDocumentsResponses, CreateSummaryDocumentsErrors, ThrowOnError>({
     requestValidator: async (data) => await z.object({
         body: zCreateSummaryDocumentsBody,
         path: z.never().optional(),
-        query: zCreateSummaryDocumentsQuery.optional()
+        query: z.never().optional()
     }).parseAsync(data),
     responseValidator: async (data) => await zCreateSummaryDocumentsResponse.parseAsync(data),
     url: '/api/v1/summary-documents/create',
@@ -230,18 +199,12 @@ export const getVersion = <ThrowOnError extends boolean = false>(options?: Optio
  * Create Voided Documents
  *
  * Generate a VoidedDocuments XML document.
- *
- * The `validate` query parameter controls SUNAT validation and defaults to `true`.
- *
- * Returns:
- * 200: `{"xml": "..."}` with the generated XML.
- * 422: Validation failed or the request body is invalid.
  */
 export const createVoidedDocuments = <ThrowOnError extends boolean = false>(options: Options<CreateVoidedDocumentsData, ThrowOnError>): RequestResult<CreateVoidedDocumentsResponses, CreateVoidedDocumentsErrors, ThrowOnError> => (options.client ?? client).post<CreateVoidedDocumentsResponses, CreateVoidedDocumentsErrors, ThrowOnError>({
     requestValidator: async (data) => await z.object({
         body: zCreateVoidedDocumentsBody,
         path: z.never().optional(),
-        query: zCreateVoidedDocumentsQuery.optional()
+        query: z.never().optional()
     }).parseAsync(data),
     responseValidator: async (data) => await zCreateVoidedDocumentsResponse.parseAsync(data),
     url: '/api/v1/voided-documents/create',

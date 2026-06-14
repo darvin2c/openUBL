@@ -181,6 +181,31 @@ export const zComprobanteValorVenta = z.object({
 });
 
 /**
+ * CreateResponse
+ *
+ * Respuesta unificada de los endpoints /create.
+ */
+export const zCreateResponse = z.object({
+    errors: z.array(z.record(z.unknown())).nullish(),
+    firmado: z.boolean(),
+    valid: z.boolean().nullish(),
+    validado_sunat: z.boolean(),
+    xml: z.string()
+});
+
+/**
+ * Credentials
+ *
+ * Credenciales para firma digital.
+ */
+export const zCredentials = z.object({
+    cert_pem: z.string().nullish(),
+    key_pem: z.string().nullish(),
+    pfx_base64: z.string().nullish(),
+    pfx_password: z.string().nullish()
+});
+
+/**
  * DocumentoVentaDetalle
  *
  * Línea de detalle de un documento de venta.
@@ -258,12 +283,25 @@ export const zCreditNote = z.object({
     moneda: zCatalog2.optional().default('PEN'),
     numero: z.number().int().gte(1),
     proveedor: zProveedor,
-    serie: z.string().regex(/^[BCbc][A-Za-z0-9]{2,3}$/),
+    serie: z.string(),
     sustentoDescripcion: z.string(),
     valorVentaTotal: z.union([
         z.number(),
         z.string().regex(/^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$/)
     ]).nullish()
+});
+
+/**
+ * CreditNoteCreateRequest
+ *
+ * Request para crear una nota de crédito.
+ */
+export const zCreditNoteCreateRequest = z.object({
+    credenciales: zCredentials.nullish(),
+    documento: zCreditNote,
+    firmar: z.boolean().optional().default(false),
+    signature_id: z.string().optional().default('SignSUNAT'),
+    validar_sunat: z.boolean().optional().default(true)
 });
 
 /**
@@ -291,12 +329,25 @@ export const zDebitNote = z.object({
     moneda: zCatalog2.optional().default('PEN'),
     numero: z.number().int().gte(1),
     proveedor: zProveedor,
-    serie: z.string().regex(/^[BCbc][A-Za-z0-9]{2,3}$/),
+    serie: z.string(),
     sustentoDescripcion: z.string(),
     valorVentaTotal: z.union([
         z.number(),
         z.string().regex(/^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$/)
     ]).nullish()
+});
+
+/**
+ * DebitNoteCreateRequest
+ *
+ * Request para crear una nota de débito.
+ */
+export const zDebitNoteCreateRequest = z.object({
+    credenciales: zCredentials.nullish(),
+    documento: zDebitNote,
+    firmar: z.boolean().optional().default(false),
+    signature_id: z.string().optional().default('SignSUNAT'),
+    validar_sunat: z.boolean().optional().default(true)
 });
 
 /**
@@ -324,12 +375,25 @@ export const zInvoice = z.object({
     moneda: zCatalog2.optional().default('PEN'),
     numero: z.number().int().gte(1),
     proveedor: zProveedor,
-    serie: z.string().regex(/^[FBfb][A-Za-z0-9]{2,3}$/),
+    serie: z.string().min(1),
     tipoOperacion: zCatalog51.optional().default('0101'),
     valorVentaTotal: z.union([
         z.number(),
         z.string().regex(/^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$/)
     ]).nullish()
+});
+
+/**
+ * InvoiceCreateRequest
+ *
+ * Request para crear una factura.
+ */
+export const zInvoiceCreateRequest = z.object({
+    credenciales: zCredentials.nullish(),
+    documento: zInvoice,
+    firmar: z.boolean().optional().default(false),
+    signature_id: z.string().optional().default('SignSUNAT'),
+    validar_sunat: z.boolean().optional().default(true)
 });
 
 /**
@@ -393,12 +457,16 @@ export const zVoidedDocuments = z.object({
 });
 
 /**
- * XmlResponse
+ * VoidedDocumentsCreateRequest
  *
- * Response containing generated XML document.
+ * Request para crear una comunicación de baja.
  */
-export const zXmlResponse = z.object({
-    xml: z.string()
+export const zVoidedDocumentsCreateRequest = z.object({
+    credenciales: zCredentials.nullish(),
+    documento: zVoidedDocuments,
+    firmar: z.boolean().optional().default(false),
+    signature_id: z.string().optional().default('SignSUNAT'),
+    validar_sunat: z.boolean().optional().default(true)
 });
 
 /**
@@ -464,6 +532,19 @@ export const zPerception = z.object({
 });
 
 /**
+ * PerceptionCreateRequest
+ *
+ * Request para crear una percepción.
+ */
+export const zPerceptionCreateRequest = z.object({
+    credenciales: zCredentials.nullish(),
+    documento: zPerception,
+    firmar: z.boolean().optional().default(false),
+    signature_id: z.string().optional().default('SignSUNAT'),
+    validar_sunat: z.boolean().optional().default(true)
+});
+
+/**
  * Retention
  *
  * Comprobante de Retención Electrónico - Tipo 20.
@@ -473,6 +554,8 @@ export const zPerception = z.object({
  * - Régimen: Catálogo N.° 23
  */
 export const zRetention = z.object({
+    cliente: zCliente,
+    fechaEmision: z.string().date(),
     importeTotalPagado: z.union([
         z.number(),
         z.string().regex(/^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$/)
@@ -481,13 +564,28 @@ export const zRetention = z.object({
         z.number(),
         z.string().regex(/^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$/)
     ]),
+    numero: z.number().int().gte(1),
     operaciones: z.array(zPercepcionRetencionOperacion),
+    proveedor: zProveedor,
     serie: z.string().regex(/^R\d{3}$/),
     tipoRegimen: zCatalog23,
     tipoRegimenPorcentaje: z.union([
         z.number(),
         z.string().regex(/^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$/)
     ])
+});
+
+/**
+ * RetentionCreateRequest
+ *
+ * Request para crear una retención.
+ */
+export const zRetentionCreateRequest = z.object({
+    credenciales: zCredentials.nullish(),
+    documento: zRetention,
+    firmar: z.boolean().optional().default(false),
+    signature_id: z.string().optional().default('SignSUNAT'),
+    validar_sunat: z.boolean().optional().default(true)
 });
 
 /**
@@ -549,60 +647,53 @@ export const zSummaryDocuments = z.object({
     proveedor: zProveedor
 });
 
-export const zCreateCreditNoteBody = zCreditNote;
-
-export const zCreateCreditNoteQuery = z.object({
-    validate: z.boolean().optional().default(true)
+/**
+ * SummaryDocumentsCreateRequest
+ *
+ * Request para crear un resumen diario.
+ */
+export const zSummaryDocumentsCreateRequest = z.object({
+    credenciales: zCredentials.nullish(),
+    documento: zSummaryDocuments,
+    firmar: z.boolean().optional().default(false),
+    signature_id: z.string().optional().default('SignSUNAT'),
+    validar_sunat: z.boolean().optional().default(true)
 });
+
+export const zCreateCreditNoteBody = zCreditNoteCreateRequest;
 
 /**
  * Successful Response
  */
-export const zCreateCreditNoteResponse = zXmlResponse;
+export const zCreateCreditNoteResponse = zCreateResponse;
 
-export const zCreateDebitNoteBody = zDebitNote;
-
-export const zCreateDebitNoteQuery = z.object({
-    validate: z.boolean().optional().default(true)
-});
+export const zCreateDebitNoteBody = zDebitNoteCreateRequest;
 
 /**
  * Successful Response
  */
-export const zCreateDebitNoteResponse = zXmlResponse;
+export const zCreateDebitNoteResponse = zCreateResponse;
 
-export const zCreateInvoiceBody = zInvoice;
-
-export const zCreateInvoiceQuery = z.object({
-    validate: z.boolean().optional().default(true)
-});
+export const zCreateInvoiceBody = zInvoiceCreateRequest;
 
 /**
  * Successful Response
  */
-export const zCreateInvoiceResponse = zXmlResponse;
+export const zCreateInvoiceResponse = zCreateResponse;
 
-export const zCreatePerceptionBody = zPerception;
-
-export const zCreatePerceptionQuery = z.object({
-    validate: z.boolean().optional().default(true)
-});
+export const zCreatePerceptionBody = zPerceptionCreateRequest;
 
 /**
  * Successful Response
  */
-export const zCreatePerceptionResponse = zXmlResponse;
+export const zCreatePerceptionResponse = zCreateResponse;
 
-export const zCreateRetentionBody = zRetention;
-
-export const zCreateRetentionQuery = z.object({
-    validate: z.boolean().optional().default(true)
-});
+export const zCreateRetentionBody = zRetentionCreateRequest;
 
 /**
  * Successful Response
  */
-export const zCreateRetentionResponse = zXmlResponse;
+export const zCreateRetentionResponse = zCreateResponse;
 
 /**
  * Payload
@@ -614,24 +705,16 @@ export const zSignXmlBody = z.record(z.unknown());
  */
 export const zSignXmlResponse = zSignedXmlResponse;
 
-export const zCreateSummaryDocumentsBody = zSummaryDocuments;
-
-export const zCreateSummaryDocumentsQuery = z.object({
-    validate: z.boolean().optional().default(true)
-});
+export const zCreateSummaryDocumentsBody = zSummaryDocumentsCreateRequest;
 
 /**
  * Successful Response
  */
-export const zCreateSummaryDocumentsResponse = zXmlResponse;
+export const zCreateSummaryDocumentsResponse = zCreateResponse;
 
-export const zCreateVoidedDocumentsBody = zVoidedDocuments;
-
-export const zCreateVoidedDocumentsQuery = z.object({
-    validate: z.boolean().optional().default(true)
-});
+export const zCreateVoidedDocumentsBody = zVoidedDocumentsCreateRequest;
 
 /**
  * Successful Response
  */
-export const zCreateVoidedDocumentsResponse = zXmlResponse;
+export const zCreateVoidedDocumentsResponse = zCreateResponse;

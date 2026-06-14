@@ -14,9 +14,7 @@ El paquete Python (`src/openubl`) contiene el núcleo del proyecto. Cada capa ti
 - **`openubl.renderer`** — Convierte un modelo en XML UBL 2.1 mediante plantillas Jinja2 (`render_invoice`, `render_credit_note`, etc.).
 - **`openubl.signer`** — Firma digital XMLDSig con certificado X.509 y clave privada en formato PEM (`sign_ubl_xml`). Usa RSA-SHA-256 y SHA-256 según INDECOPI/IOFE y la Directiva PCM 002-2024.
 - **`openubl.validator`** — `SunatValidator` aplica reglas y esquemas XSD de SUNAT sobre el XML generado.
-- **`openubl.packager`** — Empaqueta el XML firmado en un ZIP con la convención de nombres de SUNAT (`package_invoice`, `package_voided_documents`, etc.).
-
-Este motor funciona como biblioteca nativa: importas, creas el modelo, enriqueces, renderizas, firmas, validas y empaquetas sin necesidad de red.
+Este motor funciona como biblioteca nativa: importas, creas el modelo, enriqueces, renderizas, firmas y validas sin necesidad de red. El empaquetado ZIP, envío a SUNAT y recepción del CDR quedan fuera del servidor: son responsabilidad del cliente operativo.
 
 ### Flujo de procesamiento de un documento
 
@@ -24,10 +22,10 @@ Este motor funciona como biblioteca nativa: importas, creas el modelo, enriquece
 flowchart TB
     A[Modelo Pydantic<br/>Invoice, CreditNote, ...] -->|ContentEnricher| B[Campos calculados]
     B -->|renderer| C[XML UBL 2.1]
-    C -->|signer| D[XML firmado<br/>XMLDSig + SHA-256]
-    D -->|validator| E{¿Válido?}
-    E -->|Sí| F[ZIP SUNAT<br/>packager]
-    E -->|No| G[Errores de validación]
+    C -->|validator| D{¿Válido SUNAT?}
+    D -->|Sí| E[XML validado]
+    D -->|No| F[Errores de validación]
+    E -->|signer| G[XML firmado<br/>XMLDSig + SHA-256]
 ```
 
 ## La API REST
@@ -52,7 +50,6 @@ flowchart TB
         M3[renderer]
         M4[signer]
         M5[validator]
-        M6[packager]
     end
 
     Motor -->|"expone opcionalmente"| API["API REST FastAPI<br/>/api/v1"]
@@ -63,6 +60,9 @@ flowchart TB
 
     Motor -->|"usa directamente"| C4["Python nativo<br/>sin servidor"]
 
+    C4 -->|"ZIP, envío y CDR"| C5["Cliente operativo"]
+    API -->|"XML + flags"| C5
+
     style C4 fill:#e1f5e1
     style API fill:#fff4e1
     style Motor fill:#e3f2fd
@@ -71,6 +71,8 @@ flowchart TB
 - El **motor** es la única fuente de verdad para la lógica UBL, firma y validación.
 - La **API REST** es una envoltura opcional: si no la levantas, el motor sigue funcionando.
 - **Python nativo** accede directamente al motor; los demás modos acceden a través de la API REST.
+- El **empaquetado ZIP, envío a SUNAT y recepción del CDR** son responsabilidad del cliente operativo; no forman parte de openUBL Server.
+
 
 ## Modos de uso
 

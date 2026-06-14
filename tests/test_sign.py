@@ -92,3 +92,37 @@ class TestSign:
         signed = sign_ubl_xml(self.xml, self.cert_pem, self.key_pem)
         root = etree.fromstring(signed.encode("utf-8"))
         XMLVerifier().verify(root, x509_cert=self.cert_pem)
+
+    def test_signed_xml_passes_sunat_validator(self):
+        """Firma generada debe pasar validate_signature de openUBL."""
+        from openubl.validator import SunatValidator
+        signed = sign_ubl_xml(self.xml, self.cert_pem, self.key_pem)
+        errors = SunatValidator().validate_signature(signed)
+        assert errors == []
+
+    def test_signed_xml_rejects_sha1(self):
+        """SHA-1 en SignatureMethod/DigestMethod debe ser rechazado."""
+        from openubl.validator import SunatValidator
+        signed = sign_ubl_xml(self.xml, self.cert_pem, self.key_pem)
+        root = etree.fromstring(signed.encode("utf-8"))
+        ns = {"ds": "http://www.w3.org/2000/09/xmldsig#"}
+        sig_method = root.xpath("//ds:SignatureMethod", namespaces=ns)[0]
+        sig_method.set("Algorithm", "http://www.w3.org/2000/09/xmldsig#rsa-sha1")
+        digest_method = root.xpath("//ds:DigestMethod", namespaces=ns)[0]
+        digest_method.set("Algorithm", "http://www.w3.org/2000/09/xmldsig#sha1")
+        bad_xml = etree.tostring(root, encoding="unicode")
+        errors = SunatValidator().validate_signature(bad_xml)
+        assert any(e.code == "2089" for e in errors)
+        assert any(e.code == "2095" for e in errors)
+
+    def test_signed_xml_rejects_missing_x509(self):
+        """Falta de ds:X509Certificate debe reportar error 2101."""
+        from openubl.validator import SunatValidator
+        signed = sign_ubl_xml(self.xml, self.cert_pem, self.key_pem)
+        root = etree.fromstring(signed.encode("utf-8"))
+        ns = {"ds": "http://www.w3.org/2000/09/xmldsig#"}
+        x509 = root.xpath("//ds:X509Certificate", namespaces=ns)[0]
+        x509.text = ""
+        bad_xml = etree.tostring(root, encoding="unicode")
+        errors = SunatValidator().validate_signature(bad_xml)
+        assert any(e.code == "2101" for e in errors)

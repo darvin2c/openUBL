@@ -39,7 +39,7 @@ class Invoice(BaseModel):
     - Tipo de operación: Catálogo N.° 51, default 0101 (Venta interna)
     """
     serie: str = Field(
-        pattern=r"^[FBfb][A-Za-z0-9]{2,3}$",
+        min_length=1,
         description="Serie de factura (F001) o boleta (B001)",
     )
     numero: int = Field(ge=1)

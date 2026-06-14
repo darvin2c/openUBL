@@ -5,17 +5,19 @@ description: Cómo ejecutar tests de Python y TypeScript, y cómo verificar la s
 
 ## Ejecutar tests de Python
 
-La suite de tests de Python usa `pytest` y está organizada por marcadores:
+La suite de tests de Python usa `pytest`. Todos los tests son unitarios o de integración local; no requieren red ni credenciales SUNAT.
 
 ```bash
-# Todos los tests excepto E2E
+# Todos los tests
 uv run pytest -m "not e2e"
+```
 
-# Todos los tests (incluidos E2E; requiere credenciales SUNAT beta)
-uv run pytest
+## Tests parametrizados por código SUNAT
 
-# Solo tests E2E (requiere la variable de entorno SUNAT_BETA_RUC)
-uv run pytest -m e2e
+`tests/test_validator.py` contiene casos parametrizados por el código de cada regla SUNAT. Cada código del catálogo implementado debe aparecer al menos una vez. Para verificar cobertura de una regla concreta:
+
+```bash
+uv run pytest tests/test_validator.py -v | grep 2074
 ```
 
 ## Ejecutar tests del SDK TypeScript
@@ -43,8 +45,7 @@ Si alguna fuente de versión difiere o el esquema está desfasado, el script ret
 - **`test_models.py`** — validación Pydantic de modelos.
 - **`test_render.py`** — generación de XML UBL 2.1.
 - **`test_sign.py`** — firma digital XMLDSig con RSA-SHA-256 y SHA-256.
-- **`test_validator.py`** — reglas SUNAT sobre XML generado.
-- **`test_api.py`** — tests de integración contra la API REST FastAPI.
-- **`test_e2e_sunat_beta.py`** — envío real al ambiente beta de SUNAT (requiere credenciales).
+- **`test_validator.py`** — reglas SUNAT parametrizadas por código sobre XML generado.
+- **`test_api.py`** — tests de integración contra la API REST FastAPI con los nuevos flags `firmar` y `validar_sunat`.
 - **`test_sdk_types.py`** — presencia de modelos en `openapi.json`.
 - **`sdk/typescript/test/client.test.ts`** — tipado estático y round-trip runtime del SDK TS.

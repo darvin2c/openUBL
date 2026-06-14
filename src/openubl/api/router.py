@@ -1,8 +1,15 @@
 """
 FastAPI router for openUBL REST API.
+
+openUBL Server es una capa puramente técnica SUNAT:
+recibe JSON, enriquece, renderiza, valida opcionalmente y firma opcionalmente.
+No genera ZIP, no envía a SUNAT ni recibe CDR.
 """
-from fastapi import APIRouter, Query, HTTPException
-from pydantic import BaseModel
+import base64
+import binascii
+
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel, Field
 from openubl import __version__
 
 from ..models import (
@@ -21,17 +28,204 @@ from ..validator import SunatValidator
 
 router = APIRouter()
 
-class XmlResponse(BaseModel):
-    """Response containing generated XML document."""
+
+# ---------------------------------------------------------------------------
+XSD_INVOICE = "sunat_schemas/xsd_2.1/2.1/maindoc/UBL-Invoice-2.1.xsd"
+XSD_CREDIT_NOTE = "sunat_schemas/xsd_2.1/2.1/maindoc/UBL-CreditNote-2.1.xsd"
+XSD_DEBIT_NOTE = "sunat_schemas/xsd_2.1/2.1/maindoc/UBL-DebitNote-2.1.xsd"
+XSD_VOIDED_DOCUMENTS = "sunat_schemas/xsd_2.1/2.0/maindoc/UBLPE-VoidedDocuments-1.0.xsd"
+XSD_SUMMARY_DOCUMENTS = "sunat_schemas/xsd_2.1/2.0/maindoc/UBLPE-SummaryDocuments-1.0.xsd"
+XSD_PERCEPTION = "sunat_schemas/xsd_2.1/2.0/maindoc/UBLPE-Perception-1.0.xsd"
+XSD_RETENTION = "sunat_schemas/xsd_2.1/2.0/maindoc/UBLPE-Retention-1.0.xsd"
+
+
+# ---------------------------------------------------------------------------
+# Request/response models
+# ---------------------------------------------------------------------------
+
+class Credentials(BaseModel):
+    """Credenciales para firma digital."""
+    cert_pem: str | None = None
+    key_pem: str | None = None
+    pfx_base64: str | None = None
+    pfx_password: str | None = None
+
+
+class CreateResponse(BaseModel):
+    """Respuesta unificada de los endpoints /create."""
     xml: str
+    firmado: bool
+    validado_sunat: bool
+    valid: bool | None = None
+    errors: list[dict] | None = None
+
+
+class InvoiceCreateRequest(BaseModel):
+    """Request para crear una factura."""
+    documento: Invoice
+    credenciales: Credentials | None = None
+    firmar: bool = False
+    validar_sunat: bool = True
+    signature_id: str = "SignSUNAT"
+
+
+class CreditNoteCreateRequest(BaseModel):
+    """Request para crear una nota de crédito."""
+    documento: CreditNote
+    credenciales: Credentials | None = None
+    firmar: bool = False
+    validar_sunat: bool = True
+    signature_id: str = "SignSUNAT"
+
+
+class DebitNoteCreateRequest(BaseModel):
+    """Request para crear una nota de débito."""
+    documento: DebitNote
+    credenciales: Credentials | None = None
+    firmar: bool = False
+    validar_sunat: bool = True
+    signature_id: str = "SignSUNAT"
+
+
+class VoidedDocumentsCreateRequest(BaseModel):
+    """Request para crear una comunicación de baja."""
+    documento: VoidedDocuments
+    credenciales: Credentials | None = None
+    firmar: bool = False
+    validar_sunat: bool = True
+    signature_id: str = "SignSUNAT"
+
+
+class SummaryDocumentsCreateRequest(BaseModel):
+    """Request para crear un resumen diario."""
+    documento: SummaryDocuments
+    credenciales: Credentials | None = None
+    firmar: bool = False
+    validar_sunat: bool = True
+    signature_id: str = "SignSUNAT"
+
+
+class PerceptionCreateRequest(BaseModel):
+    """Request para crear una percepción."""
+    documento: Perception
+    credenciales: Credentials | None = None
+    firmar: bool = False
+    validar_sunat: bool = True
+    signature_id: str = "SignSUNAT"
+
+
+class RetentionCreateRequest(BaseModel):
+    """Request para crear una retención."""
+    documento: Retention
+    credenciales: Credentials | None = None
+    firmar: bool = False
+    validar_sunat: bool = True
+    signature_id: str = "SignSUNAT"
 
 
 class SignedXmlResponse(BaseModel):
     """Response containing signed XML document."""
     signed_xml: str
 
+
 validator = SunatValidator()
 
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _resolve_credentials(cred: Credentials | None) -> tuple[str, str]:
+    """Resolve PEM cert/key from credentials or raise HTTP 422."""
+    if cred is None:
+        raise HTTPException(
+            status_code=422,
+            detail=[{"code": "422", "message": "Debe proporcionar credenciales cuando firmar=true."}],
+        )
+
+    if cred.pfx_base64 and cred.pfx_password:
+        try:
+            pfx_bytes = base64.b64decode(cred.pfx_base64)
+        except (ValueError, binascii.Error):
+            raise HTTPException(
+                status_code=422,
+                detail=[{"code": "422", "message": "pfx_base64 no es un base64 válido."}],
+            )
+        try:
+            key_pem, cert_pem = load_pfx(pfx_bytes, cred.pfx_password)
+        except ValueError:
+            raise HTTPException(
+                status_code=422,
+                detail=[{"code": "422", "message": "No se pudo desencriptar el PFX: verifique el password."}],
+            )
+        return cert_pem, key_pem
+
+    if cred.cert_pem and cred.key_pem:
+        return cred.cert_pem, cred.key_pem
+
+    raise HTTPException(
+        status_code=422,
+        detail=[{"code": "422", "message": "Debe proporcionar cert_pem y key_pem, o pfx_base64 y pfx_password."}],
+    )
+
+
+def _validate_document(xml: str, doc_type: str, xsd_path: str) -> list[dict]:
+    """Run SUNAT validation (XSD + business rules) and return error dicts."""
+    errors = validator.validate_schema(xml, xsd_path)
+    if errors:
+        return [e.to_dict() for e in errors]
+
+    if doc_type == "invoice":
+        errors = validator.validate_invoice(xml)
+    elif doc_type == "credit_note":
+        errors = validator.validate_credit_note(xml)
+    elif doc_type == "debit_note":
+        errors = validator.validate_debit_note(xml)
+    elif doc_type == "voided_documents":
+        errors = validator.validate_voided_documents(xml)
+    elif doc_type == "summary_documents":
+        errors = validator.validate_summary_documents(xml)
+    elif doc_type == "perception":
+        errors = validator.validate_perception(xml)
+    elif doc_type == "retention":
+        errors = validator.validate_retention(xml)
+    else:
+        return []
+
+    return [e.to_dict() for e in errors]
+
+
+def _create_document_response(
+    xml: str,
+    req,
+    doc_type: str,
+    xsd_path: str,
+) -> CreateResponse:
+    """Common flow: validate, sign, build response."""
+    errors: list[dict] = []
+    signed = False
+
+    if req.validar_sunat:
+        errors = _validate_document(xml, doc_type, xsd_path)
+        if errors:
+            raise HTTPException(status_code=422, detail=errors)
+
+    if req.firmar:
+        cert_pem, key_pem = _resolve_credentials(req.credenciales)
+        xml = sign_ubl_xml(xml, cert_pem, key_pem, req.signature_id)
+        signed = True
+    return CreateResponse(
+        xml=xml,
+        firmado=signed,
+        validado_sunat=req.validar_sunat,
+        valid=(len(errors) == 0) if req.validar_sunat else None,
+        errors=errors if req.validar_sunat else None,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Endpoints
+# ---------------------------------------------------------------------------
 
 @router.get("/version", operation_id="getVersion")
 def get_version():
@@ -43,146 +237,74 @@ def get_version():
     return {"version": __version__}
 
 
-def _validate_xml(xml_string: str, doc_type: str) -> list[str]:
-    """Run SUNAT validation on rendered XML."""
-    if doc_type == "invoice":
-        return validator.validate_invoice(xml_string)
-    elif doc_type == "credit_note":
-        return validator.validate_credit_note(xml_string)
-    elif doc_type == "voided":
-        return validator.validate_voided_documents(xml_string)
-    return []
-
-
-@router.post("/invoice/create", response_model=XmlResponse, operation_id="createInvoice")
-def create_invoice(doc: Invoice, validate: bool = Query(default=True)):
+@router.post("/invoice/create", response_model=CreateResponse, operation_id="createInvoice")
+def create_invoice(req: InvoiceCreateRequest):
     """Generate an Invoice XML document.
 
-    The `validate` query parameter controls SUNAT validation and defaults to `true`.
-
-    Returns:
-        200: `{"xml": "..."}` with the generated XML.
-        422: Validation failed or the request body is invalid.
+    - `documento`: modelo `Invoice`.
+    - `credenciales`: opcional; obligatorio si `firmar=true`.
+    - `firmar`: firma el XML antes de responder.
+    - `validar_sunat`: ejecuta validación XSD + reglas SUNAT.
     """
-    enricher = ContentEnricher()
-    enricher.enrich(doc)
+    doc = req.documento
+    ContentEnricher().enrich(doc)
     xml = render_invoice(doc)
-    if validate:
-        errors = _validate_xml(xml, "invoice")
-        if errors:
-            raise HTTPException(status_code=422, detail=errors)
-    return {"xml": xml}
-
-
-@router.post("/credit-note/create", response_model=XmlResponse, operation_id="createCreditNote")
-def create_credit_note(doc: CreditNote, validate: bool = Query(default=True)):
-    """Generate a CreditNote XML document.
-
-    The `validate` query parameter controls SUNAT validation and defaults to `true`.
-
-    Returns:
-        200: `{"xml": "..."}` with the generated XML.
-        422: Validation failed or the request body is invalid.
-    """
-    enricher = ContentEnricher()
-    enricher.enrich(doc)
+    return _create_document_response(xml, req, "invoice", XSD_INVOICE)
+@router.post("/credit-note/create", response_model=CreateResponse, operation_id="createCreditNote")
+def create_credit_note(req: CreditNoteCreateRequest):
+    """Generate a CreditNote XML document."""
+    doc = req.documento
+    ContentEnricher().enrich(doc)
     xml = render_credit_note(doc)
-    if validate:
-        errors = _validate_xml(xml, "credit_note")
-        if errors:
-            raise HTTPException(status_code=422, detail=errors)
-    return {"xml": xml}
+    return _create_document_response(xml, req, "credit_note", XSD_CREDIT_NOTE)
 
 
-@router.post("/debit-note/create", response_model=XmlResponse, operation_id="createDebitNote")
-def create_debit_note(doc: DebitNote, validate: bool = Query(default=True)):
-    """Generate a DebitNote XML document.
-
-    The `validate` query parameter controls SUNAT validation and defaults to `true`.
-
-    Returns:
-        200: `{"xml": "..."}` with the generated XML.
-        422: Validation failed or the request body is invalid.
-    """
-    enricher = ContentEnricher()
-    enricher.enrich(doc)
+@router.post("/debit-note/create", response_model=CreateResponse, operation_id="createDebitNote")
+def create_debit_note(req: DebitNoteCreateRequest):
+    """Generate a DebitNote XML document."""
+    doc = req.documento
+    ContentEnricher().enrich(doc)
     xml = render_debit_note(doc)
-    if validate:
-        errors = _validate_xml(xml, "credit_note")
-        if errors:
-            raise HTTPException(status_code=422, detail=errors)
-    return {"xml": xml}
+    return _create_document_response(xml, req, "debit_note", XSD_DEBIT_NOTE)
 
 
-@router.post("/voided-documents/create", response_model=XmlResponse, operation_id="createVoidedDocuments")
-def create_voided_documents(doc: VoidedDocuments, validate: bool = Query(default=True)):
-    """Generate a VoidedDocuments XML document.
-
-    The `validate` query parameter controls SUNAT validation and defaults to `true`.
-
-    Returns:
-        200: `{"xml": "..."}` with the generated XML.
-        422: Validation failed or the request body is invalid.
-    """
-    enricher = ContentEnricher()
-    enricher.enrich(doc)
+@router.post("/voided-documents/create", response_model=CreateResponse, operation_id="createVoidedDocuments")
+def create_voided_documents(req: VoidedDocumentsCreateRequest):
+    """Generate a VoidedDocuments XML document."""
+    doc = req.documento
+    ContentEnricher().enrich(doc)
     xml = render_voided_documents(doc)
-    if validate:
-        errors = _validate_xml(xml, "voided")
-        if errors:
-            raise HTTPException(status_code=422, detail=errors)
-    return {"xml": xml}
+    return _create_document_response(xml, req, "voided_documents", XSD_VOIDED_DOCUMENTS)
 
 
-@router.post("/summary-documents/create", response_model=XmlResponse, operation_id="createSummaryDocuments")
-def create_summary_documents(doc: SummaryDocuments, validate: bool = Query(default=True)):
-    """Generate a SummaryDocuments XML document.
-
-    The `validate` query parameter controls SUNAT validation and defaults to `true`.
-
-    Returns:
-        200: `{"xml": "..."}` with the generated XML.
-        422: Validation failed or the request body is invalid.
-    """
-    xml = render_summary_documents(doc)
-    return {"xml": xml}
+@router.post("/summary-documents/create", response_model=CreateResponse, operation_id="createSummaryDocuments")
+def create_summary_documents(req: SummaryDocumentsCreateRequest):
+    """Generate a SummaryDocuments XML document."""
+    xml = render_summary_documents(req.documento)
+    return _create_document_response(xml, req, "summary_documents", XSD_SUMMARY_DOCUMENTS)
 
 
-@router.post("/perception/create", response_model=XmlResponse, operation_id="createPerception")
-def create_perception(doc: Perception, validate: bool = Query(default=True)):
-    """Generate a Perception XML document.
-
-    The `validate` query parameter controls SUNAT validation and defaults to `true`.
-
-    Returns:
-        200: `{"xml": "..."}` with the generated XML.
-        422: Validation failed or the request body is invalid.
-    """
-    xml = render_perception(doc)
-    return {"xml": xml}
+@router.post("/perception/create", response_model=CreateResponse, operation_id="createPerception")
+def create_perception(req: PerceptionCreateRequest):
+    """Generate a Perception XML document."""
+    xml = render_perception(req.documento)
+    return _create_document_response(xml, req, "perception", XSD_PERCEPTION)
 
 
-@router.post("/retention/create", response_model=XmlResponse, operation_id="createRetention")
-def create_retention(doc: Retention, validate: bool = Query(default=True)):
-    """Generate a Retention XML document.
-
-    The `validate` query parameter controls SUNAT validation and defaults to `true`.
-
-    Returns:
-        200: `{"xml": "..."}` with the generated XML.
-        422: Validation failed or the request body is invalid.
-    """
-    xml = render_retention(doc)
-    return {"xml": xml}
+@router.post("/retention/create", response_model=CreateResponse, operation_id="createRetention")
+def create_retention(req: RetentionCreateRequest):
+    """Generate a Retention XML document."""
+    xml = render_retention(req.documento)
+    return _create_document_response(xml, req, "retention", XSD_RETENTION)
 
 
 @router.post("/sign", response_model=SignedXmlResponse, operation_id="signXml")
 def sign_xml(payload: dict):
-    """Sign an arbitrary UBL XML document with a PEM certificate/key pair or a PFX/P12 container.
+    """Sign an arbitrary UBL XML document with PEM or PFX credentials.
 
     Required body fields (choose one credential mode):
         * PEM mode: `cert_pem` and `key_pem`.
-        * PFX/P12 mode: `pfx_base64` (standard base64 of the file) and `pfx_password`.
+        * PFX/P12 mode: `pfx_base64` and `pfx_password`.
 
     Optional body fields:
         * `xml`: The XML string to sign.
@@ -194,33 +316,17 @@ def sign_xml(payload: dict):
     xml = payload.get("xml", "")
     signature_id = payload.get("signature_id", "SignSUNAT")
 
-    if "pfx_base64" in payload and "pfx_password" in payload:
-        import base64
-        import binascii
+    cred = Credentials(
+        cert_pem=payload.get("cert_pem"),
+        key_pem=payload.get("key_pem"),
+        pfx_base64=payload.get("pfx_base64"),
+        pfx_password=payload.get("pfx_password"),
+    )
+    cert_pem, key_pem = _resolve_credentials(cred)
+    signed = sign_ubl_xml(xml, cert_pem, key_pem, signature_id)
 
-        try:
-            pfx_bytes = base64.b64decode(payload["pfx_base64"])
-        except (ValueError, binascii.Error):
-            raise HTTPException(
-                status_code=422,
-                detail="pfx_base64 no es un base64 válido.",
-            )
-        try:
-            key_pem, cert_pem = load_pfx(pfx_bytes, payload["pfx_password"])
-        except ValueError:
-            raise HTTPException(
-                status_code=422,
-                detail="No se pudo desencriptar el PFX: verifique el password.",
-            )
-        signed = sign_ubl_xml(xml, cert_pem, key_pem, signature_id)
-    elif "cert_pem" in payload and "key_pem" in payload:
-        cert_pem = payload["cert_pem"]
-        key_pem = payload["key_pem"]
-        signed = sign_ubl_xml(xml, cert_pem, key_pem, signature_id)
-    else:
-        raise HTTPException(
-            status_code=422,
-            detail="Debe proporcionar cert_pem y key_pem, o pfx_base64 y pfx_password.",
-        )
+    sig_errors = validator.validate_signature(signed)
+    if sig_errors:
+        raise HTTPException(status_code=422, detail=[e.to_dict() for e in sig_errors])
 
     return {"signed_xml": signed}

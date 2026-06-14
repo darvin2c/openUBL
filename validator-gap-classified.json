@@ -1,0 +1,2494 @@
+{
+  "Invoice": [
+    {
+      "code": "1004",
+      "condition": "No existe el Tag UBL o es vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "1034",
+      "condition": "El valor del Tag UBL es diferente al RUC del nombre del XML",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2014",
+      "condition": "No existe el Tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "2017",
+      "condition": "Si 'Tipo de documento del adquiriente o usuario' es '6', el formato del Tag UBL es diferente a numérico de 11 dígitos",
+      "scope": "implementable"
+    },
+    {
+      "code": "2023",
+      "condition": "El formato del Tag UBL es diferente de numérico de hasta 3 dígitos; o, es igual cero.",
+      "scope": "implementable"
+    },
+    {
+      "code": "2024",
+      "condition": "No existe el Tag UBL o es cero (0)",
+      "scope": "implementable"
+    },
+    {
+      "code": "2025",
+      "condition": "El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 10 decimales",
+      "scope": "implementable"
+    },
+    {
+      "code": "2026",
+      "condition": "No existe el Tag UBL o es vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "2027",
+      "condition": "El formato del Tag UBL es diferente a alfanumérico de 1 hasta 500 caracteres (se considera cualquier carácter, permite \"",
+      "scope": "implementable"
+    },
+    {
+      "code": "2028",
+      "condition": "No existe el Tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "2031",
+      "condition": "Si existe el tag, el formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente",
+      "scope": "implementable"
+    },
+    {
+      "code": "2033",
+      "condition": "El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero",
+      "scope": "implementable"
+    },
+    {
+      "code": "2037",
+      "condition": "No existe el Tag UBL o es vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "2048",
+      "condition": "El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero",
+      "scope": "implementable"
+    },
+    {
+      "code": "2052",
+      "condition": "No existe el Tag UBL o es vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "2054",
+      "condition": "No existe el Tag UBL o es vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "2064",
+      "condition": "El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero",
+      "scope": "implementable"
+    },
+    {
+      "code": "2065",
+      "condition": "El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero",
+      "scope": "implementable"
+    },
+    {
+      "code": "2068",
+      "condition": "No existe el Tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "2108",
+      "condition": "Si serie del documento no inicia con número:",
+      "scope": "implementable"
+    },
+    {
+      "code": "2329",
+      "condition": "El valor del Tag UBL es mayor a dos días de la fecha de envío del comprobante",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2367",
+      "condition": "El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 10 decimales y diferente de cero",
+      "scope": "implementable"
+    },
+    {
+      "code": "2369",
+      "condition": "El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 10 decimales y diferente de cero.",
+      "scope": "implementable"
+    },
+    {
+      "code": "2370",
+      "condition": "El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero",
+      "scope": "implementable"
+    },
+    {
+      "code": "2371",
+      "condition": "Si 'Código de tributo por línea' es diferente a '2000' (ISC) o '9999' (Otros tributos), cuyo 'Monto base' es mayor a cer",
+      "scope": "implementable"
+    },
+    {
+      "code": "2373",
+      "condition": "Si 'Código de tributo por línea' es '2000' (ISC) cuyo 'Monto base' es mayor a cero (cbc:TaxableAmount > 0), no existe el",
+      "scope": "implementable"
+    },
+    {
+      "code": "2409",
+      "condition": "Existe en el mismo ítem otro cac:AlternativeConditionPrice con el mismo valor del Tag UBL (cbc:PriceTypeCode)",
+      "scope": "implementable"
+    },
+    {
+      "code": "2416",
+      "condition": "Si 'Código de tributo' es '9996' (Gratuita) y 'Código de leyenda' es '1002', el valor del Tag UBL es igual a 0 (cero)",
+      "scope": "implementable"
+    },
+    {
+      "code": "2503",
+      "condition": "Si el Tag UBL existe y es menor o igual a 0 (cero)",
+      "scope": "implementable"
+    },
+    {
+      "code": "2509",
+      "condition": "Si existe Tag UBL con valor mayor a cero, la suma de los 'Importe del anticipo' es diferente al valor del tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "2521",
+      "condition": "Si 'Tipo de documento del emisor del anticipo' existe y 'Tipo de comprobante que se realizo el anticipo' es '03' (Boleta",
+      "scope": "implementable"
+    },
+    {
+      "code": "2638",
+      "condition": "Si existe alguna línea (/Invoice/cac:InvoiceLine/cac:TaxTotal/cac:TaxSubtotal) con 'Monto base' mayor a cero (cbc:Taxabl",
+      "scope": "implementable"
+    },
+    {
+      "code": "2640",
+      "condition": "Si existe en la línea un cac:TaxSubtotal con 'Código de tributo por línea' igual a '9996' cuyo 'Monto base' es mayor a c",
+      "scope": "implementable"
+    },
+    {
+      "code": "2641",
+      "condition": "Si 'Código de tributo' es '9996' (Gratuita) y existe una línea con 'Valor referencial unitario por ítem en operaciones g",
+      "scope": "implementable"
+    },
+    {
+      "code": "2642",
+      "condition": "Si 'Tipo de operación' es exportación '0200', '0201', '0202', '0203', '0204', '0205', '0206', '0207' o '0208', el valor",
+      "scope": "implementable"
+    },
+    {
+      "code": "2644",
+      "condition": "Si 'Afectación al IGV o IVAP' es '17' y  'Monto base' es mayor a cero, y existe otra línea con 'Afectación al IGV o IVAP",
+      "scope": "implementable"
+    },
+    {
+      "code": "2650",
+      "condition": "Si 'Código de tributo' es '2000' y 'Monto base' es mayor a cero, y existe un ítem con código de 'Afectación al IGV o IVA",
+      "scope": "implementable"
+    },
+    {
+      "code": "2752",
+      "condition": "Existe otro cac:InvoiceLine con el mismo valor del Tag UBL (cbc:ID)",
+      "scope": "implementable"
+    },
+    {
+      "code": "2797",
+      "condition": "Si \"Código de motivo de cargo/descuento\" es '51' o '52' o '53' (Percepción) y \"Tipo de moneda\" del comprobante es \"PEN\",",
+      "scope": "implementable"
+    },
+    {
+      "code": "2801",
+      "condition": "Si el 'Tipo de documento de identidad del adquiriente o usuario' es '1', el formato del Tag UBL es diferente de numérico",
+      "scope": "implementable"
+    },
+    {
+      "code": "2802",
+      "condition": "Si 'Tipo de documento del adquiriente o usuario' es '4' o '7' o '0' o 'A' o 'B' o 'C' o 'D' o 'E' o 'G', el formato del",
+      "scope": "implementable"
+    },
+    {
+      "code": "2883",
+      "condition": "No existe el atributo del Tag UBL o es vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "2892",
+      "condition": "Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 3 enteros y hasta 5 decimales y diferen",
+      "scope": "implementable"
+    },
+    {
+      "code": "2898",
+      "condition": "Si 'Tipo de operación' es '2104' y el 'Código del concepto' es '7015' y el valor del tag es igual a '1' o '2', no existe",
+      "scope": "implementable"
+    },
+    {
+      "code": "2899",
+      "condition": "Si 'Tipo de operación' es '2104' y el 'Código del concepto' es '7015' y el valor del tag es igual a '3' y no existe en l",
+      "scope": "implementable"
+    },
+    {
+      "code": "2936",
+      "condition": "Si existe el atributo, el valor es diferente al Catálogo N.° 03",
+      "scope": "implementable"
+    },
+    {
+      "code": "2949",
+      "condition": "Si  'Código de tributo' es '7152' y la 'Fecha de emisión' es menor a '2019-08-01', el valor del Tag Ubl es mayor a cero",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2955",
+      "condition": "El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero",
+      "scope": "implementable"
+    },
+    {
+      "code": "2956",
+      "condition": "No existe el tag /Invoice/cac:TaxTotal",
+      "scope": "implementable"
+    },
+    {
+      "code": "2968",
+      "condition": "Si 'Código de motivo de cargo/descuento' es igual a '63' y el formato del Tag UBL es diferente de decimal (positivo mayo",
+      "scope": "implementable"
+    },
+    {
+      "code": "2992",
+      "condition": "Si el 'Código de tributo' es diferente de '7152' y no existe el Tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "2993",
+      "condition": "Si 'Código de tributo por línea' es igual a '1000' o '1016', y  'Monto base' mayor a cero (cbc:TaxableAmount > 0), el va",
+      "scope": "implementable"
+    },
+    {
+      "code": "2996",
+      "condition": "No existe el Tag UBL o es vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "2999",
+      "condition": "El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero",
+      "scope": "implementable"
+    },
+    {
+      "code": "3000",
+      "condition": "Si el Tag UBL existe, el valor del Tag Ubl es diferente de 0 (cero), cuando el 'Código de tributo' es '9995', '9997' y '",
+      "scope": "implementable"
+    },
+    {
+      "code": "3003",
+      "condition": "Si el 'Código de tributo' es diferente de '7152' y no existe el Tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "3006",
+      "condition": "Si el formato del Tag UBL es diferente a alfanumérico de 1 a 200 caractéres (se considera cualquier carácter incluido es",
+      "scope": "implementable"
+    },
+    {
+      "code": "3014",
+      "condition": "El valor del atributo se repite en el comprobante",
+      "scope": "implementable"
+    },
+    {
+      "code": "3016",
+      "condition": "Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal (positivo mayor a cero) de 12 enteros y hasta 2 dec",
+      "scope": "implementable"
+    },
+    {
+      "code": "3019",
+      "condition": "Si existe el tag, el formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente",
+      "scope": "implementable"
+    },
+    {
+      "code": "3020",
+      "condition": "Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y difere",
+      "scope": "implementable"
+    },
+    {
+      "code": "3021",
+      "condition": "Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y difere",
+      "scope": "implementable"
+    },
+    {
+      "code": "3024",
+      "condition": "Existe a nivel global más de un tag cac:TaxTotal",
+      "scope": "implementable"
+    },
+    {
+      "code": "3025",
+      "condition": "Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 3 enteros y hasta 5 decimales",
+      "scope": "implementable"
+    },
+    {
+      "code": "3026",
+      "condition": "Existe en el mismo ítem más de un tag cac:TaxTotal",
+      "scope": "implementable"
+    },
+    {
+      "code": "3030",
+      "condition": "Si Serie del documento no inicia con número, no existe el Tag UBL o es vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "3031",
+      "condition": "Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y difere",
+      "scope": "implementable"
+    },
+    {
+      "code": "3034",
+      "condition": "Si 'Indicador PaymentMeans' es igual a 'Detraccion', no existe el Tag UBL o es vacío.",
+      "scope": "implementable"
+    },
+    {
+      "code": "3035",
+      "condition": "Si 'Indicador PaymentTerms' es igual a 'Detraccion', no existe el Tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "3037",
+      "condition": "El formato del Tag UBL es diferente de decimal (positivo mayor a cero) de 12 enteros y hasta 2 decimales",
+      "scope": "implementable"
+    },
+    {
+      "code": "3050",
+      "condition": "Si 'Código de tributo por línea' es igual a '2000' (ISC) o '9999' (Otros tributos), existe el tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "3052",
+      "condition": "Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 3 enteros y hasta 5 decimales y diferen",
+      "scope": "implementable"
+    },
+    {
+      "code": "3053",
+      "condition": "Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y difere",
+      "scope": "implementable"
+    },
+    {
+      "code": "3059",
+      "condition": "No existe el Tag UBL o es vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "3063",
+      "condition": "Si 'Tipo de operación' es igual a '1002', y no existe el tag con valor '3001'",
+      "scope": "implementable"
+    },
+    {
+      "code": "3065",
+      "condition": "De existir 'Código del concepto' igual a '4048' y no existe el tag.",
+      "scope": "implementable"
+    },
+    {
+      "code": "3067",
+      "condition": "Existe en el mismo ítem más de un cac:TaxSubtotal con el mismo valor del Tag UBL (cbc:ID)",
+      "scope": "implementable"
+    },
+    {
+      "code": "3068",
+      "condition": "Existe a nivel global  más de un cac:TaxSubtotal con el mismo valor del Tag UBL (cbc:ID)",
+      "scope": "implementable"
+    },
+    {
+      "code": "3072",
+      "condition": "Si existe 'Indicador de cargo', y no existe el Tag UBL o es vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "3073",
+      "condition": "No existe el Tag UBL o es vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "3074",
+      "condition": "Si el Tag UBL existe, el valor del Tag Ubl es  0 (cero), cuando el código de motivo de cargo igual a '45'",
+      "scope": "implementable"
+    },
+    {
+      "code": "3089",
+      "condition": "Existe más de un Tag UBL cac:AccountingSupplierParty/cac:Party/cac:PartyIdentification",
+      "scope": "implementable"
+    },
+    {
+      "code": "3090",
+      "condition": "Existe más de un Tag UBL en el XML cac:AccountingCustomerParty/cac:Party/cac:PartyIdentification",
+      "scope": "implementable"
+    },
+    {
+      "code": "3092",
+      "condition": "El valor del tag UBL es igual a 0 o no existe, cuando el código de motivo de cargo es igual a '45'",
+      "scope": "implementable"
+    },
+    {
+      "code": "3093",
+      "condition": "Si 'Tipo de operación' es '2001 - Operación sujeta a percepción' y 'Forma de pago' es 'Contado', no existe un 'Código de",
+      "scope": "implementable"
+    },
+    {
+      "code": "3098",
+      "condition": "Si 'Tipo de operación' es '0201' o '0208', si el Tag UBL no existe o es vacio.",
+      "scope": "implementable"
+    },
+    {
+      "code": "3102",
+      "condition": "Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 3 enteros y hasta 5 decimales y diferen",
+      "scope": "implementable"
+    },
+    {
+      "code": "3103",
+      "condition": "Si 'Afectación al IGV o IVAP' es '10','11', '12', '13', '14', '15', '16' o '17', el valor del tag es diferente a la tasa",
+      "scope": "implementable"
+    },
+    {
+      "code": "3104",
+      "condition": "Si 'Código de tributo por línea' es igual a '2000' cuyo 'Monto base' es mayor a cero (cbc:TaxableAmount > 0), el valor d",
+      "scope": "implementable"
+    },
+    {
+      "code": "3105",
+      "condition": "Si 'Tipo de operación' es diferente de '2100', '2101', '2102', '2103', '2104' y '0112', y no existe en el ítem un cac:Ta",
+      "scope": "implementable"
+    },
+    {
+      "code": "3107",
+      "condition": "Si 'Tipo de operación' es de exportación '0200' o '0201' o '0202' o '0203' o '0204' o '0205' o '0206' o '0207' o '0208'",
+      "scope": "implementable"
+    },
+    {
+      "code": "3108",
+      "condition": "Si  el 'Código de tributo por línea' es '2000' cuyo 'Monto base' es mayor a cero (cbc:TaxableAmount > 0), el valor del t",
+      "scope": "implementable"
+    },
+    {
+      "code": "3109",
+      "condition": "Si el 'Código de tributo por línea' es '9999' cuyo 'Monto base' es mayor a cero (cbc:TaxableAmount > 0), el valor del ta",
+      "scope": "implementable"
+    },
+    {
+      "code": "3110",
+      "condition": "Si 'Código de tributo por línea' es igual a '9996' cuyo 'Monto base' es mayor a cero (cbc:TaxableAmount > 0), y la 'Afec",
+      "scope": "implementable"
+    },
+    {
+      "code": "3111",
+      "condition": "Si 'Código de tributo por línea' es igual a '1000' o '1016' y",
+      "scope": "implementable"
+    },
+    {
+      "code": "3114",
+      "condition": "Si valor del tag es diferente 'false' para código de descuento igual a '63'",
+      "scope": "implementable"
+    },
+    {
+      "code": "3115",
+      "condition": "Si existe el atributo, el valor es diferente de 'TNE'",
+      "scope": "implementable"
+    },
+    {
+      "code": "3117",
+      "condition": "Si 'Tipo de operación' es igual a '1004', y no existe el tag o es vacio",
+      "scope": "implementable"
+    },
+    {
+      "code": "3118",
+      "condition": "Si 'Tipo de operación' es igual a '1004', y no existe el tag o es vacio",
+      "scope": "implementable"
+    },
+    {
+      "code": "3119",
+      "condition": "Si 'Tipo de operación' es igual a '1004', y no existe el tag",
+      "scope": "implementable"
+    },
+    {
+      "code": "3120",
+      "condition": "Si 'Tipo de operación' es igual a '1004', y no existe el tag o es vacio",
+      "scope": "implementable"
+    },
+    {
+      "code": "3122",
+      "condition": "Si 'Tipo de operación' es igual a '1004', y no existe el tag",
+      "scope": "implementable"
+    },
+    {
+      "code": "3123",
+      "condition": "Si 'Tipo de operación' es igual a '1004', el formato del Tag UBL es diferente de decimal (positivo mayor a cero) de 12 e",
+      "scope": "implementable"
+    },
+    {
+      "code": "3124",
+      "condition": "Si 'Tipo de operación' es igual a '1004', y no existe o existe mas de un tipo valor referencial = 01",
+      "scope": "implementable"
+    },
+    {
+      "code": "3125",
+      "condition": "Si 'Tipo de operación' es igual a '1004', y no existe o existe mas de un tipo valor referencial = 02",
+      "scope": "implementable"
+    },
+    {
+      "code": "3126",
+      "condition": "Si 'Tipo de operación' es igual a '1004', y no existe o existe mas de un tipo valor referencial = 03",
+      "scope": "implementable"
+    },
+    {
+      "code": "3127",
+      "condition": "Si 'Indicador PaymentTerms' es igual a 'Detraccion', no existe el tag o es vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "3128",
+      "condition": "Si  'Tipo de operación' es diferente de '1001', '1002', '1003' y '1004', el valor del Tag UBL es igual a 'Detraccion'",
+      "scope": "implementable"
+    },
+    {
+      "code": "3129",
+      "condition": "Si 'Indicador PaymentTerms' es igual a 'Detraccion' y  'Tipo de operación' es '1004 - Operación Sujeta a Detracción- Ser",
+      "scope": "implementable"
+    },
+    {
+      "code": "3130",
+      "condition": "Si 'Tipo de operación' es igual a '1002', y no existe el tag con valor '3002'",
+      "scope": "implementable"
+    },
+    {
+      "code": "3131",
+      "condition": "Si 'Tipo de operación' es igual a '1002', y no existe el tag con valor '3003'",
+      "scope": "implementable"
+    },
+    {
+      "code": "3132",
+      "condition": "Si 'Tipo de operación' es igual a '1002', y no existe el tag con valor '3004'",
+      "scope": "implementable"
+    },
+    {
+      "code": "3133",
+      "condition": "Si 'Tipo de operación' es igual a '1002', y no existe el tag con ID '3006'",
+      "scope": "implementable"
+    },
+    {
+      "code": "3135",
+      "condition": "De existir 'Código del concepto' '4005' y no existe el tag.",
+      "scope": "implementable"
+    },
+    {
+      "code": "3136",
+      "condition": "Si 'Tipo de operación' es '0205 Exportación de servicios  - Servicios que conformen un Paquete Turístico', y no existe e",
+      "scope": "implementable"
+    },
+    {
+      "code": "3137",
+      "condition": "Si 'Tipo de operación' es '0205 Exportación de servicios  - Servicios que conformen un Paquete Turístico', y no existe e",
+      "scope": "implementable"
+    },
+    {
+      "code": "3138",
+      "condition": "Si 'Tipo de operación' es '0205 Exportación de servicios  - Servicios que conformen un Paquete Turístico', y no existe e",
+      "scope": "implementable"
+    },
+    {
+      "code": "3139",
+      "condition": "Si 'Tipo de operación' es '0205 Exportación de servicios  - Servicios que conformen un Paquete Turístico', y no existe e",
+      "scope": "implementable"
+    },
+    {
+      "code": "3140",
+      "condition": "Si 'Tipo de operación' es '0202 Exportación de servicios – prestación de servicios de hospedaje No Dom', y no existe el",
+      "scope": "implementable"
+    },
+    {
+      "code": "3141",
+      "condition": "Si 'Tipo de operación' es '0202 Exportación de servicios – prestación de servicios de hospedaje No Dom', y no existe el",
+      "scope": "implementable"
+    },
+    {
+      "code": "3142",
+      "condition": "Si 'Tipo de operación' es '0202 Exportación de servicios – prestación de servicios de hospedaje No Dom', y no existe el",
+      "scope": "implementable"
+    },
+    {
+      "code": "3143",
+      "condition": "Si 'Tipo de operación' es '0202 Exportación de servicios – prestación de servicios de hospedaje No Dom', y no existe el",
+      "scope": "implementable"
+    },
+    {
+      "code": "3144",
+      "condition": "Si 'Tipo de operación' es '0202 Exportación de servicios – prestación de servicios de hospedaje No Dom', y no existe el",
+      "scope": "implementable"
+    },
+    {
+      "code": "3145",
+      "condition": "Si 'Tipo de operación' es '0202 Exportación de servicios – prestación de servicios de hospedaje No Dom', y no existe el",
+      "scope": "implementable"
+    },
+    {
+      "code": "3146",
+      "condition": "Si existe un 'Código del concepto' con valor '5001' o '5002' o '5003' y no existe el tag con código '5000'",
+      "scope": "implementable"
+    },
+    {
+      "code": "3147",
+      "condition": "Si existe un 'Código del concepto' con valor '5000' o '5002' o '5003', y no existe el tag con código '5001'",
+      "scope": "implementable"
+    },
+    {
+      "code": "3148",
+      "condition": "Si existe un 'Código del concepto' con valor '5000' o '5001' o '5003', y no existe el tag con código '5002'",
+      "scope": "implementable"
+    },
+    {
+      "code": "3149",
+      "condition": "Si existe un 'Código del concepto' con valor '5000' o '5001' o '5002', y no existe el tag con código '5003'",
+      "scope": "implementable"
+    },
+    {
+      "code": "3151",
+      "condition": "Si 'Código de producto SUNAT' de la linea es '84121901' y el  indicador de primera vivienda = 3 (código concepto 7002),",
+      "scope": "implementable"
+    },
+    {
+      "code": "3152",
+      "condition": "Si 'Código de producto SUNAT' de la linea es '84121901', y no existe el tag con código '7004'",
+      "scope": "implementable"
+    },
+    {
+      "code": "3153",
+      "condition": "Si 'Código de producto SUNAT' de la linea es '84121901', y no existe el tag con código '7005'",
+      "scope": "implementable"
+    },
+    {
+      "code": "3154",
+      "condition": "Si 'Código de producto SUNAT' de la linea es '84121901' y el  indicador de primera vivienda = 3 (código concepto 7002),",
+      "scope": "implementable"
+    },
+    {
+      "code": "3155",
+      "condition": "Si 'Código de producto SUNAT' de la linea es '84121901' y el  indicador de primera vivienda = 3 (código concepto 7002),",
+      "scope": "implementable"
+    },
+    {
+      "code": "3156",
+      "condition": "Si 'Tipo de operación' es '0302 - BVME para transporte ferroviario de pasajeros', no existe el tag",
+      "scope": "implementable"
+    },
+    {
+      "code": "3158",
+      "condition": "Si existe el numero de RUC del agente de ventas, y existe el tag, el valor es diferente a '6'",
+      "scope": "implementable"
+    },
+    {
+      "code": "3159",
+      "condition": "Si 'Tipo de operación' es '0302 - BVME para transporte ferroviario de pasajeros', no existe el tag con código igual a '4",
+      "scope": "implementable"
+    },
+    {
+      "code": "3160",
+      "condition": "Si 'Tipo de operación' es '0302 - BVME para transporte ferroviario de pasajeros', no existe el tag con código igual a '4",
+      "scope": "implementable"
+    },
+    {
+      "code": "3161",
+      "condition": "Si 'Tipo de operación' es '0302 - BVME para transporte ferroviario de pasajeros', no existe el tag con código igual a '4",
+      "scope": "implementable"
+    },
+    {
+      "code": "3162",
+      "condition": "Si 'Tipo de operación' es '0302 - BVME para transporte ferroviario de pasajeros', no existe el tag con código igual a '4",
+      "scope": "implementable"
+    },
+    {
+      "code": "3163",
+      "condition": "Si 'Tipo de operación' es '0302 - BVME para transporte ferroviario de pasajeros', no existe el tag con código igual a '4",
+      "scope": "implementable"
+    },
+    {
+      "code": "3164",
+      "condition": "Si 'Tipo de operación' es '0302 - BVME para transporte ferroviario de pasajeros', no existe el tag con código igual a '4",
+      "scope": "implementable"
+    },
+    {
+      "code": "3165",
+      "condition": "Si 'Tipo de operación' es '0302 - BVME para transporte ferroviario de pasajeros', no existe el tag con código igual a '4",
+      "scope": "implementable"
+    },
+    {
+      "code": "3166",
+      "condition": "Si 'Tipo de operación' es '0302 - BVME para transporte ferroviario de pasajeros', no existe el tag con código igual a '4",
+      "scope": "implementable"
+    },
+    {
+      "code": "3167",
+      "condition": "Si 'Tipo de operación' es '0302 - BVME para transporte ferroviario de pasajeros', no existe el tag con código igual a '4",
+      "scope": "implementable"
+    },
+    {
+      "code": "3168",
+      "condition": "Si 'Tipo de operación' es '0301 - Carta de porte aéreo (emitidas en el ámbito nacional)', no existe el tag con código '4",
+      "scope": "implementable"
+    },
+    {
+      "code": "3169",
+      "condition": "Si 'Tipo de operación' es '0301 - Carta de porte aéreo (emitidas en el ámbito nacional)', no existe el tag con código '4",
+      "scope": "implementable"
+    },
+    {
+      "code": "3170",
+      "condition": "Si 'Tipo de operación' es '0301 - Carta de porte aéreo (emitidas en el ámbito nacional)', no existe el tag con código '4",
+      "scope": "implementable"
+    },
+    {
+      "code": "3171",
+      "condition": "Si 'Tipo de operación' es '0301 - Carta de porte aéreo (emitidas en el ámbito nacional)', no existe el tag con código '4",
+      "scope": "implementable"
+    },
+    {
+      "code": "3172",
+      "condition": "De existir 'Código del concepto' igual a '4047' y no existe el tag.",
+      "scope": "implementable"
+    },
+    {
+      "code": "3173",
+      "condition": "Si 'Tipo de operación' es '0302 - BVME para transporte ferroviario de pasajeros', no existe el tag",
+      "scope": "implementable"
+    },
+    {
+      "code": "3175",
+      "condition": "Si 'Tipo de operación' es '0302 - BVME para transporte ferroviario de pasajeros', no existe el tag",
+      "scope": "implementable"
+    },
+    {
+      "code": "3195",
+      "condition": "No existe el tag cac:InvoiceLine/cac:TaxTotal",
+      "scope": "implementable"
+    },
+    {
+      "code": "3204",
+      "condition": "Si 'Tipo de operación' es '0302 - BVME para transporte ferroviario de pasajeros', no existe el tag con código igual a '4",
+      "scope": "implementable"
+    },
+    {
+      "code": "3205",
+      "condition": "Si no existe el atributo o es vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "3208",
+      "condition": "El atributo @currencyID del Tag UBL es diferente a \"PEN\"",
+      "scope": "implementable"
+    },
+    {
+      "code": "3210",
+      "condition": "Si 'Código de tributo por línea' es diferente '2000' (ISC), existe el Tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "3211",
+      "condition": "Si 'Importe del anticipo' existe y no existe el Tag UBL o es vacio",
+      "scope": "implementable"
+    },
+    {
+      "code": "3212",
+      "condition": "Si existe más de un 'Identificador de pago' con el mismo valor",
+      "scope": "implementable"
+    },
+    {
+      "code": "3213",
+      "condition": "Si no existe documento con 'Tipo de comprobante que se realizó el anticipo' '02' o '03' con el mismo 'Identificador de p",
+      "scope": "implementable"
+    },
+    {
+      "code": "3214",
+      "condition": "Si 'Tipo de comprobante que se realizó el anticipo' es '02' o '03', y no existe un 'Importe del anticipo' con 'Identific",
+      "scope": "implementable"
+    },
+    {
+      "code": "3215",
+      "condition": "Si 'Tipo de comprobante que se realizó el anticipo' es '02' o '03', y existe más de un comprobante de anticipo con el mi",
+      "scope": "implementable"
+    },
+    {
+      "code": "3216",
+      "condition": "Si 'Tipo de comprobante que se realizó el anticipo' es '02' o '03', y no existe el tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "3217",
+      "condition": "Si existe identificador de pago (cbc:DocumentStatusCode) y no existe el tag o es vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "3220",
+      "condition": "Si existe Tag UBL con valor mayor a cero, y no existe 'Total Anticipos' con monto mayor a cero",
+      "scope": "implementable"
+    },
+    {
+      "code": "3223",
+      "condition": "En una línea sólo pueden existir las siguientes combinaciones de códigos de tributos con 'Monto base' mayor a cero (cbc:",
+      "scope": "implementable"
+    },
+    {
+      "code": "3224",
+      "condition": "Si no existe en la misma línea un cac:TaxSubtotal con 'Código de tributo por línea' igual a '9996' cuyo 'Monto base' es",
+      "scope": "implementable"
+    },
+    {
+      "code": "3233",
+      "condition": "El valor del tag UBL es igual a 0 o no existe, cuando el código de motivo de cargo es igual a '51' o '52' o '53'",
+      "scope": "implementable"
+    },
+    {
+      "code": "3234",
+      "condition": "Si existe en la misma línea un cac:TaxSubtotal con 'Código de tributo por línea' igual a '9996' cuyo 'Monto base' es may",
+      "scope": "implementable"
+    },
+    {
+      "code": "3236",
+      "condition": "Si el Tag UBL existe y el valor del Tag UBL es mayor a cero, el valor del tag es diferente de 'Cantidad de unidades por",
+      "scope": "implementable"
+    },
+    {
+      "code": "3237",
+      "condition": "Si 'Código de tributo por línea' es igual a '7152' y no existe el Tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "3238",
+      "condition": "Si 'Código de tributo por línea' es igual a '7152' y 'Cantidad de bolsas de plástico' es mayor a cero (cbc:BaseUnitMeasu",
+      "scope": "implementable"
+    },
+    {
+      "code": "3241",
+      "condition": "Si 'Tipo de operación' es '2100' o '2101' o '2102' y no existe al menos una línea que contenga simultáneamente los códig",
+      "scope": "implementable"
+    },
+    {
+      "code": "3242",
+      "condition": "Si 'Tipo de operación' es '2104', y no existe al menos una línea que contenga el código '7015'",
+      "scope": "implementable"
+    },
+    {
+      "code": "3243",
+      "condition": "De existir 'Código del concepto' igual a '7014' y no existe el tag.",
+      "scope": "implementable"
+    },
+    {
+      "code": "3244",
+      "condition": "No existe al menos un tag cac:PaymentTerms con cbc:ID igual a 'FormaPago'",
+      "scope": "implementable"
+    },
+    {
+      "code": "3245",
+      "condition": "Si el 'Indicador' es 'FormaPago' y no existe el tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "3246",
+      "condition": "Si el 'Indicador' es 'FormaPago', el valor del tag es diferente de:",
+      "scope": "implementable"
+    },
+    {
+      "code": "3247",
+      "condition": "Si existe más de un tag cac:PaymentTerms con cbc:ID",
+      "scope": "implementable"
+    },
+    {
+      "code": "3248",
+      "condition": "Si existe más de un tag cac:PaymentTerms con cbc:ID",
+      "scope": "implementable"
+    },
+    {
+      "code": "3249",
+      "condition": "Si el 'Indicador' es 'FormaPago', el valor del tag es 'Credito', el 'Tipo de Documento del adquiriente o usuario' es igu",
+      "scope": "implementable"
+    },
+    {
+      "code": "3250",
+      "condition": "El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales",
+      "scope": "implementable"
+    },
+    {
+      "code": "3251",
+      "condition": "Si existe un tag cac:PaymentTerms con cbc:ID",
+      "scope": "implementable"
+    },
+    {
+      "code": "3252",
+      "condition": "Si existe un tag cac:PaymentTerms con cbc:ID",
+      "scope": "implementable"
+    },
+    {
+      "code": "3253",
+      "condition": "Si el 'Indicador' es 'FormaPago', y el formato del Identificador de la cuota es: Cuota[0-9]{3} y si existe el tag, el fo",
+      "scope": "implementable"
+    },
+    {
+      "code": "3254",
+      "condition": "Si existe un tag cac:PaymentTerms con cbc:ID",
+      "scope": "implementable"
+    },
+    {
+      "code": "3255",
+      "condition": "Si el 'Indicador' es 'FormaPago', y el formato del 'Identificador de la cuota' es: Cuota[0-9]{3} y si existe el tag, el",
+      "scope": "implementable"
+    },
+    {
+      "code": "3256",
+      "condition": "Si existe un tag cac:PaymentTerms con cbc:ID",
+      "scope": "implementable"
+    },
+    {
+      "code": "3262",
+      "condition": "Si el valor del tag es '62' y el receptor del comprobante (/Invoice/cac:AccountingCustomerParty/cac:Party/cac:PartyIdent",
+      "scope": "implementable"
+    },
+    {
+      "code": "3263",
+      "condition": "Si 'Código de motivo de cargo/descuento' es '62', el valor del Tag UBL es diferente a  Importe de la operación' por 'Por",
+      "scope": "implementable"
+    },
+    {
+      "code": "3264",
+      "condition": "Si \"Código de motivo de cargo/descuento\" es '62' , el valor del Tag UBL es mayor a \"Importe total\"",
+      "scope": "implementable"
+    },
+    {
+      "code": "3265",
+      "condition": "Si existe un tag cac:PaymentTerms con cbc:ID",
+      "scope": "implementable"
+    },
+    {
+      "code": "3266",
+      "condition": "Si existe un tag cac:PaymentTerms con cbc:ID",
+      "scope": "implementable"
+    },
+    {
+      "code": "3267",
+      "condition": "Si existe un tag cac:PaymentTerms con cbc:ID",
+      "scope": "implementable"
+    },
+    {
+      "code": "3270",
+      "condition": "Si no existe en la misma línea un cac:TaxSubtotal con 'Código de tributo por línea' igual a '9996' cuyo 'Monto base' es",
+      "scope": "implementable"
+    },
+    {
+      "code": "3271",
+      "condition": "Si no existe en la línea un cac:TaxSubtotal con 'Código de tributo por línea' igual a '9996' cuyo 'Monto base' es mayor",
+      "scope": "implementable"
+    },
+    {
+      "code": "3272",
+      "condition": "Si no existe en la misma línea un cac:TaxSubtotal con 'Código de tributo por línea' igual a '2000' cuyo 'Monto base' es",
+      "scope": "implementable"
+    },
+    {
+      "code": "3273",
+      "condition": "Si el 'Código de tributo' es '9995', el valor del Tag UBL es diferente a la sumatoria de 'Valor de venta por ítem' (cbc:",
+      "scope": "implementable"
+    },
+    {
+      "code": "3274",
+      "condition": "Si el 'Código de tributo' es '9998', el valor del Tag UBL es diferente a la sumatoria de 'Valor de venta por ítem' (cbc:",
+      "scope": "implementable"
+    },
+    {
+      "code": "3275",
+      "condition": "Si el 'Código de tributo' es '9997', el valor del Tag UBL es diferente a la sumatoria de 'Valor de venta por ítem' (cbc:",
+      "scope": "implementable"
+    },
+    {
+      "code": "3276",
+      "condition": "Si 'Código de tributo' es '9996', el valor del Tag UBL es diferente a la sumatoria de 'Valor de venta por item' (cbc:Lin",
+      "scope": "implementable"
+    },
+    {
+      "code": "3277",
+      "condition": "Si 'Código de tributo' es '1000' y  el Tag UBL existe, el valor del Tag UBL es diferente a la sumatoria de 'Valor de ven",
+      "scope": "implementable"
+    },
+    {
+      "code": "3279",
+      "condition": "Si existe el Tag UBL, y es una factura sujeta al IVAP*, y el valor es diferente de la sumatoria de 'Total valor de venta",
+      "scope": "implementable"
+    },
+    {
+      "code": "3280",
+      "condition": "Si el valor del tag difiere de la sumatoria del 'Total precio de venta' más 'Sumatoria otros cargos (que no afectan la b",
+      "scope": "implementable"
+    },
+    {
+      "code": "3282",
+      "condition": "Si existe el tag 'Código de motivo de cargo/descuento' con valor igual a '04', '05', '06' o '20', el valor del tag UBL e",
+      "scope": "implementable"
+    },
+    {
+      "code": "3287",
+      "condition": "Si existe Tag UBL con valor mayor a cero, y no existe al menos un 'Cargos y/o descuentos globales' (cac:AllowanceCharge)",
+      "scope": "implementable"
+    },
+    {
+      "code": "3290",
+      "condition": "Si existe el tag 'Código de motivo de cargo/descuento' y existe 'Factor de cargo/descuento' con monto mayor a cero, el i",
+      "scope": "implementable"
+    },
+    {
+      "code": "3291",
+      "condition": "Si  'Código de tributo' es '1000', el valor del Tag Ubl es diferente al resultado de multiplicar la sumatoria de los 'Mo",
+      "scope": "implementable"
+    },
+    {
+      "code": "3292",
+      "condition": "Si el Tag UBL existe, el valor del Tag UBL es diferente a la sumatoria de 'Monto de tributo por línea' (cbc:TaxAmount)",
+      "scope": "implementable"
+    },
+    {
+      "code": "3293",
+      "condition": "Si 'Código de tributo' es '1016' y  el Tag UBL existe, el valor del Tag UBL es diferente a la sumatoria de 'Valor de ven",
+      "scope": "implementable"
+    },
+    {
+      "code": "3295",
+      "condition": "Si  'Código de tributo' es '1016', el valor del Tag UBL es diferente al resultado de multiplicar la sumatoria de los 'Mo",
+      "scope": "implementable"
+    },
+    {
+      "code": "3296",
+      "condition": "Si 'Código de tributo' es '2000', si el Tag UBL existe y el valor del Tag UBL es diferente a la sumatoria de los 'Monto",
+      "scope": "implementable"
+    },
+    {
+      "code": "3297",
+      "condition": "Si existe el Tag y el 'Código de tributo' es '9999', el valor del Tag UBL es diferente a la sumatoria de los 'Montos bas",
+      "scope": "implementable"
+    },
+    {
+      "code": "3298",
+      "condition": "Si  'Código de tributo' es '2000', el valor del Tag Ubl es diferente de la sumatoria de los 'Monto de tributo de la líne",
+      "scope": "implementable"
+    },
+    {
+      "code": "3299",
+      "condition": "Si  'Código de tributo' es '9999', el valor del Tag Ubl es diferente de la sumatoria de los 'Monto del tributo de la lín",
+      "scope": "implementable"
+    },
+    {
+      "code": "3302",
+      "condition": "Si  'Código de tributo' es '9996', el valor del Tag UBL es diferente de la sumatoria de 'Monto de IGV' (cbc:TaxAmount) q",
+      "scope": "implementable"
+    },
+    {
+      "code": "3303",
+      "condition": "Si existe el tag UBL, el valor absoluto es mayor a 1",
+      "scope": "implementable"
+    },
+    {
+      "code": "3306",
+      "condition": "Si  'Código de tributo' es '7152', el valor del Tag Ubl es diferente de la sumatoria de los 'Monto del tributo de la lín",
+      "scope": "implementable"
+    },
+    {
+      "code": "3307",
+      "condition": "Si existe el tag 'Código de motivo de cargo/descuento' y existe 'Factor de cargo/descuento' con monto mayor a cero, el i",
+      "scope": "implementable"
+    },
+    {
+      "code": "3308",
+      "condition": "Si 'Tipo de operación' es diferente de '2001', el valor del Tag UBL es igual a 'Percepcion'",
+      "scope": "implementable"
+    },
+    {
+      "code": "3309",
+      "condition": "Si 'Tipo de operación' es '2001 - Operación sujeta a percepción' y 'Forma de pago' es 'Contado', no existe un cac:Paymen",
+      "scope": "implementable"
+    },
+    {
+      "code": "3310",
+      "condition": "Si  'Indicador' es igual a 'Percepcion' y no existe el tag",
+      "scope": "implementable"
+    },
+    {
+      "code": "3311",
+      "condition": "El formato del Tag UBL es diferente de decimal (positivo mayor a cero) de 12 enteros y hasta 2 decimales",
+      "scope": "implementable"
+    },
+    {
+      "code": "3318",
+      "condition": "Si 'Código de motivo de cargo/descuento' es igual a '63' y no existe el tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "3319",
+      "condition": "Si existe un tag cac:PaymentTerms con cbc:ID",
+      "scope": "implementable"
+    },
+    {
+      "code": "3330",
+      "condition": "Si 'Tipo de operación' es '2001 - Operación sujeta a percepción' y 'Forma de pago' es diferente de 'Contado', el valor d",
+      "scope": "implementable"
+    },
+    {
+      "code": "3461",
+      "condition": "Si existe más de un tag cbc:PaymentMeansID dentro del mismo cac:PaymentTerms",
+      "scope": "implementable"
+    },
+    {
+      "code": "3462",
+      "condition": "Si existe alguna línea con ('Código de tributo por línea' igual a '1000' y 'Monto base' (cbc:TaxableAmount) mayor a cero",
+      "scope": "out-of-scope"
+    }
+  ],
+  "CreditNote": [
+    {
+      "code": "1034",
+      "condition": "El Tag UBL es diferente al RUC del nombre del XML",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "1079",
+      "condition": "Si serie empieza con \"B\":",
+      "scope": "implementable"
+    },
+    {
+      "code": "2017",
+      "condition": "Si \"Tipo de documento de identidad del adquiriente\" es RUC (6), el formato del Tag UBL es diferente a numérico de 11 díg",
+      "scope": "implementable"
+    },
+    {
+      "code": "2033",
+      "condition": "El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero",
+      "scope": "implementable"
+    },
+    {
+      "code": "2037",
+      "condition": "No existe el Tag UBL o es vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "2048",
+      "condition": "El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero",
+      "scope": "implementable"
+    },
+    {
+      "code": "2052",
+      "condition": "No existe el Tag UBL o es vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "2054",
+      "condition": "No existe el Tag UBL o es vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "2064",
+      "condition": "El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero",
+      "scope": "implementable"
+    },
+    {
+      "code": "2108",
+      "condition": "Si serie del documento no inicia con número y:",
+      "scope": "implementable"
+    },
+    {
+      "code": "2329",
+      "condition": "La fecha de emisión es mayor a dos días de la fecha de envío del comprobante",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2367",
+      "condition": "El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 10 decimales y diferente de cero",
+      "scope": "implementable"
+    },
+    {
+      "code": "2369",
+      "condition": "Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 10 decimales y difer",
+      "scope": "implementable"
+    },
+    {
+      "code": "2370",
+      "condition": "El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero",
+      "scope": "implementable"
+    },
+    {
+      "code": "2371",
+      "condition": "Si 'Código de tributo por línea' es diferente a '2000' (ISC) o '9999' (Otros tributos), cuyo 'Monto base' es mayor a cer",
+      "scope": "implementable"
+    },
+    {
+      "code": "2373",
+      "condition": "Si 'Código de tributo por línea' es '2000' (ISC) cuyo 'Monto base' es mayor a cero (cbc:TaxableAmount > 0), no existe el",
+      "scope": "implementable"
+    },
+    {
+      "code": "2409",
+      "condition": "Existe en el mismo ítem otro cac:AlternativeConditionPrice con el mismo valor del Tag UBL (cbc:PriceTypeCode)",
+      "scope": "implementable"
+    },
+    {
+      "code": "2638",
+      "condition": "Si existe alguna línea (/CreditNote/cac:CreditNoteLine/cac:TaxTotal/cac:TaxSubtotal) con 'Monto base' mayor a cero (cbc:",
+      "scope": "implementable"
+    },
+    {
+      "code": "2640",
+      "condition": "Si existe en la línea un cac:TaxSubtotal con 'Código de tributo por línea' igual a '9996' cuyo 'Monto base' es mayor a c",
+      "scope": "implementable"
+    },
+    {
+      "code": "2641",
+      "condition": "Si 'Código de tipo de tributo' es '9996' (Gratuita) y existe una línea con 'Valor referencial unitario por ítem en opera",
+      "scope": "implementable"
+    },
+    {
+      "code": "2642",
+      "condition": "Si 'Código de tipo de nota de crédito' es '11', el valor del Tag UBL es diferente de '40'",
+      "scope": "implementable"
+    },
+    {
+      "code": "2644",
+      "condition": "Si 'Código de tipo de nota de crédito' es '12', el valor del Tag UBL es diferente de '17'",
+      "scope": "implementable"
+    },
+    {
+      "code": "2892",
+      "condition": "Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 3 enteros y hasta 5 decimales y diferen",
+      "scope": "implementable"
+    },
+    {
+      "code": "2936",
+      "condition": "Si existe el atributo, el valor es diferente al Catálogo N.° 03",
+      "scope": "implementable"
+    },
+    {
+      "code": "2949",
+      "condition": "Si  'Código de tributo' es '7152' y la 'Fecha de emisión' es menor a '2019-08-01', el valor del Tag Ubl es mayor a cero",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2956",
+      "condition": "No existe el tag /CreditNote/cac:TaxTotal",
+      "scope": "implementable"
+    },
+    {
+      "code": "2992",
+      "condition": "Si el 'Código de tributo' es diferente de '7152' y no existe el Tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "2993",
+      "condition": "Si 'Código de tributo por línea' es igual a '1000' o '1016', y  'Monto base' mayor a cero (cbc:TaxableAmount > 0), el va",
+      "scope": "implementable"
+    },
+    {
+      "code": "2996",
+      "condition": "No existe el Tag UBL o es vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "2999",
+      "condition": "El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero",
+      "scope": "implementable"
+    },
+    {
+      "code": "3000",
+      "condition": "Si el Tag UBL existe, el valor del Tag Ubl es diferente de 0 (cero), cuando el 'Código de tributo' es '9995', '9997' y '",
+      "scope": "implementable"
+    },
+    {
+      "code": "3003",
+      "condition": "Si el 'Código de tributo' es diferente de '7152' y no existe el Tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "3006",
+      "condition": "Si el formato del Tag UBL es diferente a alfanumérico de 1 a 200 caractéres (se considera cualquier carácter incluido es",
+      "scope": "implementable"
+    },
+    {
+      "code": "3020",
+      "condition": "Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y difere",
+      "scope": "implementable"
+    },
+    {
+      "code": "3021",
+      "condition": "Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y difere",
+      "scope": "implementable"
+    },
+    {
+      "code": "3024",
+      "condition": "Existe a nivel global más de un tag cac:TaxTotal",
+      "scope": "implementable"
+    },
+    {
+      "code": "3026",
+      "condition": "Existe en el mismo ítem más de un tag cac:TaxTotal",
+      "scope": "implementable"
+    },
+    {
+      "code": "3030",
+      "condition": "Si 'Serie del comprobante' inicia con 'F' y 'Tipo de documento que modifica' es '01', no existe el Tag UBL o es vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "3031",
+      "condition": "Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y difere",
+      "scope": "implementable"
+    },
+    {
+      "code": "3050",
+      "condition": "Si 'Código de tributo por línea' es igual a '2000' (ISC) o '9999' (Otros tributos), existe el tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "3059",
+      "condition": "No existe el Tag UBL o es vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "3067",
+      "condition": "Existe en el mismo ítem más de un cac:TaxSubtotal con el mismo valor del Tag UBL (cbc:ID)",
+      "scope": "implementable"
+    },
+    {
+      "code": "3068",
+      "condition": "Existe a nivel global  más de un cac:TaxSubtotal con el mismo valor del Tag UBL (cbc:ID)",
+      "scope": "implementable"
+    },
+    {
+      "code": "3102",
+      "condition": "Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 3 enteros y hasta 5 decimales y diferen",
+      "scope": "implementable"
+    },
+    {
+      "code": "3103",
+      "condition": "Si 'Tipo de documento que modifica' es diferente de '30' y '42', y la 'Afectación al IGV o IVAP' es '10','11', '12', '13",
+      "scope": "implementable"
+    },
+    {
+      "code": "3104",
+      "condition": "Si 'Código de tributo por línea' es igual a '2000' cuyo 'Monto base' es mayor a cero (cbc:TaxableAmount > 0), el valor d",
+      "scope": "implementable"
+    },
+    {
+      "code": "3105",
+      "condition": "No existe en el ítem un cac:TaxSubtotal con cbc:ID con alguno de los siguientes valores: '1000', '1016', '9995', '9996',",
+      "scope": "implementable"
+    },
+    {
+      "code": "3107",
+      "condition": "si \"Código de tipo de nota de crédito\" es 11 (Exportación) y existe un ID '2000' o '9999' a nivel global",
+      "scope": "implementable"
+    },
+    {
+      "code": "3108",
+      "condition": "Si  el 'Código de tributo por línea' es '2000' cuyo 'Monto base' es mayor a cero (cbc:TaxableAmount > 0), el valor del t",
+      "scope": "implementable"
+    },
+    {
+      "code": "3109",
+      "condition": "Si el 'Código de tributo por línea' es '9999' cuyo 'Monto base' es mayor a cero (cbc:TaxableAmount > 0), el valor del ta",
+      "scope": "implementable"
+    },
+    {
+      "code": "3110",
+      "condition": "Si 'Código de tributo por línea' es igual a '9996' cuyo 'Monto base' es mayor a cero (cbc:TaxableAmount > 0), y la 'Afec",
+      "scope": "implementable"
+    },
+    {
+      "code": "3111",
+      "condition": "Si 'Código de tributo por línea' es igual a '1000' o '1016' y",
+      "scope": "implementable"
+    },
+    {
+      "code": "3151",
+      "condition": "Si código producto de Sunat de la linea es '84121901' y el  indicador de primera vivienda = 3 (código concepto 7002), y",
+      "scope": "implementable"
+    },
+    {
+      "code": "3152",
+      "condition": "Si código producto de Sunat de la linea es '84121901', y no existe el tag con código '7004'",
+      "scope": "implementable"
+    },
+    {
+      "code": "3153",
+      "condition": "Si código producto de Sunat de la linea es '84121901', y no existe el tag con código '7005'",
+      "scope": "implementable"
+    },
+    {
+      "code": "3154",
+      "condition": "Si código producto de Sunat de la linea es '84121901' y el  indicador de primera vivienda = 3 (código concepto 7002), no",
+      "scope": "implementable"
+    },
+    {
+      "code": "3155",
+      "condition": "Si código producto de Sunat de la linea es '84121901' y el  indicador de primera vivienda = 3 (código concepto 7002),  n",
+      "scope": "implementable"
+    },
+    {
+      "code": "3195",
+      "condition": "No existe el tag cac:CreditNoteLine/cac:TaxTotal",
+      "scope": "implementable"
+    },
+    {
+      "code": "3210",
+      "condition": "Si 'Código de tributo por línea' es diferente '2000' (ISC), existe el Tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "3223",
+      "condition": "En una línea sólo pueden existir las siguientes combinaciones de códigos de tributos con 'Monto base' mayor a cero (cbc:",
+      "scope": "implementable"
+    },
+    {
+      "code": "3224",
+      "condition": "Si no existe en misma la línea un cac:TaxSubtotal con 'Código de tributo por línea' igual a '9996' cuyo 'Monto base' es",
+      "scope": "implementable"
+    },
+    {
+      "code": "3236",
+      "condition": "Si el Tag UBL existe y el valor del Tag UBL es mayor a cero, el valor del tag es diferente de 'Cantidad de unidades por",
+      "scope": "implementable"
+    },
+    {
+      "code": "3237",
+      "condition": "Si 'Código de tributo por línea' es igual a '7152' y no existe el Tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "3238",
+      "condition": "Si 'Código de tributo por línea' es igual a '7152' y 'Cantidad de bolsas de plástico' es mayor a cero (cbc:BaseUnitMeasu",
+      "scope": "implementable"
+    },
+    {
+      "code": "3243",
+      "condition": "De existir 'Código del concepto' igual a '7014' y no existe el tag.",
+      "scope": "implementable"
+    },
+    {
+      "code": "3245",
+      "condition": "Si el 'Indicador' es 'FormaPago' y no existe el tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "3246",
+      "condition": "Si el 'Indicador' es 'FormaPago', el valor del tag es diferente de:",
+      "scope": "implementable"
+    },
+    {
+      "code": "3248",
+      "condition": "Si existe más de un tag cac:PaymentTerms con cbc:ID",
+      "scope": "implementable"
+    },
+    {
+      "code": "3249",
+      "condition": "Si el 'Indicador' es 'FormaPago', el valor del tag es 'Credito', el 'Tipo de Documento del adquiriente o usuario' es igu",
+      "scope": "implementable"
+    },
+    {
+      "code": "3250",
+      "condition": "El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales",
+      "scope": "implementable"
+    },
+    {
+      "code": "3251",
+      "condition": "Si existe un tag cac:PaymentTerms con cbc:ID",
+      "scope": "implementable"
+    },
+    {
+      "code": "3252",
+      "condition": "Si existe un tag cac:PaymentTerms con cbc:ID",
+      "scope": "implementable"
+    },
+    {
+      "code": "3253",
+      "condition": "Si el 'Indicador' es 'FormaPago', y el formato del 'Identificador de la cuota' es: Cuota[0-9]{3} y si existe el tag, el",
+      "scope": "implementable"
+    },
+    {
+      "code": "3254",
+      "condition": "Si existe un tag cac:PaymentTerms con cbc:ID",
+      "scope": "implementable"
+    },
+    {
+      "code": "3255",
+      "condition": "Si el 'Indicador' es 'FormaPago', y el formato del 'Identificador de la cuota' es: Cuota[0-9]{3} y si existe el tag, el",
+      "scope": "implementable"
+    },
+    {
+      "code": "3256",
+      "condition": "Si existe un tag cac:PaymentTerms con cbc:ID",
+      "scope": "implementable"
+    },
+    {
+      "code": "3271",
+      "condition": "Si el 'Tipo de documento que modifica' es '01', y no existe en la línea un cac:TaxSubtotal con 'Código de tributo por lí",
+      "scope": "implementable"
+    },
+    {
+      "code": "3272",
+      "condition": "Si el 'Tipo de documento que modifica' es '01', y no existe en la misma línea un cac:TaxSubtotal con 'Código de tributo",
+      "scope": "implementable"
+    },
+    {
+      "code": "3273",
+      "condition": "Si el 'Tipo de documento que modifica' es '01' y el 'Código de tributo' es '9995', el valor del Tag UBL es diferente a l",
+      "scope": "implementable"
+    },
+    {
+      "code": "3274",
+      "condition": "Si el 'Tipo de documento que modifica' es '01' y el 'Código de tributo' es '9998', el valor del Tag UBL es diferente a l",
+      "scope": "implementable"
+    },
+    {
+      "code": "3275",
+      "condition": "Si el 'Tipo de documento que modifica' es '01' y el 'Código de tributo' es '9997', el valor del Tag UBL es diferente a l",
+      "scope": "implementable"
+    },
+    {
+      "code": "3276",
+      "condition": "Si el 'Tipo de documento que modifica' es '01' y el 'Código de tributo' es '9996', el valor del Tag UBL es diferente a l",
+      "scope": "implementable"
+    },
+    {
+      "code": "3277",
+      "condition": "Si el Tag UBL existe y el 'Tipo de documento que modifica' es '01', y el 'Código de tributo' es '1000', el valor del Tag",
+      "scope": "implementable"
+    },
+    {
+      "code": "3280",
+      "condition": "Si el 'Tipo de documento que modifica' es '01', el  'Total valor de venta - operaciones gravadas' más 'Total valor de ve",
+      "scope": "implementable"
+    },
+    {
+      "code": "3291",
+      "condition": "Si el 'Tipo de documento que modifica' es '01' y el  'Código de tributo' es '1000', el valor del Tag Ubl es diferente al",
+      "scope": "implementable"
+    },
+    {
+      "code": "3292",
+      "condition": "Si el Tag UBL existe y el 'Tipo de documento que modifica' es '01', el valor del Tag UBL es diferente a la sumatoria de",
+      "scope": "implementable"
+    },
+    {
+      "code": "3293",
+      "condition": "Si el Tag UBL existe y el 'Tipo de documento que modifica' es '01', y el 'Código de tributo' es '1016', el valor del Tag",
+      "scope": "implementable"
+    },
+    {
+      "code": "3295",
+      "condition": "Si el 'Tipo de documento que modifica' es '01' y el  'Código de tributo' es '1016', el valor del Tag Ubl es diferente al",
+      "scope": "implementable"
+    },
+    {
+      "code": "3296",
+      "condition": "Si el Tag UBL existe y el 'Tipo de documento que modifica' es '01', el valor del Tag UBL es diferente a la sumatoria de",
+      "scope": "implementable"
+    },
+    {
+      "code": "3297",
+      "condition": "Si el Tag UBL existe y el 'Tipo de documento que modifica' es '01', y el 'Código de tributo' es '9999', el valor del Tag",
+      "scope": "implementable"
+    },
+    {
+      "code": "3298",
+      "condition": "Si el 'Tipo de documento que modifica' es '01' y el  'Código de tributo' es '2000', el valor del Tag Ubl es diferente de",
+      "scope": "implementable"
+    },
+    {
+      "code": "3299",
+      "condition": "Si el 'Tipo de documento que modifica' es '01' y el  'Código de tributo' es '9999', el valor del Tag Ubl  y es diferente",
+      "scope": "implementable"
+    },
+    {
+      "code": "3303",
+      "condition": "Si el Tag UBL existe y el 'Tipo de documento que modifica' es '01', el valor absoluto es mayor a 1",
+      "scope": "implementable"
+    },
+    {
+      "code": "3306",
+      "condition": "Si el 'Tipo de documento que modifica' es '01' y el 'Código de tributo' es '7152', el valor del Tag Ubl es diferente de",
+      "scope": "implementable"
+    },
+    {
+      "code": "3319",
+      "condition": "Si el 'Indicador' es 'FormaPago', el valor del tag es 'Credito', el 'Tipo de Documento del adquiriente o usuario' es igu",
+      "scope": "implementable"
+    },
+    {
+      "code": "3462",
+      "condition": "Si el 'Tipo de documento que modifica' es '01' y existe alguna línea con ('Código de tributo por línea' igual a '1000' y",
+      "scope": "out-of-scope"
+    }
+  ],
+  "DebitNote": [
+    {
+      "code": "1034",
+      "condition": "El Tag UBL es diferente al RUC del nombre del XML",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "1079",
+      "condition": "Si serie del documento no inicia con número y:",
+      "scope": "implementable"
+    },
+    {
+      "code": "2017",
+      "condition": "Si \"Tipo de documento de identidad del adquiriente\" es RUC (6), el formato del Tag UBL es diferente a numérico de 11 díg",
+      "scope": "implementable"
+    },
+    {
+      "code": "2033",
+      "condition": "El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero",
+      "scope": "implementable"
+    },
+    {
+      "code": "2037",
+      "condition": "No existe el Tag UBL o es vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "2048",
+      "condition": "El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero",
+      "scope": "implementable"
+    },
+    {
+      "code": "2052",
+      "condition": "No existe el Tag UBL o es vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "2054",
+      "condition": "No existe el Tag UBL o es vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "2064",
+      "condition": "El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero",
+      "scope": "implementable"
+    },
+    {
+      "code": "2108",
+      "condition": "Si serie del documento no inicia con número y:",
+      "scope": "implementable"
+    },
+    {
+      "code": "2329",
+      "condition": "El valor del Tag UBL es mayor a dos días de la fecha de envío del comprobante",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2367",
+      "condition": "El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 10 decimales y diferente de cero",
+      "scope": "implementable"
+    },
+    {
+      "code": "2369",
+      "condition": "Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 10 decimales y difer",
+      "scope": "implementable"
+    },
+    {
+      "code": "2370",
+      "condition": "El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero",
+      "scope": "implementable"
+    },
+    {
+      "code": "2371",
+      "condition": "Si 'Código de tributo por línea' es diferente a '2000' (ISC) o '9999' (Otros tributos), cuyo 'Monto base' es mayor a cer",
+      "scope": "implementable"
+    },
+    {
+      "code": "2373",
+      "condition": "Si 'Código de tributo por línea' es '2000' (ISC), no existe el Tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "2409",
+      "condition": "Existe en el mismo ítem otro cac:AlternativeConditionPrice con el mismo valor del Tag UBL (cbc:PriceTypeCode)",
+      "scope": "implementable"
+    },
+    {
+      "code": "2638",
+      "condition": "Si existe alguna línea (/DebitNote/cac:DebitNoteLine/cac:TaxTotal/cac:TaxSubtotal) con 'Monto base' mayor a cero (cbc:Ta",
+      "scope": "implementable"
+    },
+    {
+      "code": "2640",
+      "condition": "Si existe en la línea un cac:TaxSubtotal con 'Código de tributo por línea' igual a '9996' cuyo 'Monto base' es mayor a c",
+      "scope": "implementable"
+    },
+    {
+      "code": "2641",
+      "condition": "Si 'Código de tipo de tributo' es '9996' (Gratuita) y existe una línea con 'Valor referencial unitario por ítem en opera",
+      "scope": "implementable"
+    },
+    {
+      "code": "2642",
+      "condition": "Si 'Código de tipo de nota de débito' es '11', el valor del Tag UBL es diferente de '40'",
+      "scope": "implementable"
+    },
+    {
+      "code": "2644",
+      "condition": "Si 'Código de tipo de nota de débito' es '12', el valor del Tag UBL es diferente de '17'",
+      "scope": "implementable"
+    },
+    {
+      "code": "2752",
+      "condition": "Existe otro cac:DebitNoteLine con el mismo valor del Tag UBL (cbc:ID)",
+      "scope": "implementable"
+    },
+    {
+      "code": "2892",
+      "condition": "Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 3 enteros y hasta 5 decimales y diferen",
+      "scope": "implementable"
+    },
+    {
+      "code": "2936",
+      "condition": "Si existe el atributo, el valor es diferente al Catálogo N.° 03",
+      "scope": "implementable"
+    },
+    {
+      "code": "2949",
+      "condition": "Si  'Código de tributo' es '7152' y la 'Fecha de emisión' es menor a '2019-08-01', el valor del Tag Ubl es mayor a cero",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2956",
+      "condition": "No existe el tag /DebitNote/cac:TaxTotal",
+      "scope": "implementable"
+    },
+    {
+      "code": "2992",
+      "condition": "Si el 'Código de tributo' es diferente de '7152' y no existe el Tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "2993",
+      "condition": "Si 'Código de tributo por línea' es igual a '1000' o '1016', y  'Monto base' mayor a cero (cbc:TaxableAmount > 0), el va",
+      "scope": "implementable"
+    },
+    {
+      "code": "2996",
+      "condition": "No existe el Tag UBL o es vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "2999",
+      "condition": "El formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y diferente de cero",
+      "scope": "implementable"
+    },
+    {
+      "code": "3000",
+      "condition": "Si el Tag UBL existe, el valor del Tag Ubl es diferente de 0 (cero), cuando el 'Código de tributo' es '9995', '9997' y '",
+      "scope": "implementable"
+    },
+    {
+      "code": "3003",
+      "condition": "Si el 'Código de tributo' es diferente de '7152' y no existe el Tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "3006",
+      "condition": "Si el formato del Tag UBL es diferente a alfanumérico de 1 a 200 caractéres (se considera cualquier carácter incluido es",
+      "scope": "implementable"
+    },
+    {
+      "code": "3020",
+      "condition": "Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y difere",
+      "scope": "implementable"
+    },
+    {
+      "code": "3021",
+      "condition": "Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y difere",
+      "scope": "implementable"
+    },
+    {
+      "code": "3024",
+      "condition": "Existe a nivel global más de un tag cac:TaxTotal",
+      "scope": "implementable"
+    },
+    {
+      "code": "3026",
+      "condition": "Existe en el mismo ítem más de un tag cac:TaxTotal",
+      "scope": "implementable"
+    },
+    {
+      "code": "3030",
+      "condition": "Si 'Serie del comprobante' inicia con 'F' y 'Tipo de documento que modifica' es '01', no existe el Tag UBL o es vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "3031",
+      "condition": "Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 12 enteros y hasta 2 decimales y difere",
+      "scope": "implementable"
+    },
+    {
+      "code": "3034",
+      "condition": "Si 'Indicador PaymentMeans' es igual a 'Detraccion', no existe el Tag UBL o es vacío.",
+      "scope": "implementable"
+    },
+    {
+      "code": "3035",
+      "condition": "Si 'Indicador PaymentTerms' es igual a 'Detraccion', no existe el Tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "3037",
+      "condition": "El formato del Tag UBL es diferente de decimal (positivo mayor a cero) de 12 enteros y hasta 2 decimales",
+      "scope": "implementable"
+    },
+    {
+      "code": "3050",
+      "condition": "Si 'Código de tributo por línea' es igual a '2000' (ISC) o '9999' (Otros tributos), existe el tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "3059",
+      "condition": "No existe el Tag UBL o es vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "3067",
+      "condition": "Existe en el mismo ítem más de un cac:TaxSubtotal con el mismo valor del Tag UBL (cbc:ID)",
+      "scope": "implementable"
+    },
+    {
+      "code": "3068",
+      "condition": "Existe a nivel global  más de un cac:TaxSubtotal con el mismo valor del Tag UBL (cbc:ID)",
+      "scope": "implementable"
+    },
+    {
+      "code": "3102",
+      "condition": "Si el Tag UBL existe, el formato del Tag UBL es diferente de decimal positivo de 3 enteros y hasta 5 decimales y diferen",
+      "scope": "implementable"
+    },
+    {
+      "code": "3103",
+      "condition": "Si 'Tipo de documento que modifica' es diferente de '30' y '42', y la 'Afectación al IGV o IVAP' es '10','11', '12', '13",
+      "scope": "implementable"
+    },
+    {
+      "code": "3104",
+      "condition": "Si 'Código de tributo por línea' es igual a '2000' cuyo 'Monto base' es mayor a cero (cbc:TaxableAmount > 0), el valor d",
+      "scope": "implementable"
+    },
+    {
+      "code": "3105",
+      "condition": "No existe en el ítem un cac:TaxSubtotal con monto base mayor a cero (cbc:TaxableAmount > 0) y cbc:ID con alguno de los s",
+      "scope": "implementable"
+    },
+    {
+      "code": "3107",
+      "condition": "Si  'Código de tipo de nota de débito' es '11' (Exportacion) y existe un ID '2000' o '9999' a nivel global",
+      "scope": "implementable"
+    },
+    {
+      "code": "3108",
+      "condition": "Si  el 'Código de tributo por línea' es '2000' cuyo 'Monto base' es mayor a cero (cbc:TaxableAmount > 0), el valor del t",
+      "scope": "implementable"
+    },
+    {
+      "code": "3109",
+      "condition": "Si el 'Código de tributo por línea' es '9999' cuyo 'Monto base' es mayor a cero (cbc:TaxableAmount > 0), el valor del ta",
+      "scope": "implementable"
+    },
+    {
+      "code": "3110",
+      "condition": "Si 'Código de tributo por línea' es igual a '9996' cuyo 'Monto base' es mayor a cero (cbc:TaxableAmount > 0), y la 'Afec",
+      "scope": "implementable"
+    },
+    {
+      "code": "3111",
+      "condition": "Si 'Código de tributo por línea' es igual a '1000' o '1016' y",
+      "scope": "implementable"
+    },
+    {
+      "code": "3127",
+      "condition": "Si 'Indicador PaymentTerms' es igual a 'Detraccion', no existe el tag o es vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "3151",
+      "condition": "Si codigo producto de sunat de la linea es '84121901' y indicador de primera vivienda = 3 (Codigo concepto 7002), y no e",
+      "scope": "implementable"
+    },
+    {
+      "code": "3152",
+      "condition": "Si codigo producto de sunat de la linea es '84121901', y no existe el tag con codigo '7004'",
+      "scope": "implementable"
+    },
+    {
+      "code": "3153",
+      "condition": "Si codigo producto de sunat de la linea es '84121901', y no existe el tag con codigo '7005'",
+      "scope": "implementable"
+    },
+    {
+      "code": "3154",
+      "condition": "Si codigo producto de sunat de la linea es '84121901' y indicador de primera vivienda = 3 (Codigo concepto 7002), no exi",
+      "scope": "implementable"
+    },
+    {
+      "code": "3155",
+      "condition": "Si codigo producto de sunat de la linea es '84121901' y indicador de primera vivienda = 3 (Codigo concepto 7002),  no ex",
+      "scope": "implementable"
+    },
+    {
+      "code": "3195",
+      "condition": "No existe el tag cac:DebitNoteLine/cac:TaxTotal",
+      "scope": "implementable"
+    },
+    {
+      "code": "3208",
+      "condition": "Si 'Indicador PaymentTerms' es igual a 'Detraccion', el atributo @currencyID del Tag UBL es diferente a \"PEN\"",
+      "scope": "implementable"
+    },
+    {
+      "code": "3210",
+      "condition": "Si 'Código de tributo por línea' es diferente '2000' (ISC), existe el Tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "3223",
+      "condition": "En una línea sólo pueden existir las siguientes combinaciones de códigos de tributos con 'Monto base' mayor a cero (cbc:",
+      "scope": "implementable"
+    },
+    {
+      "code": "3224",
+      "condition": "Si no existe en misma la línea un cac:TaxSubtotal con 'Código de tributo por línea' igual a '9996' cuyo 'Monto base' es",
+      "scope": "implementable"
+    },
+    {
+      "code": "3236",
+      "condition": "Si el Tag UBL existe y el valor del Tag UBL es mayor a cero, el valor del tag es diferente de 'Cantidad de unidades por",
+      "scope": "implementable"
+    },
+    {
+      "code": "3237",
+      "condition": "Si 'Código de tributo por línea' es igual a '7152' y no existe el Tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "3238",
+      "condition": "Si 'Código de tributo por línea' es igual a '7152' y 'Cantidad de bolsas de plástico' es mayor a cero (cbc:BaseUnitMeasu",
+      "scope": "implementable"
+    },
+    {
+      "code": "3243",
+      "condition": "De existir 'Código del concepto' igual a '7014' y no existe el tag.",
+      "scope": "implementable"
+    },
+    {
+      "code": "3270",
+      "condition": "Si el 'Tipo de documento que modifica' es '01', y no existe en la misma línea un cac:TaxSubtotal con 'Código de tributo",
+      "scope": "implementable"
+    },
+    {
+      "code": "3271",
+      "condition": "Si el 'Tipo de documento que modifica' es '01' y no existe en la línea un cac:TaxSubtotal con 'Código de tributo por lín",
+      "scope": "implementable"
+    },
+    {
+      "code": "3272",
+      "condition": "Si el 'Tipo de documento que modifica' es '01', y no existe en la misma línea un cac:TaxSubtotal con 'Código de tributo",
+      "scope": "implementable"
+    },
+    {
+      "code": "3273",
+      "condition": "Si el 'Tipo de documento que modifica' es '01' y el 'Código de tributo' es '9995', el valor del Tag UBL es diferente a l",
+      "scope": "implementable"
+    },
+    {
+      "code": "3274",
+      "condition": "Si el 'Tipo de documento que modifica' es '01' y el 'Código de tributo' es '9998', el valor del Tag UBL es diferente a l",
+      "scope": "implementable"
+    },
+    {
+      "code": "3275",
+      "condition": "Si el 'Tipo de documento que modifica' es '01' y el 'Código de tributo' es '9997', el valor del Tag UBL es diferente a l",
+      "scope": "implementable"
+    },
+    {
+      "code": "3276",
+      "condition": "Si el 'Tipo de documento que modifica' es '01' y el  'Código de tributo' es '9996', el valor del Tag UBL es diferente a",
+      "scope": "implementable"
+    },
+    {
+      "code": "3277",
+      "condition": "Si el 'Tipo de documento que modifica' es '01' y el  'Código de tributo' es '1000' y  el Tag UBL existe, el valor del Ta",
+      "scope": "implementable"
+    },
+    {
+      "code": "3280",
+      "condition": "Si el 'Tipo de documento que modifica' es '01', el \"Total valor de venta - operaciones gravadas\" más \"Total valor de ven",
+      "scope": "implementable"
+    },
+    {
+      "code": "3291",
+      "condition": "Si el 'Tipo de documento que modifica' es '01' y el  'Código de tributo' es '1000', el valor del Tag Ubl es diferente al",
+      "scope": "implementable"
+    },
+    {
+      "code": "3292",
+      "condition": "Si el Tag UBL existe y el 'Tipo de documento que modifica' es '01', el valor del Tag UBL es diferente a la sumatoria de",
+      "scope": "implementable"
+    },
+    {
+      "code": "3293",
+      "condition": "Si el 'Tipo de documento que modifica' es '01', y el  'Código de tributo' es '1016' y el Tag UBL existe, el valor del Ta",
+      "scope": "implementable"
+    },
+    {
+      "code": "3295",
+      "condition": "Si el 'Tipo de documento que modifica' es '01', y el  'Código de tributo' es '1016', el valor del Tag UBL es diferente a",
+      "scope": "implementable"
+    },
+    {
+      "code": "3296",
+      "condition": "Si el Tag UBL existe y el 'Tipo de documento que modifica' es '01', y el 'Código de tributo' es '2000', y el valor del T",
+      "scope": "implementable"
+    },
+    {
+      "code": "3297",
+      "condition": "Si el Tag UBL existe y el 'Tipo de documento que modifica' es '01', y el 'Código de tributo' es '9999', el valor del Tag",
+      "scope": "implementable"
+    },
+    {
+      "code": "3298",
+      "condition": "Si el 'Tipo de documento que modifica' es '01', y el  'Código de tributo' es '2000', el valor del Tag Ubl es diferente d",
+      "scope": "implementable"
+    },
+    {
+      "code": "3299",
+      "condition": "Si el 'Tipo de documento que modifica' es '01', y el 'Código de tributo' es '9999', el valor del Tag Ubl  y es diferente",
+      "scope": "implementable"
+    },
+    {
+      "code": "3302",
+      "condition": "Si el 'Tipo de documento que modifica' es '01' y el 'Código de tributo' es '9996', el valor del Tag UBL es diferente de",
+      "scope": "implementable"
+    },
+    {
+      "code": "3303",
+      "condition": "Si existe el tag UBL y el 'Tipo de documento que modifica' es igual a '01', el valor absoluto es mayor a 1",
+      "scope": "implementable"
+    },
+    {
+      "code": "3306",
+      "condition": "Si el 'Tipo de documento que modifica' es '01', y el  'Código de tributo' es '7152', el valor del Tag Ubl es diferente d",
+      "scope": "implementable"
+    },
+    {
+      "code": "3462",
+      "condition": "Si el 'Tipo de documento que modifica' es '01' y existe alguna línea con ('Código de tributo por línea' igual a '1000' y",
+      "scope": "out-of-scope"
+    }
+  ],
+  "Retention": [
+    {
+      "code": "1001",
+      "condition": "El formato del Tag UBL no tiene el formato:",
+      "scope": "implementable"
+    },
+    {
+      "code": "1033",
+      "condition": "Si la serie empieza con número, y el valor del Tag UBL se encuentra en el listado con indicador de estado igual a 2",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "1034",
+      "condition": "El valor del Tag UBL es diferente al RUC del nombre del XML",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "1037",
+      "condition": "No existe el Tag UBL o es vacio",
+      "scope": "implementable"
+    },
+    {
+      "code": "1038",
+      "condition": "Si el Tag UBL existe, el formato del Tag UBL es diferente a alfanumérico de hasta 1500 caracteres (se considera cualquie",
+      "scope": "implementable"
+    },
+    {
+      "code": "1049",
+      "condition": "El valor del Tag UBL es diferente al nombre del archivo",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2110",
+      "condition": "El valor del Tag UBL es diferente a \"2.0\"",
+      "scope": "implementable"
+    },
+    {
+      "code": "2111",
+      "condition": "El Tag UBL está vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "2112",
+      "condition": "El valor del Tag UBL es diferente a \"1.0\"",
+      "scope": "implementable"
+    },
+    {
+      "code": "2113",
+      "condition": "El Tag UBL está vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "2133",
+      "condition": "Si el Tag UBL existe, el formato del Tag UBL es diferente a alfanumérico de hasta 1500 caracteres (se considera cualquie",
+      "scope": "implementable"
+    },
+    {
+      "code": "2134",
+      "condition": "No existe el Tag UBL o es vacio",
+      "scope": "implementable"
+    },
+    {
+      "code": "2511",
+      "condition": "El valor del Tag UBL es diferente a 6",
+      "scope": "implementable"
+    },
+    {
+      "code": "2516",
+      "condition": "No existe el Tag UBL o es vacio",
+      "scope": "implementable"
+    },
+    {
+      "code": "2548",
+      "condition": "Si el Tag UBL existe, el valor es diferente a \"PE\"",
+      "scope": "implementable"
+    },
+    {
+      "code": "2600",
+      "condition": "Si serie del documento no inicia con número:",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2617",
+      "condition": "No existe ind_padrón igual a \"03\" en el listado para el valor del Tag UBL",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2618",
+      "condition": "El valor del Tag UBL no está en el listado",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2619",
+      "condition": "El valor del Tag UBL es diferente a la Tasa de retención del listado para el \"Código del regimen de retención\"",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2621",
+      "condition": "El valor del Tag UBL no está en el listado",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2626",
+      "condition": "Si \"Tipo de documento relacionado\" es diferente a \"07\", el \"Número de documento relacionado\" concatenado con el valor de",
+      "scope": "implementable"
+    },
+    {
+      "code": "2669",
+      "condition": "El formato del Tag UBL es diferente a decimal positivo de 12 enteros y 2 decimales o es cero (0)",
+      "scope": "implementable"
+    },
+    {
+      "code": "2678",
+      "condition": "No existe el Tag UBL o es vacio",
+      "scope": "implementable"
+    },
+    {
+      "code": "2691",
+      "condition": "No existe el Tag UBL o es vacio",
+      "scope": "implementable"
+    },
+    {
+      "code": "2692",
+      "condition": "El valor del Tag UBL es diferente a \"01\", \"12\", \"07\", \"08\", \"20\"",
+      "scope": "implementable"
+    },
+    {
+      "code": "2693",
+      "condition": "El valor del Tag UBL esta vacío",
+      "scope": "implementable"
+    },
+    {
+      "code": "2694",
+      "condition": "Si \"Tipo de documento relacionado\" es diferente a \"12\", el formato del Tag UBL es diferente a:",
+      "scope": "implementable"
+    },
+    {
+      "code": "2696",
+      "condition": "El formato del Tag UBL es diferente a decimal positivo de 12 enteros y 2 decimales o es cero (0)",
+      "scope": "implementable"
+    },
+    {
+      "code": "2715",
+      "condition": "Si \"Tipo de documento relacionado\" es diferente a \"07\", el valor del Tag UBL es diferente \"PEN\"",
+      "scope": "implementable"
+    },
+    {
+      "code": "2716",
+      "condition": "Si el Tag UBL existe, el formato del Tag UBL es diferente a decimal positivo de 4 enteros y 6 decimales o es cero (0)",
+      "scope": "implementable"
+    },
+    {
+      "code": "2719",
+      "condition": "Si \"Tipo de documento relacionado\" es diferente a \"07\" y \"Tipo de moneda del documento relacionado\" es diferente \"PEN\",",
+      "scope": "implementable"
+    },
+    {
+      "code": "2721",
+      "condition": "Si \"Tipo de documento relacionado\" es diferente a \"07\" y \"Tipo de moneda del documento relacionado\" es diferente \"PEN\",",
+      "scope": "implementable"
+    },
+    {
+      "code": "2722",
+      "condition": "Si \"Tipo de documento relacionado\" es diferente a \"07\" y \"Tipo de moneda del documento relacionado\" es diferente \"PEN\",",
+      "scope": "implementable"
+    },
+    {
+      "code": "2749",
+      "condition": "Si \"Tipo de documento relacionado\" es diferente a \"07\", el valor del Tag UBL es diferente \"Tipo de moneda del documento",
+      "scope": "implementable"
+    },
+    {
+      "code": "3207",
+      "condition": "Si la serie empieza con número,  el Tag UBL no se encuentra en el listado",
+      "scope": "out-of-scope"
+    }
+  ],
+  "Perception": [
+    {
+      "code": "1033",
+      "condition": "Si la serie empieza con número, y el valor del Tag UBL se encuentra en el listado con indicador de estado igual a 2",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2602",
+      "condition": "El valor del Tag UBL no está en el listado",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2603",
+      "condition": "El valor del Tag UBL es diferente al  Porcentaje de percepción del listado para el \"Código del régimen de percepción\"",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2605",
+      "condition": "Si \"Tipo de documento de identidad del cliente\" es 6, el valor del Tag UBL no está en el listado",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2609",
+      "condition": "Si el \"Tipo de documento relacionado\" es \"01\", \"07\" o \"08\" y el Tag UBL empieza con \"F\", el valor del Tag UBL no existe",
+      "scope": "implementable"
+    },
+    {
+      "code": "2610",
+      "condition": "Si el \"Tipo de documento relacionado\" es \"01\", \"03\", \"07\" o \"08\" y la \"Serie del documento relacionado\" empieza con \"E00",
+      "scope": "implementable"
+    },
+    {
+      "code": "3207",
+      "condition": "Si la serie empieza con número,  el Tag UBL no se encuentra en el listado",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "3312",
+      "condition": "Si no existe el \"Indicador de emisión excepcional\", el \"Tipo de documento relacionado\" es '01' y el valor del tag no emp",
+      "scope": "implementable"
+    },
+    {
+      "code": "3323",
+      "condition": "Si el valor del \"Indicador de emisión excepcional\" es \"01\" y existe más de un (01) documento relacionado.",
+      "scope": "implementable"
+    },
+    {
+      "code": "3325",
+      "condition": "Si el valor del \"Indicador de emisión excepcional\" es \"01\", el Tipo de documento relacionado es \"01\" y el valor del tag",
+      "scope": "implementable"
+    },
+    {
+      "code": "3326",
+      "condition": "Si el valor del \"Indicador de emisión excepcional\" es \"01\", el Tipo de documento relacionado es \"01\" y la \"Serie y númer",
+      "scope": "implementable"
+    },
+    {
+      "code": "3328",
+      "condition": "Si el \"Tipo de documento relacionado\" es '03' y el valor del tag no empieza con número, el 'Tipo de operación' del docum",
+      "scope": "implementable"
+    },
+    {
+      "code": "3329",
+      "condition": "Si no existe el \"Indicador de emisión excepcional\", y el \"Tipo de documento relacionado\" es '01' y el valor del tag no e",
+      "scope": "implementable"
+    }
+  ],
+  "VoidedDocuments": [
+    {
+      "code": "0127",
+      "condition": "",
+      "scope": "implementable"
+    },
+    {
+      "code": "2011",
+      "condition": "El valor del Tag UBL tiene un ind_condicion igual a \"12\" en el listado",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2105",
+      "condition": "Si el 'Tipo de documento' es igual a '30', '34' o '42' y 'Serie del documento de baja' empieza con 'F', el 'Tipo de docu",
+      "scope": "implementable"
+    },
+    {
+      "code": "2323",
+      "condition": "El 'Tipo de documento' concatenado con 'Serie del documento dado de baja' concatenado con el Tag UBL se encuentra en el",
+      "scope": "implementable"
+    },
+    {
+      "code": "2324",
+      "condition": "El valor del Tag UBL ya ha sido presentado anteriormente",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2375",
+      "condition": "Si el \"Tipo de documento\" es '14' (Servicio Publico); o, \"Tipo de documento\" es '07' o '08' y \"Serie del documento de ba",
+      "scope": "implementable"
+    },
+    {
+      "code": "2398",
+      "condition": "El 'Tipo de documento' concatenado con 'Serie del documento dado de baja' concatenado con el Tag UBL se encuentra en el",
+      "scope": "implementable"
+    },
+    {
+      "code": "2581",
+      "condition": "Si la 'Serie del documento dado de baja' empieza con 'S' y el 'Número de RUC' pertenece al 'SEE-Empresas supervisadas'",
+      "scope": "implementable"
+    },
+    {
+      "code": "2957",
+      "condition": "Si la 'Serie del documento dado de baja' no inicia con número y la diferencia entre la fecha de recepción de la comunica",
+      "scope": "out-of-scope"
+    }
+  ],
+  "SummaryDocuments": [
+    {
+      "code": "2016",
+      "condition": "Si existe tag de \"Adquiriente o usuario\", el valor del Tag UBL es diferente al listado y guión (-)",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2256",
+      "condition": "El Tag UBL no existe en el listado",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2268",
+      "condition": "El valor del Tag UBL es diferente al listado",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2282",
+      "condition": "Si el comprobante existe en el listado y el 'Código de operación del ítem' es '1'",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2517",
+      "condition": "El valor del Tag UBL es diferente al listado",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2601",
+      "condition": "Si el valor del Tag es mayor a cero y  no existe ind_padrón igual a \"01\" o “02” en el listado para el \"Numero de RUC\" de",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2605",
+      "condition": "Si existe  informacion de percepcion y \"Tipo de documento de identidad del adquiriente\" es 6 y el \"Numero de documento d",
+      "scope": "implementable"
+    },
+    {
+      "code": "2663",
+      "condition": "Si el comprobante no existe en el listado y el 'Código de operacion del ítem' es '2' o '3'",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2891",
+      "condition": "El valor del Tag UBL es diferente a la tasa del listado para el \"Regimen de percepción\"",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2896",
+      "condition": "El valor del Tag UBL es diferente al listado",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2957",
+      "condition": "Si la 'Serie del documento' no inicia con número y el 'Código de operación del ítem' es igual a '3':",
+      "scope": "implementable"
+    },
+    {
+      "code": "2987",
+      "condition": "Si el comprobante existe en el listado:",
+      "scope": "out-of-scope"
+    },
+    {
+      "code": "2989",
+      "condition": "Si \"Tipo del documento del documento que modifica\" es \"03\" y \"Serie del documento que modifica\" empieza con B, el compro",
+      "scope": "implementable"
+    },
+    {
+      "code": "2990",
+      "condition": "Si \"Tipo del documento del documento que modifica\" es \"03\" y \"Serie del documento que modifica\" empieza con B, el compro",
+      "scope": "implementable"
+    },
+    {
+      "code": "3207",
+      "condition": "Si \"Tipo de documento\" es 03, 07 o 08 y la serie empieza con número,  el Tag UBL no se encuentra en el listado",
+      "scope": "out-of-scope"
+    }
+  ],
+  "Signature": [
+    {
+      "code": "2076",
+      "condition": "No existe el Tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "2077",
+      "condition": "El formato del Tag UBL es diferente a alfanumérico de hasta 3000 caracteres",
+      "scope": "implementable"
+    },
+    {
+      "code": "2078",
+      "condition": "El Tag UBL debe ser igual al RUC del emisor o al RUC que se envía el comprobante",
+      "scope": "implementable"
+    },
+    {
+      "code": "2079",
+      "condition": "No existe el Tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "2080",
+      "condition": "El formato del Tag UBL es diferente a alfanumérico de hasta 3000 caracteres",
+      "scope": "implementable"
+    },
+    {
+      "code": "2081",
+      "condition": "No existe el Tag UBL",
+      "scope": "implementable"
+    },
+    {
+      "code": "2082",
+      "condition": "El formato del Tag UBL es diferente a alfanumérico de hasta 3000 caracteres",
+      "scope": "implementable"
+    },
+    {
+      "code": "2083",
+      "condition": "No existe el Tag UBL",
+      "scope": "implementable"
+    }
+  ],
+  "Summary": []
+}

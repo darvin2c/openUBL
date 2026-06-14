@@ -97,16 +97,15 @@ describe("runtime Zod validation", () => {
     expect(() => zProveedor.parse({ ruc: "1234567890", razonSocial: "X" })).toThrow(z.ZodError);
   });
 
-  it("rejects invalid invoice serie", () => {
-    expect(() =>
-      zInvoice.parse({
-        serie: "X001",
-        numero: 1,
-        proveedor: { ruc: "20100066603", razonSocial: "X" },
-        cliente: { nombre: "C", numeroDocumentoIdentidad: "12345678", tipoDocumentoIdentidad: "1" },
-        detalles: [{ descripcion: "Item", cantidad: 1, precio: 10 }],
-      }),
-    ).toThrow(z.ZodError);
+  it("accepts invoice serie that is only server-validated", () => {
+    const parsed = zInvoice.parse({
+      serie: "X001",
+      numero: 1,
+      proveedor: { ruc: "20100066603", razonSocial: "X" },
+      cliente: { nombre: "C", numeroDocumentoIdentidad: "12345678", tipoDocumentoIdentidad: "1" },
+      detalles: [{ descripcion: "Item", cantidad: 1, precio: 10 }],
+    });
+    expect(parsed.serie).toBe("X001");
   });
 
   it("rejects invalid tipoDocumentoIdentidad enum", () => {
@@ -126,10 +125,10 @@ describe("SDK validation", () => {
   it("rejects an invalid invoice through the generated SDK", async () => {
     const { error } = await createInvoice({
       body: {
-        serie: "X001",
+        serie: "F001",
         numero: 1,
         proveedor: { ruc: "20100066603", razonSocial: "X" },
-        cliente: { nombre: "C", numeroDocumentoIdentidad: "12345678", tipoDocumentoIdentidad: "1" },
+        cliente: { nombre: "C", numeroDocumentoIdentidad: "12345678", tipoDocumentoIdentidad: "99" },
         detalles: [{ descripcion: "Item", cantidad: 1, precio: 10 }],
       },
     });

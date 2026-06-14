@@ -175,6 +175,60 @@ export type ComprobanteValorVenta = {
 };
 
 /**
+ * CreateResponse
+ *
+ * Respuesta unificada de los endpoints /create.
+ */
+export type CreateResponse = {
+    /**
+     * Errors
+     */
+    errors?: Array<{
+        [key: string]: unknown;
+    }> | null;
+    /**
+     * Firmado
+     */
+    firmado: boolean;
+    /**
+     * Valid
+     */
+    valid?: boolean | null;
+    /**
+     * Validado Sunat
+     */
+    validado_sunat: boolean;
+    /**
+     * Xml
+     */
+    xml: string;
+};
+
+/**
+ * Credentials
+ *
+ * Credenciales para firma digital.
+ */
+export type Credentials = {
+    /**
+     * Cert Pem
+     */
+    cert_pem?: string | null;
+    /**
+     * Key Pem
+     */
+    key_pem?: string | null;
+    /**
+     * Pfx Base64
+     */
+    pfx_base64?: string | null;
+    /**
+     * Pfx Password
+     */
+    pfx_password?: string | null;
+};
+
+/**
  * CreditNote
  *
  * Nota de Crédito Electrónica - Tipo 07.
@@ -228,6 +282,28 @@ export type CreditNote = {
 };
 
 /**
+ * CreditNoteCreateRequest
+ *
+ * Request para crear una nota de crédito.
+ */
+export type CreditNoteCreateRequest = {
+    credenciales?: Credentials | null;
+    documento: CreditNote;
+    /**
+     * Firmar
+     */
+    firmar?: boolean;
+    /**
+     * Signature Id
+     */
+    signature_id?: string;
+    /**
+     * Validar Sunat
+     */
+    validar_sunat?: boolean;
+};
+
+/**
  * DebitNote
  *
  * Nota de Débito Electrónica - Tipo 08.
@@ -278,6 +354,28 @@ export type DebitNote = {
      * Valorventatotal
      */
     valorVentaTotal?: number | string | null;
+};
+
+/**
+ * DebitNoteCreateRequest
+ *
+ * Request para crear una nota de débito.
+ */
+export type DebitNoteCreateRequest = {
+    credenciales?: Credentials | null;
+    documento: DebitNote;
+    /**
+     * Firmar
+     */
+    firmar?: boolean;
+    /**
+     * Signature Id
+     */
+    signature_id?: string;
+    /**
+     * Validar Sunat
+     */
+    validar_sunat?: boolean;
 };
 
 /**
@@ -381,6 +479,28 @@ export type Invoice = {
 };
 
 /**
+ * InvoiceCreateRequest
+ *
+ * Request para crear una factura.
+ */
+export type InvoiceCreateRequest = {
+    credenciales?: Credentials | null;
+    documento: Invoice;
+    /**
+     * Firmar
+     */
+    firmar?: boolean;
+    /**
+     * Signature Id
+     */
+    signature_id?: string;
+    /**
+     * Validar Sunat
+     */
+    validar_sunat?: boolean;
+};
+
+/**
  * PercepcionRetencionOperacion
  *
  * Operación de percepción.
@@ -447,6 +567,28 @@ export type Perception = {
 };
 
 /**
+ * PerceptionCreateRequest
+ *
+ * Request para crear una percepción.
+ */
+export type PerceptionCreateRequest = {
+    credenciales?: Credentials | null;
+    documento: Perception;
+    /**
+     * Firmar
+     */
+    firmar?: boolean;
+    /**
+     * Signature Id
+     */
+    signature_id?: string;
+    /**
+     * Validar Sunat
+     */
+    validar_sunat?: boolean;
+};
+
+/**
  * Proveedor
  *
  * Datos del emisor del comprobante.
@@ -483,6 +625,11 @@ export type Proveedor = {
  * - Régimen: Catálogo N.° 23
  */
 export type Retention = {
+    cliente: Cliente;
+    /**
+     * Fechaemision
+     */
+    fechaEmision: string;
     /**
      * Importetotalpagado
      */
@@ -492,9 +639,14 @@ export type Retention = {
      */
     importeTotalRetenido: number | string;
     /**
+     * Numero
+     */
+    numero: number;
+    /**
      * Operaciones
      */
     operaciones: Array<PercepcionRetencionOperacion>;
+    proveedor: Proveedor;
     /**
      * Serie
      *
@@ -506,6 +658,28 @@ export type Retention = {
      * Tiporegimenporcentaje
      */
     tipoRegimenPorcentaje: number | string;
+};
+
+/**
+ * RetentionCreateRequest
+ *
+ * Request para crear una retención.
+ */
+export type RetentionCreateRequest = {
+    credenciales?: Credentials | null;
+    documento: Retention;
+    /**
+     * Firmar
+     */
+    firmar?: boolean;
+    /**
+     * Signature Id
+     */
+    signature_id?: string;
+    /**
+     * Validar Sunat
+     */
+    validar_sunat?: boolean;
 };
 
 /**
@@ -543,6 +717,28 @@ export type SummaryDocuments = {
      */
     numero: number;
     proveedor: Proveedor;
+};
+
+/**
+ * SummaryDocumentsCreateRequest
+ *
+ * Request para crear un resumen diario.
+ */
+export type SummaryDocumentsCreateRequest = {
+    credenciales?: Credentials | null;
+    documento: SummaryDocuments;
+    /**
+     * Firmar
+     */
+    firmar?: boolean;
+    /**
+     * Signature Id
+     */
+    signature_id?: string;
+    /**
+     * Validar Sunat
+     */
+    validar_sunat?: boolean;
 };
 
 /**
@@ -616,6 +812,28 @@ export type VoidedDocuments = {
 };
 
 /**
+ * VoidedDocumentsCreateRequest
+ *
+ * Request para crear una comunicación de baja.
+ */
+export type VoidedDocumentsCreateRequest = {
+    credenciales?: Credentials | null;
+    documento: VoidedDocuments;
+    /**
+     * Firmar
+     */
+    firmar?: boolean;
+    /**
+     * Signature Id
+     */
+    signature_id?: string;
+    /**
+     * Validar Sunat
+     */
+    validar_sunat?: boolean;
+};
+
+/**
  * VoidedDocumentsItem
  *
  * Item de comunicación de baja.
@@ -638,18 +856,6 @@ export type VoidedDocumentsItem = {
      */
     serie: string;
     tipoComprobante: Catalog1;
-};
-
-/**
- * XmlResponse
- *
- * Response containing generated XML document.
- */
-export type XmlResponse = {
-    /**
-     * Xml
-     */
-    xml: string;
 };
 
 /**
@@ -703,14 +909,9 @@ export type OpenublModelsSummaryComprobanteAfectado = {
 };
 
 export type CreateCreditNoteData = {
-    body: CreditNote;
+    body: CreditNoteCreateRequest;
     path?: never;
-    query?: {
-        /**
-         * Validate
-         */
-        validate?: boolean;
-    };
+    query?: never;
     url: '/api/v1/credit-note/create';
 };
 
@@ -727,20 +928,15 @@ export type CreateCreditNoteResponses = {
     /**
      * Successful Response
      */
-    200: XmlResponse;
+    200: CreateResponse;
 };
 
 export type CreateCreditNoteResponse = CreateCreditNoteResponses[keyof CreateCreditNoteResponses];
 
 export type CreateDebitNoteData = {
-    body: DebitNote;
+    body: DebitNoteCreateRequest;
     path?: never;
-    query?: {
-        /**
-         * Validate
-         */
-        validate?: boolean;
-    };
+    query?: never;
     url: '/api/v1/debit-note/create';
 };
 
@@ -757,20 +953,15 @@ export type CreateDebitNoteResponses = {
     /**
      * Successful Response
      */
-    200: XmlResponse;
+    200: CreateResponse;
 };
 
 export type CreateDebitNoteResponse = CreateDebitNoteResponses[keyof CreateDebitNoteResponses];
 
 export type CreateInvoiceData = {
-    body: Invoice;
+    body: InvoiceCreateRequest;
     path?: never;
-    query?: {
-        /**
-         * Validate
-         */
-        validate?: boolean;
-    };
+    query?: never;
     url: '/api/v1/invoice/create';
 };
 
@@ -787,20 +978,15 @@ export type CreateInvoiceResponses = {
     /**
      * Successful Response
      */
-    200: XmlResponse;
+    200: CreateResponse;
 };
 
 export type CreateInvoiceResponse = CreateInvoiceResponses[keyof CreateInvoiceResponses];
 
 export type CreatePerceptionData = {
-    body: Perception;
+    body: PerceptionCreateRequest;
     path?: never;
-    query?: {
-        /**
-         * Validate
-         */
-        validate?: boolean;
-    };
+    query?: never;
     url: '/api/v1/perception/create';
 };
 
@@ -817,20 +1003,15 @@ export type CreatePerceptionResponses = {
     /**
      * Successful Response
      */
-    200: XmlResponse;
+    200: CreateResponse;
 };
 
 export type CreatePerceptionResponse = CreatePerceptionResponses[keyof CreatePerceptionResponses];
 
 export type CreateRetentionData = {
-    body: Retention;
+    body: RetentionCreateRequest;
     path?: never;
-    query?: {
-        /**
-         * Validate
-         */
-        validate?: boolean;
-    };
+    query?: never;
     url: '/api/v1/retention/create';
 };
 
@@ -847,7 +1028,7 @@ export type CreateRetentionResponses = {
     /**
      * Successful Response
      */
-    200: XmlResponse;
+    200: CreateResponse;
 };
 
 export type CreateRetentionResponse = CreateRetentionResponses[keyof CreateRetentionResponses];
@@ -883,14 +1064,9 @@ export type SignXmlResponses = {
 export type SignXmlResponse = SignXmlResponses[keyof SignXmlResponses];
 
 export type CreateSummaryDocumentsData = {
-    body: SummaryDocuments;
+    body: SummaryDocumentsCreateRequest;
     path?: never;
-    query?: {
-        /**
-         * Validate
-         */
-        validate?: boolean;
-    };
+    query?: never;
     url: '/api/v1/summary-documents/create';
 };
 
@@ -907,7 +1083,7 @@ export type CreateSummaryDocumentsResponses = {
     /**
      * Successful Response
      */
-    200: XmlResponse;
+    200: CreateResponse;
 };
 
 export type CreateSummaryDocumentsResponse = CreateSummaryDocumentsResponses[keyof CreateSummaryDocumentsResponses];
@@ -927,14 +1103,9 @@ export type GetVersionResponses = {
 };
 
 export type CreateVoidedDocumentsData = {
-    body: VoidedDocuments;
+    body: VoidedDocumentsCreateRequest;
     path?: never;
-    query?: {
-        /**
-         * Validate
-         */
-        validate?: boolean;
-    };
+    query?: never;
     url: '/api/v1/voided-documents/create';
 };
 
@@ -951,7 +1122,7 @@ export type CreateVoidedDocumentsResponses = {
     /**
      * Successful Response
      */
-    200: XmlResponse;
+    200: CreateResponse;
 };
 
 export type CreateVoidedDocumentsResponse = CreateVoidedDocumentsResponses[keyof CreateVoidedDocumentsResponses];

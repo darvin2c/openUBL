@@ -32,6 +32,8 @@
     </cac:DigitalSignatureAttachment>
   </cac:Signature>
   <cac:AccountingSupplierParty>
+    <cbc:CustomerAssignedAccountID>{{ doc.proveedor.ruc }}</cbc:CustomerAssignedAccountID>
+    <cbc:AdditionalAccountID>6</cbc:AdditionalAccountID>
     <cac:Party>
       <cac:PartyIdentification>
         <cbc:ID schemeID="6">{{ doc.proveedor.ruc }}</cbc:ID>

@@ -1,0 +1,133 @@
+---
+title: Endpoints REST
+---
+
+import CodeTabs from '../../../components/CodeTabs.astro';
+
+openUBL Server expone una API REST puramente técnica bajo `/api/v1`. Cada endpoint de creación recibe el mismo body unificado y devuelve la misma estructura de respuesta.
+
+## Body unificado de `/create`
+
+```json
+{
+  "documento": { /* Invoice, CreditNote, DebitNote, VoidedDocuments, SummaryDocuments, Perception o Retention */ },
+  "credenciales": {
+    "cert_pem": "...",
+    "key_pem": "...",
+    // o bien
+    "pfx_base64": "...",
+    "pfx_password": "..."
+  },
+  "firmar": false,
+  "validar_sunat": true,
+  "signature_id": "SignSUNAT"
+}
+```
+
+| Campo | Tipo | Requerido | Descripción |
+|-------|------|-----------|-------------|
+| `documento` | object | sí | Modelo Pydantic correspondiente al tipo de documento. |
+| `credenciales` | object | solo si `firmar=true` | `cert_pem` + `key_pem` o `pfx_base64` + `pfx_password`. |
+| `firmar` | boolean | no (default `false`) | Firma el XML antes de responder. |
+| `validar_sunat` | boolean | no (default `true`) | Ejecuta validación XSD + reglas SUNAT evaluables localmente. |
+| `signature_id` | string | no (default `SignSUNAT`) | ID de la firma XMLDSig. |
+
+## Respuesta `CreateResponse`
+
+```json
+{
+  "xml": "<?xml version=\"1.0\"?>...",
+  "firmado": true,
+  "validado_sunat": true,
+  "valid": true,
+  "errors": []
+}
+```
+
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| `xml` | string | XML UBL generado, firmado o sin firmar. |
+| `firmado` | boolean | `true` si el XML fue firmado. |
+| `validado_sunat` | boolean | `true` si se ejecutó validación SUNAT. |
+| `valid` | boolean \| null | `true` si la validación pasó; `null` cuando `validar_sunat=false`. |
+| `errors` | list[dict] \| null | `[{"code": "...", "message": "..."}]`; `null` cuando `validar_sunat=false`. |
+
+## Ejemplos
+
+### Crear sin firmar ni validar
+
+<CodeTabs tabs={[
+  { id: 'curl', label: 'cURL', lang: 'bash', code: `curl -X POST http://localhost:8000/api/v1/invoice/create \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "documento": {
+      "serie": "F001", "numero": 1,
+      "proveedor": {"ruc": "20100100100", "razonSocial": "Mi Empresa S.A.C."},
+      "cliente": {"nombre": "Cliente Ejemplo", "numeroDocumentoIdentidad": "12345678", "tipoDocumentoIdentidad": "1"},
+      "detalles": [{"descripcion": "Producto A", "cantidad": 2, "precio": 50.00, "unidadMedida": "NIU", "tipoAfectacionIGV": "10"}],
+      "moneda": "PEN"
+    },
+    "firmar": false,
+    "validar_sunat": false
+  }'` },
+  { id: 'ts', label: 'TypeScript', lang: 'typescript', code: `import { createInvoice } from "@openubl/sdk";\n\nconst { data, error } = await createInvoice({\n  body: {\n    documento: { /* ... */ },\n    firmar: false,\n    validar_sunat: false,\n  },\n});` },
+]} />
+
+### Crear con validación SUNAT
+
+<CodeTabs tabs={[
+  { id: 'curl', label: 'cURL', lang: 'bash', code: `curl -X POST http://localhost:8000/api/v1/invoice/create \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "documento": { /* ... */ },
+    "firmar": false,
+    "validar_sunat": true
+  }'` },
+  { id: 'ts', label: 'TypeScript', lang: 'typescript', code: `const { data, error } = await createInvoice({\n  body: {\n    documento: { /* ... */ },\n    firmar: false,\n    validar_sunat: true,\n  },\n});\n\nif (data.validado_sunat && !data.valid) {\n  console.log(data.errors); // [{ code: "1001", message: "..." }]\n}` },
+]} />
+
+### Crear firmado con credenciales PEM
+
+<CodeTabs tabs={[
+  { id: 'curl', label: 'cURL', lang: 'bash', code: `curl -X POST http://localhost:8000/api/v1/invoice/create \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "documento": { /* ... */ },
+    "credenciales": {
+      "cert_pem": "-----BEGIN CERTIFICATE-----\\n...",
+      "key_pem": "-----BEGIN PRIVATE KEY-----\\n..."
+    },
+    "firmar": true,
+    "validar_sunat": true,
+    "signature_id": "SignSUNAT"
+  }'` },
+  { id: 'ts', label: 'TypeScript', lang: 'typescript', code: `const { data, error } = await createInvoice({\n  body: {\n    documento: { /* ... */ },\n    credenciales: { cert_pem: "...", key_pem: "..." },\n    firmar: true,\n    validar_sunat: true,\n  },\n});\n\nconsole.log(data.firmado); // true\nconsole.log(data.xml.includes("<ds:Signature>")); // true` },
+]} />
+
+## Errores HTTP
+
+- `422 Unprocessable Entity`: Pydantic rechazó el JSON, la validación SUNAT encontró errores, o faltan credenciales para firmar.
+- `200 OK`: XML generado correctamente. Puede devolver `valid=false` y `errors` cuando `validar_sunat=true` y hay errores, **pero en ese caso el status es 422**, no 200.
+
+## Endpoints disponibles
+
+- `POST /api/v1/invoice/create`
+- `POST /api/v1/credit-note/create`
+- `POST /api/v1/debit-note/create`
+- `POST /api/v1/voided-documents/create`
+- `POST /api/v1/summary-documents/create`
+- `POST /api/v1/perception/create`
+- `POST /api/v1/retention/create`
+- `POST /api/v1/sign` — firma XML arbitrario.
+- `GET /api/v1/version`
+
+## Alcance del servidor
+
+openUBL Server **no** realiza ninguna operación de negocio:
+
+- No asigna correlativos.
+- No genera archivos ZIP.
+- No envía documentos a SUNAT.
+- No recibe ni procesa CDR.
+
+Esas responsabilidades corresponden al cliente operativo.

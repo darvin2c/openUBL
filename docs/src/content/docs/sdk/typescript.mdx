@@ -17,43 +17,77 @@ npm install @openubl/sdk
 
 ## Uso
 
-Hay tres formas de crear un documento, de menor a mayor control:
-
 ### 1. Helper tipado (recomendado)
 
 ```typescript
 import { createInvoice, SDK_VERSION, checkApiVersion } from "@openubl/sdk";
-import { zInvoice } from "@openubl/sdk/zod.gen";
+import { zInvoiceCreateRequest } from "@openubl/sdk/zod.gen";
 
-const invoice = zInvoice.parse({
-  serie: "F001",
-  numero: 1,
-  proveedor: { ruc: "20100066603", razonSocial: "Softgreen S.A.C." },
-  cliente: { nombre: "Carlos", numeroDocumentoIdentidad: "12121212121", tipoDocumentoIdentidad: "6" },
-  detalles: [{ descripcion: "Item", cantidad: 10, precio: 100 }],
+const request = zInvoiceCreateRequest.parse({
+  documento: {
+    serie: "F001",
+    numero: 1,
+    proveedor: { ruc: "20100066603", razonSocial: "Softgreen S.A.C." },
+    cliente: { nombre: "Carlos", numeroDocumentoIdentidad: "12121212121", tipoDocumentoIdentidad: "6" },
+    detalles: [{ descripcion: "Item", cantidad: 10, precio: 100 }],
+  },
+  firmar: false,
+  validar_sunat: true,
 });
 
-const { data, error } = await createInvoice({ body: invoice });
+const { data, error } = await createInvoice({ body: request });
 if (error) throw new Error(JSON.stringify(error));
 
-console.log(data.xml); // XML UBL 2.1 generado
+console.log(data.xml);              // XML UBL 2.1 generado
+console.log(data.firmado);          // false
+console.log(data.validado_sunat);   // true
+console.log(data.valid);            // true | null
+console.log(data.errors);           // [] | null
 ```
 
-### 2. Cliente genérico
+### 2. Firma digital desde TypeScript
+
+```typescript
+import { createInvoice } from "@openubl/sdk";
+
+const { data, error } = await createInvoice({
+  body: {
+    documento: { /* ... */ },
+    firmar: true,
+    validar_sunat: true,
+    credenciales: {
+      cert_pem: "-----BEGIN CERTIFICATE-----\n...",
+      key_pem: "-----BEGIN PRIVATE KEY-----\n...",
+    },
+  },
+});
+
+if (data) {
+  console.log(data.firmado); // true
+  console.log(data.xml);     // contiene <ds:Signature>
+}
+```
+
+### 3. Cliente genérico
 
 ```typescript
 import { client } from "@openubl/sdk";
-import { zInvoice } from "@openubl/sdk/zod.gen";
+import { zInvoiceCreateRequest } from "@openubl/sdk/zod.gen";
 
-const invoice = zInvoice.parse({ /* ... */ });
+const request = zInvoiceCreateRequest.parse({
+  documento: { /* ... */ },
+  firmar: false,
+  validar_sunat: true,
+});
 
-const { data, error } = await client.post("/api/v1/invoice/create", { body: invoice });
+const { data, error } = await client.post("/api/v1/invoice/create", { body: request });
 if (error) throw new Error(JSON.stringify(error));
 
 console.log(data.xml);
+console.log(data.firmado, data.validado_sunat, data.valid, data.errors);
 ```
 
-### 3. `fetch` nativo
+### 4. `fetch` nativo
 
 Si prefieres no usar el cliente, puedes llamar directamente a la API REST. Mira el ejemplo completo en la [guía de TypeScript](https://darvin2c.github.io/openUBL/examples/typescript).
 
@@ -61,27 +95,53 @@ Si prefieres no usar el cliente, puedes llamar directamente a la API REST. Mira 
 
 | Helper | Endpoint | Body schema |
 |---|---|---|
-| `createInvoice` | `POST /api/v1/invoice/create` | `zInvoice` |
-| `createCreditNote` | `POST /api/v1/credit-note/create` | `zCreditNote` |
-| `createDebitNote` | `POST /api/v1/debit-note/create` | `zDebitNote` |
-| `createVoidedDocuments` | `POST /api/v1/voided-documents/create` | `zVoidedDocuments` |
-| `createSummaryDocuments` | `POST /api/v1/summary-documents/create` | `zSummaryDocuments` |
-| `createPerception` | `POST /api/v1/perception/create` | `zPerception` |
-| `createRetention` | `POST /api/v1/retention/create` | `zRetention` |
+| `createInvoice` | `POST /api/v1/invoice/create` | `zInvoiceCreateRequest` |
+| `createCreditNote` | `POST /api/v1/credit-note/create` | `zCreditNoteCreateRequest` |
+| `createDebitNote` | `POST /api/v1/debit-note/create` | `zDebitNoteCreateRequest` |
+| `createVoidedDocuments` | `POST /api/v1/voided-documents/create` | `zVoidedDocumentsCreateRequest` |
+| `createSummaryDocuments` | `POST /api/v1/summary-documents/create` | `zSummaryDocumentsCreateRequest` |
+| `createPerception` | `POST /api/v1/perception/create` | `zPerceptionCreateRequest` |
+| `createRetention` | `POST /api/v1/retention/create` | `zRetentionCreateRequest` |
 | `signXml` | `POST /api/v1/sign` | `zSignXmlBody` |
 | `getVersion` | `GET /api/v1/version` | — |
+
+## Respuesta `CreateResponse`
+
+Todos los endpoints `/create` devuelven:
+
+```typescript
+{
+  xml: string;
+  firmado: boolean;
+  validado_sunat: boolean;
+  valid: boolean | null;
+  errors: { code: string; message: string }[] | null;
+}
+```
+
+- `valid` y `errors` son `null` cuando `validar_sunat=false`.
+- Si `validar_sunat=true` y hay errores, la API responde HTTP 422 con `detail=errors`.
 
 ## Validación runtime con Zod
 
 Los schemas Zod viven en `@openubl/sdk/zod.gen` y se regeneran automáticamente desde `openapi.json`. Puedes usarlos para validar cualquier payload antes de enviarlo:
 
 ```typescript
-import { zInvoice, zProveedor, zCliente, zDocumentoVentaDetalle } from "@openubl/sdk/zod.gen";
+import {
+  zInvoiceCreateRequest,
+  zProveedor,
+  zCliente,
+  zDocumentoVentaDetalle,
+} from "@openubl/sdk/zod.gen";
 
 const proveedor = zProveedor.parse({ ruc: "20100066603", razonSocial: "Softgreen S.A.C." });
 const cliente = zCliente.parse({ nombre: "Carlos", numeroDocumentoIdentidad: "12121212121", tipoDocumentoIdentidad: "6" });
 const detalle = zDocumentoVentaDetalle.parse({ descripcion: "Item", cantidad: 10, precio: 100 });
-const invoice = zInvoice.parse({ serie: "F001", numero: 1, proveedor, cliente, detalles: [detalle] });
+const request = zInvoiceCreateRequest.parse({
+  documento: { serie: "F001", numero: 1, proveedor, cliente, detalles: [detalle] },
+  firmar: false,
+  validar_sunat: true,
+});
 ```
 
 Los helpers también ejecutan validación automática en el `body` de la petición, así que pasar un objeto mal formado devolverá un error tipado.
@@ -91,7 +151,7 @@ Los helpers también ejecutan validación automática en el `body` de la petici�
 Todas las llamadas devuelven `{ data, error }`. Comprueba siempre `error` antes de usar `data`:
 
 ```typescript
-const { data, error } = await createInvoice({ body: invoice });
+const { data, error } = await createInvoice({ body: request });
 
 if (error) {
   // Puede ser un z.ZodError o el error devuelto por la API
@@ -123,3 +183,7 @@ npm run generate   # regenera src/ desde openapi.json
 npm run build      # compila TypeScript
 npm test           # ejecuta la suite de tests
 ```
+
+## Alcance del SDK
+
+El SDK es solo un cliente HTTP tipado. No empaqueta ZIP, no envía a SUNAT ni procesa CDR: esas responsabilidades quedan en el cliente operativo.

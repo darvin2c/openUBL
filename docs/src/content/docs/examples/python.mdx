@@ -1,6 +1,6 @@
 ---
 title: Ejemplos de uso
-description: Crea facturas, notas de crédito y comunicaciones de baja con openUBL en Python, TypeScript o cURL.
+description: Crea facturas, notas de crédito/débito, comunicaciones de baja, resúmenes diarios, percepciones y retenciones con openUBL en Python, TypeScript o cURL.
 ---
 
 import CodeTabs from '../../../components/CodeTabs.astro';
@@ -43,32 +43,24 @@ invoice = Invoice(
     moneda="PEN",
 )
 
+request_body = {
+    "documento": invoice.model_dump(mode="json"),
+    "firmar": True,
+    "validar_sunat": True,
+    "credenciales": {
+        "cert_pem": os.getenv("CERT_PEM", ""),
+        "key_pem": os.getenv("KEY_PEM", ""),
+    },
+    "signature_id": "SignSUNAT",
+}
 
 def main():
     with httpx.Client(base_url=BASE_URL) as client:
-        # 1. Crear la factura
-        r = client.post("/api/v1/invoice/create", json=invoice.model_dump(mode="json"))
+        r = client.post("/api/v1/invoice/create", json=request_body)
         r.raise_for_status()
-        xml = r.json()["xml"]
-        print("XML generado:\\n", xml)
-
-        # 2. Firmar el XML
-        cert_pem = os.getenv("CERT_PEM", "")
-        key_pem = os.getenv("KEY_PEM", "")
-
-        r2 = client.post(
-            "/api/v1/sign",
-            json={
-                "xml": xml,
-                "cert_pem": cert_pem,
-                "key_pem": key_pem,
-                "signature_id": "SignSUNAT",
-            },
-        )
-        r2.raise_for_status()
-        signed_xml = r2.json()["signed_xml"]
-        print("XML firmado:\\n", signed_xml)
-
+        data = r.json()
+        print("XML firmado:\n", data["xml"])
+        print("Validado SUNAT:", data["validado_sunat"], data["valid"])
 
 if __name__ == "__main__":
     main()`,
@@ -77,103 +69,86 @@ if __name__ == "__main__":
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
-    code: `import { createInvoice, signXml } from "@openubl/sdk";\nimport { zInvoice, zSignXmlBody } from "@openubl/sdk/zod.gen";
+    code: `import { createInvoice } from "@openubl/sdk";
+import { zInvoiceCreateRequest } from "@openubl/sdk/zod.gen";
 
-const invoice = zInvoice.parse({
-  serie: "F001",
-  numero: 1,
-  tipoOperacion: "0101",
-  moneda: "PEN",
-  proveedor: {
-    ruc: "20100111111",
-    razonSocial: "Mi Empresa S.A.C.",
-  },
-  cliente: {
-    nombre: "Juan Perez",
-    numeroDocumentoIdentidad: "12345678",
-    tipoDocumentoIdentidad: "1",
-  },
-  detalles: [
-    {
-      descripcion: "Producto A",
-      cantidad: 2,
-      precio: 100.00,
-      unidadMedida: "NIU",
-      tipoAfectacionIGV: "10",
+const request = zInvoiceCreateRequest.parse({
+  documento: {
+    serie: "F001",
+    numero: 1,
+    tipoOperacion: "0101",
+    moneda: "PEN",
+    proveedor: {
+      ruc: "20100111111",
+      razonSocial: "Mi Empresa S.A.C.",
     },
-  ],
-});
-
-const { data, error } = await createInvoice({
-  body: invoice,
-});
-
-if (error) {
-  throw new Error(JSON.stringify(error));
-}
-
-const xml = data.xml;
-
-const body = zSignXmlBody.parse({
-  xml,
-  cert_pem: process.env.CERT_PEM,
-  key_pem: process.env.KEY_PEM,
+    cliente: {
+      nombre: "Juan Perez",
+      numeroDocumentoIdentidad: "12345678",
+      tipoDocumentoIdentidad: "1",
+    },
+    detalles: [
+      {
+        descripcion: "Producto A",
+        cantidad: 2,
+        precio: 100.00,
+        unidadMedida: "NIU",
+        tipoAfectacionIGV: "10",
+      },
+    ],
+  },
+  firmar: true,
+  validar_sunat: true,
+  credenciales: {
+    cert_pem: process.env.CERT_PEM,
+    key_pem: process.env.KEY_PEM,
+  },
   signature_id: "SignSUNAT",
 });
 
-const { data: signData, error: signError } = await signXml({
-  body,
-});
-
-if (signError) {
-  throw new Error(JSON.stringify(signError));
-}
-
-console.log(signData.signed_xml);`,
+const { data, error } = await createInvoice({ body: request });
+if (error) throw new Error(JSON.stringify(error));
+console.log(data.xml);
+console.log(data.firmado, data.validado_sunat, data.valid, data.errors);`,
   },
   {
     id: 'curl',
     label: 'cURL',
     lang: 'bash',
-    code: `BASE_URL="http://localhost:8000"
-
-# 1. Crear la factura
-XML=$(curl -s -X POST "http://localhost:8000/api/v1/invoice/create" \\
-  -H "Content-Type: application/json" \\
+    code: `curl -X POST "http://localhost:8000/api/v1/invoice/create" \\
   -d '{
-    "serie": "F001",
-    "numero": 1,
-    "tipoOperacion": "0101",
-    "moneda": "PEN",
-    "proveedor": {
-      "ruc": "20100111111",
-      "razonSocial": "Mi Empresa S.A.C."
+    "documento": {
+      "serie": "F001",
+      "numero": 1,
+      "tipoOperacion": "0101",
+      "moneda": "PEN",
+      "proveedor": {
+        "ruc": "20100111111",
+        "razonSocial": "Mi Empresa S.A.C."
+      },
+      "cliente": {
+        "nombre": "Juan Perez",
+        "numeroDocumentoIdentidad": "12345678",
+        "tipoDocumentoIdentidad": "1"
+      },
+      "detalles": [
+        {
+          "descripcion": "Producto A",
+          "cantidad": 2,
+          "precio": 100.00,
+          "unidadMedida": "NIU",
+          "tipoAfectacionIGV": "10"
+        }
+      ]
     },
-    "cliente": {
-      "nombre": "Juan Perez",
-      "numeroDocumentoIdentidad": "12345678",
-      "tipoDocumentoIdentidad": "1"
+    "firmar": true,
+    "validar_sunat": true,
+    "credenciales": {
+      "cert_pem": "$CERT_PEM",
+      "key_pem": "$KEY_PEM"
     },
-    "detalles": [
-      {
-        "descripcion": "Producto A",
-        "cantidad": 2,
-        "precio": 100.00,
-        "unidadMedida": "NIU",
-        "tipoAfectacionIGV": "10"
-      }
-    ]
-  }' | jq -r '.xml')
-
-# 2. Firmar el XML
-curl -X POST "http://localhost:8000/api/v1/sign" \\
-  -H "Content-Type: application/json" \\
-  -d "{
-    \"xml\": \"$XML\",
-    \"cert_pem\": \"$CERT_PEM\",
-    \"key_pem\": \"$KEY_PEM\",
-    \"signature_id\": \"SignSUNAT\"
-  }"`,
+    "signature_id": "SignSUNAT"
+  }'`,
   },
 ]} />
 
@@ -211,52 +186,43 @@ invoice = Invoice(
 )
 
 with requests.Session() as s:
-    r = s.post("http://localhost:8000/api/v1/invoice/create", json=invoice.model_dump(mode="json"))
+    r = s.post(
+        "http://localhost:8000/api/v1/invoice/create",
+        json={
+            "documento": invoice.model_dump(mode="json"),
+            "firmar": False,
+            "validar_sunat": True,
+        },
+    )
     r.raise_for_status()
-    xml = r.json()["xml"]
-    print(xml)`,
+    data = r.json()
+    print(data["xml"])
+    print(data["firmado"], data["validado_sunat"], data["valid"], data["errors"])`,
   },
   {
     id: 'typescript',
     label: 'TypeScript',
     lang: 'typescript',
     code: `import { createInvoice } from "@openubl/sdk";
-import { zInvoice } from "@openubl/sdk/zod.gen";
+import { zInvoiceCreateRequest } from "@openubl/sdk/zod.gen";
 
-const invoice = zInvoice.parse({
-  serie: "F001",
-  numero: 1,
-  tipoOperacion: "0101",
-  moneda: "PEN",
-  proveedor: {
-    ruc: "20100111111",
-    razonSocial: "Mi Empresa S.A.C.",
+const request = zInvoiceCreateRequest.parse({
+  documento: {
+    serie: "F001",
+    numero: 1,
+    tipoOperacion: "0101",
+    moneda: "PEN",
+    proveedor: { ruc: "20100111111", razonSocial: "Mi Empresa S.A.C." },
+    cliente: { nombre: "Juan Perez", numeroDocumentoIdentidad: "12345678", tipoDocumentoIdentidad: "1" },
+    detalles: [{ descripcion: "Producto A", cantidad: 2, precio: 100.00, unidadMedida: "NIU", tipoAfectacionIGV: "10" }],
   },
-  cliente: {
-    nombre: "Juan Perez",
-    numeroDocumentoIdentidad: "12345678",
-    tipoDocumentoIdentidad: "1",
-  },
-  detalles: [
-    {
-      descripcion: "Producto A",
-      cantidad: 2,
-      precio: 100.00,
-      unidadMedida: "NIU",
-      tipoAfectacionIGV: "10",
-    },
-  ],
+  firmar: false,
+  validar_sunat: true,
 });
 
-const { data, error } = await createInvoice({
-  body: invoice,
-});
-
-if (error) {
-  throw new Error(JSON.stringify(error));
-}
-
-console.log(data.xml);`,
+const { data, error } = await createInvoice({ body: request });
+if (error) throw new Error(JSON.stringify(error));
+console.log(data.xml, data.firmado, data.validado_sunat, data.valid, data.errors);`,
   },
   {
     id: 'curl',
@@ -265,28 +231,17 @@ console.log(data.xml);`,
     code: `curl -X POST http://localhost:8000/api/v1/invoice/create \\
   -H "Content-Type: application/json" \\
   -d '{
-    "serie": "F001",
-    "numero": 1,
-    "tipoOperacion": "0101",
-    "moneda": "PEN",
-    "proveedor": {
-      "ruc": "20100111111",
-      "razonSocial": "Mi Empresa S.A.C."
+    "documento": {
+      "serie": "F001",
+      "numero": 1,
+      "tipoOperacion": "0101",
+      "moneda": "PEN",
+      "proveedor": { "ruc": "20100111111", "razonSocial": "Mi Empresa S.A.C." },
+      "cliente": { "nombre": "Juan Perez", "numeroDocumentoIdentidad": "12345678", "tipoDocumentoIdentidad": "1" },
+      "detalles": [{ "descripcion": "Producto A", "cantidad": 2, "precio": 100.00, "unidadMedida": "NIU", "tipoAfectacionIGV": "10" }]
     },
-    "cliente": {
-      "nombre": "Juan Perez",
-      "numeroDocumentoIdentidad": "12345678",
-      "tipoDocumentoIdentidad": "1"
-    },
-    "detalles": [
-      {
-        "descripcion": "Producto A",
-        "cantidad": 2,
-        "precio": 100.00,
-        "unidadMedida": "NIU",
-        "tipoAfectacionIGV": "10"
-      }
-    ]
+    "firmar": false,
+    "validar_sunat": true
   }'`,
   },
 ]} />
@@ -333,7 +288,14 @@ credit_note = CreditNote(
 )
 
 with httpx.Client(base_url=BASE_URL) as client:
-    r = client.post("/api/v1/credit-note/create", json=credit_note.model_dump(mode="json"))
+    r = client.post(
+        "/api/v1/credit-note/create",
+        json={
+            "documento": credit_note.model_dump(mode="json"),
+            "firmar": False,
+            "validar_sunat": True,
+        },
+    )
     r.raise_for_status()
     print(r.json()["xml"])`,
   },
@@ -342,42 +304,25 @@ with httpx.Client(base_url=BASE_URL) as client:
     label: 'TypeScript',
     lang: 'typescript',
     code: `import { createCreditNote } from "@openubl/sdk";
-import { zCreditNote } from "@openubl/sdk/zod.gen";
+import { zCreditNoteCreateRequest } from "@openubl/sdk/zod.gen";
 
-const creditNote = zCreditNote.parse({
-  serie: "BC01",
-  numero: 1,
-  comprobanteAfectadoSerieNumero: "F001-1",
-  sustentoDescripcion: "Anulación de venta",
-  moneda: "PEN",
-  proveedor: {
-    ruc: "20100111111",
-    razonSocial: "Mi Empresa S.A.C.",
+const request = zCreditNoteCreateRequest.parse({
+  documento: {
+    serie: "BC01",
+    numero: 1,
+    comprobanteAfectadoSerieNumero: "F001-1",
+    sustentoDescripcion: "Anulación de venta",
+    moneda: "PEN",
+    proveedor: { ruc: "20100111111", razonSocial: "Mi Empresa S.A.C." },
+    cliente: { nombre: "Juan Perez", numeroDocumentoIdentidad: "12345678", tipoDocumentoIdentidad: "1" },
+    detalles: [{ descripcion: "Producto A", cantidad: 2, precio: 100.00, unidadMedida: "NIU", tipoAfectacionIGV: "10" }],
   },
-  cliente: {
-    nombre: "Juan Perez",
-    numeroDocumentoIdentidad: "12345678",
-    tipoDocumentoIdentidad: "1",
-  },
-  detalles: [
-    {
-      descripcion: "Producto A",
-      cantidad: 2,
-      precio: 100.00,
-      unidadMedida: "NIU",
-      tipoAfectacionIGV: "10",
-    },
-  ],
+  firmar: false,
+  validar_sunat: true,
 });
 
-const { data, error } = await createCreditNote({
-  body: creditNote,
-});
-
-if (error) {
-  throw new Error(JSON.stringify(error));
-}
-
+const { data, error } = await createCreditNote({ body: request });
+if (error) throw new Error(JSON.stringify(error));
 console.log(data.xml);`,
   },
   {
@@ -387,29 +332,18 @@ console.log(data.xml);`,
     code: `curl -X POST http://localhost:8000/api/v1/credit-note/create \\
   -H "Content-Type: application/json" \\
   -d '{
-    "serie": "BC01",
-    "numero": 1,
-    "comprobanteAfectadoSerieNumero": "F001-1",
-    "sustentoDescripcion": "Anulación de venta",
-    "moneda": "PEN",
-    "proveedor": {
-      "ruc": "20100111111",
-      "razonSocial": "Mi Empresa S.A.C."
+    "documento": {
+      "serie": "BC01",
+      "numero": 1,
+      "comprobanteAfectadoSerieNumero": "F001-1",
+      "sustentoDescripcion": "Anulación de venta",
+      "moneda": "PEN",
+      "proveedor": { "ruc": "20100111111", "razonSocial": "Mi Empresa S.A.C." },
+      "cliente": { "nombre": "Juan Perez", "numeroDocumentoIdentidad": "12345678", "tipoDocumentoIdentidad": "1" },
+      "detalles": [{ "descripcion": "Producto A", "cantidad": 2, "precio": 100.00, "unidadMedida": "NIU", "tipoAfectacionIGV": "10" }]
     },
-    "cliente": {
-      "nombre": "Juan Perez",
-      "numeroDocumentoIdentidad": "12345678",
-      "tipoDocumentoIdentidad": "1"
-    },
-    "detalles": [
-      {
-        "descripcion": "Producto A",
-        "cantidad": 2,
-        "precio": 100.00,
-        "unidadMedida": "NIU",
-        "tipoAfectacionIGV": "10"
-      }
-    ]
+    "firmar": false,
+    "validar_sunat": true
   }'`,
   },
 ]} />
@@ -448,7 +382,14 @@ voided = VoidedDocuments(
 )
 
 with httpx.Client(base_url=BASE_URL) as client:
-    r = client.post("/api/v1/voided-documents/create", json=voided.model_dump(mode="json"))
+    r = client.post(
+        "/api/v1/voided-documents/create",
+        json={
+            "documento": voided.model_dump(mode="json"),
+            "firmar": False,
+            "validar_sunat": True,
+        },
+    )
     r.raise_for_status()
     print(r.json()["xml"])`,
   },
@@ -457,33 +398,21 @@ with httpx.Client(base_url=BASE_URL) as client:
     label: 'TypeScript',
     lang: 'typescript',
     code: `import { createVoidedDocuments } from "@openubl/sdk";
-import { zVoidedDocuments } from "@openubl/sdk/zod.gen";
+import { zVoidedDocumentsCreateRequest } from "@openubl/sdk/zod.gen";
 
-const voided = zVoidedDocuments.parse({
-  numero: 1,
-  fechaEmisionComprobantes: "2024-01-15",
-  proveedor: {
-    ruc: "20100111111",
-    razonSocial: "Mi Empresa S.A.C.",
+const request = zVoidedDocumentsCreateRequest.parse({
+  documento: {
+    numero: 1,
+    fechaEmisionComprobantes: "2024-01-15",
+    proveedor: { ruc: "20100111111", razonSocial: "Mi Empresa S.A.C." },
+    comprobantes: [{ serie: "F001", numero: 1, tipoComprobante: "01", descripcionSustento: "Error en datos del cliente" }],
   },
-  comprobantes: [
-    {
-      serie: "F001",
-      numero: 1,
-      tipoComprobante: "01",
-      descripcionSustento: "Error en datos del cliente",
-    },
-  ],
+  firmar: false,
+  validar_sunat: true,
 });
 
-const { data, error } = await createVoidedDocuments({
-  body: voided,
-});
-
-if (error) {
-  throw new Error(JSON.stringify(error));
-}
-
+const { data, error } = await createVoidedDocuments({ body: request });
+if (error) throw new Error(JSON.stringify(error));
 console.log(data.xml);`,
   },
   {
@@ -493,21 +422,465 @@ console.log(data.xml);`,
     code: `curl -X POST http://localhost:8000/api/v1/voided-documents/create \\
   -H "Content-Type: application/json" \\
   -d '{
-    "numero": 1,
-    "fechaEmisionComprobantes": "2024-01-15",
-    "proveedor": {
-      "ruc": "20100111111",
-      "razonSocial": "Mi Empresa S.A.C."
+    "documento": {
+      "numero": 1,
+      "fechaEmisionComprobantes": "2024-01-15",
+      "proveedor": { "ruc": "20100111111", "razonSocial": "Mi Empresa S.A.C." },
+      "comprobantes": [{ "serie": "F001", "numero": 1, "tipoComprobante": "01", "descripcionSustento": "Error en datos del cliente" }]
     },
-    "comprobantes": [
-      {
-        "serie": "F001",
-        "numero": 1,
-        "tipoComprobante": "01",
-        "descripcionSustento": "Error en datos del cliente"
-      }
-    ]
+    "firmar": false,
+    "validar_sunat": true
   }'`,
   },
 ]} />
-    `,
+
+## Nota de débito
+
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `import httpx
+
+from openubl.models import DebitNote, Proveedor, Cliente, DocumentoVentaDetalle
+
+BASE_URL = "http://localhost:8000"
+
+debit_note = DebitNote(
+    serie="BD01",
+    numero=1,
+    comprobanteAfectadoSerieNumero="F001-1",
+    sustentoDescripcion="Intereses moratorios",
+    proveedor=Proveedor(ruc="20100111111", razonSocial="Mi Empresa S.A.C."),
+    cliente=Cliente(nombre="Juan Perez", numeroDocumentoIdentidad="12345678", tipoDocumentoIdentidad="1"),
+    detalles=[DocumentoVentaDetalle(descripcion="Producto A", cantidad=2, precio=100.00)],
+    moneda="PEN",
+)
+
+with httpx.Client(base_url=BASE_URL) as client:
+    r = client.post(
+        "/api/v1/debit-note/create",
+        json={
+            "documento": debit_note.model_dump(mode="json"),
+            "firmar": False,
+            "validar_sunat": True,
+        },
+    )
+    r.raise_for_status()
+    print(r.json()["xml"])`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { createDebitNote } from "@openubl/sdk";
+import { zDebitNoteCreateRequest } from "@openubl/sdk/zod.gen";
+
+const request = zDebitNoteCreateRequest.parse({
+  documento: {
+    serie: "BD01",
+    numero: 1,
+    comprobanteAfectadoSerieNumero: "F001-1",
+    sustentoDescripcion: "Intereses moratorios",
+    moneda: "PEN",
+    proveedor: { ruc: "20100111111", razonSocial: "Mi Empresa S.A.C." },
+    cliente: { nombre: "Juan Perez", numeroDocumentoIdentidad: "12345678", tipoDocumentoIdentidad: "1" },
+    detalles: [{ descripcion: "Producto A", cantidad: 2, precio: 100.00, unidadMedida: "NIU", tipoAfectacionIGV: "10" }],
+  },
+  firmar: false,
+  validar_sunat: true,
+});
+
+const { data, error } = await createDebitNote({ body: request });
+if (error) throw new Error(JSON.stringify(error));
+console.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST http://localhost:8000/api/v1/debit-note/create \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "documento": {
+      "serie": "BD01",
+      "numero": 1,
+      "comprobanteAfectadoSerieNumero": "F001-1",
+      "sustentoDescripcion": "Intereses moratorios",
+      "moneda": "PEN",
+      "proveedor": { "ruc": "20100111111", "razonSocial": "Mi Empresa S.A.C." },
+      "cliente": { "nombre": "Juan Perez", "numeroDocumentoIdentidad": "12345678", "tipoDocumentoIdentidad": "1" },
+      "detalles": [{ "descripcion": "Producto A", "cantidad": 2, "precio": 100.00, "unidadMedida": "NIU", "tipoAfectacionIGV": "10" }]
+    },
+    "firmar": false,
+    "validar_sunat": true
+  }'`,
+  },
+]} />
+
+## Resumen diario
+
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `import httpx
+from datetime import date
+
+from openubl.models import (
+    SummaryDocuments, SummaryDocumentsItem, Comprobante,
+    ComprobanteImpuestos, ComprobanteValorVenta, Proveedor, Cliente
+)
+
+BASE_URL = "http://localhost:8000"
+
+summary = SummaryDocuments(
+    numero=1,
+    fechaEmisionComprobantes=date(2024, 1, 15),
+    proveedor=Proveedor(ruc="20100111111", razonSocial="Mi Empresa S.A.C."),
+    comprobantes=[
+        SummaryDocumentsItem(
+            tipoOperacion="1",
+            comprobante=Comprobante(
+                tipoComprobante="03",
+                serieNumero="B001-1",
+                cliente=Cliente(nombre="Juan Perez", numeroDocumentoIdentidad="12345678", tipoDocumentoIdentidad="1"),
+                impuestos=ComprobanteImpuestos(igv=18.00),
+                valorVenta=ComprobanteValorVenta(importeTotal=118.00),
+            ),
+        )
+    ],
+)
+
+with httpx.Client(base_url=BASE_URL) as client:
+    r = client.post(
+        "/api/v1/summary-documents/create",
+        json={
+            "documento": summary.model_dump(mode="json"),
+            "firmar": False,
+            "validar_sunat": True,
+        },
+    )
+    r.raise_for_status()
+    print(r.json()["xml"])`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { createSummaryDocuments } from "@openubl/sdk";
+import { zSummaryDocumentsCreateRequest } from "@openubl/sdk/zod.gen";
+
+const request = zSummaryDocumentsCreateRequest.parse({
+  documento: {
+    numero: 1,
+    fechaEmisionComprobantes: "2024-01-15",
+    proveedor: { ruc: "20100111111", razonSocial: "Mi Empresa S.A.C." },
+    comprobantes: [{
+      tipoOperacion: "1",
+      comprobante: {
+        tipoComprobante: "03",
+        serieNumero: "B001-1",
+        cliente: { nombre: "Juan Perez", numeroDocumentoIdentidad: "12345678", tipoDocumentoIdentidad: "1" },
+        impuestos: { igv: 18.00 },
+        valorVenta: { importeTotal: 118.00 },
+      },
+    }],
+  },
+  firmar: false,
+  validar_sunat: true,
+});
+
+const { data, error } = await createSummaryDocuments({ body: request });
+if (error) throw new Error(JSON.stringify(error));
+console.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST http://localhost:8000/api/v1/summary-documents/create \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "documento": {
+      "numero": 1,
+      "fechaEmisionComprobantes": "2024-01-15",
+      "proveedor": { "ruc": "20100111111", "razonSocial": "Mi Empresa S.A.C." },
+      "comprobantes": [{
+        "tipoOperacion": "1",
+        "comprobante": {
+          "tipoComprobante": "03",
+          "serieNumero": "B001-1",
+          "cliente": { "nombre": "Juan Perez", "numeroDocumentoIdentidad": "12345678", "tipoDocumentoIdentidad": "1" },
+          "impuestos": { "igv": 18.00 },
+          "valorVenta": { "importeTotal": 118.00 }
+        }
+      }]
+    },
+    "firmar": false,
+    "validar_sunat": true
+  }'`,
+  },
+]} />
+
+## Percepción
+
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `import httpx
+from datetime import date
+from decimal import Decimal
+
+from openubl.models import (
+    Perception, PercepcionRetencionOperacion, ComprobanteAfectado, Proveedor, Cliente
+)
+
+BASE_URL = "http://localhost:8000"
+
+perception = Perception(
+    serie="P001",
+    numero=1,
+    fechaEmision=date(2024, 1, 15),
+    proveedor=Proveedor(ruc="20100111111", razonSocial="Mi Empresa S.A.C."),
+    cliente=Cliente(nombre="Juan Perez", numeroDocumentoIdentidad="12345678", tipoDocumentoIdentidad="1"),
+    importeTotalPercibido=Decimal("2.00"),
+    importeTotalCobrado=Decimal("102.00"),
+    tipoRegimen="01",
+    tipoRegimenPorcentaje=Decimal("2.00"),
+    operaciones=[
+        PercepcionRetencionOperacion(
+            numeroOperacion=1,
+            fechaOperacion=date(2024, 1, 15),
+            importeOperacion=Decimal("100.00"),
+            comprobante=ComprobanteAfectado(
+                tipoComprobante="01",
+                serieNumero="F001-1",
+                fechaEmision=date(2024, 1, 15),
+                importeTotal=Decimal("100.00"),
+                moneda="PEN",
+            ),
+        )
+    ],
+)
+
+with httpx.Client(base_url=BASE_URL) as client:
+    r = client.post(
+        "/api/v1/perception/create",
+        json={
+            "documento": perception.model_dump(mode="json"),
+            "firmar": False,
+            "validar_sunat": True,
+        },
+    )
+    r.raise_for_status()
+    print(r.json()["xml"])`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { createPerception } from "@openubl/sdk";
+import { zPerceptionCreateRequest } from "@openubl/sdk/zod.gen";
+
+const request = zPerceptionCreateRequest.parse({
+  documento: {
+    serie: "P001",
+    numero: 1,
+    fechaEmision: "2024-01-15",
+    proveedor: { ruc: "20100111111", razonSocial: "Mi Empresa S.A.C." },
+    cliente: { nombre: "Juan Perez", numeroDocumentoIdentidad: "12345678", tipoDocumentoIdentidad: "1" },
+    importeTotalPercibido: 2.00,
+    importeTotalCobrado: 102.00,
+    tipoRegimen: "01",
+    tipoRegimenPorcentaje: 2.00,
+    operaciones: [{
+      numeroOperacion: 1,
+      fechaOperacion: "2024-01-15",
+      importeOperacion: 100.00,
+      comprobante: {
+        tipoComprobante: "01",
+        serieNumero: "F001-1",
+        fechaEmision: "2024-01-15",
+        importeTotal: 100.00,
+        moneda: "PEN",
+      },
+    }],
+  },
+  firmar: false,
+  validar_sunat: true,
+});
+
+const { data, error } = await createPerception({ body: request });
+if (error) throw new Error(JSON.stringify(error));
+console.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST http://localhost:8000/api/v1/perception/create \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "documento": {
+      "serie": "P001",
+      "numero": 1,
+      "fechaEmision": "2024-01-15",
+      "proveedor": { "ruc": "20100111111", "razonSocial": "Mi Empresa S.A.C." },
+      "cliente": { "nombre": "Juan Perez", "numeroDocumentoIdentidad": "12345678", "tipoDocumentoIdentidad": "1" },
+      "importeTotalPercibido": 2.00,
+      "importeTotalCobrado": 102.00,
+      "tipoRegimen": "01",
+      "tipoRegimenPorcentaje": 2.00,
+      "operaciones": [{
+        "numeroOperacion": 1,
+        "fechaOperacion": "2024-01-15",
+        "importeOperacion": 100.00,
+        "comprobante": {
+          "tipoComprobante": "01",
+          "serieNumero": "F001-1",
+          "fechaEmision": "2024-01-15",
+          "importeTotal": 100.00,
+          "moneda": "PEN"
+        }
+      }]
+    },
+    "firmar": false,
+    "validar_sunat": true
+  }'`,
+  },
+]} />
+
+## Retención
+
+<CodeTabs tabs={[
+  {
+    id: 'python',
+    label: 'Python',
+    lang: 'python',
+    code: `import httpx
+from datetime import date
+from decimal import Decimal
+
+from openubl.models import (
+    Retention, PercepcionRetencionOperacion, ComprobanteAfectado, Proveedor, Cliente
+)
+
+BASE_URL = "http://localhost:8000"
+
+retention = Retention(
+    serie="R001",
+    numero=1,
+    fechaEmision=date(2024, 1, 15),
+    proveedor=Proveedor(ruc="20100111111", razonSocial="Mi Empresa S.A.C."),
+    cliente=Cliente(nombre="Juan Perez", numeroDocumentoIdentidad="12345678", tipoDocumentoIdentidad="1"),
+    importeTotalRetenido=Decimal("3.00"),
+    importeTotalPagado=Decimal("97.00"),
+    tipoRegimen="01",
+    tipoRegimenPorcentaje=Decimal("3.00"),
+    operaciones=[
+        PercepcionRetencionOperacion(
+            numeroOperacion=1,
+            fechaOperacion=date(2024, 1, 15),
+            importeOperacion=Decimal("100.00"),
+            comprobante=ComprobanteAfectado(
+                tipoComprobante="01",
+                serieNumero="F001-1",
+                fechaEmision=date(2024, 1, 15),
+                importeTotal=Decimal("100.00"),
+                moneda="PEN",
+            ),
+        )
+    ],
+)
+
+with httpx.Client(base_url=BASE_URL) as client:
+    r = client.post(
+        "/api/v1/retention/create",
+        json={
+            "documento": retention.model_dump(mode="json"),
+            "firmar": False,
+            "validar_sunat": True,
+        },
+    )
+    r.raise_for_status()
+    print(r.json()["xml"])`,
+  },
+  {
+    id: 'typescript',
+    label: 'TypeScript',
+    lang: 'typescript',
+    code: `import { createRetention } from "@openubl/sdk";
+import { zRetentionCreateRequest } from "@openubl/sdk/zod.gen";
+
+const request = zRetentionCreateRequest.parse({
+  documento: {
+    serie: "R001",
+    numero: 1,
+    fechaEmision: "2024-01-15",
+    proveedor: { ruc: "20100111111", razonSocial: "Mi Empresa S.A.C." },
+    cliente: { nombre: "Juan Perez", numeroDocumentoIdentidad: "12345678", tipoDocumentoIdentidad: "1" },
+    importeTotalRetenido: 3.00,
+    importeTotalPagado: 97.00,
+    tipoRegimen: "01",
+    tipoRegimenPorcentaje: 3.00,
+    operaciones: [{
+      numeroOperacion: 1,
+      fechaOperacion: "2024-01-15",
+      importeOperacion: 100.00,
+      comprobante: {
+        tipoComprobante: "01",
+        serieNumero: "F001-1",
+        fechaEmision: "2024-01-15",
+        importeTotal: 100.00,
+        moneda: "PEN",
+      },
+    }],
+  },
+  firmar: false,
+  validar_sunat: true,
+});
+
+const { data, error } = await createRetention({ body: request });
+if (error) throw new Error(JSON.stringify(error));
+console.log(data.xml);`,
+  },
+  {
+    id: 'curl',
+    label: 'cURL',
+    lang: 'bash',
+    code: `curl -X POST http://localhost:8000/api/v1/retention/create \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "documento": {
+      "serie": "R001",
+      "numero": 1,
+      "fechaEmision": "2024-01-15",
+      "proveedor": { "ruc": "20100111111", "razonSocial": "Mi Empresa S.A.C." },
+      "cliente": { "nombre": "Juan Perez", "numeroDocumentoIdentidad": "12345678", "tipoDocumentoIdentidad": "1" },
+      "importeTotalRetenido": 3.00,
+      "importeTotalPagado": 97.00,
+      "tipoRegimen": "01",
+      "tipoRegimenPorcentaje": 3.00,
+      "operaciones": [{
+        "numeroOperacion": 1,
+        "fechaOperacion": "2024-01-15",
+        "importeOperacion": 100.00,
+        "comprobante": {
+          "tipoComprobante": "01",
+          "serieNumero": "F001-1",
+          "fechaEmision": "2024-01-15",
+          "importeTotal": 100.00,
+          "moneda": "PEN"
+        }
+      }]
+    },
+    "firmar": false,
+    "validar_sunat": true
+  }'`,
+  },
+]} />

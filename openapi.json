@@ -349,6 +349,107 @@
         "title": "ComprobanteValorVenta",
         "type": "object"
       },
+      "CreateResponse": {
+        "description": "Respuesta unificada de los endpoints /create.",
+        "properties": {
+          "errors": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Errors"
+          },
+          "firmado": {
+            "title": "Firmado",
+            "type": "boolean"
+          },
+          "valid": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid"
+          },
+          "validado_sunat": {
+            "title": "Validado Sunat",
+            "type": "boolean"
+          },
+          "xml": {
+            "title": "Xml",
+            "type": "string"
+          }
+        },
+        "required": [
+          "xml",
+          "firmado",
+          "validado_sunat"
+        ],
+        "title": "CreateResponse",
+        "type": "object"
+      },
+      "Credentials": {
+        "description": "Credenciales para firma digital.",
+        "properties": {
+          "cert_pem": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cert Pem"
+          },
+          "key_pem": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Key Pem"
+          },
+          "pfx_base64": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pfx Base64"
+          },
+          "pfx_password": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pfx Password"
+          }
+        },
+        "title": "Credentials",
+        "type": "object"
+      },
       "CreditNote": {
         "description": "Nota de Crédito Electrónica - Tipo 07.\n\nRS N° 300-2014/SUNAT, Anexo 1:\n- Serie: debe iniciar con B/C o F/E según tipo de documento afectado\n- Debe referenciar el comprobante afectado",
         "properties": {
@@ -422,7 +523,6 @@
           },
           "serie": {
             "description": "Serie de nota de crédito",
-            "pattern": "^[BCbc][A-Za-z0-9]{2,3}$",
             "title": "Serie",
             "type": "string"
           },
@@ -456,6 +556,44 @@
           "detalles"
         ],
         "title": "CreditNote",
+        "type": "object"
+      },
+      "CreditNoteCreateRequest": {
+        "description": "Request para crear una nota de crédito.",
+        "properties": {
+          "credenciales": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Credentials"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "documento": {
+            "$ref": "#/components/schemas/CreditNote"
+          },
+          "firmar": {
+            "default": false,
+            "title": "Firmar",
+            "type": "boolean"
+          },
+          "signature_id": {
+            "default": "SignSUNAT",
+            "title": "Signature Id",
+            "type": "string"
+          },
+          "validar_sunat": {
+            "default": true,
+            "title": "Validar Sunat",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "documento"
+        ],
+        "title": "CreditNoteCreateRequest",
         "type": "object"
       },
       "DebitNote": {
@@ -531,7 +669,6 @@
           },
           "serie": {
             "description": "Serie de nota de débito",
-            "pattern": "^[BCbc][A-Za-z0-9]{2,3}$",
             "title": "Serie",
             "type": "string"
           },
@@ -565,6 +702,44 @@
           "detalles"
         ],
         "title": "DebitNote",
+        "type": "object"
+      },
+      "DebitNoteCreateRequest": {
+        "description": "Request para crear una nota de débito.",
+        "properties": {
+          "credenciales": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Credentials"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "documento": {
+            "$ref": "#/components/schemas/DebitNote"
+          },
+          "firmar": {
+            "default": false,
+            "title": "Firmar",
+            "type": "boolean"
+          },
+          "signature_id": {
+            "default": "SignSUNAT",
+            "title": "Signature Id",
+            "type": "string"
+          },
+          "validar_sunat": {
+            "default": true,
+            "title": "Validar Sunat",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "documento"
+        ],
+        "title": "DebitNoteCreateRequest",
         "type": "object"
       },
       "DocumentoVentaDetalle": {
@@ -745,7 +920,7 @@
           },
           "serie": {
             "description": "Serie de factura (F001) o boleta (B001)",
-            "pattern": "^[FBfb][A-Za-z0-9]{2,3}$",
+            "minLength": 1,
             "title": "Serie",
             "type": "string"
           },
@@ -777,6 +952,44 @@
           "detalles"
         ],
         "title": "Invoice",
+        "type": "object"
+      },
+      "InvoiceCreateRequest": {
+        "description": "Request para crear una factura.",
+        "properties": {
+          "credenciales": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Credentials"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "documento": {
+            "$ref": "#/components/schemas/Invoice"
+          },
+          "firmar": {
+            "default": false,
+            "title": "Firmar",
+            "type": "boolean"
+          },
+          "signature_id": {
+            "default": "SignSUNAT",
+            "title": "Signature Id",
+            "type": "string"
+          },
+          "validar_sunat": {
+            "default": true,
+            "title": "Validar Sunat",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "documento"
+        ],
+        "title": "InvoiceCreateRequest",
         "type": "object"
       },
       "PercepcionRetencionOperacion": {
@@ -903,6 +1116,44 @@
         "title": "Perception",
         "type": "object"
       },
+      "PerceptionCreateRequest": {
+        "description": "Request para crear una percepción.",
+        "properties": {
+          "credenciales": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Credentials"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "documento": {
+            "$ref": "#/components/schemas/Perception"
+          },
+          "firmar": {
+            "default": false,
+            "title": "Firmar",
+            "type": "boolean"
+          },
+          "signature_id": {
+            "default": "SignSUNAT",
+            "title": "Signature Id",
+            "type": "string"
+          },
+          "validar_sunat": {
+            "default": true,
+            "title": "Validar Sunat",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "documento"
+        ],
+        "title": "PerceptionCreateRequest",
+        "type": "object"
+      },
       "Proveedor": {
         "description": "Datos del emisor del comprobante.\n\nRS N° 300-2014/SUNAT, Anexo 1:\n- RUC del emisor: 11 dígitos numéricos (Catálogo N.° 06, valor 6)\n- Razón social: obligatoria",
         "properties": {
@@ -950,6 +1201,14 @@
       "Retention": {
         "description": "Comprobante de Retención Electrónico - Tipo 20.\n\nRS N° 274-2015/SUNAT, Anexo 1:\n- Serie: R### (R001, R002, etc.)\n- Régimen: Catálogo N.° 23",
         "properties": {
+          "cliente": {
+            "$ref": "#/components/schemas/Cliente"
+          },
+          "fechaEmision": {
+            "format": "date",
+            "title": "Fechaemision",
+            "type": "string"
+          },
           "importeTotalPagado": {
             "anyOf": [
               {
@@ -974,12 +1233,20 @@
             ],
             "title": "Importetotalretenido"
           },
+          "numero": {
+            "minimum": 1.0,
+            "title": "Numero",
+            "type": "integer"
+          },
           "operaciones": {
             "items": {
               "$ref": "#/components/schemas/PercepcionRetencionOperacion"
             },
             "title": "Operaciones",
             "type": "array"
+          },
+          "proveedor": {
+            "$ref": "#/components/schemas/Proveedor"
           },
           "serie": {
             "description": "Serie de retención (R###)",
@@ -1005,6 +1272,10 @@
         },
         "required": [
           "serie",
+          "numero",
+          "fechaEmision",
+          "proveedor",
+          "cliente",
           "importeTotalRetenido",
           "importeTotalPagado",
           "tipoRegimen",
@@ -1012,6 +1283,44 @@
           "operaciones"
         ],
         "title": "Retention",
+        "type": "object"
+      },
+      "RetentionCreateRequest": {
+        "description": "Request para crear una retención.",
+        "properties": {
+          "credenciales": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Credentials"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "documento": {
+            "$ref": "#/components/schemas/Retention"
+          },
+          "firmar": {
+            "default": false,
+            "title": "Firmar",
+            "type": "boolean"
+          },
+          "signature_id": {
+            "default": "SignSUNAT",
+            "title": "Signature Id",
+            "type": "string"
+          },
+          "validar_sunat": {
+            "default": true,
+            "title": "Validar Sunat",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "documento"
+        ],
+        "title": "RetentionCreateRequest",
         "type": "object"
       },
       "SignedXmlResponse": {
@@ -1058,6 +1367,44 @@
           "comprobantes"
         ],
         "title": "SummaryDocuments",
+        "type": "object"
+      },
+      "SummaryDocumentsCreateRequest": {
+        "description": "Request para crear un resumen diario.",
+        "properties": {
+          "credenciales": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Credentials"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "documento": {
+            "$ref": "#/components/schemas/SummaryDocuments"
+          },
+          "firmar": {
+            "default": false,
+            "title": "Firmar",
+            "type": "boolean"
+          },
+          "signature_id": {
+            "default": "SignSUNAT",
+            "title": "Signature Id",
+            "type": "string"
+          },
+          "validar_sunat": {
+            "default": true,
+            "title": "Validar Sunat",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "documento"
+        ],
+        "title": "SummaryDocumentsCreateRequest",
         "type": "object"
       },
       "SummaryDocumentsItem": {
@@ -1162,6 +1509,44 @@
         "title": "VoidedDocuments",
         "type": "object"
       },
+      "VoidedDocumentsCreateRequest": {
+        "description": "Request para crear una comunicación de baja.",
+        "properties": {
+          "credenciales": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Credentials"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "documento": {
+            "$ref": "#/components/schemas/VoidedDocuments"
+          },
+          "firmar": {
+            "default": false,
+            "title": "Firmar",
+            "type": "boolean"
+          },
+          "signature_id": {
+            "default": "SignSUNAT",
+            "title": "Signature Id",
+            "type": "string"
+          },
+          "validar_sunat": {
+            "default": true,
+            "title": "Validar Sunat",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "documento"
+        ],
+        "title": "VoidedDocumentsCreateRequest",
+        "type": "object"
+      },
       "VoidedDocumentsItem": {
         "description": "Item de comunicación de baja.\n\nRS N° 300-2014/SUNAT, Anexo 1:\n- Tipo de comprobante: Catálogo N.° 01\n- Serie y número del comprobante a dar de baja",
         "properties": {
@@ -1189,20 +1574,6 @@
           "descripcionSustento"
         ],
         "title": "VoidedDocumentsItem",
-        "type": "object"
-      },
-      "XmlResponse": {
-        "description": "Response containing generated XML document.",
-        "properties": {
-          "xml": {
-            "title": "Xml",
-            "type": "string"
-          }
-        },
-        "required": [
-          "xml"
-        ],
-        "title": "XmlResponse",
         "type": "object"
       },
       "openubl__models__perception__ComprobanteAfectado": {
@@ -1299,25 +1670,13 @@
   "paths": {
     "/api/v1/credit-note/create": {
       "post": {
-        "description": "Generate a CreditNote XML document.\n\nThe `validate` query parameter controls SUNAT validation and defaults to `true`.\n\nReturns:\n    200: `{\"xml\": \"...\"}` with the generated XML.\n    422: Validation failed or the request body is invalid.",
+        "description": "Generate a CreditNote XML document.",
         "operationId": "createCreditNote",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "validate",
-            "required": false,
-            "schema": {
-              "default": true,
-              "title": "Validate",
-              "type": "boolean"
-            }
-          }
-        ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreditNote"
+                "$ref": "#/components/schemas/CreditNoteCreateRequest"
               }
             }
           },
@@ -1328,7 +1687,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/XmlResponse"
+                  "$ref": "#/components/schemas/CreateResponse"
                 }
               }
             },
@@ -1350,25 +1709,13 @@
     },
     "/api/v1/debit-note/create": {
       "post": {
-        "description": "Generate a DebitNote XML document.\n\nThe `validate` query parameter controls SUNAT validation and defaults to `true`.\n\nReturns:\n    200: `{\"xml\": \"...\"}` with the generated XML.\n    422: Validation failed or the request body is invalid.",
+        "description": "Generate a DebitNote XML document.",
         "operationId": "createDebitNote",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "validate",
-            "required": false,
-            "schema": {
-              "default": true,
-              "title": "Validate",
-              "type": "boolean"
-            }
-          }
-        ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/DebitNote"
+                "$ref": "#/components/schemas/DebitNoteCreateRequest"
               }
             }
           },
@@ -1379,7 +1726,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/XmlResponse"
+                  "$ref": "#/components/schemas/CreateResponse"
                 }
               }
             },
@@ -1401,25 +1748,13 @@
     },
     "/api/v1/invoice/create": {
       "post": {
-        "description": "Generate an Invoice XML document.\n\nThe `validate` query parameter controls SUNAT validation and defaults to `true`.\n\nReturns:\n    200: `{\"xml\": \"...\"}` with the generated XML.\n    422: Validation failed or the request body is invalid.",
+        "description": "Generate an Invoice XML document.\n\n- `documento`: modelo `Invoice`.\n- `credenciales`: opcional; obligatorio si `firmar=true`.\n- `firmar`: firma el XML antes de responder.\n- `validar_sunat`: ejecuta validación XSD + reglas SUNAT.",
         "operationId": "createInvoice",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "validate",
-            "required": false,
-            "schema": {
-              "default": true,
-              "title": "Validate",
-              "type": "boolean"
-            }
-          }
-        ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Invoice"
+                "$ref": "#/components/schemas/InvoiceCreateRequest"
               }
             }
           },
@@ -1430,7 +1765,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/XmlResponse"
+                  "$ref": "#/components/schemas/CreateResponse"
                 }
               }
             },
@@ -1452,25 +1787,13 @@
     },
     "/api/v1/perception/create": {
       "post": {
-        "description": "Generate a Perception XML document.\n\nThe `validate` query parameter controls SUNAT validation and defaults to `true`.\n\nReturns:\n    200: `{\"xml\": \"...\"}` with the generated XML.\n    422: Validation failed or the request body is invalid.",
+        "description": "Generate a Perception XML document.",
         "operationId": "createPerception",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "validate",
-            "required": false,
-            "schema": {
-              "default": true,
-              "title": "Validate",
-              "type": "boolean"
-            }
-          }
-        ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Perception"
+                "$ref": "#/components/schemas/PerceptionCreateRequest"
               }
             }
           },
@@ -1481,7 +1804,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/XmlResponse"
+                  "$ref": "#/components/schemas/CreateResponse"
                 }
               }
             },
@@ -1503,25 +1826,13 @@
     },
     "/api/v1/retention/create": {
       "post": {
-        "description": "Generate a Retention XML document.\n\nThe `validate` query parameter controls SUNAT validation and defaults to `true`.\n\nReturns:\n    200: `{\"xml\": \"...\"}` with the generated XML.\n    422: Validation failed or the request body is invalid.",
+        "description": "Generate a Retention XML document.",
         "operationId": "createRetention",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "validate",
-            "required": false,
-            "schema": {
-              "default": true,
-              "title": "Validate",
-              "type": "boolean"
-            }
-          }
-        ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Retention"
+                "$ref": "#/components/schemas/RetentionCreateRequest"
               }
             }
           },
@@ -1532,7 +1843,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/XmlResponse"
+                  "$ref": "#/components/schemas/CreateResponse"
                 }
               }
             },
@@ -1554,7 +1865,7 @@
     },
     "/api/v1/sign": {
       "post": {
-        "description": "Sign an arbitrary UBL XML document with a PEM certificate/key pair or a PFX/P12 container.\n\nRequired body fields (choose one credential mode):\n    * PEM mode: `cert_pem` and `key_pem`.\n    * PFX/P12 mode: `pfx_base64` (standard base64 of the file) and `pfx_password`.\n\nOptional body fields:\n    * `xml`: The XML string to sign.\n    * `signature_id`: The signature ID (defaults to `SignSUNAT`).\n\nReturns:\n    200: `{\"signed_xml\": \"...\"}` with the signed XML.",
+        "description": "Sign an arbitrary UBL XML document with PEM or PFX credentials.\n\nRequired body fields (choose one credential mode):\n    * PEM mode: `cert_pem` and `key_pem`.\n    * PFX/P12 mode: `pfx_base64` and `pfx_password`.\n\nOptional body fields:\n    * `xml`: The XML string to sign.\n    * `signature_id`: The signature ID (defaults to `SignSUNAT`).\n\nReturns:\n    200: `{\"signed_xml\": \"...\"}` with the signed XML.",
         "operationId": "signXml",
         "requestBody": {
           "content": {
@@ -1595,25 +1906,13 @@
     },
     "/api/v1/summary-documents/create": {
       "post": {
-        "description": "Generate a SummaryDocuments XML document.\n\nThe `validate` query parameter controls SUNAT validation and defaults to `true`.\n\nReturns:\n    200: `{\"xml\": \"...\"}` with the generated XML.\n    422: Validation failed or the request body is invalid.",
+        "description": "Generate a SummaryDocuments XML document.",
         "operationId": "createSummaryDocuments",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "validate",
-            "required": false,
-            "schema": {
-              "default": true,
-              "title": "Validate",
-              "type": "boolean"
-            }
-          }
-        ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SummaryDocuments"
+                "$ref": "#/components/schemas/SummaryDocumentsCreateRequest"
               }
             }
           },
@@ -1624,7 +1923,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/XmlResponse"
+                  "$ref": "#/components/schemas/CreateResponse"
                 }
               }
             },
@@ -1663,25 +1962,13 @@
     },
     "/api/v1/voided-documents/create": {
       "post": {
-        "description": "Generate a VoidedDocuments XML document.\n\nThe `validate` query parameter controls SUNAT validation and defaults to `true`.\n\nReturns:\n    200: `{\"xml\": \"...\"}` with the generated XML.\n    422: Validation failed or the request body is invalid.",
+        "description": "Generate a VoidedDocuments XML document.",
         "operationId": "createVoidedDocuments",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "validate",
-            "required": false,
-            "schema": {
-              "default": true,
-              "title": "Validate",
-              "type": "boolean"
-            }
-          }
-        ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/VoidedDocuments"
+                "$ref": "#/components/schemas/VoidedDocumentsCreateRequest"
               }
             }
           },
@@ -1692,7 +1979,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/XmlResponse"
+                  "$ref": "#/components/schemas/CreateResponse"
                 }
               }
             },

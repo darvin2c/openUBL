@@ -96,7 +96,8 @@ export default defineConfig({
 						{ label: 'Enriquecimiento automatico', slug: 'engine/enriquecimiento' },
 						{ label: 'Firma digital', slug: 'guides/firma-digital' },
 						{ label: 'Validacion SUNAT', slug: 'guides/validacion' },
-						{ label: 'Empaquetado ZIP', slug: 'engine/empaquetado' },
+						{ label: 'Cobertura SUNAT', slug: 'engine/validaciones-sunat' },
+						{ label: 'Cobertura SUNAT detallada', slug: 'engine/validaciones-sunat-detallado' },
 					],
 				},
 				{

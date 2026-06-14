@@ -56,29 +56,38 @@ El Catálogo N.° 01 también define la Guía de Remisión (`09`), pero openUBL 
 - **Percepción (`40`)**: comprobante de percepción de IGV en ventas internas o adquisición de combustible.
 - **Retención (`20`)**: comprobante de retención de IGV a proveedores.
 
-## Flujo completo
+## Flujo en openUBL Server
 
-El ciclo de vida de un documento electrónico con openUBL sigue cuatro pasos:
+openUBL Server es una capa puramente técnica: recibe JSON, enriquece, renderiza a UBL, valida opcionalmente contra SUNAT y firma opcionalmente. No emite correlativos, no genera ZIP, no envía a SUNAT ni recibe CDR.
 
 ```
-Emisión  →  Firma  →  Envío a SUNAT  →  CDR
+JSON → Schema → UBL → Validación SUNAT (opcional) → Firma (opcional) → XML
 ```
 
-### 1. Emisión
+### 1. JSON y Schema
 
-Construyes el modelo Pydantic correspondiente (por ejemplo, `Invoice`), luego lo renderizas a XML UBL 2.1. Puedes enriquecer automáticamente los totales (`valorVenta`, `igv`, `importeTotal`, etc.) antes de renderizar.
+El cliente envía un documento Pydantic (`Invoice`, `CreditNote`, ...) junto con los flags `firmar` y `validar_sunat`. FastAPI valida el JSON contra el esquema del modelo.
 
-### 2. Firma
+### 2. Enriquecimiento y renderizado
 
-El XML se firma digitalmente con un certificado en formato PEM/PFX. openUBL usa el algoritmo **RSA-SHA-256**, digestión **SHA-256** y canonicalización **C14N**, ubicando la firma XMLDSig en `UBLExtension/ExtensionContent`. Esta configuración cumple con la estructura exigida por SUNAT y con los requisitos SHA-2 de INDECOPI/IOFE y la Directiva PCM 002-2024.
+`ContentEnricher` calcula totales, impuestos y precios de venta. `renderer` convierte el modelo en XML UBL 2.1.
 
-### 3. Envío a SUNAT
+### 3. Validación SUNAT
 
-El XML firmado se empaqueta en un ZIP con la convención de nombres `{RUC}-{tipo}-{serie}-{numero}.zip` y se transmite a SUNAT o a tu OSE.
+Si `validar_sunat=true`, el servidor ejecuta validación XSD más las reglas de negocio de SUNAT evaluables localmente. Si falla, responde HTTP 422 con una lista de errores `[{"code": "...", "message": "..."}]`.
 
-### 4. CDR
+### 4. Firma digital
 
-SUNAT responde con una **Constancia de Recepción (CDR)** que confirma si aceptó o rechazó el documento. El CDR también es un archivo ZIP que contiene el XML de respuesta.
+Si `firmar=true`, el XML se firma con el certificado y clave privada enviados en `credenciales`. La firma se valida estructuralmente según las reglas SUNAT de la hoja *Firma*.
+
+### 5. XML resultante
+
+El servidor devuelve el XML firmado o sin firmar. El cliente operativo es responsable de:
+
+- Asignar y enviar `numero`, series y otros datos operativos.
+- Empaquetar el XML en ZIP con la nomenclatura SUNAT.
+- Enviar el ZIP a SUNAT o a su OSE.
+- Recibir y procesar el CDR.
 
 ## Tabla comparativa de documentos
 

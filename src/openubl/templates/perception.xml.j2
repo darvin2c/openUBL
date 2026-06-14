@@ -16,7 +16,7 @@
   <cbc:ID>{{ doc.serie }}-{{ doc.numero }}</cbc:ID>
   <cbc:IssueDate>{{ doc.fechaEmision }}</cbc:IssueDate>
   <cbc:IssueTime>00:00:00</cbc:IssueTime>
-  <cbc:Note>Regimen de Percepcion - {{ doc.tipoRegimen }}</cbc:Note>
+  <cbc:Note>Regimen de Percepcion - {{ doc.tipoRegimen.value }}</cbc:Note>
   <cac:Signature>
     <cbc:ID>SignSUNAT</cbc:ID>
     <cac:SignatoryParty>
@@ -43,13 +43,13 @@
   </cac:AgentParty>
   <cac:ReceiverParty>
     <cac:PartyIdentification>
-      <cbc:ID schemeID="{{ doc.cliente.tipoDocumentoIdentidad }}">{{ doc.cliente.numeroDocumentoIdentidad }}</cbc:ID>
+      <cbc:ID schemeID="{{ doc.cliente.tipoDocumentoIdentidad.value }}">{{ doc.cliente.numeroDocumentoIdentidad }}</cbc:ID>
     </cac:PartyIdentification>
     <cac:PartyLegalEntity>
       <cbc:RegistrationName>{{ doc.cliente.nombre }}</cbc:RegistrationName>
     </cac:PartyLegalEntity>
   </cac:ReceiverParty>
-  <sac:SUNATPerceptionSystemCode>{{ doc.tipoRegimen }}</sac:SUNATPerceptionSystemCode>
+  <sac:SUNATPerceptionSystemCode>{{ doc.tipoRegimen.value }}</sac:SUNATPerceptionSystemCode>
   <sac:SUNATPerceptionPercent>{{ doc.tipoRegimenPorcentaje | round(5) }}</sac:SUNATPerceptionPercent>
   <cbc:TotalInvoiceAmount currencyID="PEN">{{ doc.importeTotalPercibido | round(2) }}</cbc:TotalInvoiceAmount>
   <sac:SUNATTotalCashed currencyID="PEN">{{ doc.importeTotalCobrado | round(2) }}</sac:SUNATTotalCashed>
@@ -57,7 +57,12 @@
   <sac:SUNATPerceptionDocumentReference>
     <cbc:ID schemeID="{{ op.comprobante.tipoComprobante }}">{{ op.comprobante.serieNumero }}</cbc:ID>
     <cbc:IssueDate>{{ op.comprobante.fechaEmision }}</cbc:IssueDate>
-    <cbc:TotalInvoiceAmount currencyID="{{ op.comprobante.moneda }}">{{ op.comprobante.importeTotal | round(2) }}</cbc:TotalInvoiceAmount>
+    <cbc:TotalInvoiceAmount currencyID="{{ op.comprobante.moneda.value }}">{{ op.comprobante.importeTotal | round(2) }}</cbc:TotalInvoiceAmount>
+    <cac:Payment>
+      <cbc:ID>{{ op.numeroOperacion }}</cbc:ID>
+      <cbc:PaidDate>{{ op.fechaOperacion }}</cbc:PaidDate>
+      <cbc:PaidAmount currencyID="{{ op.comprobante.moneda.value }}">{{ op.importeOperacion | round(2) }}</cbc:PaidAmount>
+    </cac:Payment>
     <sac:SUNATPerceptionInformation>
       <sac:SUNATPerceptionAmount currencyID="PEN">{{ op.importeOperacion | round(2) }}</sac:SUNATPerceptionAmount>
       <sac:SUNATNetTotalCashed currencyID="PEN">{{ (op.comprobante.importeTotal - op.importeOperacion) | round(2) }}</sac:SUNATNetTotalCashed>
