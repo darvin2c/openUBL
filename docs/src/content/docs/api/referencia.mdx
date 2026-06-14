@@ -9,15 +9,15 @@ Esta referencia se genera automáticamente desde `openapi.json`. No editar manua
 
 | Método | Ruta | Cuerpo | Respuesta |
 |--------|------|--------|-----------|
-| POST | `/api/v1/credit-note/create` | [`CreditNote`](#creditnote) | [`XmlResponse`](#xmlresponse) |
-| POST | `/api/v1/debit-note/create` | [`DebitNote`](#debitnote) | [`XmlResponse`](#xmlresponse) |
-| POST | `/api/v1/invoice/create` | [`Invoice`](#invoice) | [`XmlResponse`](#xmlresponse) |
-| POST | `/api/v1/perception/create` | [`Perception`](#perception) | [`XmlResponse`](#xmlresponse) |
-| POST | `/api/v1/retention/create` | [`Retention`](#retention) | [`XmlResponse`](#xmlresponse) |
+| POST | `/api/v1/credit-note/create` | [`CreditNoteCreateRequest`](#creditnotecreaterequest) | [`CreateResponse`](#createresponse) |
+| POST | `/api/v1/debit-note/create` | [`DebitNoteCreateRequest`](#debitnotecreaterequest) | [`CreateResponse`](#createresponse) |
+| POST | `/api/v1/invoice/create` | [`InvoiceCreateRequest`](#invoicecreaterequest) | [`CreateResponse`](#createresponse) |
+| POST | `/api/v1/perception/create` | [`PerceptionCreateRequest`](#perceptioncreaterequest) | [`CreateResponse`](#createresponse) |
+| POST | `/api/v1/retention/create` | [`RetentionCreateRequest`](#retentioncreaterequest) | [`CreateResponse`](#createresponse) |
 | POST | `/api/v1/sign` | — | [`SignedXmlResponse`](#signedxmlresponse) |
-| POST | `/api/v1/summary-documents/create` | [`SummaryDocuments`](#summarydocuments) | [`XmlResponse`](#xmlresponse) |
+| POST | `/api/v1/summary-documents/create` | [`SummaryDocumentsCreateRequest`](#summarydocumentscreaterequest) | [`CreateResponse`](#createresponse) |
 | GET | `/api/v1/version` | — | — |
-| POST | `/api/v1/voided-documents/create` | [`VoidedDocuments`](#voideddocuments) | [`XmlResponse`](#xmlresponse) |
+| POST | `/api/v1/voided-documents/create` | [`VoidedDocumentsCreateRequest`](#voideddocumentscreaterequest) | [`CreateResponse`](#createresponse) |
 
 ## Modelos
 
@@ -146,6 +146,29 @@ Valores de venta del comprobante resumido.
 | `importeTotal` | union | Sí | — |
 | `inafecto` | union | No | — |
 
+### `CreateResponse`
+
+Respuesta unificada de los endpoints /create.
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `errors` | union | No | — |
+| `firmado` | boolean | Sí | — |
+| `valid` | union | No | — |
+| `validado_sunat` | boolean | Sí | — |
+| `xml` | string | Sí | — |
+
+### `Credentials`
+
+Credenciales para firma digital.
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `cert_pem` | union | No | — |
+| `key_pem` | union | No | — |
+| `pfx_base64` | union | No | — |
+| `pfx_password` | union | No | — |
+
 ### `CreditNote`
 
 Nota de Crédito Electrónica - Tipo 07.
@@ -165,9 +188,21 @@ RS N° 300-2014/SUNAT, Anexo 1:
 | `moneda` | [`Catalog2`](#catalog2) | No | default: `PEN` |
 | `numero` | integer | Sí | ≥ 1.0 |
 | `proveedor` | [`Proveedor`](#proveedor) | Sí | — |
-| `serie` | string | Sí | `pattern` |
+| `serie` | string | Sí | — |
 | `sustentoDescripcion` | string | Sí | — |
 | `valorVentaTotal` | union | No | — |
+
+### `CreditNoteCreateRequest`
+
+Request para crear una nota de crédito.
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `credenciales` | union | No | — |
+| `documento` | [`CreditNote`](#creditnote) | Sí | — |
+| `firmar` | boolean | No | default: `False` |
+| `signature_id` | string | No | default: `SignSUNAT` |
+| `validar_sunat` | boolean | No | default: `True` |
 
 ### `DebitNote`
 
@@ -188,9 +223,21 @@ RS N° 300-2014/SUNAT, Anexo 1:
 | `moneda` | [`Catalog2`](#catalog2) | No | default: `PEN` |
 | `numero` | integer | Sí | ≥ 1.0 |
 | `proveedor` | [`Proveedor`](#proveedor) | Sí | — |
-| `serie` | string | Sí | `pattern` |
+| `serie` | string | Sí | — |
 | `sustentoDescripcion` | string | Sí | — |
 | `valorVentaTotal` | union | No | — |
+
+### `DebitNoteCreateRequest`
+
+Request para crear una nota de débito.
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `credenciales` | union | No | — |
+| `documento` | [`DebitNote`](#debitnote) | Sí | — |
+| `firmar` | boolean | No | default: `False` |
+| `signature_id` | string | No | default: `SignSUNAT` |
+| `validar_sunat` | boolean | No | default: `True` |
 
 ### `DocumentoVentaDetalle`
 
@@ -238,9 +285,21 @@ RS N° 300-2014/SUNAT, Anexo 1:
 | `moneda` | [`Catalog2`](#catalog2) | No | default: `PEN` |
 | `numero` | integer | Sí | ≥ 1.0 |
 | `proveedor` | [`Proveedor`](#proveedor) | Sí | — |
-| `serie` | string | Sí | `pattern` |
+| `serie` | string | Sí | min 1 |
 | `tipoOperacion` | [`Catalog51`](#catalog51) | No | default: `0101` |
 | `valorVentaTotal` | union | No | — |
+
+### `InvoiceCreateRequest`
+
+Request para crear una factura.
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `credenciales` | union | No | — |
+| `documento` | [`Invoice`](#invoice) | Sí | — |
+| `firmar` | boolean | No | default: `False` |
+| `signature_id` | string | No | default: `SignSUNAT` |
+| `validar_sunat` | boolean | No | default: `True` |
 
 ### `PercepcionRetencionOperacion`
 
@@ -274,6 +333,18 @@ RS N° 274-2015/SUNAT, Anexo 1:
 | `tipoRegimen` | [`Catalog22`](#catalog22) | Sí | — |
 | `tipoRegimenPorcentaje` | union | Sí | — |
 
+### `PerceptionCreateRequest`
+
+Request para crear una percepción.
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `credenciales` | union | No | — |
+| `documento` | [`Perception`](#perception) | Sí | — |
+| `firmar` | boolean | No | default: `False` |
+| `signature_id` | string | No | default: `SignSUNAT` |
+| `validar_sunat` | boolean | No | default: `True` |
+
 ### `Proveedor`
 
 Datos del emisor del comprobante.
@@ -299,12 +370,28 @@ RS N° 274-2015/SUNAT, Anexo 1:
 
 | Propiedad | Tipo | Requerido | Constraints |
 |-----------|------|-----------|-------------|
+| `cliente` | [`Cliente`](#cliente) | Sí | — |
+| `fechaEmision` | string | Sí | — |
 | `importeTotalPagado` | union | Sí | — |
 | `importeTotalRetenido` | union | Sí | — |
+| `numero` | integer | Sí | ≥ 1.0 |
 | `operaciones` | array | Sí | — |
+| `proveedor` | [`Proveedor`](#proveedor) | Sí | — |
 | `serie` | string | Sí | `pattern` |
 | `tipoRegimen` | [`Catalog23`](#catalog23) | Sí | — |
 | `tipoRegimenPorcentaje` | union | Sí | — |
+
+### `RetentionCreateRequest`
+
+Request para crear una retención.
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `credenciales` | union | No | — |
+| `documento` | [`Retention`](#retention) | Sí | — |
+| `firmar` | boolean | No | default: `False` |
+| `signature_id` | string | No | default: `SignSUNAT` |
+| `validar_sunat` | boolean | No | default: `True` |
 
 ### `SignedXmlResponse`
 
@@ -328,6 +415,18 @@ RS N° 300-2014/SUNAT, Anexo 1:
 | `fechaEmisionComprobantes` | string | Sí | — |
 | `numero` | integer | Sí | — |
 | `proveedor` | [`Proveedor`](#proveedor) | Sí | — |
+
+### `SummaryDocumentsCreateRequest`
+
+Request para crear un resumen diario.
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `credenciales` | union | No | — |
+| `documento` | [`SummaryDocuments`](#summarydocuments) | Sí | — |
+| `firmar` | boolean | No | default: `False` |
+| `signature_id` | string | No | default: `SignSUNAT` |
+| `validar_sunat` | boolean | No | default: `True` |
 
 ### `SummaryDocumentsItem`
 
@@ -367,6 +466,18 @@ RS N° 300-2014/SUNAT, Anexo 1:
 | `numero` | integer | Sí | ≥ 1.0 |
 | `proveedor` | [`Proveedor`](#proveedor) | Sí | — |
 
+### `VoidedDocumentsCreateRequest`
+
+Request para crear una comunicación de baja.
+
+| Propiedad | Tipo | Requerido | Constraints |
+|-----------|------|-----------|-------------|
+| `credenciales` | union | No | — |
+| `documento` | [`VoidedDocuments`](#voideddocuments) | Sí | — |
+| `firmar` | boolean | No | default: `False` |
+| `signature_id` | string | No | default: `SignSUNAT` |
+| `validar_sunat` | boolean | No | default: `True` |
+
 ### `VoidedDocumentsItem`
 
 Item de comunicación de baja.
@@ -381,14 +492,6 @@ RS N° 300-2014/SUNAT, Anexo 1:
 | `numero` | integer | Sí | ≥ 1.0 |
 | `serie` | string | Sí | — |
 | `tipoComprobante` | [`Catalog1`](#catalog1) | Sí | — |
-
-### `XmlResponse`
-
-Response containing generated XML document.
-
-| Propiedad | Tipo | Requerido | Constraints |
-|-----------|------|-----------|-------------|
-| `xml` | string | Sí | — |
 
 ### `openubl__models__perception__ComprobanteAfectado`
 
