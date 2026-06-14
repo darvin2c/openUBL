@@ -14,6 +14,8 @@ from openubl.validators.common import (
     ValidationError,
     add_error,
     all_,
+    attr,
+    exists,
     matches,
     parse_amount,
     text,
@@ -29,9 +31,12 @@ from openubl.validators.common import (
 def validate_perception_extra(root: etree._Element, errors: list[ValidationError]) -> None:
     """Reglas SUNAT adicionales para comprobantes de Percepción.
 
-    Ninguna de las reglas faltantes puede evaluarse localmente: todas requieren
-    consultar listados/padrones de SUNAT.
+    Estas validaciones se ejecutan sobre el XML renderizado de un
+    comprobante de percepción UBL 2.1. Reglas que requieren padrones o
+    listados SUNAT se documentan como FUERA DE ALCANCE.
     """
+    ns = NS_PERCEPTION
+
     # FUERA DE ALCANCE - 2609: requiere "Listado de comprobantes de pago electrónicos"
     # FUERA DE ALCANCE - 2610: requiere "Listado de comprobantes de pago electrónicos"
     # FUERA DE ALCANCE - 3312: requiere "Listado de autorizaciones de comprobantes de pago físicos"
@@ -40,7 +45,24 @@ def validate_perception_extra(root: etree._Element, errors: list[ValidationError
     # FUERA DE ALCANCE - 3326: requiere listado de comprobantes de percepción excepcional activos
     # FUERA DE ALCANCE - 3328: requiere "Listado de comprobantes de pago electrónicos"
     # FUERA DE ALCANCE - 3329: requiere "Listado de comprobantes de pago electrónicos"
-    pass
+
+    # ERROR 3327: emisión excepcional con régimen 02 no puede referenciar documento régimen 01.
+    # Según SUNAT, si el Indicador de emisión excepcional es "01" y el régimen de percepción
+    # es "02" (adquisición de combustible), no está permitido que el documento relacionado sea
+    # del régimen "01" (venta interna). Localmente se interpreta el tipo de documento "01" como
+    # indicativo del régimen 01.
+    exceptional = text(root, "sac:ExceptionalIndicator", ns)
+    regime = text(root, "sac:SUNATPerceptionSystemCode", ns)
+    if exceptional == "01" and regime == "02":
+        for ref in all_(root, "sac:SUNATPerceptionDocumentReference", ns):
+            ref_id_elem = ref.find("cbc:ID", namespaces=ns)
+            ref_type = ref_id_elem.get("schemeID") if ref_id_elem is not None else None
+            if ref_type == "01":
+                add_error(
+                    errors,
+                    "3327",
+                    "No esta permitido referenciar el Código del régimen de percepción con el regimen del documento relacionado.",
+                )
 
 
 # ---------------------------------------------------------------------------
@@ -216,6 +238,85 @@ def validate_retention_extra(root: etree._Element, errors: list[ValidationError]
                 "2696",
                 "El formato del Tag UBL sac:SUNATRetentionDocumentReference/cbc:TotalInvoiceAmount es diferente a decimal positivo de 12 enteros y 2 decimales o es cero (0)",
             )
+    # ERROR 2626: uniqueness of document reference + payment id
+    payment_keys: list[tuple[str, str]] = []
+    for ref in all_(root, "sac:SUNATRetentionDocumentReference", ns):
+        ref_id_elem = ref.find("cbc:ID", namespaces=ns)
+        ref_id = (ref_id_elem.text or "").strip() if ref_id_elem is not None else ""
+        ref_type = ref_id_elem.get("schemeID") if ref_id_elem is not None else None
+        if ref_type == "07":
+            continue
+        payment = ref.find("cac:Payment", namespaces=ns)
+        payment_id = text(payment, "cbc:ID", ns) if payment is not None else None
+        if payment_id is not None:
+            key = (ref_id, payment_id)
+            if key in payment_keys:
+                add_error(
+                    errors,
+                    "2626",
+                    "El Nro. de documento con el número de pago ya se encuentra en la Relación de Documentos Relacionados agregados.",
+                )
+            payment_keys.append(key)
+
+    # ERROR 2719 / 2715 / 2716 / 2721 / 2722 / 2749: ExchangeRate for non-PEN references
+    for ref in all_(root, "sac:SUNATRetentionDocumentReference", ns):
+        ref_id_elem = ref.find("cbc:ID", namespaces=ns)
+        ref_type = ref_id_elem.get("schemeID") if ref_id_elem is not None else None
+        if ref_type == "07":
+            continue
+        ref_currency = attr(ref, "cbc:TotalInvoiceAmount", "currencyID", ns)
+        info = ref.find("sac:SUNATRetentionInformation", namespaces=ns)
+        if info is None:
+            continue
+        exchange = info.find("cac:ExchangeRate", namespaces=ns)
+        if ref_currency is not None and ref_currency != "PEN":
+            if exchange is None:
+                add_error(
+                    errors,
+                    "2719",
+                    "El XML no contiene el tag o no existe información de la moneda de referencia para el tipo de cambio",
+                )
+                continue
+            if not exists(exchange, "cbc:SourceCurrencyCode", ns):
+                add_error(
+                    errors,
+                    "2719",
+                    "El XML no contiene el tag o no existe información de la moneda de referencia para el tipo de cambio",
+                )
+            if not exists(exchange, "cbc:CalculationRate", ns):
+                add_error(
+                    errors,
+                    "2721",
+                    "El XML no contiene el tag o no existe información del tipo de cambio",
+                )
+            if not exists(exchange, "cbc:Date", ns):
+                add_error(
+                    errors,
+                    "2722",
+                    "El XML no contiene el tag o no existe información de la fecha de cambio",
+                )
+        if exchange is not None:
+            source = text(exchange, "cbc:SourceCurrencyCode", ns)
+            target = text(exchange, "cbc:TargetCurrencyCode", ns)
+            calc = parse_amount(text(exchange, "cbc:CalculationRate", ns))
+            if ref_currency is not None and source != ref_currency:
+                add_error(
+                    errors,
+                    "2749",
+                    "La moneda de referencia para el tipo de cambio debe ser la misma que la del documento relacionado",
+                )
+            if target is not None and target != "PEN":
+                add_error(
+                    errors,
+                    "2715",
+                    "El valor de la moneda objetivo para la Tasa de Cambio debe ser PEN",
+                )
+            if calc is not None and calc <= 0:
+                add_error(
+                    errors,
+                    "2716",
+                    "El dato ingresado en el tipo de cambio debe ser numérico mayor a cero",
+                )
 
     # FUERA DE ALCANCE - 2602: requiere Catálogo N.° 22 (régimen de percepción)
     # FUERA DE ALCANCE - 2603: requiere Catálogo N.° 22 (porcentaje de percepción)

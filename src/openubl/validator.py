@@ -23,10 +23,13 @@ from pathlib import Path
 from lxml import etree
 
 from openubl.validators._extra_credit_note import validate_credit_note_extra
+from openubl.validators._extra_credit_note2 import validate_credit_note_extra2
 from openubl.validators._extra_debit_note import validate_debit_note_extra
+from openubl.validators._extra_debit_note2 import validate_debit_note_extra2
 from openubl.validators._extra_invoice1 import validate_invoice_extra1
 from openubl.validators._extra_invoice2 import validate_invoice_extra2
 from openubl.validators._extra_invoice3 import validate_invoice_extra3
+from openubl.validators._extra_invoice4 import validate_invoice_extra4
 from openubl.validators._extra_perception_retention import (
     validate_perception_extra,
     validate_retention_extra,
@@ -251,6 +254,7 @@ class SunatValidator:
         validate_invoice_extra1(root, errors)
         validate_invoice_extra2(root, errors)
         validate_invoice_extra3(root, errors)
+        validate_invoice_extra4(root, errors)
         return errors
 
     def validate_credit_note(self, xml_string: str) -> list[ValidationError]:
@@ -263,6 +267,7 @@ class SunatValidator:
         self._validate_invoice_common(root, self.NS_CREDIT_NOTE, errors)
         self._validate_credit_note_specific(root, errors)
         validate_credit_note_extra(root, errors)
+        validate_credit_note_extra2(root, errors)
         return errors
 
     def validate_debit_note(self, xml_string: str) -> list[ValidationError]:
@@ -275,6 +280,7 @@ class SunatValidator:
         self._validate_invoice_common(root, self.NS_DEBIT_NOTE, errors)
         self._validate_debit_note_specific(root, errors)
         validate_debit_note_extra(root, errors)
+        validate_debit_note_extra2(root, errors)
         return errors
 
     def validate_voided_documents(self, xml_string: str) -> list[ValidationError]:
@@ -1477,11 +1483,11 @@ class SunatValidator:
             if agent_ruc is not None and receiver_id == agent_ruc:
                 self._add(errors, "2620", "El valor del Tag UBL cac:ReceiverParty/.../cbc:ID es igual al 'Número de documento de identidad del emisor'")
 
-        # ERROR 2628 / 2728: TotalInvoiceAmount
+        # ERROR 2669 / 2728: TotalInvoiceAmount
         total_invoice_amount = self._parse_amount(self._text(root, "cbc:TotalInvoiceAmount", ns))
         total_invoice_currency = self._attr(root, "cbc:TotalInvoiceAmount", "currencyID", ns)
         if total_invoice_amount is None or total_invoice_amount <= 0:
-            self._add(errors, "2628", "El formato del Tag UBL cbc:TotalInvoiceAmount es diferente a decimal positivo de 12 enteros y 2 decimales o es cero (0)")
+            self._add(errors, "2669", "El formato del Tag UBL cbc:TotalInvoiceAmount es diferente a decimal positivo de 12 enteros y 2 decimales o es cero (0)")
         if total_invoice_currency is not None and total_invoice_currency != "PEN":
             self._add(errors, "2728", "El valor del Tag UBL cbc:TotalInvoiceAmount@currencyID es diferente 'PEN'")
 
