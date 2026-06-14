@@ -51,6 +51,9 @@
       </cac:PartyIdentification>
       <cac:PartyLegalEntity>
         <cbc:RegistrationName>{{ doc.proveedor.razonSocial }}</cbc:RegistrationName>
+        <cac:RegistrationAddress>
+          <cbc:AddressTypeCode>0000</cbc:AddressTypeCode>
+        </cac:RegistrationAddress>
       </cac:PartyLegalEntity>
     </cac:Party>
   </cac:AccountingSupplierParty>
@@ -100,6 +103,7 @@
         <cbc:TaxableAmount currencyID="{{ doc.moneda }}">{{ detalle.valorVenta | round(2) }}</cbc:TaxableAmount>
         <cbc:TaxAmount currencyID="{{ doc.moneda }}">{{ detalle.igv | round(2) }}</cbc:TaxAmount>
         <cac:TaxCategory>
+          <cbc:Percent>18.00</cbc:Percent>
           <cbc:TaxExemptionReasonCode>{{ detalle.tipoAfectacionIGV }}</cbc:TaxExemptionReasonCode>
           <cac:TaxScheme>
             <cbc:ID>1000</cbc:ID>

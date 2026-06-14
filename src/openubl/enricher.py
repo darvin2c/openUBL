@@ -59,7 +59,7 @@ class ContentEnricher:
                 detalle.igv = Decimal("0")
         
         if detalle.precioVenta is None:
-            detalle.precioVenta = _round(detalle.valorVenta + detalle.igv)
+            detalle.precioVenta = _round((detalle.valorVenta + detalle.igv) / detalle.cantidad)
     
     def _enrich_voided(self, doc: VoidedDocuments):
         """Enrich voided documents."""

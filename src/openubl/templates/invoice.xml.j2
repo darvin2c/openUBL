@@ -15,8 +15,8 @@
   <cbc:ID>{{ doc.serie }}-{{ doc.numero }}</cbc:ID>
   <cbc:IssueDate>{{ doc.fechaEmision }}</cbc:IssueDate>
   <cbc:IssueTime>00:00:00</cbc:IssueTime>
-  <cbc:InvoiceTypeCode listAgencyName="PE:SUNAT" listName="Tipo de Documento" listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo01">01</cbc:InvoiceTypeCode>
-  <cbc:Note>"{{ doc.tipoOperacion }}"</cbc:Note>
+  <cbc:InvoiceTypeCode listAgencyName="PE:SUNAT" listName="Tipo de Documento" listID="{{ doc.tipoOperacion }}" listURI="urn:pe:gob:sunat:cpe:see:gem:catalogos:catalogo01">01</cbc:InvoiceTypeCode>
+  <cbc:Note>{{ doc.tipoOperacion }}</cbc:Note>
   <cbc:DocumentCurrencyCode listID="ISO 4217 Alpha" listName="Currency" listAgencyName="United Nations Economic Commission for Europe">{{ doc.moneda }}</cbc:DocumentCurrencyCode>
   <cac:Signature>
     <cbc:ID>SignSUNAT</cbc:ID>
@@ -41,6 +41,9 @@
       </cac:PartyIdentification>
       <cac:PartyLegalEntity>
         <cbc:RegistrationName>{{ doc.proveedor.razonSocial }}</cbc:RegistrationName>
+        <cac:RegistrationAddress>
+          <cbc:AddressTypeCode>0000</cbc:AddressTypeCode>
+        </cac:RegistrationAddress>
       </cac:PartyLegalEntity>
     </cac:Party>
   </cac:AccountingSupplierParty>
@@ -68,6 +71,10 @@
       </cac:TaxCategory>
     </cac:TaxSubtotal>
   </cac:TaxTotal>
+  <cac:PaymentTerms>
+    <cbc:ID>FormaPago</cbc:ID>
+    <cbc:PaymentMeansID>Contado</cbc:PaymentMeansID>
+  </cac:PaymentTerms>
   <cac:LegalMonetaryTotal>
     <cbc:LineExtensionAmount currencyID="{{ doc.moneda }}">{{ doc.valorVentaTotal | round(2) }}</cbc:LineExtensionAmount>
     <cbc:TaxInclusiveAmount currencyID="{{ doc.moneda }}">{{ doc.importeTotal | round(2) }}</cbc:TaxInclusiveAmount>
@@ -90,6 +97,7 @@
         <cbc:TaxableAmount currencyID="{{ doc.moneda }}">{{ detalle.valorVenta | round(2) }}</cbc:TaxableAmount>
         <cbc:TaxAmount currencyID="{{ doc.moneda }}">{{ detalle.igv | round(2) }}</cbc:TaxAmount>
         <cac:TaxCategory>
+          <cbc:Percent>18.00</cbc:Percent>
           <cbc:TaxExemptionReasonCode>{{ detalle.tipoAfectacionIGV }}</cbc:TaxExemptionReasonCode>
           <cac:TaxScheme>
             <cbc:ID>1000</cbc:ID>

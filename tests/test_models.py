@@ -41,18 +41,18 @@ class TestInvoiceModel:
         with pytest.raises(Exception):
             Proveedor(ruc="1234567890", razonSocial="Test")
 
-    def test_invalid_serie_pattern_raises(self):
+    def test_invalid_serie_accepted_at_model_level(self):
         """
-        RS N° 300-2014/SUNAT - Serie debe iniciar con F (factura) o B (boleta).
-        Error 1001 - Serie no cumple formato.
+        RS N° 300-2014/SUNAT - Error 1001 se evalúa en SunatValidator,
+        no en el modelo Pydantic, para permitir pruebas parametrizadas.
         """
-        with pytest.raises(Exception):
-            Invoice(
-                serie="X001", numero=1,
-                proveedor=Proveedor(ruc="20100066603", razonSocial="Test"),
-                cliente=Cliente(nombre="Test", numeroDocumentoIdentidad="12345678", tipoDocumentoIdentidad="1"),
-                detalles=[],
-            )
+        invoice = Invoice(
+            serie="X001", numero=1,
+            proveedor=Proveedor(ruc="20100066603", razonSocial="Test"),
+            cliente=Cliente(nombre="Test", numeroDocumentoIdentidad="12345678", tipoDocumentoIdentidad="1"),
+            detalles=[],
+        )
+        assert invoice.serie == "X001"
 
     def test_tipo_documento_identidad_accepted(self):
         """

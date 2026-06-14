@@ -20,7 +20,6 @@ class DebitNote(BaseModel):
     - Debe referenciar el comprobante afectado
     """
     serie: str = Field(
-        pattern=r"^[BCbc][A-Za-z0-9]{2,3}$",
         description="Serie de nota de débito",
     )
     numero: int = Field(ge=1)

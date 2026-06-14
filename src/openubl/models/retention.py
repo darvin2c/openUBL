@@ -23,6 +23,10 @@ class Retention(BaseModel):
         pattern=r"^R\d{3}$",
         description="Serie de retención (R###)",
     )
+    numero: int = Field(ge=1)
+    fechaEmision: date
+    proveedor: Proveedor
+    cliente: Cliente
     importeTotalRetenido: Decimal
     importeTotalPagado: Decimal
     tipoRegimen: Catalog23
