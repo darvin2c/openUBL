@@ -15,6 +15,7 @@ from openubl.models import CreditNote, Proveedor, Cliente, DocumentoVentaDetalle
 from openubl.enricher import ContentEnricher
 from openubl.renderer import render_credit_note
 from openubl.validators._extra_credit_note import validate_credit_note_extra
+from openubl.validators._extra_credit_note2 import validate_credit_note_extra2
 
 
 _NS = {
@@ -535,3 +536,322 @@ def test_credit_note_extra_valid():
     root = _valid_credit_note_root()
     errors = validate_credit_note_extra(root, [])
     assert errors == []
+
+
+
+def _m3462(root: etree._Element) -> None:
+    _set_text(root, "cac:BillingReference/cac:InvoiceDocumentReference/cbc:DocumentTypeCode", "01")
+    new_line = deepcopy(_line(root))
+    _set_text(new_line, "cbc:ID", "2")
+    _set_text(new_line, "cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cbc:Percent", "10.00")
+    _line(root).getparent().append(new_line)
+
+
+# ------------------------------------------------------------------
+# Tests para validate_credit_note_extra2
+# ------------------------------------------------------------------
+
+# ------------------------------------------------------------------
+# Helpers adicionales para CreditNote extra2
+# ------------------------------------------------------------------
+
+def _add_billing_reference(root: etree._Element, doc_type: str, doc_id: str) -> etree._Element:
+    br = _add_child(root, _CAC, "BillingReference")
+    idr = _add_child(br, _CAC, "InvoiceDocumentReference")
+    _add_child(idr, _CBC, "ID", doc_id)
+    _add_child(idr, _CBC, "DocumentTypeCode", doc_type)
+    return br
+
+
+def _add_additional_document_reference(root: etree._Element, doc_type: str, doc_id: str) -> etree._Element:
+    ar = _add_child(root, _CAC, "AdditionalDocumentReference")
+    _add_child(ar, _CBC, "ID", doc_id)
+    _add_child(ar, _CBC, "DocumentTypeCode", doc_type)
+    return ar
+
+
+def _add_despatch_document_reference(root: etree._Element, doc_type: str, doc_id: str) -> etree._Element:
+    dr = _add_child(root, _CAC, "DespatchDocumentReference")
+    _add_child(dr, _CBC, "ID", doc_id)
+    _add_child(dr, _CBC, "DocumentTypeCode", doc_type)
+    return dr
+
+
+def _add_payment_terms(
+    root: etree._Element,
+    means_id: str | None,
+    amount: str | None = None,
+    due_date: str | None = None,
+) -> etree._Element:
+    pt = _add_child(root, _CAC, "PaymentTerms")
+    _add_child(pt, _CBC, "ID", "FormaPago")
+    if means_id is not None:
+        _add_child(pt, _CBC, "PaymentMeansID", means_id)
+    if amount is not None:
+        _add_child(pt, _CBC, "Amount", amount, {"currencyID": "Catalog2.PEN"})
+    if due_date is not None:
+        _add_child(pt, _CBC, "PaymentDueDate", due_date)
+    return pt
+
+
+def _add_item_property(
+    root: etree._Element,
+    code: str,
+    value: str | None = None,
+    start_date: str | None = None,
+) -> etree._Element:
+    item = _find(_line(root), "cac:Item")
+    prop = _add_child(item, _CAC, "AdditionalItemProperty")
+    _add_child(prop, _CBC, "NameCode", code)
+    if value is not None:
+        _add_child(prop, _CBC, "Value", value)
+    if start_date is not None:
+        up = _add_child(prop, _CAC, "UsabilityPeriod")
+        _add_child(up, _CBC, "StartDate", start_date)
+    return prop
+
+
+def _add_global_tax_subtotal(
+    root: etree._Element, tax_code: str, base: str, tax: str
+) -> etree._Element:
+    tt = _find(root, "cac:TaxTotal")
+    ts = _add_child(tt, _CAC, "TaxSubtotal")
+    _add_child(ts, _CBC, "TaxableAmount", base, {"currencyID": "Catalog2.PEN"})
+    _add_child(ts, _CBC, "TaxAmount", tax, {"currencyID": "Catalog2.PEN"})
+    tc = _add_child(ts, _CAC, "TaxCategory")
+    tsc = _add_child(tc, _CAC, "TaxScheme")
+    _add_child(tsc, _CBC, "ID", tax_code)
+    _add_child(tsc, _CBC, "Name", "IMPUESTO")
+    _add_child(tsc, _CBC, "TaxTypeCode", "VAT")
+    return ts
+
+
+def _add_contract_document_reference(
+    root: etree._Element,
+    doc_type: str | None = None,
+    doc_id: str | None = None,
+    desc: str | None = None,
+    percent: str | None = None,
+) -> etree._Element:
+    cdr = _add_child(root, _CAC, "ContractDocumentReference")
+    if doc_type is not None:
+        _add_child(cdr, _CBC, "DocumentTypeCode", doc_type)
+    if doc_id is not None:
+        _add_child(cdr, _CBC, "ID", doc_id)
+    if desc is not None:
+        _add_child(cdr, _CBC, "DocumentDescription", desc)
+    if percent is not None:
+        ip = _add_child(cdr, _CAC, "IssuerParty")
+        ple = _add_child(ip, _CAC, "PartyLegalEntity")
+        sp = _add_child(ple, _CAC, "ShareholderParty")
+        _add_child(sp, _CBC, "PartecipationPercent", percent)
+    return cdr
+
+
+# ------------------------------------------------------------------
+# Tests para validate_credit_note_extra2
+# ------------------------------------------------------------------
+
+MUTATORS2 = [
+    ("2116", lambda r: (
+        _set_serie(r, "F001"),
+        _set_text(r, "cac:BillingReference/cac:InvoiceDocumentReference/cbc:DocumentTypeCode", "03"),
+    )),
+    ("2117", lambda r: (
+        _set_text(r, "cac:BillingReference/cac:InvoiceDocumentReference/cbc:DocumentTypeCode", "01"),
+        _set_text(r, "cac:BillingReference/cac:InvoiceDocumentReference/cbc:ID", "X"),
+    )),
+    ("2128", lambda r: _remove(r, "cac:DiscrepancyResponse/cbc:ResponseCode")),
+    ("2135", lambda r: _set_text(r, "cac:DiscrepancyResponse/cbc:Description", "x" * 501)),
+    ("2136", lambda r: _remove(r, "cac:DiscrepancyResponse/cbc:Description")),
+    ("2137", lambda r: _set_text(r, "cac:CreditNoteLine/cbc:ID", "abc")),
+    ("2138", lambda r: _remove_attr(r, "cac:CreditNoteLine/cbc:CreditedQuantity", "unitCode")),
+    ("2139", lambda r: _set_text(r, "cac:CreditNoteLine/cbc:CreditedQuantity", "abc")),
+    ("2364", lambda r: (
+        _add_despatch_document_reference(r, "09", "001-1"),
+        _add_despatch_document_reference(r, "09", "001-1"),
+    )),
+    ("2399", lambda r: _set_text(r, "cac:BillingReference/cac:InvoiceDocumentReference/cbc:DocumentTypeCode", "01")),
+    ("2365", lambda r: _add_billing_reference(r, "03", "B001-1")),
+    ("2426", lambda r: (
+        _add_additional_document_reference(r, "01", "DOC-1"),
+        _add_additional_document_reference(r, "01", "DOC-1"),
+    )),
+    ("2524", lambda r: _remove(r, "cac:BillingReference")),
+    ("2594", lambda r: (
+        _set_serie(r, "001"),
+        _set_text(r, "cac:BillingReference/cac:InvoiceDocumentReference/cbc:DocumentTypeCode", "99"),
+    )),
+    ("2635", lambda r: (
+        _set_resp_code(r, "10"),
+        _add_additional_document_reference(r, "99", "DOC-1"),
+        _add_additional_document_reference(r, "99", "DOC-2"),
+    )),
+    ("2636", lambda r: _add_additional_document_reference(r, "99", "DOC-1")),
+    ("2637", lambda r: (
+        _set_resp_code(r, "10"),
+        _add_additional_document_reference(r, "01", "DOC-1"),
+    )),
+    ("2752", lambda r: _line(r).getparent().append(deepcopy(_line(r)))),
+    ("2884", lambda r: _add_billing_reference(r, "01", "F001-2")),
+    ("3051", lambda r: _set_text(r, "cac:CreditNoteLine/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cac:TaxScheme/cbc:Name", "VAT")),
+    ("3064", lambda r: _add_item_property(r, "7001")),
+    ("3088", lambda r: _set_text(r, "cbc:DocumentCurrencyCode", "XYZ")),
+    ("3151", lambda r: (_add_item_property(r, "7000"), _add_item_property(r, "7002"))),
+    ("3152", lambda r: _add_item_property(r, "7000")),
+    ("3153", lambda r: (_add_item_property(r, "7000"), _add_item_property(r, "7004"))),
+    ("3154", lambda r: (_add_item_property(r, "7000"), _add_item_property(r, "7002"), _add_item_property(r, "7004"))),
+    ("3155", lambda r: (_add_item_property(r, "7000"), _add_item_property(r, "7002"), _add_item_property(r, "7004"))),
+    ("3194", lambda r: (
+        _set_resp_code(r, "11"),
+        _add_billing_reference(r, "01", "F001-2"),
+    )),
+    ("3203", lambda r: _find(r, "cac:DiscrepancyResponse").getparent().append(deepcopy(_find(r, "cac:DiscrepancyResponse")))),
+    ("3221", lambda r: (
+        _set_resp_code(r, "12"),
+        _add_line_tax_subtotal(r, "9995", "100.00", "0.00", "0.00"),
+    )),
+    ("3230", lambda r: _set_text(r, "cac:CreditNoteLine/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cbc:TaxExemptionReasonCode", "17")),
+    ("3243", lambda r: _add_item_property(r, "7014")),
+    ("3245", lambda r: (
+        pt := _add_child(r, _CAC, "PaymentTerms"),
+        _add_child(pt, _CBC, "ID", "FormaPago"),
+    )),
+    ("3246", lambda r: _add_payment_terms(r, "XYZ")),
+    ("3248", lambda r: (_add_payment_terms(r, "Contado"), _add_payment_terms(r, "Contado"))),
+    ("3249", lambda r: (
+        _set_attr(r, "cac:AccountingCustomerParty/cac:Party/cac:PartyIdentification/cbc:ID", "schemeID", "6"),
+        _add_payment_terms(r, "Credito", amount="100.00"),
+    )),
+    ("3250", lambda r: (
+        _set_attr(r, "cac:AccountingCustomerParty/cac:Party/cac:PartyIdentification/cbc:ID", "schemeID", "6"),
+        _add_payment_terms(r, "Credito", amount="0"),
+    )),
+    ("3251", lambda r: (
+        _set_attr(r, "cac:AccountingCustomerParty/cac:Party/cac:PartyIdentification/cbc:ID", "schemeID", "6"),
+        _add_payment_terms(r, "Credito"),
+        _add_payment_terms(r, "Cuota001", amount="50.00", due_date="2024-02-01"),
+    )),
+    ("3252", lambda r: _add_payment_terms(r, "Cuota001")),
+    ("3253", lambda r: (
+        _set_attr(r, "cac:AccountingCustomerParty/cac:Party/cac:PartyIdentification/cbc:ID", "schemeID", "6"),
+        _add_payment_terms(r, "Credito", amount="100.00"),
+        _add_payment_terms(r, "Cuota001", amount="0"),
+    )),
+    ("3254", lambda r: (
+        _set_attr(r, "cac:AccountingCustomerParty/cac:Party/cac:PartyIdentification/cbc:ID", "schemeID", "6"),
+        _add_payment_terms(r, "Credito", amount="100.00"),
+        _add_payment_terms(r, "Cuota001", due_date="2024-02-01"),
+    )),
+    ("3255", lambda r: (
+        _set_attr(r, "cac:AccountingCustomerParty/cac:Party/cac:PartyIdentification/cbc:ID", "schemeID", "6"),
+        _add_payment_terms(r, "Credito", amount="100.00"),
+        _add_payment_terms(r, "Cuota001", amount="50.00", due_date="abc"),
+    )),
+    ("3256", lambda r: (
+        _set_attr(r, "cac:AccountingCustomerParty/cac:Party/cac:PartyIdentification/cbc:ID", "schemeID", "6"),
+        _add_payment_terms(r, "Credito", amount="100.00"),
+        _add_payment_terms(r, "Cuota001", amount="50.00"),
+    )),
+    ("3257", lambda r: _set_resp_code(r, "13")),
+    ("3259", lambda r: (
+        _set_resp_code(r, "13"),
+        _set_text(r, "cac:BillingReference/cac:InvoiceDocumentReference/cbc:DocumentTypeCode", "03"),
+    )),
+    ("3261", lambda r: _add_billing_reference(r, "03", "B001-2")),
+    ("3273", lambda r: (
+        _set_text(r, "cac:BillingReference/cac:InvoiceDocumentReference/cbc:DocumentTypeCode", "01"),
+        _add_global_tax_subtotal(r, "9995", "100.00", "0.00"),
+    )),
+    ("3274", lambda r: (
+        _set_text(r, "cac:BillingReference/cac:InvoiceDocumentReference/cbc:DocumentTypeCode", "01"),
+        _add_global_tax_subtotal(r, "9998", "100.00", "0.00"),
+    )),
+    ("3275", lambda r: (
+        _set_text(r, "cac:BillingReference/cac:InvoiceDocumentReference/cbc:DocumentTypeCode", "01"),
+        _add_global_tax_subtotal(r, "9997", "100.00", "0.00"),
+    )),
+    ("3276", lambda r: (
+        _set_text(r, "cac:BillingReference/cac:InvoiceDocumentReference/cbc:DocumentTypeCode", "01"),
+        _add_global_tax_subtotal(r, "9996", "100.00", "0.00"),
+    )),
+    ("3280", lambda r: (
+        _set_text(r, "cac:BillingReference/cac:InvoiceDocumentReference/cbc:DocumentTypeCode", "01"),
+        _set_text(r, "cac:LegalMonetaryTotal/cbc:PayableAmount", "50.00"),
+    )),
+    ("3291", lambda r: (
+        _set_text(r, "cac:BillingReference/cac:InvoiceDocumentReference/cbc:DocumentTypeCode", "01"),
+        _set_text(r, "cac:TaxTotal/cac:TaxSubtotal/cbc:TaxAmount", "10.00"),
+    )),
+    ("3292", lambda r: (
+        _set_text(r, "cac:BillingReference/cac:InvoiceDocumentReference/cbc:DocumentTypeCode", "01"),
+        _set_text(r, "cac:TaxTotal/cbc:TaxAmount", "5.00"),
+    )),
+    ("3295", lambda r: (
+        _set_text(r, "cac:BillingReference/cac:InvoiceDocumentReference/cbc:DocumentTypeCode", "01"),
+        _add_line_tax_subtotal(r, "1016", "100.00", "10.00", "18.00"),
+        _add_global_tax_subtotal(r, "1016", "100.00", "10.00"),
+    )),
+    ("3296", lambda r: (
+        _set_text(r, "cac:BillingReference/cac:InvoiceDocumentReference/cbc:DocumentTypeCode", "01"),
+        _add_global_tax_subtotal(r, "2000", "100.00", "0.00"),
+    )),
+    ("3297", lambda r: (
+        _set_text(r, "cac:BillingReference/cac:InvoiceDocumentReference/cbc:DocumentTypeCode", "01"),
+        _add_global_tax_subtotal(r, "9999", "100.00", "0.00"),
+    )),
+    ("3298", lambda r: (
+        _set_text(r, "cac:BillingReference/cac:InvoiceDocumentReference/cbc:DocumentTypeCode", "01"),
+        _add_global_tax_subtotal(r, "2000", "0.00", "10.00"),
+    )),
+    ("3299", lambda r: (
+        _set_text(r, "cac:BillingReference/cac:InvoiceDocumentReference/cbc:DocumentTypeCode", "01"),
+        _add_global_tax_subtotal(r, "9999", "0.00", "10.00"),
+    )),
+    ("3315", lambda r: (
+        _set_resp_code(r, "13"),
+        _set_text(r, "cac:CreditNoteLine/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cbc:Percent", "18.00"),
+    )),
+    ("3319", lambda r: (
+        _set_resp_code(r, "13"),
+        _set_attr(r, "cac:AccountingCustomerParty/cac:Party/cac:PartyIdentification/cbc:ID", "schemeID", "6"),
+        _add_payment_terms(r, "Credito", amount="100.00"),
+        _add_payment_terms(r, "Cuota001", amount="50.00", due_date="2024-02-01"),
+    )),
+    ("3320", lambda r: (
+        _set_resp_code(r, "13"),
+        _add_payment_terms(r, "Credito"),
+    )),
+    ("3321", lambda r: (
+        _set_resp_code(r, "13"),
+        _set_attr(r, "cac:AccountingCustomerParty/cac:Party/cac:PartyIdentification/cbc:ID", "schemeID", "6"),
+        _add_payment_terms(r, "Credito", amount="100.00"),
+        _add_payment_terms(r, "Cuota001", amount="50.00", due_date="2024-01-01"),
+    )),
+    ("3462", _m3462),
+    ("3497", lambda r: _add_contract_document_reference(r, doc_type="3", doc_id="C1", desc="Desc", percent="50.00")),
+    ("3498", lambda r: (
+        _add_contract_document_reference(r, doc_id="C1"),
+        _add_contract_document_reference(r, doc_id="C2"),
+    )),
+    ("3499", lambda r: _add_contract_document_reference(r, doc_id="C1")),
+    ("3500", lambda r: _add_contract_document_reference(r, doc_type="1", doc_id="C1", desc="Desc", percent="abc")),
+    ("3501", lambda r: _add_contract_document_reference(r, doc_type="1", doc_id="x" * 51, desc="Desc", percent="50.00")),
+    ("3502", lambda r: _add_contract_document_reference(r, doc_type="1", doc_id="C1", desc="x" * 251, percent="50.00")),
+]
+
+
+@pytest.mark.parametrize("code,mutator", MUTATORS2)
+def test_credit_note_extra2_rule(code, mutator):
+    root = _valid_credit_note_root()
+    mutator(root)
+    errors = validate_credit_note_extra2(root, [])
+    codes = [e.code for e in errors]
+    assert code in codes, f"Expected error {code} in {codes}"
+
+
+def test_credit_note_extra2_valid():
+    root = _valid_credit_note_root()
+    errors = validate_credit_note_extra2(root, [])
+    assert errors == []
+

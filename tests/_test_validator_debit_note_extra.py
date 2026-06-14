@@ -15,6 +15,7 @@ from openubl.enricher import ContentEnricher
 from openubl.models import DebitNote, Cliente, DocumentoVentaDetalle, Proveedor
 from openubl.renderer import render_debit_note
 from openubl.validators._extra_debit_note import validate_debit_note_extra
+from openubl.validators._extra_debit_note2 import validate_debit_note_extra2
 from openubl.validators.common import NS_DEBIT_NOTE
 
 
@@ -278,6 +279,29 @@ def _add_item_property(root, code):
     _add_child(prop, _CBC, "NameCode", code)
     return prop
 
+def _add_despatch_document_reference(root, doc_type, doc_id):
+    ref = etree.SubElement(root, f"{{{_CAC}}}DespatchDocumentReference")
+    _add_child(ref, _CBC, "ID", doc_id)
+    _add_child(ref, _CBC, "DocumentTypeCode", doc_type)
+    return ref
+
+def _add_additional_document_reference(root, doc_type, doc_id):
+    ref = etree.SubElement(root, f"{{{_CAC}}}AdditionalDocumentReference")
+    _add_child(ref, _CBC, "ID", doc_id)
+    _add_child(ref, _CBC, "DocumentTypeCode", doc_type)
+    return ref
+
+def _add_billing_reference(root, doc_type, doc_id):
+    ref = etree.SubElement(root, f"{{{_CAC}}}BillingReference")
+    idr = etree.SubElement(ref, f"{{{_CAC}}}InvoiceDocumentReference")
+    _add_child(idr, _CBC, "ID", doc_id)
+    _add_child(idr, _CBC, "DocumentTypeCode", doc_type)
+    return ref
+
+def _add_item_property_with_value(root, code, value):
+    prop = _add_item_property(root, code)
+    _add_child(prop, _CBC, "Value", value)
+    return prop
 
 def _add_requested_monetary_total_child(root, tag, value):
     total = _find(root, "cac:RequestedMonetaryTotal")
@@ -775,6 +799,226 @@ def _make_gratuita_line(root):
                 ),
             ),
         ),
+        # ------------------------------------------------------------------
+        # Batch 2: cabecera / discrepancia / documento modificado
+        # ------------------------------------------------------------------
+        ("2128", lambda r: _remove(r, "cac:DiscrepancyResponse/cbc:ResponseCode")),
+        ("2135", lambda r: _set_text(r, "cac:DiscrepancyResponse/cbc:Description", "x" * 501)),
+        ("2136", lambda r: _remove(r, "cac:DiscrepancyResponse/cbc:Description")),
+        ("3203", lambda r: _add_child(_find(r, "cac:DiscrepancyResponse"), _CBC, "ResponseCode", "08")),
+        ("2524", lambda r: _remove(r, "cac:BillingReference")),
+        (
+            "2594",
+            lambda r: (
+                _set_text(r, "cbc:ID", "0001-1"),
+                _set_text(r, "cac:BillingReference/cac:InvoiceDocumentReference/cbc:DocumentTypeCode", "02"),
+            ),
+        ),
+        (
+            "2884",
+            lambda r: (
+                _add_billing_reference(r, "01", "F001-2"),
+            ),
+        ),
+        (
+            "3194",
+            lambda r: (
+                _add_billing_reference(r, "03", "B001-2"),
+            ),
+        ),
+        # ------------------------------------------------------------------
+        # Batch 2: emisor / receptor / moneda
+        # ------------------------------------------------------------------
+        (
+            "2511",
+            lambda r: _find(
+                r, "cac:AccountingSupplierParty/cac:Party/cac:PartyIdentification/cbc:ID"
+            ).set("schemeID", "1"),
+        ),
+        (
+            "3029",
+            lambda r: _find(
+                r, "cac:AccountingSupplierParty/cac:Party/cac:PartyIdentification/cbc:ID"
+            ).attrib.pop("schemeID", None),
+        ),
+        (
+            "2679",
+            lambda r: _remove(
+                r, "cac:AccountingCustomerParty/cac:Party/cac:PartyIdentification/cbc:ID"
+            ),
+        ),
+        ("3088", lambda r: _set_text(r, "cbc:DocumentCurrencyCode", "Catalog2.XXX")),
+        # ------------------------------------------------------------------
+        # Batch 2: líneas
+        # ------------------------------------------------------------------
+        ("2137", lambda r: _set_text(r, "cac:DebitNoteLine/cbc:ID", "0")),
+        ("2139", lambda r: _set_text(r, "cac:DebitNoteLine/cbc:DebitedQuantity", "-1")),
+        (
+            "2410",
+            lambda r: _set_text(
+                r, "cac:DebitNoteLine/cac:PricingReference/cac:AlternativeConditionPrice/cbc:PriceTypeCode", "03"
+            ),
+        ),
+        (
+            "3051",
+            lambda r: _set_text(
+                r, "cac:DebitNoteLine/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cac:TaxScheme/cbc:Name", "XXX"
+            ),
+        ),
+        (
+            "3292",
+            lambda r: _set_text(
+                r, "cac:DebitNoteLine/cac:TaxTotal/cbc:TaxAmount", "50.00"
+            ),
+        ),
+        (
+            "3462",
+            lambda r: (
+                _duplicate_line(r),
+                _set_text(r, "cac:DebitNoteLine[2]/cbc:ID", "2"),
+                _set_text(r, "cac:DebitNoteLine[2]/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cbc:Percent", "10.00"),
+            ),
+        ),
+        (
+            "3230",
+            lambda r: _set_text(
+                r, "cac:DebitNoteLine/cac:TaxTotal/cac:TaxSubtotal/cac:TaxCategory/cbc:TaxExemptionReasonCode", "17"
+            ),
+        ),
+        (
+            "3221",
+            lambda r: (
+                _set_resp_code(r, "12"),
+                _add_line_tax_subtotal(r, 0, "9997", "100", "0", "0"),
+            ),
+        ),
+        # ------------------------------------------------------------------
+        # Batch 2: documentos relacionados
+        # ------------------------------------------------------------------
+        (
+            "2364",
+            lambda r: (
+                _add_despatch_document_reference(r, "09", "T001-1"),
+                _add_despatch_document_reference(r, "09", "T001-1"),
+            ),
+        ),
+        (
+            "2365",
+            lambda r: (
+                _add_additional_document_reference(r, "99", "DOC-1"),
+                _add_additional_document_reference(r, "99", "DOC-1"),
+            ),
+        ),
+        (
+            "2426",
+            lambda r: (
+                _add_additional_document_reference(r, "99", "DOC-1"),
+                _add_additional_document_reference(r, "99", "DOC-1"),
+            ),
+        ),
+        # ------------------------------------------------------------------
+        # Batch 2: propiedades adicionales del ítem
+        # ------------------------------------------------------------------
+        ("3064", lambda r: _add_item_property(r, "7000")),
+        (
+            "3151",
+            lambda r: (
+                _add_item_property_with_value(r, "7000", "1"),
+                _add_item_property_with_value(r, "7002", "1"),
+                _add_item_property_with_value(r, "7004", "C-123"),
+                _add_item_property_with_value(r, "7005", "2024-01-01"),
+                _add_item_property_with_value(r, "7006", "150101"),
+                _add_item_property_with_value(r, "7007", "Av. Test"),
+            ),
+        ),
+        (
+            "3152",
+            lambda r: (
+                _add_item_property_with_value(r, "7000", "1"),
+                _add_item_property_with_value(r, "7005", "2024-01-01"),
+            ),
+        ),
+        (
+            "3153",
+            lambda r: (
+                _add_item_property_with_value(r, "7000", "1"),
+                _add_item_property_with_value(r, "7004", "C-123"),
+            ),
+        ),
+        (
+            "3154",
+            lambda r: (
+                _add_item_property_with_value(r, "7000", "1"),
+                _add_item_property_with_value(r, "7002", "1"),
+                _add_item_property_with_value(r, "7003", "12345"),
+                _add_item_property_with_value(r, "7004", "C-123"),
+                _add_item_property_with_value(r, "7005", "2024-01-01"),
+                _add_item_property_with_value(r, "7007", "Av. Test"),
+            ),
+        ),
+        (
+            "3155",
+            lambda r: (
+                _add_item_property_with_value(r, "7000", "1"),
+                _add_item_property_with_value(r, "7002", "1"),
+                _add_item_property_with_value(r, "7003", "12345"),
+                _add_item_property_with_value(r, "7004", "C-123"),
+                _add_item_property_with_value(r, "7005", "2024-01-01"),
+                _add_item_property_with_value(r, "7006", "150101"),
+            ),
+        ),
+        (
+            "3497",
+            lambda r: (
+                _add_item_property_with_value(r, "7013", "C-123"),
+                _add_item_property_with_value(r, "7015", "3"),
+                _add_item_property_with_value(r, "7016", "Contrato test"),
+                _add_item_property_with_value(r, "7017", "50.00"),
+            ),
+        ),
+        (
+            "3498",
+            lambda r: (
+                _add_item_property_with_value(r, "7013", "C-123"),
+                _add_item_property_with_value(r, "7013", "C-456"),
+                _add_item_property_with_value(r, "7015", "1"),
+                _add_item_property_with_value(r, "7016", "Contrato test"),
+                _add_item_property_with_value(r, "7017", "50.00"),
+            ),
+        ),
+        (
+            "3499",
+            lambda r: (
+                _add_item_property_with_value(r, "7013", "C-123"),
+            ),
+        ),
+        (
+            "3500",
+            lambda r: (
+                _add_item_property_with_value(r, "7013", "C-123"),
+                _add_item_property_with_value(r, "7015", "1"),
+                _add_item_property_with_value(r, "7016", "Contrato test"),
+                _add_item_property_with_value(r, "7017", "ABC"),
+            ),
+        ),
+        (
+            "3501",
+            lambda r: (
+                _add_item_property_with_value(r, "7013", "x" * 31),
+                _add_item_property_with_value(r, "7015", "1"),
+                _add_item_property_with_value(r, "7016", "Contrato test"),
+                _add_item_property_with_value(r, "7017", "50.00"),
+            ),
+        ),
+        (
+            "3502",
+            lambda r: (
+                _add_item_property_with_value(r, "7013", "C-123"),
+                _add_item_property_with_value(r, "7015", "1"),
+                _add_item_property_with_value(r, "7016", "x" * 101),
+                _add_item_property_with_value(r, "7017", "50.00"),
+            ),
+        ),
     ],
 )
 def test_debit_note_extra(code, mutator):
@@ -782,8 +1026,8 @@ def test_debit_note_extra(code, mutator):
     mutator(root)
     errors = []
     validate_debit_note_extra(root, errors)
+    validate_debit_note_extra2(root, errors)
     codes = [e.code for e in errors]
-    # Algunos códigos comparten mutador o validador; usamos el código esperado o un alias.
     expected = code.split("_")[0]
     assert expected in codes, f"Expected error {expected} in {codes}"
 
@@ -792,4 +1036,5 @@ def test_debit_note_extra_valid():
     root = _root()
     errors = []
     validate_debit_note_extra(root, errors)
+    validate_debit_note_extra2(root, errors)
     assert errors == []
