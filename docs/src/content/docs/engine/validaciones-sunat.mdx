@@ -3,102 +3,342 @@ title: Validaciones SUNAT
 description: Reglas de validación SUNAT implementadas en openUBL Server.
 ---
 
-openUBL Server aplica las reglas de validación del Excel **"Reglas de validación actualizado al 24.04.2026"** publicado por SUNAT Perú en [https://cpe.sunat.gob.pe/guias-y-manuales](https://cpe.sunat.gob.pe/guias-y-manuales).
+openUBL Server aplica las reglas de validación del Excel **[Reglas de validación actualizado al 24.04.2026](https://cpe.sunat.gob.pe/sites/default/files/2026-05/Reglas%20de%20validaci%C3%B3n%20actualizado%20al%2024.04.2026%20%281%29.xlsx)** publicado por SUNAT Perú en [https://cpe.sunat.gob.pe/guias-y-manuales](https://cpe.sunat.gob.pe/guias-y-manuales).
 
 ## Fuente de verdad
 
 - **Documento**: Excel *Reglas de validación actualizado al 24.04.2026*.
-- **URL**: [https://cpe.sunat.gob.pe/guias-y-manuales](https://cpe.sunat.gob.pe/guias-y-manuales).
-- **Hojas consultadas**: Factura/Boleta, Nota de Crédito, Nota de Débito, Comunicación de Baja, Resumen Diario, Percepción, Retención, Firma.
+- **Descarga directa**: [Reglas de validación actualizado al 24.04.2026](https://cpe.sunat.gob.pe/sites/default/files/2026-05/Reglas%20de%20validaci%C3%B3n%20actualizado%20al%2024.04.2026%20%281%29.xlsx).
+- **Página oficial**: [https://cpe.sunat.gob.pe/guias-y-manuales](https://cpe.sunat.gob.pe/guias-y-manuales).
 
 ## Alcance
 
 openUBL implementa **todas las reglas de tipo ERROR que se pueden evaluar localmente**, es decir, sin consultar padrones, listados ni servicios web de SUNAT.
 
-La tabla inferior muestra que no quedan reglas ERROR localmente evaluables pendientes. Para el listado completo de códigos, descripciones y tests, consulta [Validaciones SUNAT detalladas](./validaciones-sunat-detallado).
+La tabla inferior muestra el estado por tipo de documento. Para el listado completo de códigos, descripciones y tests, consulta [Validaciones SUNAT detalladas](./validaciones-sunat-detallado).
 
-Las reglas que requieren listados/padrones quedan **documentadas como fuera de alcance** en `src/openubl/validator.py`, en los módulos `src/openubl/validators/_extra_*.py` y en esta página.
+Las reglas que requieren listados/padrones quedan **documentadas como fuera de alcance** en esta página.
 
 ## Tabla resumen por documento
 
-| Documento | Implementadas | Fuera de alcance | Pendientes |
-|-----------|--------------:|-----------------:|-----------:|
-| Invoice (factura/boleta) | 150 | 6 | 0 |
-| CreditNote | 120 | 2 | 0 |
-| DebitNote | 91 | 1 | 0 |
-| VoidedDocuments | 30 | 0 | 0 |
-| SummaryDocuments | 63 | 0 | 0 |
-| Perception | 52 | 11 | 0 |
-| Retention | 37 | 0 | 0 |
-| Firma digital | 25 | 0 | 0 |
+| Documento | Implementadas | Con test | Fuera de alcance | Pendientes | % Validaciones | % Testing |
+|---|---:|---:|---:|---:|---:|---:|
+| CreditNote | 190 | 176 | 49 | 0 | 130.1% | 92.6% |
+| DebitNote | 165 | 155 | 48 | 0 | 120.4% | 93.9% |
+| Invoice | 271 | 265 | 62 | 0 | 101.9% | 97.8% |
+| Perception | 53 | 53 | 27 | 0 | 100.0% | 100.0% |
+| Retention | 51 | 50 | 21 | 0 | 102.0% | 98.0% |
+| Signature | 17 | 15 | 12 | 8 | 68.0% | 88.2% |
+| SummaryDocuments | 26 | 26 | 25 | 44 | 40.0% | 100.0% |
+| VoidedDocuments | 34 | 34 | 15 | 0 | 109.7% | 100.0% |
 
-*(La columna "Pendientes" son reglas ERROR implementables localmente que aún no están en el validador.)*
+* `% Validaciones` = Implementadas / (Total SUNAT ERROR − Fuera de alcance) × 100.
+* `% Testing` = Con test / Implementadas × 100.
+* `Pendientes` son reglas ERROR implementables localmente que aún no están en el validador.
 
 ## Códigos fuera de alcance
 
 Ejemplos de reglas que requieren listados o padrones SUNAT y no se evalúan localmente:
 
-- `1033`, `2010`, `2011`, `3097`, `1078`, `3281`, `1086`, `3239`, `1083`, `2800`, `2040`, `2036`, `2377`, `2041`, `3071`, `3283-3289`, `3007`, `2964`, `2961`, `3027`, `2798`, `2792`, `2788`, `2505`, `2529`, `3218-3219`, `2520`, `3033`, `3174`, `3134`, `3116`, `3118`, `3150`, `2172`, `2016`, `2119-2121`, `2885`, `3209`, `2199`, `2209-2208`, `2663`, `3207`, `2987`, `2282`, `2957`, `2605`, `2989-2990`, `2517`, `2891`, `2601`, `2896`, `2256`, `2268`, `2375`, `2105`, `2398`, `2323`, `2617`, `3312`, `3328-3329`, `3310`, `2610`, `2618-2619`, `2621`, `2723`, etc.
-- Reglas que dependen del nombre del archivo ZIP o de la fecha de recepción de SUNAT: `2108`, `2329`, `1079`, `2600`, `2957`.
+### CreditNote
+
+- `0100` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0109` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0111` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0151` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0154` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0155` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0156` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0157` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0158` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0160` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0161` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0306` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `1032` — El comprobante ya esta informado y se encuentra con estado anulado o rechazado
+- `1033` — El comprobante fue registrado previamente con otros datos
+- `1034` — Número de RUC del nombre del archivo no coincide con el consignado en el contenido del archivo XML
+- `1035` — Numero de Serie del nombre del archivo no coincide con el consignado en el contenido del archivo XML
+- `1036` — Número de documento en el nombre del archivo no coincide con el consignado en el contenido del XML
+- `1078` — El emisor no se encuentra autorizado a emitir en el SEE-Desde los sistemas del contribuyente
+- `1079` — Solo puede enviar el comprobante en un resumen diario
+- `1080` — Debe enviar su comprobante por el SEE-Empresas supervisadas
+- `1083` — El numero de RUC del receptor no existe
+- `1084` — Comprobante de contingencia ya fue informado por su resumen, si desea modificarse debe realizarse por su primer canal de presentación
+- `1086` — El emisor electronico es un Sujeto sin capacidad operativa (SSCO)
+- `2010` — El contribuyente no esta activo
+- `2011` — El contribuyente no esta habido
+- `2016` — El dato ingresado  en el tipo de documento de identidad del receptor no cumple con el estandar o no esta permitido.
+- `2036` — El codigo del tributo es invalido
+- `2040` — El tipo de afectacion del IGV es incorrecto
+- `2108` — Presentacion fuera de fecha
+- `2119` — El documento modificado en la Nota de credito no esta registrada.
+- `2120` — El documento modificado en la Nota de credito se encuentra de baja
+- `2121` — El documento modificado en la Nota de credito esta registrada como rechazada
+- `2172` — ResponseCode - El dato ingresado no cumple con la estructura
+- `2199` — El sistema de calculo del ISC es incorrecto
+- `2329` — La fecha de emision se encuentra fuera del limite permitido
+- `2377` — El Name o TaxTypeCode debe corresponder al codigo de tributo del item
+- `2885` — La fecha de emisión de la nota debe ser mayor o igual a la fecha de emisión de los documentos que modifica
+- `2961` — El valor del tag codigo de tributo internacional no corresponde al esperado.
+- `2964` — El valor del tag nombre del tributo no corresponde al esperado.
+- `3007` — El dato ingresado como codigo de tributo global no corresponde al valor esperado.
+- `3027` — El valor del atributo no se encuentra en el catálogo
+- `3150` — El XML no contiene el tag de Créditos Hipotecarios: Tipo de préstamo
+- `3207` — Comprobante físico no se encuentra autorizado
+- `3209` — El tipo de moneda de la nota debe ser el mismo que el declarado en el documento que modifica
+- `3239` — El código de local anexo consignado no se encuentra declarado en el RUC
+- `3260` — Para el tipo de nota de credito 13 el documento afectado debe ser Factura al credito
+- `3286` — El monto total de la nota de credito debe ser menor o igual al monto del documento que modifica
+- `3496` — El Código producto de SUNAT no es válido
+- `3503` — El monto consignado supera al importe documento que modifica
+
+### DebitNote
+
+- `0100` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0109` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0111` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0151` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0154` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0155` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0156` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0157` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0158` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0160` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0161` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0306` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `1032` — El comprobante ya esta informado y se encuentra con estado anulado o rechazado
+- `1033` — El comprobante fue registrado previamente con otros datos
+- `1034` — Número de RUC del nombre del archivo no coincide con el consignado en el contenido del archivo XML
+- `1035` — Numero de Serie del nombre del archivo no coincide con el consignado en el contenido del archivo XML
+- `1036` — Número de documento en el nombre del archivo no coincide con el consignado en el contenido del XML
+- `1078` — El emisor no se encuentra autorizado a emitir en el SEE-Desde los sistemas del contribuyente
+- `1079` — Solo puede enviar el comprobante en un resumen diario
+- `1080` — Debe enviar su comprobante por el SEE-Empresas supervisadas
+- `1083` — El numero de RUC del receptor no existe
+- `1084` — Comprobante de contingencia ya fue informado por su resumen, si desea modificarse debe realizarse por su primer canal de presentación
+- `1086` — El emisor electronico es un Sujeto sin capacidad operativa (SSCO)
+- `2010` — El contribuyente no esta activo
+- `2011` — El contribuyente no esta habido
+- `2016` — El dato ingresado  en el tipo de documento de identidad del receptor no cumple con el estandar o no esta permitido.
+- `2036` — El codigo del tributo es invalido
+- `2040` — El tipo de afectacion del IGV es incorrecto
+- `2108` — Presentacion fuera de fecha
+- `2172` — ResponseCode - El dato ingresado no cumple con la estructura
+- `2199` — El sistema de calculo del ISC es incorrecto
+- `2207` — El documento modificado en la Nota de debito se encuentra de baja
+- `2208` — El documento modificado en la Nota de debito esta registrada como rechazada
+- `2209` — El documento modificado en la Nota de debito no esta registrada
+- `2329` — La fecha de emision se encuentra fuera del limite permitido
+- `2377` — El Name o TaxTypeCode debe corresponder al codigo de tributo del item
+- `2885` — La fecha de emisión de la nota debe ser mayor o igual a la fecha de emisión de los documentos que modifica
+- `2961` — El valor del tag codigo de tributo internacional no corresponde al esperado.
+- `2964` — El valor del tag nombre del tributo no corresponde al esperado.
+- `3007` — El dato ingresado como codigo de tributo global no corresponde al valor esperado.
+- `3027` — El valor del atributo no se encuentra en el catálogo
+- `3033` — El codigo de bien o servicio sujeto a detracción no existe en el listado.
+- `3150` — El XML no contiene el tag de Créditos Hipotecarios: Tipo de préstamo
+- `3174` — El dato ingreso como Forma de Pago o Medio de Pago no corresponde al valor esperado (catalogo nro 59)
+- `3207` — Comprobante físico no se encuentra autorizado
+- `3209` — El tipo de moneda de la nota debe ser el mismo que el declarado en el documento que modifica
+- `3239` — El código de local anexo consignado no se encuentra declarado en el RUC
+- `3496` — El Código producto de SUNAT no es válido
+
+### Invoice
+
+- `0100` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0109` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0111` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0151` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0154` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0155` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0156` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0157` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0158` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0160` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0161` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0306` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `1032` — El comprobante ya esta informado y se encuentra con estado anulado o rechazado
+- `1033` — El comprobante fue registrado previamente con otros datos
+- `1034` — Número de RUC del nombre del archivo no coincide con el consignado en el contenido del archivo XML
+- `1035` — Numero de Serie del nombre del archivo no coincide con el consignado en el contenido del archivo XML
+- `1036` — Número de documento en el nombre del archivo no coincide con el consignado en el contenido del XML
+- `1078` — El emisor no se encuentra autorizado a emitir en el SEE-Desde los sistemas del contribuyente
+- `1079` — Solo puede enviar el comprobante en un resumen diario
+- `1080` — Debe enviar su comprobante por el SEE-Empresas supervisadas
+- `1083` — El numero de RUC del receptor no existe
+- `1084` — Comprobante de contingencia ya fue informado por su resumen, si desea modificarse debe realizarse por su primer canal de presentación
+- `1086` — El emisor electronico es un Sujeto sin capacidad operativa (SSCO)
+- `2010` — El contribuyente no esta activo
+- `2011` — El contribuyente no esta habido
+- `2036` — El codigo del tributo es invalido
+- `2040` — El tipo de afectacion del IGV es incorrecto
+- `2041` — El sistema de calculo del ISC es incorrecto
+- `2108` — Presentacion fuera de fecha
+- `2329` — La fecha de emision se encuentra fuera del limite permitido
+- `2377` — El Name o TaxTypeCode debe corresponder al codigo de tributo del item
+- `2505` — Código de documento de referencia debe ser 02 o 03.
+- `2520` — El tipo documento del emisor que realiza el anticipo debe ser 6 del catalogo de tipo de documento.
+- `2529` — RUC que emitio documento de anticipo no existe.
+- `2788` — El dato ingresado en moneda debe ser PEN
+- `2792` — El dato ingresado en moneda del monto de cargo/descuento para percepcion debe ser PEN
+- `2798` — El Monto de percepcion no tiene el valor correcto según el tipo de percepcion.
+- `2800` — El dato ingresado en el tipo de documento de identidad del receptor no esta permitido.
+- `2961` — El valor del tag codigo de tributo internacional no corresponde al esperado.
+- `2964` — El valor del tag nombre del tributo no corresponde al esperado.
+- `3007` — El dato ingresado como codigo de tributo global no corresponde al valor esperado.
+- `3027` — El valor del atributo no se encuentra en el catálogo
+- `3033` — El codigo de bien o servicio sujeto a detracción no existe en el listado.
+- `3071` — El dato ingresado como codigo de motivo de cargo/descuento global no es valido (catalogo nro 53)
+- `3097` — El emisor a la fecha no se encuentra registrado ó habilitado en el Registro de exportadores de servicios SUNAT
+- `3116` — El XML no contiene el tag o no existe información del ubigeo de punto de origen en Detracciones - Servicio de transporte de carga.
+- `3134` — El XML no contiene el tag de fecha de descarga en Detracciones para recursos hidrobiologicos.
+- `3150` — El XML no contiene el tag de Créditos Hipotecarios: Tipo de préstamo
+- `3174` — El dato ingreso como Forma de Pago o Medio de Pago no corresponde al valor esperado (catalogo nro 59)
+- `3181` — El dato ingresado como Codigo de producto SUNAT no corresponde al valor esperado para tipo de operación.
+- `3207` — Comprobante físico no se encuentra autorizado
+- `3218` — El comprobante que se realizo el anticipo no existe
+- `3219` — El comprobante que se realizo el anticipo no se encuentra autorizado
+- `3239` — El código de local anexo consignado no se encuentra declarado en el RUC
+- `3240` — El impuesto ICBPER no aplica para el NRUS
+- `3269` — Si existe retencion de IGV en el comprobante, el emisor no debe ser un Agente de Retencion
+- `3281` — El emisor electrónico no se encuentra inscrito en el Registro de Establecimientos Autorizados (REA)
+- `3283` — Si se utiliza la leyenda con código 2001, el total de operaciones exoneradas debe ser mayor a 0.00
+- `3284` — Si se utiliza la leyenda con código 2002, el total de operaciones exoneradas debe ser mayor a 0.00
+- `3285` — Si se utiliza la leyenda con código 2003, el total de operaciones exoneradas debe ser mayor a 0.00
+- `3289` — Si se utiliza la leyenda con código 2008, el total de operaciones exoneradas debe ser mayor a 0.00
+- `3496` — El Código producto de SUNAT no es válido
+
+### Perception
+
+- `0100` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0109` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0111` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0151` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0154` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0155` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0156` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0157` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0158` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0160` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0161` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0306` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `1033` — El comprobante fue registrado previamente con otros datos
+- `1034` — Número de RUC del nombre del archivo no coincide con el consignado en el contenido del archivo XML
+- `1049` — ID - Serie y Número del archivo no coincide con el consignado en el contenido del XML.
+- `2600` — El comprobante fue enviado fuera del plazo permitido.
+- `2602` — El régimen percepción enviado no corresponde con su condición de Agente de percepción.
+- `2603` — La tasa de percepción enviada no corresponde con el régimen de percepción.
+- `2605` — Número de RUC no existe.
+- `2609` — El comprobante electrónico enviado no se encuentra registrado en la SUNAT.
+- `2610` — La fecha de emisión, Importe total del comprobante y la moneda del comprobante electrónico enviado no son los registrados en los Sistemas de SUNAT.
+- `3207` — Comprobante físico no se encuentra autorizado
+- `3312` — El documento relacionado tiene monto informado de percepción
+- `3325` — Se permite emitir comprobante de percepción excepcional cuando el documento de referencia es al contado.
+- `3326` — Solo se permite referenciar siempre y cuando el comprobante de percepción excepcional en el que se referencia al documento relacionado haya sido revertido.
+- `3328` — La boleta de venta relacionada tiene monto informado de percepción.
+- `3329` — Se permite emitir comprobante de percepción (no excepcional) cuando documento de referencia es al crédito o no tiene indicador de forma de pago.
+
+### Retention
+
+- `0100` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0109` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0111` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0151` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0154` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0155` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0156` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0157` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0158` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0160` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0161` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0306` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `1033` — El comprobante fue registrado previamente con otros datos
+- `1034` — Número de RUC del nombre del archivo no coincide con el consignado en el contenido del archivo XML
+- `1049` — ID - Serie y Número del archivo no coincide con el consignado en el contenido del XML.
+- `2600` — El comprobante fue enviado fuera del plazo permitido.
+- `2617` — Senor contribuyente a la fecha no se encuentra registrado ó habilitado con la condición de Agente de retención.
+- `2618` — El régimen retención enviado no corresponde con su condición de Agente de retención.
+- `2619` — La tasa de retención enviada no corresponde con el régimen de retención.
+- `2621` — Número de RUC del Proveedor no existe.
+- `3207` — Comprobante físico no se encuentra autorizado
+
+### Signature
+
+- `0100` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0109` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0111` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0151` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0154` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0155` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0156` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0157` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0158` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0160` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0161` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0306` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+
+### SummaryDocuments
+
+- `0100` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0109` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0111` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0151` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0154` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0155` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0156` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0157` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0158` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0160` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0161` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0306` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `1078` — El emisor no se encuentra autorizado a emitir en el SEE-Desde los sistemas del contribuyente
+- `2016` — El dato ingresado  en el tipo de documento de identidad del receptor no cumple con el estandar o no esta permitido.
+- `2223` — El archivo ya fue presentado anteriormente
+- `2256` — InstructionID - El dato ingresado no cumple con el estandar
+- `2268` — El codigo del tributo es invalido
+- `2282` — Existe documento ya informado anteriormente
+- `2517` — Dato no cumple con formato establecido.
+- `2601` — Senor contribuyente a la fecha no se encuentra registrado ó habilitado con la condición de Agente de percepción.
+- `2663` — El documento indicado no existe no puede ser modificado
+- `2891` — La tasa de percepción no existe en el catálogo
+- `2896` — El código ingresado como estado del ítem no existe en el catálogo
+- `2987` — El comprobante ya fue informado y se encuentra anulado o rechazado.
+- `3207` — Comprobante físico no se encuentra autorizado
+
+### VoidedDocuments
+
+- `0100` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0109` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0111` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0151` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0154` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0155` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0156` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0157` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0158` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0160` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0161` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `0306` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
+- `2011` — El contribuyente no esta habido
+- `2324` — El archivo de comunicacion de baja ya fue presentado anteriormente
+- `4203` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT).
 
 ## Formato de respuesta de errores
 
 Cuando `validar_sunat=true` y el XML no cumple una o más reglas, el endpoint responde HTTP 422:
 
 ```json
-{
-  "detail": [
-    {"code": "2074", "message": "UBLVersionID - La versión del UBL no es correcta"}
-  ]
-}
+{"detail":[{"code":"2074","message":"El valor del Tag UBL cbc:UBLVersionID es diferente de '2.1'"}]}
 ```
 
 El campo `code` es el código SUNAT exacto del Excel.
 
-## Ejemplos de errores
-
-### Factura con UBLVersionID incorrecto
-
-```bash
-curl -X POST http://localhost:8000/api/v1/invoice/create \
-  -H "Content-Type: application/json" \
-  -d '{"documento": {"serie": "F001", "numero": 1, "tipoOperacion": "0101", "fechaEmision": "2019-01-01", "cliente": {"tipoDocumento": "6", "numeroDocumento": "20100198109", "nombre": "Cliente Ejemplo"}, "items": [{"descripcion": "Item 1", "cantidad": 1, "valorUnitario": 100, "precioVenta": 118, "igv": 18, "tipoAfectacionIgv": "10"}]}, "validar_sunat": true}'
-```
-
-El XML renderizado tiene `cbc:UBLVersionID=2.1` por defecto, por lo que pasa. Si se mutara a `2.0`, se devolvería `code=2074`.
-
-### Firma con SHA-1
-
-Si un XML firmado usa SHA-1 en `ds:SignatureMethod` o `ds:DigestMethod`, la validación post-firma devuelve `code=2089` y `code=2095`.
-
 ## Cómo verificar cobertura
 
 ```bash
-# Resumen
-uv run pytest -m "not e2e" -q
-
-# Validadores extras
-uv run pytest tests/_test_validator_*.py -q
+uv run python scripts/validation_coverage.py
 ```
-
-## Convención de tests
-
-`tests/test_validator.py` usa `@pytest.mark.parametrize` agrupado por tipo de documento. Cada entrada es `(code, mutator, expected)`:
-
-```python
-@pytest.mark.parametrize(
-    "code,mutator,expected",
-    [
-        ("2074", lambda r: _set_text(r, "cbc:UBLVersionID", "2.0"), True),
-        ...
-    ],
-)
-```
-
-Para agregar una regla, añade su mutator y su entrada en la tabla parametrizada.
 
 ## Enlaces útiles
 
 - [Validaciones SUNAT detalladas](./validaciones-sunat-detallado): listado completo de códigos implementados, descripción de cada regla y test de cobertura.
-- [Código fuente del validador](https://github.com/openubl/openubl/tree/main/src/openubl/validator.py).
-- [Módulos extra de validación](https://github.com/openubl/openubl/tree/main/src/openubl/validators).

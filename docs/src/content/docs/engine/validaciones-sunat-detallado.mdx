@@ -3,697 +3,1150 @@ title: Validaciones SUNAT detalladas
 description: Listado completo de códigos SUNAT implementados, su descripción y test de cobertura.
 ---
 
-Esta página lista cada código SUNAT implementado en openUBL, su descripción, el tipo de documento y si cuenta con test parametrizado. También indica los códigos fuera de alcance por requerir padrones o listados SUNAT.
+Esta página lista cada código SUNAT del Excel **[Reglas de validación actualizado al 24.04.2026](https://cpe.sunat.gob.pe/sites/default/files/2026-05/Reglas%20de%20validaci%C3%B3n%20actualizado%20al%2024.04.2026%20%281%29.xlsx)** implementado en openUBL, su descripción y si cuenta con test parametrizado. También indica los códigos fuera de alcance por requerir padrones o listados SUNAT.
+
+- **Descarga directa**: [Reglas de validación actualizado al 24.04.2026](https://cpe.sunat.gob.pe/sites/default/files/2026-05/Reglas%20de%20validaci%C3%B3n%20actualizado%20al%2024.04.2026%20%281%29.xlsx).
+- **Página oficial**: [https://cpe.sunat.gob.pe/guias-y-manuales](https://cpe.sunat.gob.pe/guias-y-manuales).
 
 ## Tabla resumen por documento
 
-| Documento | Implementadas | Con test | Fuera de alcance |
-|-----------|--------------:|---------:|-----------------:|
-| Invoice | 150 | 145 | 6 |
-| CreditNote | 120 | 110 | 2 |
-| DebitNote | 91 | 86 | 1 |
-| VoidedDocuments | 30 | 30 | 0 |
-| SummaryDocuments | 63 | 63 | 0 |
-| Perception | 52 | 52 | 11 |
-| Retention | 37 | 36 | 0 |
-| Firma digital | 25 | 23 | 0 |
+| Documento | Implementadas | Con test | Fuera de alcance | Pendientes | % Validaciones | % Testing |
+|---|---:|---:|---:|---:|---:|---:|
+| CreditNote | 190 | 176 | 49 | 0 | 130.1% | 92.6% |
+| DebitNote | 165 | 155 | 48 | 0 | 120.4% | 93.9% |
+| Invoice | 271 | 265 | 62 | 0 | 101.9% | 97.8% |
+| Perception | 53 | 53 | 27 | 0 | 100.0% | 100.0% |
+| Retention | 51 | 50 | 21 | 0 | 102.0% | 98.0% |
+| Signature | 17 | 15 | 12 | 8 | 68.0% | 88.2% |
+| SummaryDocuments | 26 | 26 | 25 | 44 | 40.0% | 100.0% |
+| VoidedDocuments | 34 | 34 | 15 | 0 | 109.7% | 100.0% |
 
-## Invoice
+## Detalle por documento
 
-- **Implementadas**: 150
-- **Con test**: 145
-- **Fuera de alcance**: 6
+### CreditNote
 
-| Código | Descripción | Test |
-|--------|-------------|------|
-| 1001 | ID - El dato SERIE-CORRELATIVO no cumple con el formato de acuerdo al tipo de comprobante | Sí |
-| 1004 | El XML no contiene el tag o no existe informacion de InvoiceTypeCode | Sí |
-| 1007 | El dato ingresado no cumple con el estandar | No |
-| 1008 | El XML no contiene el tag o no existe informacion en tipo de documento del emisor. | No |
-| 1034 | Número de RUC del nombre del archivo no coincide con el consignado en el contenido del archivo XML | Sí |
-| 1037 | El XML no contiene el tag o no existe informacion de RegistrationName del emisor del documento | Sí |
-| 2014 | El XML no contiene el tag o no existe informacion del número de documento de identidad del receptor del documento | Sí |
-| 2015 | El XML no contiene el tag o no existe informacion del tipo de documento de identidad del receptor del documento | Sí |
-| 2017 | El numero de documento de identidad del receptor debe ser RUC | Sí |
-| 2021 | El XML no contiene el tag o no existe informacion de RegistrationName del receptor del documento | No |
-| 2022 | RegistrationName - El dato ingresado no cumple con el estandar | Sí |
-| 2023 | El Numero de orden del item no cumple con el formato establecido | Sí |
-| 2024 | El XML no contiene el tag InvoicedQuantity en el detalle de los Items o es cero (0) | Sí |
-| 2025 | InvoicedQuantity El dato ingresado no cumple con el estandar | Sí |
-| 2026 | El XML no contiene el tag cac:Item/cbc:Description en el detalle de los Items | Sí |
-| 2027 | El XML no contiene el tag o no existe informacion de cac:Item/cbc:Description del item | Sí |
-| 2028 | Debe existir el tag cac:AlternativeConditionPrice | Sí |
-| 2033 | El dato ingresado en TaxAmount de la linea no cumple con el formato establecido | Sí |
-| 2037 | El XML no contiene el tag cac:TaxCategory/cac:TaxScheme/cbc:ID del Item | Sí |
-| 2048 | El dato ingresado en TaxAmount no cumple con el formato establecido | Sí |
-| 2052 | El XML no contiene el tag código de tributo internacional de impuestos globales | Sí |
-| 2054 | El XML no contiene el tag TaxScheme Name de impuestos globales | Sí |
-| 2062 | El dato ingresado en PayableAmount no cumple con el formato establecido | Sí |
-| 2064 | El dato ingresado en ChargeTotalAmount no cumple con el formato establecido | Sí |
-| 2065 | El dato ingresado en el campo Total Descuentos no cumple con el formato establecido | Sí |
-| 2068 | El XML no contiene el tag cac:Price/cbc:PriceAmount en el detalle de los Items | Sí |
-| 2070 | El XML no contiene el tag o no existe informacion de DocumentCurrencyCode | Sí |
-| 2072 | CustomizationID - La versión del documento no es la correcta | Sí |
-| 2073 | El XML no existe informacion de CustomizationID | No |
-| 2074 | UBLVersionID - La versión del UBL no es correcta | Sí |
-| 2075 | El XML no contiene el tag o no existe informacion de UBLVersionID | Sí |
-| 2108 | Presentacion fuera de fecha | Sí |
-| 2367 | El dato ingresado en PriceAmount del Precio de venta unitario por item no cumple con el formato establecido | Sí |
-| 2369 | El dato ingresado en PriceAmount del Valor de venta unitario por item no cumple con el formato establecido | Sí |
-| 2370 | El dato ingresado en LineExtensionAmount del item no cumple con el formato establecido | Sí |
-| 2371 | El XML no contiene el tag cbc:TaxExemptionReasonCode de Afectacion al IGV | Sí |
-| 2373 | Si existe monto de ISC en el ITEM debe especificar el sistema de calculo | Sí |
-| 2409 | Existe mas de un tag cac:AlternativeConditionPrice con el mismo cbc:PriceTypeCode | Sí |
-| 2416 | Si existe leyenda Transferencia Gratuita debe consignar Total Valor de Venta de Operaciones Gratuitas | Sí |
-| 2503 | PaidAmount: monto anticipado por documento debe ser mayor a cero. | Sí |
-| 2509 | Total de anticipos diferente a los montos anticipados por documento. | Sí |
-| 2521 | El dato ingresado debe indicar SERIE-CORRELATIVO del documento que se realizo el anticipo. | Sí |
-| 2638 | Si tiene operaciones de un tributo en alguna línea, debe consignar el tag del total del tributo | Sí |
-| 2640 | Operacion gratuita, solo debe consignar un monto referencial | Sí |
-| 2641 | Operacion gratuita, debe consignar Total valor venta - operaciones gratuitas mayor a cero | Sí |
-| 2642 | Operaciones de exportacion, deben consignar Tipo Afectacion igual a 40 | Sí |
-| 2644 | Comprobante operacion sujeta IVAP solo debe tener ítems con código de afectación del IGV igual a 17 | Sí |
-| 2650 | Factura de operacion sujeta al IVAP , no debe consignar valor para ISC o debe ser 0 | Sí |
-| 2752 | El número de ítem no puede estar duplicado. | Sí |
-| 2797 | El Monto de percepcion no puede ser mayor al importe total del comprobante. | Sí |
-| 2801 | El DNI ingresado no cumple con el estandar. | Sí |
-| 2802 | El dato ingresado como numero de documento de identidad del receptor no cumple con el formato establecido | Sí |
-| 2883 | Es obligatorio indicar la unidad de medida del ítem | Sí |
-| 2892 | El valor del tag no cumple con el formato establecido | Sí |
-| 2898 | Para los tipos de seguro 1 y 2, debe consignar el numero de poliza, la fecha de cobertura y el monto asegurado | Sí |
-| 2936 | El dato ingresado como unidad de medida no corresponde al valor esperado | Sí |
-| 2949 | El impuesto ICBPER no se encuentra vigente | Sí |
-| 2955 | El formato ingresado en el tag cac:InvoiceLine/cac:Allowancecharge/cbc:Amount no cumple con el formato establecido | Sí |
-| 2956 | El Monto total de impuestos es obligatorio | Sí |
-| 2968 | El dato ingresado en cac:AllowanceCharge/cbc:Amount no cumple con el formato establecido. | Sí |
-| 2992 | El XML no contiene el tag de la tasa del tributo de la línea | Sí |
-| 2993 | El factor de afectación de IGV por linea debe ser diferente a 0.00. | Sí |
-| 2996 | El XML no contiene el tag o no existe información del nombre de tributo de la línea | Sí |
-| 2999 | El dato ingresado en el total valor de venta globales no cumple con el formato establecido | Sí |
-| 3000 | El monto total del impuestos sobre el valor de venta de operaciones gratuitas/inafectas/exoneradas debe ser igual a 0.00 | Sí |
-| 3003 | El XML no contiene el tag o no existe información de total valor de venta globales | Sí |
-| 3006 | El dato ingresado en descripcion de leyenda no cumple con el formato establecido. | Sí |
-| 3014 | El codigo de leyenda no debe repetirse en el comprobante. | Sí |
-| 3016 | El dato ingresado en base monto por cargo/descuento globales no cumple con el formato establecido | Sí |
-| 3020 | El dato ingresado en el monto total de impuestos no cumple con el formato establecido | Sí |
-| 3021 | El dato ingresado en el monto total de impuestos por línea no cumple con el formato establecido | Sí |
-| 3024 | El tag cac:TaxTotal no debe repetirse a nivel de totales | Sí |
-| 3025 | El dato ingresado en factor de cargo o descuento global no cumple con el formato establecido. | Sí |
-| 3026 | El tag cac:TaxTotal no debe repetirse a nivel de Item | Sí |
-| 3031 | El dato ingresado en TaxableAmount de la linea no cumple con el formato establecido | Sí |
-| 3034 | El xml no contiene el tag o no existe información en el nro de cuenta de detracción | Sí |
-| 3035 | El xml no contiene el tag o no existe información en el monto de detraccion | Sí |
-| 3037 | El dato ingresado en monto de detraccion no cumple con el formato establecido | Sí |
-| 3050 | Afectación de IGV no corresponde al código de tributo de la linea. | Sí |
-| 3052 | El factor de cargo/descuento por linea no cumple con el formato establecido. | Sí |
-| 3053 | El Monto base de cargo/descuento por linea no cumple con el formato establecido. | Sí |
-| 3059 | El XML no contiene el tag o no existe información de código de tributo. | Sí |
-| 3063 | El XML no contiene el tag de matricula de embarcación en Detracciones para recursos hidrobiologicos. | Sí |
-| 3065 | El XML no contiene tag de la fecha del concepto por linea. | Sí |
-| 3067 | El código de tributo no debe repetirse a nivel de item | Sí |
-| 3068 | El código de tributo no debe repetirse a nivel de totales | Sí |
-| 3072 | El XML no contiene el tag o no existe informacion de codigo de motivo de cargo/descuento global. | Sí |
-| 3073 | El XML no contiene el tag o no existe informacion de codigo de motivo de cargo/descuento por item. | Sí |
-| 3074 | El monto del cargo para el para FISE debe ser igual mayor a 0.00 | Sí |
-| 3089 | El XML contiene mas de un tag como elemento de numero de documento del emisor | Sí |
-| 3090 | El XML contiene mas de un tag como elemento de numero de documento del receptor. | Sí |
-| 3092 | Para cargo/descuento FISE, debe ingresar monto base y debe ser mayor a 0.00 | Sí |
-| 3093 | Si operación es sujeta a percepción y la forma de pago es Contado, debe ingresar cargo para Percepción | Sí |
-| 3098 | El XML no contiene el tag o no existe información del pais de uso, exploración o aprovechamiento | Sí |
-| 3102 | El dato ingresado como factor de afectacion por linea no cumple con el formato establecido. | Sí |
-| 3103 | El producto del factor y monto base de la afectación del IGV/IVAP no corresponde al monto de afectacion de linea. | Sí |
-| 3104 | El factor de afectación de ISC por linea debe ser diferente a 0.00. | Sí |
-| 3105 | El XML debe contener al menos un tributo por linea de afectacion por IGV | Sí |
-| 3107 | El dato ingresado como codigo de tributo global es invalido para tipo de operación. | Sí |
-| 3108 | El producto del factor y monto base de la afectación del ISC no corresponde al monto de afectacion de linea. | Sí |
-| 3109 | El producto del factor y monto base de la afectación de otros tributos no corresponde al monto de afectacion de linea. | Sí |
-| 3110 | El monto de afectacion de IGV por linea debe ser igual a 0.00 para Exoneradas, Inafectas, Exportación, Gratuitas de exoneradas o Gratuitas de inafectas. | Sí |
-| 3111 | El monto de afectación de IGV por linea debe ser diferente a 0.00. | Sí |
-| 3114 | El dato ingresado como indicador de cargo/descuento no corresponde al valor esperado. | Sí |
-| 3115 | El dato ingresado como unidad de medida de cantidad de especie vendidas no corresponde al valor esperado. | Sí |
-| 3117 | El XML no contiene el tag o no existe información de la dirección del punto de origen en Detracciones - Servicio de transporte de carga. | Sí |
-| 3118 | El XML no contiene el tag o no existe información del ubigeo de punto de destino en Detracciones - Servicio de transporte de carga. | Sí |
-| 3119 | El XML no contiene el tag o no existe información de la dirección del punto de destino en Detracciones - Servicio de transporte de carga. | Sí |
-| 3120 | El XML no contiene el tag o no existe información del Detalle del viaje en Detracciones - Servicio de transporte de carga. | Sí |
-| 3123 | El dato ingresado como monto valor referencial en Detracciones - Servicios de transporte de carga no cumple con el formato establecido. | Sí |
-| 3127 | El XML no contiene el tag o no existe información del Codigo de BBSS de detracción para el tipo de operación. | Sí |
-| 3128 | El XML contiene información de codigo de bien y servicio de detracción que no corresponde al tipo de operación. | No |
-| 3129 | El dato ingresado como codigo de BBSS de detracción no corresponde al valor esperado. | Sí |
-| 3135 | El XML no contiene tag de la cantidad del concepto por linea. | Sí |
-| 3146 | El XML no contiene el tag de Proveedores Estado: Número de Expediente | Sí |
-| 3156 | El XML no contiene el tag de BVME transporte ferroviario: Agente de Viajes: Numero de Ruc | Sí |
-| 3158 | El dato ingresado como Agente de Viajes-Tipo de documento no corresponde al valor esperado. | Sí |
-| 3172 | El XML no contiene tag de la Hora del concepto por linea. | Sí |
-| 3173 | El XML no contiene el tag de BVME transporte ferroviario: Servicio transporte: Forma de Pago | Sí |
-| 3175 | El XML no contiene el tag de BVME transporte ferroviario: Servicio de transporte: Número de autorización de la transacción | Sí |
-| 3195 | El xml no contiene el tag de impuesto por linea (TaxtTotal). | Sí |
-| 3205 | Debe consignar el tipo de operación | Sí |
-| 3208 | La moneda del monto de la detracción debe ser PEN | Sí |
-| 3210 | Solo debe consignar sistema de calculo si el tributo es ISC | Sí |
-| 3211 | Falta identificador del pago del Monto de anticipo para relacionarlo con el comprobante que se realizo el anticipo | Sí |
-| 3212 | El comprobante contiene un identificador de pago repetido en los montos anticipados | Sí |
-| 3213 | El comprobante contiene un pago anticipado pero no se ha consignado el documento que se realizo el anticipo | Sí |
-| 3214 | No existe información del Monto Anticipado para el comprobante que se realizo el anticipo | Sí |
-| 3215 | El comprobante contiene un identificador de pago repetido en los comprobantes que se realizo el anticipo | Sí |
-| 3216 | Falta identificador del pago del comprobante para relacionarlo con el monto de anticipo | Sí |
-| 3217 | Debe consignar Numero de RUC del emisor del comprobante de anticipo | Sí |
-| 3220 | Si consigna montos de anticipo debe informar el Total de Anticipos | Sí |
-| 3233 | Para cargo Percepción, debe ingresar monto base y debe ser mayor a 0.00 | Sí |
-| 3244 | Debe consignar la informacion del tipo de transaccion del comprobante | Sí |
-| 3245 | Debe informar si el tipo de transaccion es al Contado o al Credito | Sí |
-| 3246 | El tipo de transaccion o el identificador de la cuota no cumple con el formato esperado | Sí |
-| 3247 | El tipo de transaccion no puede ser a la vez al Contado y al Credito | Sí |
-| 3248 | El tipo de transaccion o el identificador de la cuota no debe repetirse en el comprobante | Sí |
-| 3249 | Si el tipo de transaccion es al Credito debe existir al menos información de una cuota de pago | Sí |
-| 3252 | Si existe información de cuota de pago, el tipo de transaccion debe ser al credito | Sí |
-| 3282 | Si se informa descuentos globales por anticipo debe existir 'Total de anticipos' con monto mayor a cero | Sí |
-| 3287 | Si se informa 'Total de anticipos' debe consignar los descuentos globales por anticipo con monto mayor a cero | Sí |
-| 3288 | Debe consignar el Total Valor de Venta | Sí |
-| 3290 | El valor de cargo/descuento por ítem difiere de los importes consignados. | Sí |
-| 3305 | Debe consignar el Total Precio de Venta | Sí |
-| 3307 | El valor de cargo/descuento global difiere de los importes consignados | Sí |
-| 3309 | Si forma de pago es Contado debe consignar un Payment Terms con indicador Percepcion | Sí |
-| 3310 | Debe consignar el Monto total incluido la percepcion | Sí |
-| 3319 | La suma de las cuotas debe ser igual al Monto neto pendiente de pago. | Sí |
-| 3461 | La forma de pago y/o número de cuota no pueden estar contenidos en el mismo cac:PaymentTerms | Sí |
+- **Total ERROR**: 183 | **Implementadas**: 190 | **Con test**: 176 | **Fuera de alcance**: 49 | **Pendientes**: 0
 
-### Fuera de alcance en Invoice
+| Código | Descripción | Implementada | Test |
+|---|---|:---:|:---:|
+| `1001` | ID - El dato SERIE-CORRELATIVO no cumple con el formato de acuerdo al tipo de comprobante | Sí | Sí |
+| `1037` | El XML no contiene el tag o no existe informacion de RegistrationName del emisor del documento | Sí | Sí |
+| `2017` | El numero de documento de identidad del receptor debe ser  RUC | Sí | Sí |
+| `2021` | El XML no contiene el tag o no existe informacion de RegistrationName del receptor del documento | Sí | No |
+| `2022` | RegistrationName -  El dato ingresado no cumple con el estandar | Sí | Sí |
+| `2033` | El dato ingresado en TaxAmount de la linea no cumple con el formato establecido | Sí | Sí |
+| `2037` | El XML no contiene el tag cac:TaxCategory/cac:TaxScheme/cbc:ID del Item | Sí | Sí |
+| `2048` | El dato ingresado en TaxAmount no cumple con el formato establecido | Sí | Sí |
+| `2052` | El XML no contiene el tag código de tributo internacional de impuestos globales | Sí | Sí |
+| `2054` | El XML no contiene el tag TaxScheme Name de impuestos globales | Sí | Sí |
+| `2062` | El dato ingresado en PayableAmount no cumple con el formato establecido | Sí | Sí |
+| `2064` | El dato ingresado en ChargeTotalAmount no cumple con el formato establecido | Sí | Sí |
+| `2070` | El XML no contiene el tag o no existe informacion de DocumentCurrencyCode | Sí | Sí |
+| `2071` | La moneda debe ser la misma en todo el documento. Salvo las percepciones que sólo son en moneda nacional | Sí | Sí |
+| `2072` | CustomizationID - La versión del documento no es la correcta | Sí | Sí |
+| `2073` | El XML no existe informacion de CustomizationID | Sí | No |
+| `2074` | UBLVersionID - La versión del UBL no es correcta | Sí | Sí |
+| `2075` | El XML no contiene el tag o no existe informacion de UBLVersionID | Sí | Sí |
+| `2116` | El tipo de documento modificado por la Nota de credito debe ser factura electronica o ticket | Sí | Sí |
+| `2117` | La serie o numero del documento modificado por la Nota de Credito no cumple con el formato establecido | Sí | Sí |
+| `2128` | El XML no contiene el tag o no existe informacion de ResponseCode | Sí | Sí |
+| `2135` | cac:DiscrepancyResponse/cbc:Description - El dato ingresado no cumple con la estructura | Sí | Sí |
+| `2136` | El XML no contiene el tag o no existe informacion de cac:DiscrepancyResponse/cbc:Description | Sí | Sí |
+| `2137` | El Numero de orden del item no cumple con el formato establecido | Sí | Sí |
+| `2138` | CreditedQuantity/@unitCode - El dato ingresado no cumple con el estandar | Sí | Sí |
+| `2139` | CreditedQuantity - El dato ingresado no cumple con el estandar | Sí | Sí |
+| `2364` | El comprobante contiene un tipo y número de Guía de Remisión repetido | Sí | Sí |
+| `2365` | El comprobante contiene un tipo y número de Documento Relacionado repetido | Sí | Sí |
+| `2367` | El dato ingresado en PriceAmount del Precio de venta unitario por item no cumple con el formato establecido | Sí | Sí |
+| `2369` | El dato ingresado en PriceAmount del Valor de venta unitario por item no cumple con el formato establecido | Sí | Sí |
+| `2370` | El dato ingresado en LineExtensionAmount del item no cumple con el formato establecido | Sí | Sí |
+| `2371` | El XML no contiene el tag cbc:TaxExemptionReasonCode de Afectacion al IGV | Sí | Sí |
+| `2373` | Si existe monto de ISC en el ITEM debe especificar el sistema de calculo | Sí | Sí |
+| `2399` | El tipo de documento modificado por la Nota de credito debe ser boleta electronica | Sí | Sí |
+| `2409` | Existe mas de un tag cac:AlternativeConditionPrice con el mismo cbc:PriceTypeCode | Sí | Sí |
+| `2410` | Se ha consignado un valor invalido en el campo cbc:PriceTypeCode | Sí | No |
+| `2426` | Documentos relacionados duplicados en el comprobante. | Sí | Sí |
+| `2511` | El tipo de documento no es aceptado. | Sí | Sí |
+| `2524` | Debe indicar el documento afectado por la nota | Sí | Sí |
+| `2594` | El tipo de documento modificado por la nota electronica no es valido | Sí | Sí |
+| `2635` | Debe existir DocumentTypeCode de Otros documentos relacionados con valor 99 para un tipo codigo Nota Credito 10. | Sí | Sí |
+| `2636` | No existe datos del ID de los documentos relacionados con valor 99 para un tipo codigo Nota Credito 10. | Sí | Sí |
+| `2637` | No existe datos del DocumentType de los documentos relacionados con valor 99 para un tipo codigo Nota Credito 10. | Sí | Sí |
+| `2638` | Si tiene operaciones de un tributo en alguna línea, debe consignar el tag del total del tributo | Sí | Sí |
+| `2640` | Operacion gratuita, solo debe consignar un monto referencial | Sí | Sí |
+| `2641` | Operacion gratuita,  debe consignar Total valor venta - operaciones gratuitas  mayor a cero | Sí | Sí |
+| `2642` | Operaciones de exportacion, deben consignar Tipo Afectacion igual a 40 | Sí | Sí |
+| `2644` | Comprobante operacion sujeta IVAP solo debe tener ítems con código de afectación del IGV igual a 17 | Sí | Sí |
+| `2679` | El XML no contiene el tag o no existe información del número de documento de identidad del cliente | Sí | Sí |
+| `2752` | El número de ítem no puede estar duplicado. | Sí | Sí |
+| `2884` | Los comprobantes modificados por la nota deben ser del mismo tipo | Sí | Sí |
+| `2892` | El valor del tag no cumple con el formato establecido | Sí | Sí |
+| `2936` | El dato ingresado como unidad de medida no corresponde al valor esperado | Sí | Sí |
+| `2949` | El impuesto ICBPER no se encuentra vigente | Sí | Sí |
+| `2956` | El Monto total de impuestos es obligatorio | Sí | Sí |
+| `2992` | El XML no contiene el tag de la tasa del tributo de la línea | Sí | Sí |
+| `2993` | El factor de afectación de IGV por linea debe ser diferente a 0.00. | Sí | Sí |
+| `2996` | El XML no contiene el tag o no existe información del nombre de tributo de la línea | Sí | Sí |
+| `2999` | El dato ingresado en el total valor de venta globales no cumple con el formato establecido | Sí | Sí |
+| `3000` | El monto total del impuestos sobre el valor de venta de operaciones gratuitas/inafectas/exoneradas debe ser igual a 0.00 | Sí | Sí |
+| `3003` | El XML no contiene el tag o no existe información de total valor de venta globales | Sí | Sí |
+| `3006` | El dato ingresado en descripcion de leyenda no cumple con el formato establecido. | Sí | Sí |
+| `3020` | El dato ingresado en el monto total de impuestos no cumple con el formato establecido | Sí | Sí |
+| `3021` | El dato ingresado en el monto total de impuestos por línea no cumple con el formato establecido | Sí | Sí |
+| `3024` | El tag cac:TaxTotal no debe repetirse a nivel de totales | Sí | Sí |
+| `3026` | El tag cac:TaxTotal no debe repetirse a nivel de Item | Sí | Sí |
+| `3029` | El XML no contiene el tag o no existe información del tipo de documento de identidad del emisor | Sí | Sí |
+| `3030` | El XML no contiene el tag o no existe información del código de local anexo del emisor | Sí | Sí |
+| `3031` | El dato ingresado en TaxableAmount de la linea no cumple con el formato establecido | Sí | Sí |
+| `3050` | Afectación de IGV no corresponde al código de tributo de la linea. | Sí | Sí |
+| `3051` | Nombre de tributo no corresponde al código de tributo de la linea. | Sí | Sí |
+| `3059` | El XML no contiene el tag o no existe información de código de tributo. | Sí | Sí |
+| `3064` | El XML no contiene tag o no existe información del valor del concepto por linea. | Sí | Sí |
+| `3067` | El código de tributo no debe repetirse a nivel de item | Sí | Sí |
+| `3068` | El código de tributo no debe repetirse a nivel de totales | Sí | Sí |
+| `3088` | El valor ingresado como moneda del comprobante no es valido (catalogo nro 02). | Sí | Sí |
+| `3102` | El dato ingresado como factor de afectacion por linea no cumple con el formato establecido. | Sí | Sí |
+| `3103` | El producto del factor y monto base de la afectación del IGV/IVAP no corresponde al monto de afectacion de linea. | Sí | Sí |
+| `3104` | El factor de afectación de ISC por linea debe ser diferente a 0.00. | Sí | Sí |
+| `3105` | El XML debe contener al menos un tributo por linea de afectacion por IGV | Sí | Sí |
+| `3107` | El dato ingresado como codigo de tributo global es invalido para tipo de operación. | Sí | Sí |
+| `3108` | El producto del factor y monto base de la afectación del ISC no corresponde al monto de afectacion de linea. | Sí | Sí |
+| `3109` | El producto del factor y monto base de la afectación de otros tributos no corresponde al monto de afectacion de linea. | Sí | Sí |
+| `3110` | El monto de afectacion de IGV por linea debe ser igual a 0.00 para Exoneradas, Inafectas, Exportación, Gratuitas de exoneradas o Gratuitas de inafectas. | Sí | Sí |
+| `3111` | El monto de afectación de IGV por linea debe ser diferente a 0.00. | Sí | Sí |
+| `3151` | El XML no contiene el tag de Créditos Hipotecarios: Partida Registral | Sí | Sí |
+| `3152` | El XML no contiene el tag de Créditos Hipotecarios: Número de contrato | Sí | Sí |
+| `3153` | El XML no contiene el tag de Créditos Hipotecarios: Fecha de otorgamiento del crédito | Sí | Sí |
+| `3154` | El XML no contiene el tag de Créditos Hipotecarios: Dirección del predio - Código de ubigeo | Sí | Sí |
+| `3155` | El XML no contiene el tag de Créditos Hipotecarios: Dirección del predio - Dirección completa | Sí | Sí |
+| `3194` | Solo es permitido registrar un documento que modifica. | Sí | Sí |
+| `3195` | El xml no contiene el tag de impuesto por linea (TaxtTotal). | Sí | No |
+| `3203` | El tipo de nota es un dato único | Sí | Sí |
+| `3210` | Solo debe consignar sistema de calculo si el tributo es ISC | Sí | No |
+| `3221` | El dato ingresado como codigo de tributo global es invalido para tipo de nota | Sí | Sí |
+| `3223` | La combinación de tributos no es permitida | Sí | Sí |
+| `3224` | Si existe 'Valor referencial unitario en operac. no onerosas' con monto mayor a cero, la operacion debe ser gratuita (codigo de tributo 9996) | Sí | Sí |
+| `3230` | Tipo de nota debe ser 'Ajustes afectos al IVAP' | Sí | Sí |
+| `3236` | El valor ingresado en el campo cac:TaxSubtotal/cbc:BaseUnitMeasure no corresponde al valor esperado | Sí | No |
+| `3237` | Debe consignar el campo cac:TaxSubtotal/cbc:BaseUnitMeasure a nivel de ítem | Sí | No |
+| `3238` | El valor ingresado en el campo cac:TaxSubtotal/cbc:PerUnitAmount del ítem no corresponde al valor esperado | Sí | No |
+| `3243` | El XML no contiene tag o no existe información de la fecha del concepto por linea | Sí | Sí |
+| `3245` | Debe informar si el tipo de transaccion es al Contado o al Credito | Sí | Sí |
+| `3246` | El tipo de transaccion o el identificador de la cuota no cumple con el formato esperado | Sí | Sí |
+| `3248` | El tipo de transaccion o el identificador de la cuota no debe repetirse en el comprobante | Sí | Sí |
+| `3249` | Si el tipo de transaccion es al Credito debe existir al menos información de una cuota de pago | Sí | Sí |
+| `3250` | El Monto neto pendiente de pago no cumple el formato definido | Sí | Sí |
+| `3251` | Si el tipo de transaccion es al Credito debe consignarse el Monto neto pendiente de pago | Sí | Sí |
+| `3252` | Si existe información de cuota de pago, el tipo de transaccion debe ser al credito | Sí | Sí |
+| `3253` | El Monto del pago único o de las cuotas no cumple el formato definido | Sí | Sí |
+| `3254` | Si se consigna información de la cuota de pago, debe indicarse el monto de la cuota | Sí | Sí |
+| `3255` | Fecha del pago único o de las cuotas no cumple el formato definido | Sí | Sí |
+| `3256` | Si se consigna información de la cuota de pago, debe indicarse la fecha del pago único o de las cuotas | Sí | Sí |
+| `3257` | Para el tipo de nota de credito 13 debe consignar información de la operación al credito | Sí | Sí |
+| `3259` | Para el tipo de nota de credito 13 el documento afectado debe ser Factura | Sí | Sí |
+| `3261` | No se puede modificar mas de un comprobante con la nota | Sí | Sí |
+| `3271` | El valor de venta por ítem difiere de los importes consignados. | Sí | Sí |
+| `3272` | La base imponible a nivel de línea difiere de la información consignada en el comprobante | Sí | Sí |
+| `3273` | La sumatoria del total valor de venta - Exportaciones de línea no corresponden al total | Sí | Sí |
+| `3274` | La sumatoria del total valor de venta - operaciones inafectas de línea no corresponden al total | Sí | Sí |
+| `3275` | La sumatoria del total valor de venta - operaciones exoneradas de línea no corresponden al total | Sí | Sí |
+| `3276` | La sumatoria del total valor de venta - operaciones gratuitas de línea no corresponden al total | Sí | Sí |
+| `3277` | La sumatoria del total valor de venta - operaciones gravadas de línea no corresponden al total | Sí | Sí |
+| `3280` | El importe total del comprobante no coincide con el valor calculado | Sí | Sí |
+| `3291` | El cálculo del IGV es Incorrecto | Sí | Sí |
+| `3292` | El importe total de impuestos por línea no coincide con la sumatoria de los impuestos por línea. | Sí | Sí |
+| `3293` | La sumatoria del total valor de venta - IVAP de línea no corresponden al total | Sí | No |
+| `3294` | La sumatoria de impuestos globales no corresponde al monto total de impuestos. | Sí | Sí |
+| `3295` | El importe del IVAP no corresponden al determinado por la informacion consignada. | Sí | Sí |
+| `3296` | La sumatoria del monto base - ISC de línea no corresponden al total | Sí | Sí |
+| `3297` | La sumatoria del monto base - Otros tributos de línea no corresponden al total | Sí | Sí |
+| `3298` | La sumatoria del total del importe del tributo ISC de línea no corresponden al total | Sí | Sí |
+| `3299` | La sumatoria del total del importe del tributo Otros tributos de línea no corresponden al total | Sí | Sí |
+| `3303` | El monto para el redondeo del Importe Total excede el valor permitido | Sí | Sí |
+| `3306` | La sumatoria del total del importe del tributo ICBPER de línea no corresponden al total | Sí | No |
+| `3315` | Si el tipo de nota de credito es 13, el Importe total debe ser cero | Sí | Sí |
+| `3319` | La suma de las cuotas debe ser igual al Monto neto pendiente de pago. | Sí | Sí |
+| `3320` | El monto neto pendiente de pago debe ser menor o igual al monto de la factura | Sí | Sí |
+| `3321` | La fecha de la cuota debe ser mayor a la fecha de emisión de la factura | Sí | Sí |
+| `3462` | La tasa del IGV debe ser la misma en todas las líneas o ítems del documento y debe corresponder con una tasa vigente. | Sí | Sí |
+| `3497` | El tipo de contrato debe ser 1-ventas o 2-adquisiciones | Sí | Sí |
+| `3498` | No se permite mas de un numero de contrato de colaboracion empresarial | Sí | Sí |
+| `3499` | Si informa Numero de contrato, debe consignar el Tipo de contrato, la Descripcion de contrato y el Porcentaje de participacion | Sí | Sí |
+| `3500` | El Porcentaje de participacion no cumple con el formato o longitud especificada | Sí | Sí |
+| `3501` | El Numero del contrato de colaboracion empresarial no cumple el formato o longitud establecida | Sí | Sí |
+| `3502` | La Descripcion del contrato de colaboracion empresarial no cumple el formato o longitud establecida | Sí | Sí |
 
-| Código | Descripción |
-|--------|-------------|
-| 2108 | Presentacion fuera de fecha |
-| 2509 | Total de anticipos diferente a los montos anticipados por documento. |
-| 3089 | El XML contiene mas de un tag como elemento de numero de documento del emisor |
-| 3094 |  |
-| 3240 |  |
-| 3262 | Si existe retencion de IGV en el comprobante, el receptor debe ser un Agente de Retencion |
+#### Fuera de alcance en CreditNote
 
-## CreditNote
+| Código | Descripción | Motivo |
+|---|---|---|
+| `0100` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0109` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0111` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0151` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0154` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0155` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0156` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0157` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0158` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0160` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0161` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0306` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `1032` | El comprobante ya esta informado y se encuentra con estado anulado o rechazado | Depende del estado del comprobante en SUNAT. |
+| `1033` | El comprobante fue registrado previamente con otros datos | Requiere información externa no disponible localmente. |
+| `1034` | Número de RUC del nombre del archivo no coincide con el consignado en el contenido del archivo XML | Depende del nombre del archivo/XML. |
+| `1035` | Numero de Serie del nombre del archivo no coincide con el consignado en el contenido del archivo XML | Depende del nombre del archivo/XML. |
+| `1036` | Número de documento en el nombre del archivo no coincide con el consignado en el contenido del XML | Depende del nombre del archivo/XML. |
+| `1078` | El emisor no se encuentra autorizado a emitir en el SEE-Desde los sistemas del contribuyente | Requiere información externa no disponible localmente. |
+| `1079` | Solo puede enviar el comprobante en un resumen diario | Requiere información externa no disponible localmente. |
+| `1080` | Debe enviar su comprobante por el SEE-Empresas supervisadas | Depende del padrón SEE-Empresas supervisadas. |
+| `1083` | El numero de RUC del receptor no existe | Requiere información externa no disponible localmente. |
+| `1084` | Comprobante de contingencia ya fue informado por su resumen, si desea modificarse debe realizarse por su primer canal de presentación | Requiere información externa no disponible localmente. |
+| `1086` | El emisor electronico es un Sujeto sin capacidad operativa (SSCO) | Requiere información externa no disponible localmente. |
+| `2010` | El contribuyente no esta activo | Requiere información externa no disponible localmente. |
+| `2011` | El contribuyente no esta habido | Requiere información externa no disponible localmente. |
+| `2016` | El dato ingresado  en el tipo de documento de identidad del receptor no cumple con el estandar o no esta permitido. | Requiere información externa no disponible localmente. |
+| `2036` | El codigo del tributo es invalido | Requiere información externa no disponible localmente. |
+| `2040` | El tipo de afectacion del IGV es incorrecto | Requiere información externa no disponible localmente. |
+| `2108` | Presentacion fuera de fecha | Requiere información externa no disponible localmente. |
+| `2119` | El documento modificado en la Nota de credito no esta registrada. | Requiere información externa no disponible localmente. |
+| `2120` | El documento modificado en la Nota de credito se encuentra de baja | Requiere información externa no disponible localmente. |
+| `2121` | El documento modificado en la Nota de credito esta registrada como rechazada | Requiere información externa no disponible localmente. |
+| `2172` | ResponseCode - El dato ingresado no cumple con la estructura | Requiere información externa no disponible localmente. |
+| `2199` | El sistema de calculo del ISC es incorrecto | Requiere información externa no disponible localmente. |
+| `2329` | La fecha de emision se encuentra fuera del limite permitido | Requiere información externa no disponible localmente. |
+| `2377` | El Name o TaxTypeCode debe corresponder al codigo de tributo del item | Requiere información externa no disponible localmente. |
+| `2885` | La fecha de emisión de la nota debe ser mayor o igual a la fecha de emisión de los documentos que modifica | Requiere información externa no disponible localmente. |
+| `2961` | El valor del tag codigo de tributo internacional no corresponde al esperado. | Requiere información externa no disponible localmente. |
+| `2964` | El valor del tag nombre del tributo no corresponde al esperado. | Requiere información externa no disponible localmente. |
+| `3007` | El dato ingresado como codigo de tributo global no corresponde al valor esperado. | Requiere información externa no disponible localmente. |
+| `3027` | El valor del atributo no se encuentra en el catálogo | Requiere información externa no disponible localmente. |
+| `3150` | El XML no contiene el tag de Créditos Hipotecarios: Tipo de préstamo | Requiere información externa no disponible localmente. |
+| `3207` | Comprobante físico no se encuentra autorizado | Requiere información externa no disponible localmente. |
+| `3209` | El tipo de moneda de la nota debe ser el mismo que el declarado en el documento que modifica | Requiere información externa no disponible localmente. |
+| `3239` | El código de local anexo consignado no se encuentra declarado en el RUC | Requiere información externa no disponible localmente. |
+| `3260` | Para el tipo de nota de credito 13 el documento afectado debe ser Factura al credito | Requiere información externa no disponible localmente. |
+| `3286` | El monto total de la nota de credito debe ser menor o igual al monto del documento que modifica | Requiere información externa no disponible localmente. |
+| `3496` | El Código producto de SUNAT no es válido | Requiere listado/código SUNAT. |
+| `3503` | El monto consignado supera al importe documento que modifica | Requiere información externa no disponible localmente. |
 
-- **Implementadas**: 120
-- **Con test**: 110
-- **Fuera de alcance**: 2
+### DebitNote
 
-| Código | Descripción | Test |
-|--------|-------------|------|
-| 1079 | Solo puede enviar el comprobante en un resumen diario | No |
-| 2017 | El numero de documento de identidad del receptor debe ser RUC | Sí |
-| 2033 | El dato ingresado en TaxAmount de la linea no cumple con el formato establecido | Sí |
-| 2037 | El XML no contiene el tag cac:TaxCategory/cac:TaxScheme/cbc:ID del Item | Sí |
-| 2048 | El dato ingresado en TaxAmount no cumple con el formato establecido | Sí |
-| 2052 | El XML no contiene el tag código de tributo internacional de impuestos globales | Sí |
-| 2054 | El XML no contiene el tag TaxScheme Name de impuestos globales | Sí |
-| 2064 | El dato ingresado en ChargeTotalAmount no cumple con el formato establecido | Sí |
-| 2108 | Presentacion fuera de fecha | No |
-| 2116 |  | Sí |
-| 2117 |  | Sí |
-| 2128 |  | Sí |
-| 2135 |  | Sí |
-| 2136 |  | Sí |
-| 2137 |  | Sí |
-| 2138 |  | Sí |
-| 2139 |  | Sí |
-| 2367 | El dato ingresado en PriceAmount del Precio de venta unitario por item no cumple con el formato establecido | Sí |
-| 2369 | El dato ingresado en PriceAmount del Valor de venta unitario por item no cumple con el formato establecido | Sí |
-| 2370 | El dato ingresado en LineExtensionAmount del item no cumple con el formato establecido | Sí |
-| 2371 | El XML no contiene el tag cbc:TaxExemptionReasonCode de Afectacion al IGV | Sí |
-| 2373 | Si existe monto de ISC en el ITEM debe especificar el sistema de calculo | Sí |
-| 2399 |  | Sí |
-| 2409 | Existe mas de un tag cac:AlternativeConditionPrice con el mismo cbc:PriceTypeCode | Sí |
-| 2426 |  | Sí |
-| 2511 |  | Sí |
-| 2524 |  | Sí |
-| 2594 |  | Sí |
-| 2635 |  | Sí |
-| 2636 |  | Sí |
-| 2637 |  | Sí |
-| 2638 | Si tiene operaciones de un tributo en alguna línea, debe consignar el tag del total del tributo | Sí |
-| 2640 | Operacion gratuita, solo debe consignar un monto referencial | Sí |
-| 2641 | Operacion gratuita, debe consignar Total valor venta - operaciones gratuitas mayor a cero | Sí |
-| 2642 | Operaciones de exportacion, deben consignar Tipo Afectacion igual a 40 | Sí |
-| 2679 |  | Sí |
-| 2752 | El número de ítem no puede estar duplicado. | Sí |
-| 2884 |  | Sí |
-| 2892 | El valor del tag no cumple con el formato establecido | Sí |
-| 2936 | El dato ingresado como unidad de medida no corresponde al valor esperado | Sí |
-| 2949 | El impuesto ICBPER no se encuentra vigente | Sí |
-| 2956 | El Monto total de impuestos es obligatorio | Sí |
-| 2992 | El XML no contiene el tag de la tasa del tributo de la línea | Sí |
-| 2993 | El factor de afectación de IGV por linea debe ser diferente a 0.00. | Sí |
-| 2996 | El XML no contiene el tag o no existe información del nombre de tributo de la línea | Sí |
-| 2999 | El dato ingresado en el total valor de venta globales no cumple con el formato establecido | Sí |
-| 3000 | El monto total del impuestos sobre el valor de venta de operaciones gratuitas/inafectas/exoneradas debe ser igual a 0.00 | Sí |
-| 3003 | El XML no contiene el tag o no existe información de total valor de venta globales | Sí |
-| 3006 | El dato ingresado en descripcion de leyenda no cumple con el formato establecido. | Sí |
-| 3014 | El codigo de leyenda no debe repetirse en el comprobante. | Sí |
-| 3016 | El dato ingresado en base monto por cargo/descuento globales no cumple con el formato establecido | Sí |
-| 3019 | El dato ingresado en total precio de venta no cumple con el formato establecido | Sí |
-| 3020 | El dato ingresado en el monto total de impuestos no cumple con el formato establecido | Sí |
-| 3021 | El dato ingresado en el monto total de impuestos por línea no cumple con el formato establecido | Sí |
-| 3024 | El tag cac:TaxTotal no debe repetirse a nivel de totales | Sí |
-| 3025 | El dato ingresado en factor de cargo o descuento global no cumple con el formato establecido. | Sí |
-| 3026 | El tag cac:TaxTotal no debe repetirse a nivel de Item | Sí |
-| 3029 |  | Sí |
-| 3030 | El XML no contiene el tag o no existe información del código de local anexo del emisor | Sí |
-| 3031 | El dato ingresado en TaxableAmount de la linea no cumple con el formato establecido | Sí |
-| 3050 | Afectación de IGV no corresponde al código de tributo de la linea. | Sí |
-| 3052 | El factor de cargo/descuento por linea no cumple con el formato establecido. | Sí |
-| 3053 | El Monto base de cargo/descuento por linea no cumple con el formato establecido. | Sí |
-| 3059 | El XML no contiene el tag o no existe información de código de tributo. | Sí |
-| 3067 | El código de tributo no debe repetirse a nivel de item | Sí |
-| 3068 | El código de tributo no debe repetirse a nivel de totales | Sí |
-| 3072 | El XML no contiene el tag o no existe informacion de codigo de motivo de cargo/descuento global. | Sí |
-| 3073 | El XML no contiene el tag o no existe informacion de codigo de motivo de cargo/descuento por item. | Sí |
-| 3074 | El monto del cargo para el para FISE debe ser igual mayor a 0.00 | Sí |
-| 3089 | El XML contiene mas de un tag como elemento de numero de documento del emisor | Sí |
-| 3090 | El XML contiene mas de un tag como elemento de numero de documento del receptor. | Sí |
-| 3092 | Para cargo/descuento FISE, debe ingresar monto base y debe ser mayor a 0.00 | Sí |
-| 3093 | Si operación es sujeta a percepción y la forma de pago es Contado, debe ingresar cargo para Percepción | Sí |
-| 3098 | El XML no contiene el tag o no existe información del pais de uso, exploración o aprovechamiento | Sí |
-| 3102 | El dato ingresado como factor de afectacion por linea no cumple con el formato establecido. | Sí |
-| 3103 | El producto del factor y monto base de la afectación del IGV/IVAP no corresponde al monto de afectacion de linea. | Sí |
-| 3104 | El factor de afectación de ISC por linea debe ser diferente a 0.00. | Sí |
-| 3105 | El XML debe contener al menos un tributo por linea de afectacion por IGV | Sí |
-| 3106 |  | Sí |
-| 3108 | El producto del factor y monto base de la afectación del ISC no corresponde al monto de afectacion de linea. | Sí |
-| 3110 | El monto de afectacion de IGV por linea debe ser igual a 0.00 para Exoneradas, Inafectas, Exportación, Gratuitas de exoneradas o Gratuitas de inafectas. | Sí |
-| 3111 | El monto de afectación de IGV por linea debe ser diferente a 0.00. | Sí |
-| 3112 |  | Sí |
-| 3113 |  | Sí |
-| 3114 | El dato ingresado como indicador de cargo/descuento no corresponde al valor esperado. | Sí |
-| 3115 | El dato ingresado como unidad de medida de cantidad de especie vendidas no corresponde al valor esperado. | Sí |
-| 3116 |  | No |
-| 3117 | El XML no contiene el tag o no existe información de la dirección del punto de origen en Detracciones - Servicio de transporte de carga. | Sí |
-| 3118 | El XML no contiene el tag o no existe información del ubigeo de punto de destino en Detracciones - Servicio de transporte de carga. | Sí |
-| 3119 | El XML no contiene el tag o no existe información de la dirección del punto de destino en Detracciones - Servicio de transporte de carga. | Sí |
-| 3120 | El XML no contiene el tag o no existe información del Detalle del viaje en Detracciones - Servicio de transporte de carga. | Sí |
-| 3194 |  | Sí |
-| 3195 | El xml no contiene el tag de impuesto por linea (TaxtTotal). | No |
-| 3203 |  | Sí |
-| 3210 | Solo debe consignar sistema de calculo si el tributo es ISC | No |
-| 3221 |  | Sí |
-| 3223 | La combinación de tributos no es permitida | Sí |
-| 3224 | Si existe 'Valor referencial unitario en operac. no onerosas' con monto mayor a cero, la operacion debe ser gratuita (codigo de tributo 9996) | Sí |
-| 3230 |  | Sí |
-| 3234 | El código de precio '02' es sólo para operaciones gratuitas | Sí |
-| 3257 |  | Sí |
-| 3259 |  | Sí |
-| 3261 |  | Sí |
-| 3270 | El precio unitario de la operación que está informando difiere de los cálculos realizados en base a la información remitida | Sí |
-| 3271 | El valor de venta por ítem difiere de los importes consignados. | Sí |
-| 3272 | La base imponible a nivel de línea difiere de la información consignada en el comprobante | Sí |
-| 3273 | La sumatoria del total valor de venta - Exportaciones de línea no corresponden al total | Sí |
-| 3277 | La sumatoria del total valor de venta - operaciones gravadas de línea no corresponden al total | Sí |
-| 3278 | La sumatoria de valor de venta no corresponde a los importes consignados | Sí |
-| 3279 | La sumatoria del Total del valor de venta más los impuestos no concuerda con la base imponible | Sí |
-| 3282 | Si se informa descuentos globales por anticipo debe existir 'Total de anticipos' con monto mayor a cero | Sí |
-| 3291 | El cálculo del IGV es Incorrecto | No |
-| 3293 | La sumatoria del total valor de venta - IVAP de línea no corresponden al total | No |
-| 3296 | La sumatoria del monto base - ISC de línea no corresponden al total | No |
-| 3298 | La sumatoria del total del importe del tributo ISC de línea no corresponden al total | No |
-| 3303 | El monto para el redondeo del Importe Total excede el valor permitido | Sí |
-| 3306 | La sumatoria del total del importe del tributo ICBPER de línea no corresponden al total | No |
-| 3315 |  | Sí |
-| 3320 |  | Sí |
-| 3321 |  | Sí |
+- **Total ERROR**: 173 | **Implementadas**: 165 | **Con test**: 155 | **Fuera de alcance**: 48 | **Pendientes**: 0
 
-### Fuera de alcance en CreditNote
+| Código | Descripción | Implementada | Test |
+|---|---|:---:|:---:|
+| `1001` | ID - El dato SERIE-CORRELATIVO no cumple con el formato de acuerdo al tipo de comprobante | Sí | Sí |
+| `1037` | El XML no contiene el tag o no existe informacion de RegistrationName del emisor del documento | Sí | Sí |
+| `2017` | El numero de documento de identidad del receptor debe ser  RUC | Sí | Sí |
+| `2021` | El XML no contiene el tag o no existe informacion de RegistrationName del receptor del documento | Sí | No |
+| `2022` | RegistrationName -  El dato ingresado no cumple con el estandar | Sí | Sí |
+| `2033` | El dato ingresado en TaxAmount de la linea no cumple con el formato establecido | Sí | Sí |
+| `2037` | El XML no contiene el tag cac:TaxCategory/cac:TaxScheme/cbc:ID del Item | Sí | Sí |
+| `2048` | El dato ingresado en TaxAmount no cumple con el formato establecido | Sí | Sí |
+| `2052` | El XML no contiene el tag código de tributo internacional de impuestos globales | Sí | Sí |
+| `2054` | El XML no contiene el tag TaxScheme Name de impuestos globales | Sí | Sí |
+| `2062` | El dato ingresado en PayableAmount no cumple con el formato establecido | Sí | Sí |
+| `2064` | El dato ingresado en ChargeTotalAmount no cumple con el formato establecido | Sí | Sí |
+| `2070` | El XML no contiene el tag o no existe informacion de DocumentCurrencyCode | Sí | Sí |
+| `2071` | La moneda debe ser la misma en todo el documento. Salvo las percepciones que sólo son en moneda nacional | Sí | Sí |
+| `2072` | CustomizationID - La versión del documento no es la correcta | Sí | Sí |
+| `2073` | El XML no existe informacion de CustomizationID | Sí | No |
+| `2074` | UBLVersionID - La versión del UBL no es correcta | Sí | Sí |
+| `2075` | El XML no contiene el tag o no existe informacion de UBLVersionID | Sí | Sí |
+| `2128` | El XML no contiene el tag o no existe informacion de ResponseCode | Sí | Sí |
+| `2135` | cac:DiscrepancyResponse/cbc:Description - El dato ingresado no cumple con la estructura | Sí | Sí |
+| `2136` | El XML no contiene el tag o no existe informacion de cac:DiscrepancyResponse/cbc:Description | Sí | Sí |
+| `2137` | El Numero de orden del item no cumple con el formato establecido | Sí | Sí |
+| `2139` | CreditedQuantity - El dato ingresado no cumple con el estandar | Sí | Sí |
+| `2188` | DebitedQuantity/@unitCode El dato ingresado no cumple con el estandar | Sí | Sí |
+| `2204` | El tipo de documento modificado por la Nota de Debito debe ser factura electronica, ticket o documento autorizado | Sí | Sí |
+| `2205` | La serie o numero del documento modificado por la Nota de Debito no cumple con el formato establecido | Sí | Sí |
+| `2364` | El comprobante contiene un tipo y número de Guía de Remisión repetido | Sí | Sí |
+| `2365` | El comprobante contiene un tipo y número de Documento Relacionado repetido | Sí | Sí |
+| `2367` | El dato ingresado en PriceAmount del Precio de venta unitario por item no cumple con el formato establecido | Sí | Sí |
+| `2369` | El dato ingresado en PriceAmount del Valor de venta unitario por item no cumple con el formato establecido | Sí | Sí |
+| `2370` | El dato ingresado en LineExtensionAmount del item no cumple con el formato establecido | Sí | Sí |
+| `2371` | El XML no contiene el tag cbc:TaxExemptionReasonCode de Afectacion al IGV | Sí | Sí |
+| `2373` | Si existe monto de ISC en el ITEM debe especificar el sistema de calculo | Sí | Sí |
+| `2400` | El tipo de documento modificado por la Nota de debito debe ser boleta electronica | Sí | Sí |
+| `2409` | Existe mas de un tag cac:AlternativeConditionPrice con el mismo cbc:PriceTypeCode | Sí | Sí |
+| `2410` | Se ha consignado un valor invalido en el campo cbc:PriceTypeCode | Sí | Sí |
+| `2426` | Documentos relacionados duplicados en el comprobante. | Sí | Sí |
+| `2511` | El tipo de documento no es aceptado. | Sí | Sí |
+| `2524` | Debe indicar el documento afectado por la nota | Sí | Sí |
+| `2594` | El tipo de documento modificado por la nota electronica no es valido | Sí | Sí |
+| `2638` | Si tiene operaciones de un tributo en alguna línea, debe consignar el tag del total del tributo | Sí | Sí |
+| `2640` | Operacion gratuita, solo debe consignar un monto referencial | Sí | Sí |
+| `2641` | Operacion gratuita,  debe consignar Total valor venta - operaciones gratuitas  mayor a cero | Sí | Sí |
+| `2642` | Operaciones de exportacion, deben consignar Tipo Afectacion igual a 40 | Sí | Sí |
+| `2643` | Factura de operacion sujeta IVAP debe consignar Monto de impuestos por item | Sí | Sí |
+| `2644` | Comprobante operacion sujeta IVAP solo debe tener ítems con código de afectación del IGV igual a 17 | Sí | Sí |
+| `2679` | El XML no contiene el tag o no existe información del número de documento de identidad del cliente | Sí | Sí |
+| `2752` | El número de ítem no puede estar duplicado. | Sí | Sí |
+| `2884` | Los comprobantes modificados por la nota deben ser del mismo tipo | Sí | Sí |
+| `2892` | El valor del tag no cumple con el formato establecido | Sí | No |
+| `2936` | El dato ingresado como unidad de medida no corresponde al valor esperado | Sí | Sí |
+| `2949` | El impuesto ICBPER no se encuentra vigente | Sí | Sí |
+| `2956` | El Monto total de impuestos es obligatorio | Sí | Sí |
+| `2992` | El XML no contiene el tag de la tasa del tributo de la línea | Sí | Sí |
+| `2993` | El factor de afectación de IGV por linea debe ser diferente a 0.00. | Sí | Sí |
+| `2996` | El XML no contiene el tag o no existe información del nombre de tributo de la línea | Sí | No |
+| `2999` | El dato ingresado en el total valor de venta globales no cumple con el formato establecido | Sí | Sí |
+| `3000` | El monto total del impuestos sobre el valor de venta de operaciones gratuitas/inafectas/exoneradas debe ser igual a 0.00 | Sí | Sí |
+| `3003` | El XML no contiene el tag o no existe información de total valor de venta globales | Sí | Sí |
+| `3006` | El dato ingresado en descripcion de leyenda no cumple con el formato establecido. | Sí | Sí |
+| `3020` | El dato ingresado en el monto total de impuestos no cumple con el formato establecido | Sí | Sí |
+| `3021` | El dato ingresado en el monto total de impuestos por línea no cumple con el formato establecido | Sí | Sí |
+| `3024` | El tag cac:TaxTotal no debe repetirse a nivel de totales | Sí | Sí |
+| `3026` | El tag cac:TaxTotal no debe repetirse a nivel de Item | Sí | Sí |
+| `3029` | El XML no contiene el tag o no existe información del tipo de documento de identidad del emisor | Sí | Sí |
+| `3030` | El XML no contiene el tag o no existe información del código de local anexo del emisor | Sí | Sí |
+| `3031` | El dato ingresado en TaxableAmount de la linea no cumple con el formato establecido | Sí | Sí |
+| `3034` | El xml no contiene el tag o no existe información en el nro de cuenta de detracción | Sí | Sí |
+| `3035` | El xml no contiene el tag o no existe información en el monto de detraccion | Sí | Sí |
+| `3037` | El dato ingresado en monto de detraccion no cumple con el formato establecido | Sí | Sí |
+| `3050` | Afectación de IGV no corresponde al código de tributo de la linea. | Sí | Sí |
+| `3051` | Nombre de tributo no corresponde al código de tributo de la linea. | Sí | Sí |
+| `3059` | El XML no contiene el tag o no existe información de código de tributo. | Sí | Sí |
+| `3064` | El XML no contiene tag o no existe información del valor del concepto por linea. | Sí | Sí |
+| `3067` | El código de tributo no debe repetirse a nivel de item | Sí | Sí |
+| `3068` | El código de tributo no debe repetirse a nivel de totales | Sí | Sí |
+| `3088` | El valor ingresado como moneda del comprobante no es valido (catalogo nro 02). | Sí | Sí |
+| `3101` | El factor de afectación de IGV por linea debe ser igual a 0.00 para Exoneradas, Inafectas, Exportación, Gratuitas de exoneradas o Gratuitas de inafectas. | Sí | Sí |
+| `3102` | El dato ingresado como factor de afectacion por linea no cumple con el formato establecido. | Sí | Sí |
+| `3103` | El producto del factor y monto base de la afectación del IGV/IVAP no corresponde al monto de afectacion de linea. | Sí | Sí |
+| `3104` | El factor de afectación de ISC por linea debe ser diferente a 0.00. | Sí | Sí |
+| `3105` | El XML debe contener al menos un tributo por linea de afectacion por IGV | Sí | Sí |
+| `3107` | El dato ingresado como codigo de tributo global es invalido para tipo de operación. | Sí | Sí |
+| `3108` | El producto del factor y monto base de la afectación del ISC no corresponde al monto de afectacion de linea. | Sí | Sí |
+| `3109` | El producto del factor y monto base de la afectación de otros tributos no corresponde al monto de afectacion de linea. | Sí | Sí |
+| `3110` | El monto de afectacion de IGV por linea debe ser igual a 0.00 para Exoneradas, Inafectas, Exportación, Gratuitas de exoneradas o Gratuitas de inafectas. | Sí | Sí |
+| `3111` | El monto de afectación de IGV por linea debe ser diferente a 0.00. | Sí | Sí |
+| `3127` | El XML no contiene el tag o no existe información del Codigo de BBSS de detracción para el tipo de operación. | Sí | Sí |
+| `3151` | El XML no contiene el tag de Créditos Hipotecarios: Partida Registral | Sí | Sí |
+| `3152` | El XML no contiene el tag de Créditos Hipotecarios: Número de contrato | Sí | Sí |
+| `3153` | El XML no contiene el tag de Créditos Hipotecarios: Fecha de otorgamiento del crédito | Sí | Sí |
+| `3154` | El XML no contiene el tag de Créditos Hipotecarios: Dirección del predio - Código de ubigeo | Sí | Sí |
+| `3155` | El XML no contiene el tag de Créditos Hipotecarios: Dirección del predio - Dirección completa | Sí | Sí |
+| `3194` | Solo es permitido registrar un documento que modifica. | Sí | Sí |
+| `3195` | El xml no contiene el tag de impuesto por linea (TaxtTotal). | Sí | Sí |
+| `3203` | El tipo de nota es un dato único | Sí | Sí |
+| `3208` | La moneda del monto de la detracción debe ser PEN | Sí | Sí |
+| `3210` | Solo debe consignar sistema de calculo si el tributo es ISC | Sí | Sí |
+| `3221` | El dato ingresado como codigo de tributo global es invalido para tipo de nota | Sí | Sí |
+| `3223` | La combinación de tributos no es permitida | Sí | Sí |
+| `3224` | Si existe 'Valor referencial unitario en operac. no onerosas' con monto mayor a cero, la operacion debe ser gratuita (codigo de tributo 9996) | Sí | Sí |
+| `3230` | Tipo de nota debe ser 'Ajustes afectos al IVAP' | Sí | Sí |
+| `3236` | El valor ingresado en el campo cac:TaxSubtotal/cbc:BaseUnitMeasure no corresponde al valor esperado | Sí | Sí |
+| `3237` | Debe consignar el campo cac:TaxSubtotal/cbc:BaseUnitMeasure a nivel de ítem | Sí | Sí |
+| `3238` | El valor ingresado en el campo cac:TaxSubtotal/cbc:PerUnitAmount del ítem no corresponde al valor esperado | Sí | Sí |
+| `3243` | El XML no contiene tag o no existe información de la fecha del concepto por linea | Sí | Sí |
+| `3270` | El precio unitario de la operación que está informando difiere de los cálculos realizados en base a la información remitida | Sí | Sí |
+| `3271` | El valor de venta por ítem difiere de los importes consignados. | Sí | Sí |
+| `3272` | La base imponible a nivel de línea difiere de la información consignada en el comprobante | Sí | Sí |
+| `3273` | La sumatoria del total valor de venta - Exportaciones de línea no corresponden al total | Sí | Sí |
+| `3274` | La sumatoria del total valor de venta - operaciones inafectas de línea no corresponden al total | Sí | Sí |
+| `3275` | La sumatoria del total valor de venta - operaciones exoneradas de línea no corresponden al total | Sí | Sí |
+| `3276` | La sumatoria del total valor de venta - operaciones gratuitas de línea no corresponden al total | Sí | Sí |
+| `3277` | La sumatoria del total valor de venta - operaciones gravadas de línea no corresponden al total | Sí | Sí |
+| `3280` | El importe total del comprobante no coincide con el valor calculado | Sí | Sí |
+| `3291` | El cálculo del IGV es Incorrecto | Sí | Sí |
+| `3292` | El importe total de impuestos por línea no coincide con la sumatoria de los impuestos por línea. | Sí | Sí |
+| `3293` | La sumatoria del total valor de venta - IVAP de línea no corresponden al total | Sí | No |
+| `3294` | La sumatoria de impuestos globales no corresponde al monto total de impuestos. | Sí | Sí |
+| `3295` | El importe del IVAP no corresponden al determinado por la informacion consignada. | Sí | No |
+| `3296` | La sumatoria del monto base - ISC de línea no corresponden al total | Sí | Sí |
+| `3297` | La sumatoria del monto base - Otros tributos de línea no corresponden al total | Sí | Sí |
+| `3298` | La sumatoria del total del importe del tributo ISC de línea no corresponden al total | Sí | Sí |
+| `3299` | La sumatoria del total del importe del tributo Otros tributos de línea no corresponden al total | Sí | Sí |
+| `3302` | La sumatoria de los IGV de operaciones gratuitas de la línea (codigo tributo 9996) no corresponden al total | Sí | Sí |
+| `3303` | El monto para el redondeo del Importe Total excede el valor permitido | Sí | Sí |
+| `3306` | La sumatoria del total del importe del tributo ICBPER de línea no corresponden al total | Sí | Sí |
+| `3313` | Si consigna información del codigo bien sujeto a detraccion, debe informar la cuenta de BN y montos de la detraccion | Sí | Sí |
+| `3314` | Si consigna cuenta de BN y montos de la detraccion, debe informar el codigo bien sujeto a detraccion | Sí | Sí |
+| `3462` | La tasa del IGV debe ser la misma en todas las líneas o ítems del documento y debe corresponder con una tasa vigente. | Sí | Sí |
+| `3497` | El tipo de contrato debe ser 1-ventas o 2-adquisiciones | Sí | Sí |
+| `3498` | No se permite mas de un numero de contrato de colaboracion empresarial | Sí | Sí |
+| `3499` | Si informa Numero de contrato, debe consignar el Tipo de contrato, la Descripcion de contrato y el Porcentaje de participacion | Sí | Sí |
+| `3500` | El Porcentaje de participacion no cumple con el formato o longitud especificada | Sí | Sí |
+| `3501` | El Numero del contrato de colaboracion empresarial no cumple el formato o longitud establecida | Sí | Sí |
+| `3502` | La Descripcion del contrato de colaboracion empresarial no cumple el formato o longitud establecida | Sí | Sí |
+| `3507` | Las penalidades son operaciones inafectas del IGV | Sí | Sí |
 
-| Código | Descripción |
-|--------|-------------|
-| 1079 | Solo puede enviar el comprobante en un resumen diario |
-| 2426 |  |
+#### Fuera de alcance en DebitNote
 
-## DebitNote
+| Código | Descripción | Motivo |
+|---|---|---|
+| `0100` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0109` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0111` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0151` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0154` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0155` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0156` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0157` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0158` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0160` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0161` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0306` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `1032` | El comprobante ya esta informado y se encuentra con estado anulado o rechazado | Depende del estado del comprobante en SUNAT. |
+| `1033` | El comprobante fue registrado previamente con otros datos | Requiere información externa no disponible localmente. |
+| `1034` | Número de RUC del nombre del archivo no coincide con el consignado en el contenido del archivo XML | Depende del nombre del archivo/XML. |
+| `1035` | Numero de Serie del nombre del archivo no coincide con el consignado en el contenido del archivo XML | Depende del nombre del archivo/XML. |
+| `1036` | Número de documento en el nombre del archivo no coincide con el consignado en el contenido del XML | Depende del nombre del archivo/XML. |
+| `1078` | El emisor no se encuentra autorizado a emitir en el SEE-Desde los sistemas del contribuyente | Requiere información externa no disponible localmente. |
+| `1079` | Solo puede enviar el comprobante en un resumen diario | Requiere información externa no disponible localmente. |
+| `1080` | Debe enviar su comprobante por el SEE-Empresas supervisadas | Depende del padrón SEE-Empresas supervisadas. |
+| `1083` | El numero de RUC del receptor no existe | Requiere información externa no disponible localmente. |
+| `1084` | Comprobante de contingencia ya fue informado por su resumen, si desea modificarse debe realizarse por su primer canal de presentación | Requiere información externa no disponible localmente. |
+| `1086` | El emisor electronico es un Sujeto sin capacidad operativa (SSCO) | Requiere información externa no disponible localmente. |
+| `2010` | El contribuyente no esta activo | Requiere información externa no disponible localmente. |
+| `2011` | El contribuyente no esta habido | Requiere información externa no disponible localmente. |
+| `2016` | El dato ingresado  en el tipo de documento de identidad del receptor no cumple con el estandar o no esta permitido. | Requiere información externa no disponible localmente. |
+| `2036` | El codigo del tributo es invalido | Requiere información externa no disponible localmente. |
+| `2040` | El tipo de afectacion del IGV es incorrecto | Requiere información externa no disponible localmente. |
+| `2108` | Presentacion fuera de fecha | Requiere información externa no disponible localmente. |
+| `2172` | ResponseCode - El dato ingresado no cumple con la estructura | Requiere información externa no disponible localmente. |
+| `2199` | El sistema de calculo del ISC es incorrecto | Requiere información externa no disponible localmente. |
+| `2207` | El documento modificado en la Nota de debito se encuentra de baja | Requiere información externa no disponible localmente. |
+| `2208` | El documento modificado en la Nota de debito esta registrada como rechazada | Requiere información externa no disponible localmente. |
+| `2209` | El documento modificado en la Nota de debito no esta registrada | Requiere información externa no disponible localmente. |
+| `2329` | La fecha de emision se encuentra fuera del limite permitido | Requiere información externa no disponible localmente. |
+| `2377` | El Name o TaxTypeCode debe corresponder al codigo de tributo del item | Requiere información externa no disponible localmente. |
+| `2885` | La fecha de emisión de la nota debe ser mayor o igual a la fecha de emisión de los documentos que modifica | Requiere información externa no disponible localmente. |
+| `2961` | El valor del tag codigo de tributo internacional no corresponde al esperado. | Requiere información externa no disponible localmente. |
+| `2964` | El valor del tag nombre del tributo no corresponde al esperado. | Requiere información externa no disponible localmente. |
+| `3007` | El dato ingresado como codigo de tributo global no corresponde al valor esperado. | Requiere información externa no disponible localmente. |
+| `3027` | El valor del atributo no se encuentra en el catálogo | Requiere información externa no disponible localmente. |
+| `3033` | El codigo de bien o servicio sujeto a detracción no existe en el listado. | Requiere consulta a listados o padrones SUNAT. |
+| `3150` | El XML no contiene el tag de Créditos Hipotecarios: Tipo de préstamo | Requiere información externa no disponible localmente. |
+| `3174` | El dato ingreso como Forma de Pago o Medio de Pago no corresponde al valor esperado (catalogo nro 59) | Requiere información externa no disponible localmente. |
+| `3207` | Comprobante físico no se encuentra autorizado | Requiere información externa no disponible localmente. |
+| `3209` | El tipo de moneda de la nota debe ser el mismo que el declarado en el documento que modifica | Requiere información externa no disponible localmente. |
+| `3239` | El código de local anexo consignado no se encuentra declarado en el RUC | Requiere información externa no disponible localmente. |
+| `3496` | El Código producto de SUNAT no es válido | Requiere listado/código SUNAT. |
 
-- **Implementadas**: 91
-- **Con test**: 86
-- **Fuera de alcance**: 1
+### Invoice
 
-| Código | Descripción | Test |
-|--------|-------------|------|
-| 1079 | Solo puede enviar el comprobante en un resumen diario | No |
-| 2017 | El numero de documento de identidad del receptor debe ser RUC | Sí |
-| 2033 | El dato ingresado en TaxAmount de la linea no cumple con el formato establecido | Sí |
-| 2037 | El XML no contiene el tag cac:TaxCategory/cac:TaxScheme/cbc:ID del Item | Sí |
-| 2048 | El dato ingresado en TaxAmount no cumple con el formato establecido | Sí |
-| 2052 | El XML no contiene el tag código de tributo internacional de impuestos globales | Sí |
-| 2054 | El XML no contiene el tag TaxScheme Name de impuestos globales | Sí |
-| 2064 | El dato ingresado en ChargeTotalAmount no cumple con el formato establecido | Sí |
-| 2188 |  | Sí |
-| 2204 |  | Sí |
-| 2205 |  | Sí |
-| 2367 | El dato ingresado en PriceAmount del Precio de venta unitario por item no cumple con el formato establecido | Sí |
-| 2369 | El dato ingresado en PriceAmount del Valor de venta unitario por item no cumple con el formato establecido | Sí |
-| 2370 | El dato ingresado en LineExtensionAmount del item no cumple con el formato establecido | Sí |
-| 2371 | El XML no contiene el tag cbc:TaxExemptionReasonCode de Afectacion al IGV | Sí |
-| 2373 | Si existe monto de ISC en el ITEM debe especificar el sistema de calculo | Sí |
-| 2400 |  | Sí |
-| 2409 | Existe mas de un tag cac:AlternativeConditionPrice con el mismo cbc:PriceTypeCode | Sí |
-| 2638 | Si tiene operaciones de un tributo en alguna línea, debe consignar el tag del total del tributo | Sí |
-| 2640 | Operacion gratuita, solo debe consignar un monto referencial | Sí |
-| 2641 | Operacion gratuita, debe consignar Total valor venta - operaciones gratuitas mayor a cero | Sí |
-| 2642 | Operaciones de exportacion, deben consignar Tipo Afectacion igual a 40 | Sí |
-| 2643 |  | Sí |
-| 2644 | Comprobante operacion sujeta IVAP solo debe tener ítems con código de afectación del IGV igual a 17 | Sí |
-| 2892 | El valor del tag no cumple con el formato establecido | No |
-| 2936 | El dato ingresado como unidad de medida no corresponde al valor esperado | Sí |
-| 2949 | El impuesto ICBPER no se encuentra vigente | Sí |
-| 2956 | El Monto total de impuestos es obligatorio | Sí |
-| 2992 | El XML no contiene el tag de la tasa del tributo de la línea | Sí |
-| 2993 | El factor de afectación de IGV por linea debe ser diferente a 0.00. | Sí |
-| 2996 | El XML no contiene el tag o no existe información del nombre de tributo de la línea | No |
-| 3000 | El monto total del impuestos sobre el valor de venta de operaciones gratuitas/inafectas/exoneradas debe ser igual a 0.00 | Sí |
-| 3003 | El XML no contiene el tag o no existe información de total valor de venta globales | Sí |
-| 3006 | El dato ingresado en descripcion de leyenda no cumple con el formato establecido. | Sí |
-| 3016 | El dato ingresado en base monto por cargo/descuento globales no cumple con el formato establecido | Sí |
-| 3019 | El dato ingresado en total precio de venta no cumple con el formato establecido | Sí |
-| 3024 | El tag cac:TaxTotal no debe repetirse a nivel de totales | Sí |
-| 3025 | El dato ingresado en factor de cargo o descuento global no cumple con el formato establecido. | Sí |
-| 3026 | El tag cac:TaxTotal no debe repetirse a nivel de Item | Sí |
-| 3030 | El XML no contiene el tag o no existe información del código de local anexo del emisor | Sí |
-| 3031 | El dato ingresado en TaxableAmount de la linea no cumple con el formato establecido | Sí |
-| 3034 | El xml no contiene el tag o no existe información en el nro de cuenta de detracción | Sí |
-| 3035 | El xml no contiene el tag o no existe información en el monto de detraccion | Sí |
-| 3059 | El XML no contiene el tag o no existe información de código de tributo. | Sí |
-| 3065 | El XML no contiene tag de la fecha del concepto por linea. | Sí |
-| 3067 | El código de tributo no debe repetirse a nivel de item | Sí |
-| 3068 | El código de tributo no debe repetirse a nivel de totales | Sí |
-| 3072 | El XML no contiene el tag o no existe informacion de codigo de motivo de cargo/descuento global. | Sí |
-| 3089 | El XML contiene mas de un tag como elemento de numero de documento del emisor | Sí |
-| 3090 | El XML contiene mas de un tag como elemento de numero de documento del receptor. | Sí |
-| 3093 | Si operación es sujeta a percepción y la forma de pago es Contado, debe ingresar cargo para Percepción | Sí |
-| 3101 |  | Sí |
-| 3102 | El dato ingresado como factor de afectacion por linea no cumple con el formato establecido. | Sí |
-| 3103 | El producto del factor y monto base de la afectación del IGV/IVAP no corresponde al monto de afectacion de linea. | Sí |
-| 3104 | El factor de afectación de ISC por linea debe ser diferente a 0.00. | Sí |
-| 3105 | El XML debe contener al menos un tributo por linea de afectacion por IGV | Sí |
-| 3107 | El dato ingresado como codigo de tributo global es invalido para tipo de operación. | Sí |
-| 3108 | El producto del factor y monto base de la afectación del ISC no corresponde al monto de afectacion de linea. | Sí |
-| 3109 | El producto del factor y monto base de la afectación de otros tributos no corresponde al monto de afectacion de linea. | Sí |
-| 3110 | El monto de afectacion de IGV por linea debe ser igual a 0.00 para Exoneradas, Inafectas, Exportación, Gratuitas de exoneradas o Gratuitas de inafectas. | Sí |
-| 3114 | El dato ingresado como indicador de cargo/descuento no corresponde al valor esperado. | Sí |
-| 3127 | El XML no contiene el tag o no existe información del Codigo de BBSS de detracción para el tipo de operación. | Sí |
-| 3195 | El xml no contiene el tag de impuesto por linea (TaxtTotal). | Sí |
-| 3208 | La moneda del monto de la detracción debe ser PEN | Sí |
-| 3223 | La combinación de tributos no es permitida | Sí |
-| 3224 | Si existe 'Valor referencial unitario en operac. no onerosas' con monto mayor a cero, la operacion debe ser gratuita (codigo de tributo 9996) | Sí |
-| 3234 | El código de precio '02' es sólo para operaciones gratuitas | Sí |
-| 3243 | El XML no contiene tag o no existe información de la fecha del concepto por linea | Sí |
-| 3270 | El precio unitario de la operación que está informando difiere de los cálculos realizados en base a la información remitida | Sí |
-| 3271 | El valor de venta por ítem difiere de los importes consignados. | Sí |
-| 3272 | La base imponible a nivel de línea difiere de la información consignada en el comprobante | Sí |
-| 3273 | La sumatoria del total valor de venta - Exportaciones de línea no corresponden al total | Sí |
-| 3277 | La sumatoria del total valor de venta - operaciones gravadas de línea no corresponden al total | Sí |
-| 3278 | La sumatoria de valor de venta no corresponde a los importes consignados | Sí |
-| 3279 | La sumatoria del Total del valor de venta más los impuestos no concuerda con la base imponible | Sí |
-| 3280 | El importe total del comprobante no coincide con el valor calculado | Sí |
-| 3282 | Si se informa descuentos globales por anticipo debe existir 'Total de anticipos' con monto mayor a cero | Sí |
-| 3291 | El cálculo del IGV es Incorrecto | Sí |
-| 3293 | La sumatoria del total valor de venta - IVAP de línea no corresponden al total | No |
-| 3294 | La sumatoria de impuestos globales no corresponde al monto total de impuestos. | Sí |
-| 3295 | El importe del IVAP no corresponden al determinado por la informacion consignada. | No |
-| 3296 | La sumatoria del monto base - ISC de línea no corresponden al total | Sí |
-| 3297 | La sumatoria del monto base - Otros tributos de línea no corresponden al total | Sí |
-| 3298 | La sumatoria del total del importe del tributo ISC de línea no corresponden al total | Sí |
-| 3299 | La sumatoria del total del importe del tributo Otros tributos de línea no corresponden al total | Sí |
-| 3302 | La sumatoria de los IGV de operaciones gratuitas de la línea (codigo tributo 9996) no corresponden al total | Sí |
-| 3303 | El monto para el redondeo del Importe Total excede el valor permitido | Sí |
-| 3306 | La sumatoria del total del importe del tributo ICBPER de línea no corresponden al total | Sí |
-| 3313 |  | Sí |
-| 3314 |  | Sí |
-| 3507 |  | Sí |
+- **Total ERROR**: 316 | **Implementadas**: 271 | **Con test**: 265 | **Fuera de alcance**: 62 | **Pendientes**: 0
 
-### Fuera de alcance en DebitNote
+| Código | Descripción | Implementada | Test |
+|---|---|:---:|:---:|
+| `1001` | ID - El dato SERIE-CORRELATIVO no cumple con el formato de acuerdo al tipo de comprobante | Sí | Sí |
+| `1003` | InvoiceTypeCode - El valor del tipo de documento es invalido o no coincide con el nombre del archivo | Sí | Sí |
+| `1004` | El XML no contiene el tag o no existe informacion de InvoiceTypeCode | Sí | Sí |
+| `1007` | El dato ingresado no cumple con el estandar | Sí | No |
+| `1008` | El XML no contiene el tag o no existe informacion en tipo de documento del emisor. | Sí | No |
+| `1037` | El XML no contiene el tag o no existe informacion de RegistrationName del emisor del documento | Sí | Sí |
+| `2014` | El XML no contiene el tag o no existe informacion del número de documento de identidad del receptor del documento | Sí | Sí |
+| `2015` | El XML no contiene el tag o no existe informacion del tipo de documento de identidad del receptor del documento | Sí | Sí |
+| `2017` | El numero de documento de identidad del receptor debe ser  RUC | Sí | Sí |
+| `2021` | El XML no contiene el tag o no existe informacion de RegistrationName del receptor del documento | Sí | No |
+| `2022` | RegistrationName -  El dato ingresado no cumple con el estandar | Sí | Sí |
+| `2023` | El Numero de orden del item no cumple con el formato establecido | Sí | Sí |
+| `2024` | El XML no contiene el tag InvoicedQuantity en el detalle de los Items o es cero (0) | Sí | Sí |
+| `2025` | InvoicedQuantity El dato ingresado no cumple con el estandar | Sí | Sí |
+| `2026` | El XML no contiene el tag cac:Item/cbc:Description en el detalle de los Items | Sí | Sí |
+| `2027` | El XML no contiene el tag o no existe informacion de cac:Item/cbc:Description del item | Sí | Sí |
+| `2028` | Debe existir el tag cac:AlternativeConditionPrice | Sí | Sí |
+| `2031` | El dato ingresado en total valor de venta no cumple con el estandar | Sí | Sí |
+| `2033` | El dato ingresado en TaxAmount de la linea no cumple con el formato establecido | Sí | Sí |
+| `2037` | El XML no contiene el tag cac:TaxCategory/cac:TaxScheme/cbc:ID del Item | Sí | Sí |
+| `2048` | El dato ingresado en TaxAmount no cumple con el formato establecido | Sí | Sí |
+| `2052` | El XML no contiene el tag código de tributo internacional de impuestos globales | Sí | Sí |
+| `2054` | El XML no contiene el tag TaxScheme Name de impuestos globales | Sí | Sí |
+| `2062` | El dato ingresado en PayableAmount no cumple con el formato establecido | Sí | Sí |
+| `2064` | El dato ingresado en ChargeTotalAmount no cumple con el formato establecido | Sí | Sí |
+| `2065` | El dato ingresado en el campo Total Descuentos no cumple con el formato establecido | Sí | Sí |
+| `2068` | El XML no contiene el tag cac:Price/cbc:PriceAmount en el detalle de los Items | Sí | Sí |
+| `2070` | El XML no contiene el tag o no existe informacion de DocumentCurrencyCode | Sí | Sí |
+| `2071` | La moneda debe ser la misma en todo el documento. Salvo las percepciones que sólo son en moneda nacional | Sí | Sí |
+| `2072` | CustomizationID - La versión del documento no es la correcta | Sí | Sí |
+| `2073` | El XML no existe informacion de CustomizationID | Sí | No |
+| `2074` | UBLVersionID - La versión del UBL no es correcta | Sí | Sí |
+| `2075` | El XML no contiene el tag o no existe informacion de UBLVersionID | Sí | Sí |
+| `2364` | El comprobante contiene un tipo y número de Guía de Remisión repetido | Sí | Sí |
+| `2365` | El comprobante contiene un tipo y número de Documento Relacionado repetido | Sí | Sí |
+| `2367` | El dato ingresado en PriceAmount del Precio de venta unitario por item no cumple con el formato establecido | Sí | Sí |
+| `2369` | El dato ingresado en PriceAmount del Valor de venta unitario por item no cumple con el formato establecido | Sí | Sí |
+| `2370` | El dato ingresado en LineExtensionAmount del item no cumple con el formato establecido | Sí | Sí |
+| `2371` | El XML no contiene el tag cbc:TaxExemptionReasonCode de Afectacion al IGV | Sí | Sí |
+| `2373` | Si existe monto de ISC en el ITEM debe especificar el sistema de calculo | Sí | Sí |
+| `2409` | Existe mas de un tag cac:AlternativeConditionPrice con el mismo cbc:PriceTypeCode | Sí | Sí |
+| `2410` | Se ha consignado un valor invalido en el campo cbc:PriceTypeCode | Sí | Sí |
+| `2416` | Si existe leyenda Transferencia Gratuita debe consignar Total Valor de Venta de Operaciones Gratuitas | Sí | Sí |
+| `2503` | PaidAmount: monto anticipado por documento debe ser mayor a cero. | Sí | Sí |
+| `2509` | Total de anticipos diferente a los montos anticipados por documento. | Sí | Sí |
+| `2521` | El dato ingresado debe indicar SERIE-CORRELATIVO del documento que se realizo el anticipo. | Sí | Sí |
+| `2595` | Falta consignar informacion del CUSPP | Sí | Sí |
+| `2596` | Falta consignar informacion del Periodo | Sí | Sí |
+| `2597` | Falta consignar información del monto de interes moratorio | Sí | Sí |
+| `2638` | Si tiene operaciones de un tributo en alguna línea, debe consignar el tag del total del tributo | Sí | Sí |
+| `2640` | Operacion gratuita, solo debe consignar un monto referencial | Sí | Sí |
+| `2641` | Operacion gratuita,  debe consignar Total valor venta - operaciones gratuitas  mayor a cero | Sí | Sí |
+| `2642` | Operaciones de exportacion, deben consignar Tipo Afectacion igual a 40 | Sí | Sí |
+| `2644` | Comprobante operacion sujeta IVAP solo debe tener ítems con código de afectación del IGV igual a 17 | Sí | Sí |
+| `2650` | Factura de operacion sujeta al IVAP , no debe consignar valor para ISC o debe ser 0 | Sí | Sí |
+| `2752` | El número de ítem no puede estar duplicado. | Sí | Sí |
+| `2797` | El Monto de percepcion no puede ser mayor al importe total del comprobante. | Sí | Sí |
+| `2801` | El DNI ingresado no cumple con el estandar. | Sí | Sí |
+| `2802` | El dato ingresado como numero de documento de identidad del receptor no cumple con el formato establecido | Sí | Sí |
+| `2883` | Es obligatorio indicar la unidad de medida del ítem | Sí | Sí |
+| `2892` | El valor del tag no cumple con el formato establecido | Sí | Sí |
+| `2898` | Para los tipos de seguro 1 y 2, debe consignar el numero de poliza, la fecha de cobertura y el monto asegurado | Sí | Sí |
+| `2899` | Para el tipo de seguro 3 - Otros debe consignar el numero de poliza | Sí | Sí |
+| `2936` | El dato ingresado como unidad de medida no corresponde al valor esperado | Sí | Sí |
+| `2949` | El impuesto ICBPER no se encuentra vigente | Sí | Sí |
+| `2954` | El valor ingresado como codigo de motivo de cargo/descuento por linea no es valido (catalogo 53) | Sí | Sí |
+| `2955` | El formato ingresado en el tag cac:InvoiceLine/cac:Allowancecharge/cbc:Amount no cumple con el formato establecido | Sí | Sí |
+| `2956` | El Monto total de impuestos es obligatorio | Sí | Sí |
+| `2968` | El dato ingresado en cac:AllowanceCharge/cbc:Amount no cumple con el formato establecido. | Sí | Sí |
+| `2992` | El XML no contiene el tag de la tasa del tributo de la línea | Sí | Sí |
+| `2993` | El factor de afectación de IGV por linea debe ser diferente a 0.00. | Sí | Sí |
+| `2996` | El XML no contiene el tag o no existe información del nombre de tributo de la línea | Sí | Sí |
+| `2999` | El dato ingresado en el total valor de venta globales no cumple con el formato establecido | Sí | Sí |
+| `3000` | El monto total del impuestos sobre el valor de venta de operaciones gratuitas/inafectas/exoneradas debe ser igual a 0.00 | Sí | Sí |
+| `3003` | El XML no contiene el tag o no existe información de total valor de venta globales | Sí | Sí |
+| `3006` | El dato ingresado en descripcion de leyenda no cumple con el formato establecido. | Sí | Sí |
+| `3014` | El codigo de leyenda no debe repetirse en el comprobante. | Sí | Sí |
+| `3016` | El dato ingresado en base monto por cargo/descuento globales no cumple con el formato establecido | Sí | Sí |
+| `3019` | El dato ingresado en total precio de venta no cumple con el formato establecido | Sí | Sí |
+| `3020` | El dato ingresado en el monto total de impuestos no cumple con el formato establecido | Sí | Sí |
+| `3021` | El dato ingresado en el monto total de impuestos por línea no cumple con el formato establecido | Sí | Sí |
+| `3024` | El tag cac:TaxTotal no debe repetirse a nivel de totales | Sí | Sí |
+| `3025` | El dato ingresado en factor de cargo o descuento global no cumple con el formato establecido. | Sí | Sí |
+| `3026` | El tag cac:TaxTotal no debe repetirse a nivel de Item | Sí | Sí |
+| `3030` | El XML no contiene el tag o no existe información del código de local anexo del emisor | Sí | Sí |
+| `3031` | El dato ingresado en TaxableAmount de la linea no cumple con el formato establecido | Sí | Sí |
+| `3034` | El xml no contiene el tag o no existe información en el nro de cuenta de detracción | Sí | Sí |
+| `3035` | El xml no contiene el tag o no existe información en el monto de detraccion | Sí | Sí |
+| `3037` | El dato ingresado en monto de detraccion no cumple con el formato establecido | Sí | Sí |
+| `3050` | Afectación de IGV no corresponde al código de tributo de la linea. | Sí | Sí |
+| `3051` | Nombre de tributo no corresponde al código de tributo de la linea. | Sí | Sí |
+| `3052` | El factor de cargo/descuento por linea no cumple con el formato establecido. | Sí | Sí |
+| `3053` | El Monto base de cargo/descuento por linea no cumple con el formato establecido. | Sí | Sí |
+| `3059` | El XML no contiene el tag o no existe información de código de tributo. | Sí | Sí |
+| `3063` | El XML no contiene el tag de matricula de embarcación en Detracciones para recursos hidrobiologicos. | Sí | Sí |
+| `3064` | El XML no contiene tag o no existe información del valor del concepto por linea. | Sí | Sí |
+| `3065` | El XML no contiene tag de la fecha del concepto por linea. | Sí | Sí |
+| `3067` | El código de tributo no debe repetirse a nivel de item | Sí | Sí |
+| `3068` | El código de tributo no debe repetirse a nivel de totales | Sí | Sí |
+| `3072` | El XML no contiene el tag o no existe informacion de codigo de motivo de cargo/descuento global. | Sí | Sí |
+| `3073` | El XML no contiene el tag o no existe informacion de codigo de motivo de cargo/descuento por item. | Sí | Sí |
+| `3074` | El monto del cargo para el para FISE debe ser igual mayor a 0.00 | Sí | Sí |
+| `3088` | El valor ingresado como moneda del comprobante no es valido (catalogo nro 02). | Sí | Sí |
+| `3089` | El XML contiene mas de un tag como elemento de numero de documento del emisor | Sí | Sí |
+| `3090` | El XML contiene mas de un tag como elemento de numero de documento del receptor. | Sí | Sí |
+| `3092` | Para cargo/descuento FISE, debe ingresar monto base y debe ser mayor a 0.00 | Sí | Sí |
+| `3093` | Si operación es sujeta a percepción y la forma de pago es Contado, debe ingresar cargo para Percepción | Sí | Sí |
+| `3098` | El XML no contiene el tag o no existe información del pais de uso, exploración o aprovechamiento | Sí | Sí |
+| `3099` | El dato ingresado como pais de uso, exploracion o aprovechamiento es incorrecto. | Sí | Sí |
+| `3102` | El dato ingresado como factor de afectacion por linea no cumple con el formato establecido. | Sí | Sí |
+| `3103` | El producto del factor y monto base de la afectación del IGV/IVAP no corresponde al monto de afectacion de linea. | Sí | Sí |
+| `3104` | El factor de afectación de ISC por linea debe ser diferente a 0.00. | Sí | Sí |
+| `3105` | El XML debe contener al menos un tributo por linea de afectacion por IGV | Sí | Sí |
+| `3107` | El dato ingresado como codigo de tributo global es invalido para tipo de operación. | Sí | Sí |
+| `3108` | El producto del factor y monto base de la afectación del ISC no corresponde al monto de afectacion de linea. | Sí | Sí |
+| `3109` | El producto del factor y monto base de la afectación de otros tributos no corresponde al monto de afectacion de linea. | Sí | Sí |
+| `3110` | El monto de afectacion de IGV por linea debe ser igual a 0.00 para Exoneradas, Inafectas, Exportación, Gratuitas de exoneradas o Gratuitas de inafectas. | Sí | Sí |
+| `3111` | El monto de afectación de IGV por linea debe ser diferente a 0.00. | Sí | Sí |
+| `3114` | El dato ingresado como indicador de cargo/descuento no corresponde al valor esperado. | Sí | Sí |
+| `3115` | El dato ingresado como unidad de medida de cantidad de especie vendidas no corresponde al valor esperado. | Sí | Sí |
+| `3117` | El XML no contiene el tag o no existe información de la dirección del punto de origen en Detracciones - Servicio de transporte de carga. | Sí | Sí |
+| `3118` | El XML no contiene el tag o no existe información del ubigeo de punto de destino en Detracciones - Servicio de transporte de carga. | Sí | Sí |
+| `3119` | El XML no contiene el tag o no existe información de la dirección del punto de destino en Detracciones - Servicio de transporte de carga. | Sí | Sí |
+| `3120` | El XML no contiene el tag o no existe información del Detalle del viaje en Detracciones - Servicio de transporte de carga. | Sí | Sí |
+| `3122` | El XML no contiene el tag o no existe información del monto del valor referencial en Detracciones - Servicios de transporte de carga. | Sí | Sí |
+| `3123` | El dato ingresado como monto valor referencial en Detracciones - Servicios de transporte de carga no cumple con el formato establecido. | Sí | Sí |
+| `3124` | Detracciones - Servicio de transporte de carga, debe tener un (y solo uno) Valor Referencial del Servicio de Transporte. | Sí | Sí |
+| `3125` | Detracciones - Servicio de transporte de carga, debe tener un (y solo uno) Valor Referencial sobre la carga efectiva. | Sí | Sí |
+| `3126` | Detracciones - Servicio de transporte de carga, debe tener un (y solo uno) Valor Referencial sobre la carga util nominal. | Sí | Sí |
+| `3127` | El XML no contiene el tag o no existe información del Codigo de BBSS de detracción para el tipo de operación. | Sí | Sí |
+| `3128` | El XML contiene información de codigo de bien y servicio de detracción que no corresponde al tipo de operación. | Sí | No |
+| `3129` | El dato ingresado como codigo de BBSS de detracción no corresponde al valor esperado. | Sí | Sí |
+| `3130` | El XML no contiene el tag de nombre de embarcación en Detracciones para recursos hidrobiologicos. | Sí | Sí |
+| `3131` | El XML no contiene el tag de tipo de especie vendidas en Detracciones para recursos hidrobiologicos. | Sí | Sí |
+| `3132` | El XML no contiene el tag de lugar de descarga en Detracciones para recursos hidrobiologicos. | Sí | Sí |
+| `3133` | El XML no contiene el tag de cantidad de especies vendidas en Detracciones para recursos hidrobiologicos. | Sí | Sí |
+| `3135` | El XML no contiene tag de la cantidad del concepto por linea. | Sí | Sí |
+| `3136` | El XML no contiene el tag de numero de documentos del huesped. | Sí | Sí |
+| `3137` | El XML no contiene el tag de tipo de documentos del huesped. | Sí | Sí |
+| `3138` | El XML no contiene el tag de codigo de pais de emision del documento de identidad | Sí | Sí |
+| `3139` | El XML no contiene el tag de apellidos y nombres del huesped. | Sí | Sí |
+| `3140` | El XML no contiene el tag de codigo del pais de residencia. | Sí | Sí |
+| `3141` | El XML no contiene el tag de fecha de ingreso del pais. | Sí | Sí |
+| `3142` | El XML no contiene el tag de fecha de ingreso al establecimiento. | Sí | Sí |
+| `3143` | El XML no contiene el tag de fecha de salida del establecimiento. | Sí | Sí |
+| `3144` | El XML no contiene el tag de fecha de consumo. | Sí | Sí |
+| `3145` | El XML no contiene el tag de numero de dias de permanencia. | Sí | Sí |
+| `3146` | El XML no contiene el tag de Proveedores Estado: Número de Expediente | Sí | Sí |
+| `3147` | El XML no contiene el tag de Proveedores Estado: Código de Unidad Ejecutora | Sí | Sí |
+| `3148` | El XML no contiene el tag de Proveedores Estado: N° de Proceso de Selección | Sí | Sí |
+| `3149` | El XML no contiene el tag de Proveedores Estado: N° de Contrato | Sí | Sí |
+| `3151` | El XML no contiene el tag de Créditos Hipotecarios: Partida Registral | Sí | Sí |
+| `3152` | El XML no contiene el tag de Créditos Hipotecarios: Número de contrato | Sí | Sí |
+| `3153` | El XML no contiene el tag de Créditos Hipotecarios: Fecha de otorgamiento del crédito | Sí | Sí |
+| `3154` | El XML no contiene el tag de Créditos Hipotecarios: Dirección del predio - Código de ubigeo | Sí | Sí |
+| `3155` | El XML no contiene el tag de Créditos Hipotecarios: Dirección del predio - Dirección completa | Sí | Sí |
+| `3156` | El XML no contiene el tag de BVME transporte ferroviario: Agente de Viajes: Numero de Ruc | Sí | Sí |
+| `3157` | El XML no contiene el tag de BVME transporte ferroviario: Agente de Viajes: Tipo de documento | Sí | Sí |
+| `3158` | El dato ingresado como Agente de Viajes-Tipo de documento no corresponde al valor esperado. | Sí | Sí |
+| `3159` | El XML no contiene el tag de BVME transporte ferroviario: Pasajero - Apellidos y Nombres | Sí | Sí |
+| `3160` | El XML no contiene el tag de BVME transporte ferroviario: Pasajero - Tipo de documento de identidad | Sí | Sí |
+| `3161` | El XML no contiene el tag de BVME transporte ferroviario: Servicio transporte: Ciudad o lugar de origen - Código de ubigeo | Sí | Sí |
+| `3162` | El XML no contiene el tag de BVME transporte ferroviario: Servicio transporte: Ciudad o lugar de origen - Dirección detallada | Sí | Sí |
+| `3163` | El XML no contiene el tag de BVME transporte ferroviario: Servicio transporte: Ciudad o lugar de destino - Código de ubigeo | Sí | Sí |
+| `3164` | El XML no contiene el tag de BVME transporte ferroviario: Servicio transporte: Ciudad o lugar de destino - Dirección detallada | Sí | Sí |
+| `3165` | El XML no contiene el tag de BVME transporte ferroviario: Servicio transporte:Número de asiento | Sí | Sí |
+| `3166` | El XML no contiene el tag de BVME transporte ferroviario: Servicio transporte: Hora programada de inicio de viaje | Sí | Sí |
+| `3167` | El XML no contiene el tag de BVME transporte ferroviario: Servicio transporte: Fecha programada de inicio de viaje | Sí | Sí |
+| `3168` | El XML no contiene el tag de Carta Porte Aéreo:  Lugar de origen - Código de ubigeo | Sí | Sí |
+| `3169` | El XML no contiene el tag de Carta Porte Aéreo:  Lugar de origen - Dirección detallada | Sí | Sí |
+| `3170` | El XML no contiene el tag de Carta Porte Aéreo:  Lugar de destino - Código de ubigeo | Sí | Sí |
+| `3171` | El XML no contiene el tag de Carta Porte Aéreo:  Lugar de destino - Dirección detallada | Sí | Sí |
+| `3172` | El XML no contiene tag de la Hora del concepto por linea. | Sí | Sí |
+| `3173` | El XML no contiene el tag de BVME transporte ferroviario: Servicio transporte: Forma de Pago | Sí | Sí |
+| `3175` | El XML no contiene el tag de BVME transporte ferroviario: Servicio de transporte: Número de autorización de la transacción | Sí | Sí |
+| `3195` | El xml no contiene el tag de impuesto por linea (TaxtTotal). | Sí | Sí |
+| `3204` | El XML no contiene el tag de BVME transporte ferroviario: Pasajero - Número de documento de identidad | Sí | Sí |
+| `3205` | Debe consignar el tipo de operación | Sí | Sí |
+| `3206` | El dato ingresado como tipo de operación no corresponde a un valor esperado (catálogo nro. 51) | Sí | Sí |
+| `3208` | La moneda del monto de la detracción debe ser PEN | Sí | Sí |
+| `3210` | Solo debe consignar sistema de calculo si el tributo es ISC | Sí | Sí |
+| `3211` | Falta identificador del pago del Monto de anticipo para relacionarlo con el comprobante que se realizo el  anticipo | Sí | Sí |
+| `3212` | El comprobante contiene un identificador de pago repetido en los montos anticipados | Sí | Sí |
+| `3213` | El comprobante contiene un pago anticipado pero no se ha consignado el documento que se realizo el anticipo | Sí | Sí |
+| `3214` | No existe información del Monto Anticipado para el comprobante que se realizo el anticipo | Sí | Sí |
+| `3215` | El comprobante contiene un identificador de pago repetido en los comprobantes que se realizo el anticipo | Sí | Sí |
+| `3216` | Falta identificador del pago del comprobante para relacionarlo con el monto de  anticipo | Sí | Sí |
+| `3217` | Debe consignar Numero de RUC del emisor del comprobante de anticipo | Sí | Sí |
+| `3220` | Si consigna montos de anticipo debe informar el Total de Anticipos | Sí | Sí |
+| `3223` | La combinación de tributos no es permitida | Sí | Sí |
+| `3224` | Si existe 'Valor referencial unitario en operac. no onerosas' con monto mayor a cero, la operacion debe ser gratuita (codigo de tributo 9996) | Sí | Sí |
+| `3233` | Para cargo Percepción, debe ingresar monto base y debe ser mayor a 0.00 | Sí | Sí |
+| `3234` | El código de precio '02' es sólo para operaciones gratuitas | Sí | Sí |
+| `3236` | El valor ingresado en el campo cac:TaxSubtotal/cbc:BaseUnitMeasure no corresponde al valor esperado | Sí | Sí |
+| `3237` | Debe consignar el campo cac:TaxSubtotal/cbc:BaseUnitMeasure a nivel de ítem | Sí | Sí |
+| `3238` | El valor ingresado en el campo cac:TaxSubtotal/cbc:PerUnitAmount del ítem no corresponde al valor esperado | Sí | Sí |
+| `3241` | Para el tipo de operación 2100, 2101 y 2102 (Creditos) debe consignar Numero de contrato, Fecha de otorgamiento y Monto del crédito otorgado (capital) | Sí | Sí |
+| `3242` | Para el tipo de operación 2104 - Empresas del sistema de seguros, debe consignar Información adicional  a nivel de ítem | Sí | Sí |
+| `3243` | El XML no contiene tag o no existe información de la fecha del concepto por linea | Sí | Sí |
+| `3244` | Debe consignar la informacion del tipo de transaccion del comprobante | Sí | Sí |
+| `3245` | Debe informar si el tipo de transaccion es al Contado o al Credito | Sí | Sí |
+| `3246` | El tipo de transaccion o el identificador de la cuota no cumple con el formato esperado | Sí | Sí |
+| `3247` | El tipo de transaccion no puede ser a la vez al Contado y al Credito | Sí | Sí |
+| `3248` | El tipo de transaccion o el identificador de la cuota no debe repetirse en el comprobante | Sí | Sí |
+| `3249` | Si el tipo de transaccion es al Credito debe existir al menos información de una cuota de pago | Sí | Sí |
+| `3250` | El Monto neto pendiente de pago no cumple el formato definido | Sí | Sí |
+| `3251` | Si el tipo de transaccion es al Credito debe consignarse el Monto neto pendiente de pago | Sí | Sí |
+| `3252` | Si existe información de cuota de pago, el tipo de transaccion debe ser al credito | Sí | Sí |
+| `3253` | El Monto del pago único o de las cuotas no cumple el formato definido | Sí | Sí |
+| `3254` | Si se consigna información de la cuota de pago, debe indicarse el monto de la cuota | Sí | Sí |
+| `3255` | Fecha del pago único o de las cuotas no cumple el formato definido | Sí | Sí |
+| `3256` | Si se consigna información de la cuota de pago, debe indicarse la fecha del pago único o de las cuotas | Sí | Sí |
+| `3262` | Si existe retencion de IGV en el comprobante, el receptor debe ser un Agente de Retencion | Sí | Sí |
+| `3263` | El Importe de la retencion no tiene el valor correcto | Sí | Sí |
+| `3264` | El importe total de la operación (base imponible de retencion) no puede ser mayor al importe total del comprobante. | Sí | Sí |
+| `3265` | El Monto neto pendiente de pago debe ser menor o igual al Importe total del comprobante | Sí | Sí |
+| `3266` | El Monto del pago único o de las cuotas debe ser menor o igual al Importe total del comprobante | Sí | Sí |
+| `3267` | Fecha del pago único o de las cuotas no puede ser anterior o igual a la fecha de emisión del comprobante | Sí | Sí |
+| `3270` | El precio unitario de la operación que está informando difiere de los cálculos realizados en base a la información remitida | Sí | Sí |
+| `3271` | El valor de venta por ítem difiere de los importes consignados. | Sí | Sí |
+| `3272` | La base imponible a nivel de línea difiere de la información consignada en el comprobante | Sí | Sí |
+| `3273` | La sumatoria del total valor de venta - Exportaciones de línea no corresponden al total | Sí | Sí |
+| `3274` | La sumatoria del total valor de venta - operaciones inafectas de línea no corresponden al total | Sí | Sí |
+| `3275` | La sumatoria del total valor de venta - operaciones exoneradas de línea no corresponden al total | Sí | Sí |
+| `3276` | La sumatoria del total valor de venta - operaciones gratuitas de línea no corresponden al total | Sí | Sí |
+| `3277` | La sumatoria del total valor de venta - operaciones gravadas de línea no corresponden al total | Sí | Sí |
+| `3278` | La sumatoria de valor de venta no corresponde a los importes consignados | Sí | Sí |
+| `3279` | La sumatoria del Total del valor de venta más los impuestos no concuerda con la base imponible | Sí | Sí |
+| `3280` | El importe total del comprobante no coincide con el valor calculado | Sí | Sí |
+| `3282` | Si se informa descuentos globales por anticipo debe existir 'Total de anticipos' con monto mayor a cero | Sí | Sí |
+| `3287` | Si se informa 'Total de anticipos' debe consignar los descuentos globales por anticipo con monto mayor a cero | Sí | Sí |
+| `3288` | Debe consignar el Total Valor de Venta | Sí | Sí |
+| `3290` | El valor de cargo/descuento por ítem difiere de los importes consignados. | Sí | Sí |
+| `3291` | El cálculo del IGV es Incorrecto | Sí | Sí |
+| `3292` | El importe total de impuestos por línea no coincide con la sumatoria de los impuestos por línea. | Sí | Sí |
+| `3293` | La sumatoria del total valor de venta - IVAP de línea no corresponden al total | Sí | Sí |
+| `3294` | La sumatoria de impuestos globales no corresponde al monto total de impuestos. | Sí | Sí |
+| `3295` | El importe del IVAP no corresponden al determinado por la informacion consignada. | Sí | Sí |
+| `3296` | La sumatoria del monto base - ISC de línea no corresponden al total | Sí | Sí |
+| `3297` | La sumatoria del monto base - Otros tributos de línea no corresponden al total | Sí | Sí |
+| `3298` | La sumatoria del total del importe del tributo ISC de línea no corresponden al total | Sí | Sí |
+| `3299` | La sumatoria del total del importe del tributo Otros tributos de línea no corresponden al total | Sí | Sí |
+| `3300` | La sumatoria consignados en descuentos globales no corresponden al total. | Sí | Sí |
+| `3301` | La sumatoria consignados en cargos globales no corresponden al total | Sí | Sí |
+| `3302` | La sumatoria de los IGV de operaciones gratuitas de la línea (codigo tributo 9996) no corresponden al total | Sí | Sí |
+| `3303` | El monto para el redondeo del Importe Total excede el valor permitido | Sí | Sí |
+| `3305` | Debe consignar el Total Precio de Venta | Sí | Sí |
+| `3306` | La sumatoria del total del importe del tributo ICBPER de línea no corresponden al total | Sí | Sí |
+| `3307` | El valor de cargo/descuento global difiere de los importes consignados | Sí | Sí |
+| `3308` | Solo debe consignar informacion de percepciones si el tipo de operación es 2001-Operación sujeta a Percepcion | Sí | Sí |
+| `3309` | Si forma de pago es Contado debe consignar un Payment Terms con indicador Percepcion | Sí | Sí |
+| `3310` | Debe consignar el Monto total incluido la percepcion | Sí | Sí |
+| `3311` | El Monto total incluido la percepción no cumple con el formato establecido | Sí | Sí |
+| `3316` | Si el tipo de operación es 2002, debe informar los datos de la retención de segunda categoria | Sí | Sí |
+| `3317` | Si consigna infomacion de la retencion de segunda categoria, el tipo de operacion debe ser 2002 | Sí | Sí |
+| `3318` | Debe consignar la base de la retencion de segunda categoria | Sí | Sí |
+| `3319` | La suma de las cuotas debe ser igual al Monto neto pendiente de pago. | Sí | Sí |
+| `3330` | Solo debe consignar información de percepciones si la forma de pago es "Contado" | Sí | Sí |
+| `3461` | La forma de pago y/o número de cuota no pueden estar contenidos en el mismo cac:PaymentTerms | Sí | Sí |
+| `3462` | La tasa del IGV debe ser la misma en todas las líneas o ítems del documento y debe corresponder con una tasa vigente. | Sí | No |
+| `3497` | El tipo de contrato debe ser 1-ventas o 2-adquisiciones | Sí | Sí |
+| `3498` | No se permite mas de un numero de contrato de colaboracion empresarial | Sí | Sí |
+| `3499` | Si informa Numero de contrato, debe consignar el Tipo de contrato, la Descripcion de contrato y el Porcentaje de participacion | Sí | Sí |
+| `3500` | El Porcentaje de participacion no cumple con el formato o longitud especificada | Sí | Sí |
+| `3501` | El Numero del contrato de colaboracion empresarial no cumple el formato o longitud establecida | Sí | Sí |
+| `3502` | La Descripcion del contrato de colaboracion empresarial no cumple el formato o longitud establecida | Sí | Sí |
 
-| Código | Descripción |
-|--------|-------------|
-| 1079 | Solo puede enviar el comprobante en un resumen diario |
+#### Fuera de alcance en Invoice
 
-## VoidedDocuments
+| Código | Descripción | Motivo |
+|---|---|---|
+| `0100` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0109` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0111` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0151` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0154` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0155` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0156` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0157` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0158` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0160` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0161` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0306` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `1032` | El comprobante ya esta informado y se encuentra con estado anulado o rechazado | Depende del estado del comprobante en SUNAT. |
+| `1033` | El comprobante fue registrado previamente con otros datos | Requiere información externa no disponible localmente. |
+| `1034` | Número de RUC del nombre del archivo no coincide con el consignado en el contenido del archivo XML | Depende del nombre del archivo/XML. |
+| `1035` | Numero de Serie del nombre del archivo no coincide con el consignado en el contenido del archivo XML | Depende del nombre del archivo/XML. |
+| `1036` | Número de documento en el nombre del archivo no coincide con el consignado en el contenido del XML | Depende del nombre del archivo/XML. |
+| `1078` | El emisor no se encuentra autorizado a emitir en el SEE-Desde los sistemas del contribuyente | Requiere información externa no disponible localmente. |
+| `1079` | Solo puede enviar el comprobante en un resumen diario | Requiere información externa no disponible localmente. |
+| `1080` | Debe enviar su comprobante por el SEE-Empresas supervisadas | Depende del padrón SEE-Empresas supervisadas. |
+| `1083` | El numero de RUC del receptor no existe | Requiere información externa no disponible localmente. |
+| `1084` | Comprobante de contingencia ya fue informado por su resumen, si desea modificarse debe realizarse por su primer canal de presentación | Requiere información externa no disponible localmente. |
+| `1086` | El emisor electronico es un Sujeto sin capacidad operativa (SSCO) | Requiere información externa no disponible localmente. |
+| `2010` | El contribuyente no esta activo | Requiere información externa no disponible localmente. |
+| `2011` | El contribuyente no esta habido | Requiere información externa no disponible localmente. |
+| `2036` | El codigo del tributo es invalido | Requiere información externa no disponible localmente. |
+| `2040` | El tipo de afectacion del IGV es incorrecto | Requiere información externa no disponible localmente. |
+| `2041` | El sistema de calculo del ISC es incorrecto | Requiere información externa no disponible localmente. |
+| `2108` | Presentacion fuera de fecha | Requiere información externa no disponible localmente. |
+| `2329` | La fecha de emision se encuentra fuera del limite permitido | Requiere información externa no disponible localmente. |
+| `2377` | El Name o TaxTypeCode debe corresponder al codigo de tributo del item | Requiere información externa no disponible localmente. |
+| `2505` | Código de documento de referencia debe ser 02 o 03. | Requiere información externa no disponible localmente. |
+| `2520` | El tipo documento del emisor que realiza el anticipo debe ser 6 del catalogo de tipo de documento. | Requiere información externa no disponible localmente. |
+| `2529` | RUC que emitio documento de anticipo no existe. | Requiere información externa no disponible localmente. |
+| `2788` | El dato ingresado en moneda debe ser PEN | Requiere información externa no disponible localmente. |
+| `2792` | El dato ingresado en moneda del monto de cargo/descuento para percepcion debe ser PEN | Requiere información externa no disponible localmente. |
+| `2798` | El Monto de percepcion no tiene el valor correcto según el tipo de percepcion. | Requiere información externa no disponible localmente. |
+| `2800` | El dato ingresado en el tipo de documento de identidad del receptor no esta permitido. | Requiere información externa no disponible localmente. |
+| `2961` | El valor del tag codigo de tributo internacional no corresponde al esperado. | Requiere información externa no disponible localmente. |
+| `2964` | El valor del tag nombre del tributo no corresponde al esperado. | Requiere información externa no disponible localmente. |
+| `3007` | El dato ingresado como codigo de tributo global no corresponde al valor esperado. | Requiere información externa no disponible localmente. |
+| `3027` | El valor del atributo no se encuentra en el catálogo | Requiere información externa no disponible localmente. |
+| `3033` | El codigo de bien o servicio sujeto a detracción no existe en el listado. | Requiere consulta a listados o padrones SUNAT. |
+| `3071` | El dato ingresado como codigo de motivo de cargo/descuento global no es valido (catalogo nro 53) | Requiere información externa no disponible localmente. |
+| `3097` | El emisor a la fecha no se encuentra registrado ó habilitado en el Registro de exportadores de servicios SUNAT | Requiere información externa no disponible localmente. |
+| `3116` | El XML no contiene el tag o no existe información del ubigeo de punto de origen en Detracciones - Servicio de transporte de carga. | Requiere información externa no disponible localmente. |
+| `3134` | El XML no contiene el tag de fecha de descarga en Detracciones para recursos hidrobiologicos. | Requiere información externa no disponible localmente. |
+| `3150` | El XML no contiene el tag de Créditos Hipotecarios: Tipo de préstamo | Requiere información externa no disponible localmente. |
+| `3174` | El dato ingreso como Forma de Pago o Medio de Pago no corresponde al valor esperado (catalogo nro 59) | Requiere información externa no disponible localmente. |
+| `3181` | El dato ingresado como Codigo de producto SUNAT no corresponde al valor esperado para tipo de operación. | Requiere listado/código SUNAT. |
+| `3207` | Comprobante físico no se encuentra autorizado | Requiere información externa no disponible localmente. |
+| `3218` | El comprobante que se realizo el anticipo no existe | Requiere información externa no disponible localmente. |
+| `3219` | El comprobante que se realizo el anticipo no se encuentra autorizado | Requiere información externa no disponible localmente. |
+| `3239` | El código de local anexo consignado no se encuentra declarado en el RUC | Requiere información externa no disponible localmente. |
+| `3240` | El impuesto ICBPER no aplica para el NRUS | Requiere información externa no disponible localmente. |
+| `3269` | Si existe retencion de IGV en el comprobante, el emisor no debe ser un Agente de Retencion | Requiere información externa no disponible localmente. |
+| `3281` | El emisor electrónico no se encuentra inscrito en el Registro de Establecimientos Autorizados (REA) | Requiere información externa no disponible localmente. |
+| `3283` | Si se utiliza la leyenda con código 2001, el total de operaciones exoneradas debe ser mayor a 0.00 | Requiere información externa no disponible localmente. |
+| `3284` | Si se utiliza la leyenda con código 2002, el total de operaciones exoneradas debe ser mayor a 0.00 | Requiere información externa no disponible localmente. |
+| `3285` | Si se utiliza la leyenda con código 2003, el total de operaciones exoneradas debe ser mayor a 0.00 | Requiere información externa no disponible localmente. |
+| `3289` | Si se utiliza la leyenda con código 2008, el total de operaciones exoneradas debe ser mayor a 0.00 | Requiere información externa no disponible localmente. |
+| `3496` | El Código producto de SUNAT no es válido | Requiere listado/código SUNAT. |
 
-- **Implementadas**: 30
-- **Con test**: 30
-- **Fuera de alcance**: 0
+### Perception
 
-| Código | Descripción | Test |
-|--------|-------------|------|
-| 0127 |  | Sí |
-| 1034 | Número de RUC del nombre del archivo no coincide con el consignado en el contenido del archivo XML | Sí |
-| 2072 | CustomizationID - La versión del documento no es la correcta | Sí |
-| 2074 | UBLVersionID - La versión del UBL no es correcta | Sí |
-| 2075 | El XML no contiene el tag o no existe informacion de UBLVersionID | Sí |
-| 2105 |  | Sí |
-| 2220 |  | Sí |
-| 2228 |  | Sí |
-| 2229 |  | Sí |
-| 2287 |  | Sí |
-| 2288 |  | Sí |
-| 2301 |  | Sí |
-| 2305 |  | Sí |
-| 2306 |  | Sí |
-| 2307 |  | Sí |
-| 2308 |  | Sí |
-| 2309 |  | Sí |
-| 2310 |  | Sí |
-| 2311 |  | Sí |
-| 2312 |  | Sí |
-| 2313 |  | Sí |
-| 2315 |  | Sí |
-| 2323 |  | Sí |
-| 2346 |  | Sí |
-| 2348 |  | Sí |
-| 2375 |  | Sí |
-| 2398 |  | Sí |
-| 2581 |  | Sí |
-| 2671 |  | Sí |
-| 2752 | El número de ítem no puede estar duplicado. | Sí |
+- **Total ERROR**: 68 | **Implementadas**: 53 | **Con test**: 53 | **Fuera de alcance**: 27 | **Pendientes**: 0
 
-## SummaryDocuments
+| Código | Descripción | Implementada | Test |
+|---|---|:---:|:---:|
+| `1001` | ID - El dato SERIE-CORRELATIVO no cumple con el formato de acuerdo al tipo de comprobante | Sí | Sí |
+| `1037` | El XML no contiene el tag o no existe informacion de RegistrationName del emisor del documento | Sí | Sí |
+| `1038` | RegistrationName - El nombre o razon social del emisor no cumple con el estandar | Sí | Sí |
+| `2110` | UBLVersionID - La versión del UBL no es correcta | Sí | Sí |
+| `2111` | El XML no contiene el tag o no existe informacion de UBLVersionID | Sí | Sí |
+| `2112` | CustomizationID - La version del documento no es correcta | Sí | Sí |
+| `2113` | El XML no contiene el tag o no existe informacion de CustomizationID | Sí | Sí |
+| `2133` | RegistrationName -  El dato ingresado no cumple con el estandar | Sí | Sí |
+| `2134` | El XML no contiene el tag o no existe informacion de RegistrationName del receptor del documento | Sí | Sí |
+| `2511` | El tipo de documento no es aceptado. | Sí | Sí |
+| `2516` | Debe indicar tipo de documento. | Sí | Sí |
+| `2548` | El valor del país inválido. | Sí | Sí |
+| `2604` | El Cliente no puede ser el mismo que el Emisor del comprobante de percepción. | Sí | Sí |
+| `2607` | La moneda del importe de cobro debe ser la misma que la del documento relacionado. | Sí | Sí |
+| `2608` | Los montos de pago, percibidos y montos cobrados consignados para el documento relacionado no son correctos. | Sí | Sí |
+| `2612` | La fecha de cobro debe estar entre el primer día calendario del mes al cual corresponde la fecha de emisión del comprobante de percepción o desde la fecha de emisión del comprobante relacionado. | Sí | Sí |
+| `2626` | El Nro. de documento con el número de pago ya se encuentra en la Relación de Documentos Relacionados agregados. | Sí | Sí |
+| `2659` | La fecha de cobro de cada documento relacionado deben ser del mismo Periodo (mm/aaaa), asimismo estas fechas podrán ser menores o iguales a la fecha de emisión del comprobante de percepción | Sí | Sí |
+| `2667` | Importe total percibido debe ser igual a la suma de los importes percibidos por cada documento relacionado. | Sí | Sí |
+| `2668` | Importe total cobrado debe ser igual a la suma de los importes cobrados por cada documento relacionado. | Sí | Sí |
+| `2669` | El dato ingresado en TotalInvoiceAmount debe ser numérico mayor a cero | Sí | Sí |
+| `2678` | El XML no contiene el atributo o no existe información del tipo de documento del emisor | Sí | Sí |
+| `2679` | El XML no contiene el tag o no existe información del número de documento de identidad del cliente | Sí | Sí |
+| `2680` | El valor ingresado como documento de identidad del cliente es incorrecto | Sí | Sí |
+| `2685` | El valor de la moneda del Importe total Percibido debe ser PEN | Sí | Sí |
+| `2687` | El dato ingresado en SUNATTotalCashed debe ser numérico mayor a cero | Sí | Sí |
+| `2690` | El valor de la moneda del Importe total Cobrado debe ser PEN | Sí | Sí |
+| `2691` | El XML no contiene el tag o no existe información del tipo de documento relacionado | Sí | Sí |
+| `2692` | El tipo de documento relacionado no es válido | Sí | Sí |
+| `2693` | El XML no contiene el tag o no existe información del número de documento relacionado | Sí | Sí |
+| `2694` | El número de documento relacionado no está permitido o no es valido | Sí | Sí |
+| `2696` | El dato ingresado en el importe total documento relacionado debe ser numérico mayor a cero | Sí | Sí |
+| `2697` | El XML no contiene el tag o no existe información del número de cobro | Sí | Sí |
+| `2698` | El dato ingresado en el número de cobro no es válido | Sí | Sí |
+| `2699` | El XML no contiene el tag o no existe información del Importe del cobro | Sí | Sí |
+| `2700` | El dato ingresado en el Importe del cobro debe ser numérico mayor a cero | Sí | Sí |
+| `2702` | El XML no contiene el tag o no existe información de la fecha de cobro del documento Relacionado | Sí | Sí |
+| `2705` | El dato ingresado en el Importe percibido debe ser numérico mayor a cero | Sí | Sí |
+| `2707` | El valor de la moneda de importe percibido debe ser PEN | Sí | Sí |
+| `2711` | El dato ingresado en el Monto total a cobrar debe ser numérico mayor a cero | Sí | Sí |
+| `2713` | El valor de la moneda del Monto total a cobrar debe ser PEN | Sí | Sí |
+| `2715` | El valor de la moneda objetivo para la Tasa de Cambio debe ser PEN | Sí | Sí |
+| `2716` | El dato ingresado en el tipo de cambio debe ser numérico mayor a cero | Sí | Sí |
+| `2719` | El XML no contiene el tag o no existe información de la moneda de referencia para el tipo de cambio | Sí | Sí |
+| `2721` | El XML no contiene el tag o no existe información del tipo de cambio | Sí | Sí |
+| `2722` | El XML no contiene el tag o no existe información de la fecha de cambio | Sí | Sí |
+| `2749` | La moneda de referencia para el tipo de cambio debe ser la misma que la del documento relacionado | Sí | Sí |
+| `3303` | El monto para el redondeo del Importe Total excede el valor permitido | Sí | Sí |
+| `3304` | La moneda del monto para el redondeo debe ser PEN | Sí | Sí |
+| `3322` | El valor debe ser 01 que corresponde a Emisión de Percepción Excepcional | Sí | Sí |
+| `3323` | Solo se permite 1 documento relacionado cuando el Indicador de emisión excepcional es '01' | Sí | Sí |
+| `3324` | Solo se permite '01' para el Tipo de documento relacionado cuando el valor del Indicador de emisión excepcional es '01' | Sí | Sí |
+| `3327` | No esta permitido referenciar el Código del régimen de percepción con el regimen del documento relacionado. | Sí | Sí |
 
-- **Implementadas**: 63
-- **Con test**: 63
-- **Fuera de alcance**: 0
+#### Fuera de alcance en Perception
 
-| Código | Descripción | Test |
-|--------|-------------|------|
-| 1034 | Número de RUC del nombre del archivo no coincide con el consignado en el contenido del archivo XML | Sí |
-| 2014 | El XML no contiene el tag o no existe informacion del número de documento de identidad del receptor del documento | Sí |
-| 2015 | El XML no contiene el tag o no existe informacion del tipo de documento de identidad del receptor del documento | Sí |
-| 2017 | El numero de documento de identidad del receptor debe ser RUC | Sí |
-| 2022 | RegistrationName - El dato ingresado no cumple con el estandar | Sí |
-| 2048 | El dato ingresado en TaxAmount no cumple con el formato establecido | Sí |
-| 2071 | La moneda debe ser la misma en todo el documento. Salvo las percepciones que sólo son en moneda nacional | Sí |
-| 2072 | CustomizationID - La versión del documento no es la correcta | Sí |
-| 2074 | UBLVersionID - La versión del UBL no es correcta | Sí |
-| 2075 | El XML no contiene el tag o no existe informacion de UBLVersionID | Sí |
-| 2218 |  | Sí |
-| 2219 |  | Sí |
-| 2220 |  | Sí |
-| 2228 |  | Sí |
-| 2229 |  | Sí |
-| 2236 |  | Sí |
-| 2238 |  | Sí |
-| 2239 |  | Sí |
-| 2241 |  | Sí |
-| 2242 |  | Sí |
-| 2251 |  | Sí |
-| 2254 |  | Sí |
-| 2255 |  | Sí |
-| 2257 |  | Sí |
-| 2261 |  | Sí |
-| 2263 |  | Sí |
-| 2269 |  | Sí |
-| 2271 |  | Sí |
-| 2275 |  | Sí |
-| 2276 |  | Sí |
-| 2278 |  | Sí |
-| 2344 |  | Sí |
-| 2346 |  | Sí |
-| 2355 |  | Sí |
-| 2357 |  | Sí |
-| 2411 |  | Sí |
-| 2512 |  | Sí |
-| 2513 |  | Sí |
-| 2514 |  | Sí |
-| 2522 |  | Sí |
-| 2524 |  | Sí |
-| 2582 |  | Sí |
-| 2583 |  | Sí |
-| 2605 |  | Sí |
-| 2608 |  | Sí |
-| 2671 |  | Sí |
-| 2685 |  | Sí |
-| 2690 |  | Sí |
-| 2752 | El número de ítem no puede estar duplicado. | Sí |
-| 2893 |  | Sí |
-| 2895 |  | Sí |
-| 2897 |  | Sí |
-| 2920 |  | Sí |
-| 2957 |  | Sí |
-| 2986 |  | Sí |
-| 2989 |  | Sí |
-| 2992 | El XML no contiene el tag de la tasa del tributo de la línea | Sí |
-| 3051 |  | Sí |
-| 3094 |  | Sí |
-| 3095 |  | Sí |
-| 3096 |  | Sí |
-| 3102 | El dato ingresado como factor de afectacion por linea no cumple con el formato establecido. | Sí |
-| 3504 |  | Sí |
+| Código | Descripción | Motivo |
+|---|---|---|
+| `0100` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0109` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0111` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0151` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0154` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0155` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0156` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0157` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0158` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0160` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0161` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0306` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `1033` | El comprobante fue registrado previamente con otros datos | Requiere información externa no disponible localmente. |
+| `1034` | Número de RUC del nombre del archivo no coincide con el consignado en el contenido del archivo XML | Depende del nombre del archivo/XML. |
+| `1049` | ID - Serie y Número del archivo no coincide con el consignado en el contenido del XML. | Requiere información externa no disponible localmente. |
+| `2600` | El comprobante fue enviado fuera del plazo permitido. | Requiere información externa no disponible localmente. |
+| `2602` | El régimen percepción enviado no corresponde con su condición de Agente de percepción. | Requiere información externa no disponible localmente. |
+| `2603` | La tasa de percepción enviada no corresponde con el régimen de percepción. | Requiere información externa no disponible localmente. |
+| `2605` | Número de RUC no existe. | Requiere información externa no disponible localmente. |
+| `2609` | El comprobante electrónico enviado no se encuentra registrado en la SUNAT. | Requiere información externa no disponible localmente. |
+| `2610` | La fecha de emisión, Importe total del comprobante y la moneda del comprobante electrónico enviado no son los registrados en los Sistemas de SUNAT. | Requiere información externa no disponible localmente. |
+| `3207` | Comprobante físico no se encuentra autorizado | Requiere información externa no disponible localmente. |
+| `3312` | El documento relacionado tiene monto informado de percepción | Requiere información externa no disponible localmente. |
+| `3325` | Se permite emitir comprobante de percepción excepcional cuando el documento de referencia es al contado. | Requiere información externa no disponible localmente. |
+| `3326` | Solo se permite referenciar siempre y cuando el comprobante de percepción excepcional en el que se referencia al documento relacionado haya sido revertido. | Requiere información externa no disponible localmente. |
+| `3328` | La boleta de venta relacionada tiene monto informado de percepción. | Requiere información externa no disponible localmente. |
+| `3329` | Se permite emitir comprobante de percepción (no excepcional) cuando documento de referencia es al crédito o no tiene indicador de forma de pago. | Requiere información externa no disponible localmente. |
 
-## Perception
+### Retention
 
-- **Implementadas**: 52
-- **Con test**: 52
-- **Fuera de alcance**: 11
+- **Total ERROR**: 59 | **Implementadas**: 51 | **Con test**: 50 | **Fuera de alcance**: 21 | **Pendientes**: 0
 
-| Código | Descripción | Test |
-|--------|-------------|------|
-| 1001 | ID - El dato SERIE-CORRELATIVO no cumple con el formato de acuerdo al tipo de comprobante | Sí |
-| 1037 | El XML no contiene el tag o no existe informacion de RegistrationName del emisor del documento | Sí |
-| 1038 |  | Sí |
-| 2110 |  | Sí |
-| 2111 |  | Sí |
-| 2112 |  | Sí |
-| 2113 |  | Sí |
-| 2133 |  | Sí |
-| 2134 |  | Sí |
-| 2511 |  | Sí |
-| 2516 |  | Sí |
-| 2548 |  | Sí |
-| 2604 |  | Sí |
-| 2607 |  | Sí |
-| 2608 |  | Sí |
-| 2612 |  | Sí |
-| 2626 |  | Sí |
-| 2659 |  | Sí |
-| 2667 |  | Sí |
-| 2668 |  | Sí |
-| 2669 |  | Sí |
-| 2678 |  | Sí |
-| 2679 |  | Sí |
-| 2680 |  | Sí |
-| 2685 |  | Sí |
-| 2687 |  | Sí |
-| 2690 |  | Sí |
-| 2691 |  | Sí |
-| 2692 |  | Sí |
-| 2693 |  | Sí |
-| 2694 |  | Sí |
-| 2696 |  | Sí |
-| 2697 |  | Sí |
-| 2698 |  | Sí |
-| 2699 |  | Sí |
-| 2700 |  | Sí |
-| 2702 |  | Sí |
-| 2705 |  | Sí |
-| 2707 |  | Sí |
-| 2711 |  | Sí |
-| 2713 |  | Sí |
-| 2715 |  | Sí |
-| 2716 |  | Sí |
-| 2719 |  | Sí |
-| 2721 |  | Sí |
-| 2722 |  | Sí |
-| 2749 |  | Sí |
-| 3303 | El monto para el redondeo del Importe Total excede el valor permitido | Sí |
-| 3304 |  | Sí |
-| 3322 |  | Sí |
-| 3323 |  | Sí |
-| 3324 |  | Sí |
+| Código | Descripción | Implementada | Test |
+|---|---|:---:|:---:|
+| `1001` | ID - El dato SERIE-CORRELATIVO no cumple con el formato de acuerdo al tipo de comprobante | Sí | Sí |
+| `1037` | El XML no contiene el tag o no existe informacion de RegistrationName del emisor del documento | Sí | Sí |
+| `1038` | RegistrationName - El nombre o razon social del emisor no cumple con el estandar | Sí | Sí |
+| `2110` | UBLVersionID - La versión del UBL no es correcta | Sí | Sí |
+| `2111` | El XML no contiene el tag o no existe informacion de UBLVersionID | Sí | Sí |
+| `2112` | CustomizationID - La version del documento no es correcta | Sí | Sí |
+| `2113` | El XML no contiene el tag o no existe informacion de CustomizationID | Sí | Sí |
+| `2133` | RegistrationName -  El dato ingresado no cumple con el estandar | Sí | Sí |
+| `2134` | El XML no contiene el tag o no existe informacion de RegistrationName del receptor del documento | Sí | Sí |
+| `2511` | El tipo de documento no es aceptado. | Sí | Sí |
+| `2516` | Debe indicar tipo de documento. | Sí | Sí |
+| `2548` | El valor del país inválido. | Sí | Sí |
+| `2620` | El Proveedor no puede ser el mismo que el Emisor del comprobante de retención. | Sí | Sí |
+| `2622` | La moneda del importe de pago debe ser la misma que la del documento relacionado. | Sí | Sí |
+| `2623` | Los montos de pago, retenidos y montos pagados consignados para el documento relacionado no son correctos. | Sí | Sí |
+| `2625` | La fecha de pago debe estar entre el primer día calendario del mes al cual corresponde la fecha de emisión del comprobante de retención o desde la fecha de emisión del comprobante relacionado. | Sí | Sí |
+| `2626` | El Nro. de documento con el número de pago ya se encuentra en la Relación de Documentos Relacionados agregados. | Sí | Sí |
+| `2628` | Importe total retenido debe ser igual a la suma de los importes retenidos por cada documento relacionado. | Sí | Sí |
+| `2629` | Importe total pagado debe ser igual a la suma de los importes pagados por cada documento relacionado. | Sí | Sí |
+| `2661` | La fecha de cobro de cada documento relacionado deben ser del mismo Periodo (mm/aaaa), asimismo estas fechas podrán ser menores o iguales a la fecha de emisión del comprobante de retencion | Sí | Sí |
+| `2669` | El dato ingresado en TotalInvoiceAmount debe ser numérico mayor a cero | Sí | Sí |
+| `2678` | El XML no contiene el atributo o no existe información del tipo de documento del emisor | Sí | Sí |
+| `2691` | El XML no contiene el tag o no existe información del tipo de documento relacionado | Sí | Sí |
+| `2692` | El tipo de documento relacionado no es válido | Sí | Sí |
+| `2693` | El XML no contiene el tag o no existe información del número de documento relacionado | Sí | Sí |
+| `2694` | El número de documento relacionado no está permitido o no es valido | Sí | Sí |
+| `2696` | El dato ingresado en el importe total documento relacionado debe ser numérico mayor a cero | Sí | Sí |
+| `2715` | El valor de la moneda objetivo para la Tasa de Cambio debe ser PEN | Sí | Sí |
+| `2716` | El dato ingresado en el tipo de cambio debe ser numérico mayor a cero | Sí | Sí |
+| `2719` | El XML no contiene el tag o no existe información de la moneda de referencia para el tipo de cambio | Sí | Sí |
+| `2721` | El XML no contiene el tag o no existe información del tipo de cambio | Sí | Sí |
+| `2722` | El XML no contiene el tag o no existe información de la fecha de cambio | Sí | Sí |
+| `2723` | El XML no contiene el tag o no existe información del número de documento de identidad del proveedor | Sí | Sí |
+| `2724` | El valor ingresado como documento de identidad del proveedor es incorrecto | Sí | Sí |
+| `2728` | El valor de la moneda del Importe total Retenido debe ser PEN | Sí | Sí |
+| `2730` | El dato ingresado en SUNATTotalPaid debe ser numérico mayor a cero | Sí | Sí |
+| `2732` | El valor de la moneda del Importe total Pagado debe ser PEN | Sí | Sí |
+| `2733` | El XML no contiene el tag o no existe información del número de pago | Sí | No |
+| `2734` | El dato ingresado en el número de pago no es válido | Sí | Sí |
+| `2735` | El XML no contiene el tag o no existe información del Importe del pago | Sí | Sí |
+| `2736` | El dato ingresado en el Importe del pago debe ser numérico mayor a cero | Sí | Sí |
+| `2737` | El XML no contiene el tag o no existe información de la fecha de pago del documento Relacionado | Sí | Sí |
+| `2740` | El dato ingresado en el Importe retenido debe ser numérico mayor a cero | Sí | Sí |
+| `2742` | El valor de la moneda de importe retenido debe ser PEN | Sí | Sí |
+| `2746` | El dato ingresado en el Importe total a pagar (neto) debe ser numérico mayor a cero | Sí | Sí |
+| `2748` | El valor de la Moneda del monto neto pagado debe ser PEN | Sí | Sí |
+| `2749` | La moneda de referencia para el tipo de cambio debe ser la misma que la del documento relacionado | Sí | Sí |
+| `2985` | Solo se acepta comprobantes con fecha de emisión hasta el 28/02/2014 si la tasa del comprobante de retencion 6% | Sí | Sí |
+| `3303` | El monto para el redondeo del Importe Total excede el valor permitido | Sí | Sí |
+| `3304` | La moneda del monto para el redondeo debe ser PEN | Sí | Sí |
 
-### Fuera de alcance en Perception
+#### Fuera de alcance en Retention
 
-| Código | Descripción |
-|--------|-------------|
-| 1001 | ID - El dato SERIE-CORRELATIVO no cumple con el formato de acuerdo al tipo de comprobante |
-| 2609 |  |
-| 2610 |  |
-| 2669 |  |
-| 2678 |  |
-| 3312 |  |
-| 3322 |  |
-| 3325 |  |
-| 3326 |  |
-| 3328 |  |
-| 3329 |  |
+| Código | Descripción | Motivo |
+|---|---|---|
+| `0100` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0109` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0111` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0151` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0154` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0155` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0156` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0157` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0158` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0160` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0161` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0306` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `1033` | El comprobante fue registrado previamente con otros datos | Requiere información externa no disponible localmente. |
+| `1034` | Número de RUC del nombre del archivo no coincide con el consignado en el contenido del archivo XML | Depende del nombre del archivo/XML. |
+| `1049` | ID - Serie y Número del archivo no coincide con el consignado en el contenido del XML. | Requiere información externa no disponible localmente. |
+| `2600` | El comprobante fue enviado fuera del plazo permitido. | Requiere información externa no disponible localmente. |
+| `2617` | Senor contribuyente a la fecha no se encuentra registrado ó habilitado con la condición de Agente de retención. | Requiere información externa no disponible localmente. |
+| `2618` | El régimen retención enviado no corresponde con su condición de Agente de retención. | Requiere información externa no disponible localmente. |
+| `2619` | La tasa de retención enviada no corresponde con el régimen de retención. | Requiere información externa no disponible localmente. |
+| `2621` | Número de RUC del Proveedor no existe. | Requiere información externa no disponible localmente. |
+| `3207` | Comprobante físico no se encuentra autorizado | Requiere información externa no disponible localmente. |
 
-## Retention
+### Signature
 
-- **Implementadas**: 37
-- **Con test**: 36
-- **Fuera de alcance**: 0
+- **Total ERROR**: 25 | **Implementadas**: 17 | **Con test**: 15 | **Fuera de alcance**: 12 | **Pendientes**: 8
 
-| Código | Descripción | Test |
-|--------|-------------|------|
-| 1001 | ID - El dato SERIE-CORRELATIVO no cumple con el formato de acuerdo al tipo de comprobante | Sí |
-| 1037 | El XML no contiene el tag o no existe informacion de RegistrationName del emisor del documento | Sí |
-| 2111 |  | Sí |
-| 2113 |  | Sí |
-| 2134 |  | Sí |
-| 2516 |  | Sí |
-| 2548 |  | Sí |
-| 2620 |  | Sí |
-| 2622 |  | Sí |
-| 2623 |  | Sí |
-| 2625 |  | Sí |
-| 2628 |  | Sí |
-| 2629 |  | Sí |
-| 2661 |  | Sí |
-| 2669 |  | Sí |
-| 2678 |  | Sí |
-| 2691 |  | Sí |
-| 2693 |  | Sí |
-| 2694 |  | Sí |
-| 2696 |  | Sí |
-| 2723 |  | Sí |
-| 2724 |  | Sí |
-| 2728 |  | Sí |
-| 2730 |  | Sí |
-| 2732 |  | Sí |
-| 2733 |  | No |
-| 2734 |  | Sí |
-| 2735 |  | Sí |
-| 2736 |  | Sí |
-| 2737 |  | Sí |
-| 2740 |  | Sí |
-| 2742 |  | Sí |
-| 2746 |  | Sí |
-| 2748 |  | Sí |
-| 2985 |  | Sí |
-| 3303 | El monto para el redondeo del Importe Total excede el valor permitido | Sí |
-| 3304 |  | Sí |
+| Código | Descripción | Implementada | Test |
+|---|---|:---:|:---:|
+| `2076` |  | No | No |
+| `2077` |  | No | No |
+| `2078` |  | No | No |
+| `2079` |  | No | No |
+| `2080` |  | No | No |
+| `2081` |  | No | No |
+| `2082` |  | No | No |
+| `2083` |  | No | No |
+| `2084` |  | Sí | Sí |
+| `2085` |  | Sí | Sí |
+| `2086` |  | Sí | Sí |
+| `2087` |  | Sí | Sí |
+| `2088` |  | Sí | Sí |
+| `2089` |  | Sí | Sí |
+| `2090` |  | Sí | Sí |
+| `2091` |  | Sí | Sí |
+| `2092` |  | Sí | Sí |
+| `2093` |  | Sí | Sí |
+| `2094` |  | Sí | No |
+| `2095` |  | Sí | Sí |
+| `2097` |  | Sí | No |
+| `2098` |  | Sí | Sí |
+| `2099` |  | Sí | Sí |
+| `2100` |  | Sí | Sí |
+| `2101` |  | Sí | Sí |
 
-## Firma digital
+#### Fuera de alcance en Signature
 
-- **Implementadas**: 25
-- **Con test**: 23
-- **Fuera de alcance**: 0
+| Código | Descripción | Motivo |
+|---|---|---|
+| `0100` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0109` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0111` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0151` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0154` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0155` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0156` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0157` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0158` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0160` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0161` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0306` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
 
-| Código | Descripción | Test |
-|--------|-------------|------|
-| 2076 |  | Sí |
-| 2077 |  | Sí |
-| 2078 |  | Sí |
-| 2079 |  | Sí |
-| 2080 |  | Sí |
-| 2081 |  | Sí |
-| 2082 |  | Sí |
-| 2083 |  | Sí |
-| 2084 |  | Sí |
-| 2085 |  | Sí |
-| 2086 |  | Sí |
-| 2087 |  | Sí |
-| 2088 |  | Sí |
-| 2089 |  | Sí |
-| 2090 |  | Sí |
-| 2091 |  | Sí |
-| 2092 |  | Sí |
-| 2093 |  | Sí |
-| 2094 |  | No |
-| 2095 |  | Sí |
-| 2097 |  | No |
-| 2098 |  | Sí |
-| 2099 |  | Sí |
-| 2100 |  | Sí |
-| 2101 |  | Sí |
+### SummaryDocuments
+
+- **Total ERROR**: 78 | **Implementadas**: 26 | **Con test**: 26 | **Fuera de alcance**: 25 | **Pendientes**: 44
+
+| Código | Descripción | Implementada | Test |
+|---|---|:---:|:---:|
+| `0127` | El ticket no existe | Sí | Sí |
+| `1034` | Número de RUC del nombre del archivo no coincide con el consignado en el contenido del archivo XML | Sí | Sí |
+| `2014` | El XML no contiene el tag o no existe informacion del número de documento de identidad del receptor del documento | No | No |
+| `2015` | El XML no contiene el tag o no existe informacion del tipo de documento de identidad del receptor del documento | No | No |
+| `2017` | El numero de documento de identidad del receptor debe ser  RUC | No | No |
+| `2022` | RegistrationName -  El dato ingresado no cumple con el estandar | No | No |
+| `2048` | El dato ingresado en TaxAmount no cumple con el formato establecido | No | No |
+| `2071` | La moneda debe ser la misma en todo el documento. Salvo las percepciones que sólo son en moneda nacional | No | No |
+| `2072` | CustomizationID - La versión del documento no es la correcta | Sí | Sí |
+| `2074` | UBLVersionID - La versión del UBL no es correcta | Sí | Sí |
+| `2075` | El XML no contiene el tag o no existe informacion de UBLVersionID | Sí | Sí |
+| `2218` | AdditionalAccountID - El dato ingresado no cumple con el estandar | Sí | Sí |
+| `2219` | El XML no contiene el tag AdditionalAccountID del emisor del documento | Sí | Sí |
+| `2220` | El ID debe coincidir con el nombre del archivo | Sí | Sí |
+| `2228` | RegistrationName - El dato ingresado no cumple con el estandar | Sí | Sí |
+| `2229` | El XML no contiene el tag RegistrationName del emisor del documento | Sí | Sí |
+| `2236` | La fecha del IssueDate no debe ser mayor a la fecha de recepción | Sí | Sí |
+| `2238` | LineID - El dato ingresado no cumple con el estandar | No | No |
+| `2239` | LineID - El dato ingresado debe ser correlativo mayor a cero | No | No |
+| `2241` | DocumentTypeCode - El valor del tipo de documento es invalido | No | No |
+| `2242` | El XML no contiene el tag DocumentTypeCode | No | No |
+| `2251` | El dato ingresado en TotalAmount debe ser numerico mayor o igual a cero | No | No |
+| `2254` | PaidAmount - El dato ingresado no cumple con el estandar | No | No |
+| `2255` | El XML no contiene el tag PaidAmount | No | No |
+| `2257` | El XML no contiene el tag InstructionID | No | No |
+| `2261` | cbc:Amount - El dato ingresado no cumple con el estandar | No | No |
+| `2263` | ChargeIndicator - El dato ingresado no cumple con el estandar | No | No |
+| `2269` | El XML no contiene el tag TaxScheme ID de Información acerca del importe total de un tipo particular de impuesto | No | No |
+| `2271` | El XML no contiene el tag TaxScheme Name de impuesto | No | No |
+| `2275` | Si el codigo de tributo es 2000, el nombre del tributo debe ser ISC | No | No |
+| `2276` | Si el codigo de tributo es 1000, el nombre del tributo debe ser IGV | No | No |
+| `2278` | Debe indicar Información acerca del importe total de IGV/IVAP | No | No |
+| `2344` | El XML no contiene el tag cac:TaxTotal/cac:TaxSubtotal/cbc:TaxAmount | No | No |
+| `2346` | La fecha de generación del resumen debe ser igual a la fecha consignada en el nombre del archivo | Sí | Sí |
+| `2355` | Debe consignar solo un elemento cac:TaxTotal a nivel de item por codigo de tributo | No | No |
+| `2357` | No debe existir un elemento sac:BillingPayment a nivel de item con el mismo valor de cbc:InstructionID | No | No |
+| `2411` | Ha consignado mas de un elemento cac:AllowanceCharge con el mismo campo cbc:ChargeIndicator | No | No |
+| `2512` | No existe información de serie o número. | No | No |
+| `2513` | Dato no cumple con formato de acuerdo al tipo de documento | No | No |
+| `2514` | No existe información de receptor de documento. | No | No |
+| `2522` | No existe información del documento del anticipo. | No | No |
+| `2524` | Debe indicar el documento afectado por la nota | No | No |
+| `2582` | Solo se debe incluir el tag de Comprobante de referencia cuando se trata de una nota de credito o debito | No | No |
+| `2583` | Debe consignar tipo de documento que modifica | No | No |
+| `2605` | Número de RUC no existe. | Sí | Sí |
+| `2608` | Los montos de pago, percibidos y montos cobrados consignados para el documento relacionado no son correctos. | No | No |
+| `2671` | La fecha de generación de la comunicación/resumen debe ser mayor o igual a la fecha de generación/emisión de los documentos | Sí | Sí |
+| `2685` | El valor de la moneda del Importe total Percibido debe ser PEN | No | No |
+| `2690` | El valor de la moneda del Importe total Cobrado debe ser PEN | No | No |
+| `2752` | El número de ítem no puede estar duplicado. | Sí | Sí |
+| `2893` | El valor no cumple con el formato establecido o es menor o igual a cero (0) | No | No |
+| `2895` | El valor no cumple con el formato establecido o es menor o igual a cero (0) | No | No |
+| `2897` | El valor no cumple con el formato establecido o es menor o igual a cero (0) | No | No |
+| `2920` | Dato no cumple con formato de acuerdo al tipo de documento | No | No |
+| `2957` | El comprobante no puede ser dado de baja por exceder el plazo desde su fecha de emision | Sí | Sí |
+| `2986` | Solo se acepta informacion de percepcion para nuevas boletas. | No | No |
+| `2989` | El comprobante (electronico) a la que hace referencia la nota, no se encuentra informado. | Sí | Sí |
+| `2990` | El comprobante (electronico) a la que hace referencia la nota, se encuentra anulado o rechazada. | Sí | Sí |
+| `2992` | El XML no contiene el tag de la tasa del tributo de la línea | No | No |
+| `3051` | Nombre de tributo no corresponde al código de tributo de la linea. | No | No |
+| `3094` | El comprobante más "código de operación del ítem" no debe repetirse | Sí | Sí |
+| `3095` | El comprobante no debe ser emitido y editado en el mismo envío | Sí | Sí |
+| `3096` | El comprobante no debe ser editado y anulado en el mismo envío | Sí | Sí |
+| `3102` | El dato ingresado como factor de afectacion por linea no cumple con el formato establecido. | No | No |
+| `3504` | La tasa del tributo de la línea no corresponde al valor esperado | No | No |
+
+#### Fuera de alcance en SummaryDocuments
+
+| Código | Descripción | Motivo |
+|---|---|---|
+| `0100` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0109` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0111` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0151` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0154` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0155` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0156` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0157` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0158` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0160` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0161` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0306` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `1078` | El emisor no se encuentra autorizado a emitir en el SEE-Desde los sistemas del contribuyente | Requiere información externa no disponible localmente. |
+| `2016` | El dato ingresado  en el tipo de documento de identidad del receptor no cumple con el estandar o no esta permitido. | Requiere información externa no disponible localmente. |
+| `2223` | El archivo ya fue presentado anteriormente | Requiere información externa no disponible localmente. |
+| `2256` | InstructionID - El dato ingresado no cumple con el estandar | Requiere información externa no disponible localmente. |
+| `2268` | El codigo del tributo es invalido | Requiere información externa no disponible localmente. |
+| `2282` | Existe documento ya informado anteriormente | Requiere información externa no disponible localmente. |
+| `2517` | Dato no cumple con formato establecido. | Requiere información externa no disponible localmente. |
+| `2601` | Senor contribuyente a la fecha no se encuentra registrado ó habilitado con la condición de Agente de percepción. | Requiere información externa no disponible localmente. |
+| `2663` | El documento indicado no existe no puede ser modificado | Requiere información externa no disponible localmente. |
+| `2891` | La tasa de percepción no existe en el catálogo | Requiere información externa no disponible localmente. |
+| `2896` | El código ingresado como estado del ítem no existe en el catálogo | Requiere información externa no disponible localmente. |
+| `2987` | El comprobante ya fue informado y se encuentra anulado o rechazado. | Requiere información externa no disponible localmente. |
+| `3207` | Comprobante físico no se encuentra autorizado | Requiere información externa no disponible localmente. |
+
+### VoidedDocuments
+
+- **Total ERROR**: 33 | **Implementadas**: 34 | **Con test**: 34 | **Fuera de alcance**: 15 | **Pendientes**: 0
+
+| Código | Descripción | Implementada | Test |
+|---|---|:---:|:---:|
+| `0127` | El ticket no existe | Sí | Sí |
+| `1034` | Número de RUC del nombre del archivo no coincide con el consignado en el contenido del archivo XML | Sí | Sí |
+| `2072` | CustomizationID - La versión del documento no es la correcta | Sí | Sí |
+| `2074` | UBLVersionID - La versión del UBL no es correcta | Sí | Sí |
+| `2075` | El XML no contiene el tag o no existe informacion de UBLVersionID | Sí | Sí |
+| `2105` | Comprobante a dar de baja no se encuentra registrado en SUNAT | Sí | Sí |
+| `2220` | El ID debe coincidir con el nombre del archivo | Sí | Sí |
+| `2228` | RegistrationName - El dato ingresado no cumple con el estandar | Sí | Sí |
+| `2229` | El XML no contiene el tag RegistrationName del emisor del documento | Sí | Sí |
+| `2287` | AdditionalAccountID - El dato ingresado no cumple con el estandar | Sí | Sí |
+| `2288` | El XML no contiene el tag AdditionalAccountID del emisor del documento | Sí | Sí |
+| `2301` | La fecha del IssueDate no debe ser mayor a la fecha de recepción | Sí | Sí |
+| `2305` | LineID - El dato ingresado no cumple con el estandar | Sí | Sí |
+| `2306` | LineID - El dato ingresado debe ser correlativo mayor a cero | Sí | Sí |
+| `2307` | El tag LineID de VoidedDocumentsLine esta vacío | Sí | Sí |
+| `2308` | DocumentTypeCode - El valor del tipo de documento es invalido | Sí | Sí |
+| `2309` | El tag DocumentTypeCode es vacío | Sí | Sí |
+| `2310` | El dato ingresado  no cumple con el patron SERIE | Sí | Sí |
+| `2311` | El tag DocumentSerialID es vacío | Sí | Sí |
+| `2312` | El dato ingresado en DocumentNumberID debe ser numerico y como maximo de 8 digitos | Sí | Sí |
+| `2313` | El tag DocumentNumberID esta vacío | Sí | Sí |
+| `2315` | El tag VoidReasonDescription esta vacío | Sí | Sí |
+| `2323` | Existe documento ya informado anteriormente en una comunicacion de baja | Sí | Sí |
+| `2346` | La fecha de generación del resumen debe ser igual a la fecha consignada en el nombre del archivo | Sí | Sí |
+| `2348` | Los documentos informados en el archivo XML se encuentran duplicados | Sí | Sí |
+| `2375` | Fecha de emision del comprobante no coincide con la fecha de emision consignada en la comunicación | Sí | Sí |
+| `2398` | El documento a dar de baja se encuentra rechazado | Sí | Sí |
+| `2581` | No puede dar de baja 'Recibos de servicios publicos' por SEE-Desde los sistemas del contribuyente | Sí | Sí |
+| `2671` | La fecha de generación de la comunicación/resumen debe ser mayor o igual a la fecha de generación/emisión de los documentos | Sí | Sí |
+| `2752` | El número de ítem no puede estar duplicado. | Sí | Sí |
+| `2957` | El comprobante no puede ser dado de baja por exceder el plazo desde su fecha de emision | Sí | Sí |
+
+#### Fuera de alcance en VoidedDocuments
+
+| Código | Descripción | Motivo |
+|---|---|---|
+| `0100` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0109` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0111` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0151` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0154` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0155` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0156` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0157` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0158` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0160` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0161` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `0306` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
+| `2011` | El contribuyente no esta habido | Requiere información externa no disponible localmente. |
+| `2324` | El archivo de comunicacion de baja ya fue presentado anteriormente | Requiere información externa no disponible localmente. |
+| `4203` | Regla general de validación de archivo/servicio. | Requiere información externa no disponible localmente. |
