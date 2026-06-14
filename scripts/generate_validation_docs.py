@@ -1,276 +1,226 @@
-"""Genera documentación detallada de cobertura SUNAT."""
+"""Genera documentación de cobertura de validaciones SUNAT a partir de coverage_report.json.
 
-import ast
-import re
-from collections import defaultdict
+Emite:
+- docs/src/content/docs/engine/validaciones-sunat.mdx (resumen)
+- docs/src/content/docs/engine/validaciones-sunat-detallado.mdx (detalle)
+"""
+
+from __future__ import annotations
+
+import json
+import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parent.parent
+REPORT_PATH = REPO_ROOT / "coverage_report.json"
+DOCS_DIR = REPO_ROOT / "docs" / "src" / "content" / "docs" / "engine"
 
-DOC_TYPES = {
-    "_extra_invoice1.py": "Invoice",
-    "_extra_invoice2.py": "Invoice",
-    "_extra_invoice3.py": "Invoice",
-    "_extra_credit_note.py": "CreditNote",
-    "_extra_debit_note.py": "DebitNote",
-    "_extra_perception_retention.py": "Perception/Retention",
-    "_extra_voided_summary.py": "Voided/Summary",
-}
-
-EXTRA_DOC_SPLIT = {
-    "Perception/Retention": {
-        "_extra_perception_retention.py": {
-            "validate_perception_extra": "Perception",
-            "validate_retention_extra": "Retention",
-        }
-    },
-    "Voided/Summary": {
-        "_extra_voided_summary.py": {
-            "validate_voided_documents_extra": "VoidedDocuments",
-            "validate_summary_documents_extra": "SummaryDocuments",
-        }
-    },
-}
-
-TEST_FILES = {
-    "Invoice": ["tests/test_validator.py", "tests/_test_validator_invoice1_extra.py", "tests/_test_validator_invoice2_extra.py", "tests/_test_validator_invoice3_extra.py"],
-    "CreditNote": ["tests/test_validator.py", "tests/_test_validator_credit_note_extra.py"],
-    "DebitNote": ["tests/test_validator.py", "tests/_test_validator_debit_note_extra.py"],
-    "Perception": ["tests/test_validator.py", "tests/_test_validator_perception_retention_extra.py"],
-    "Retention": ["tests/test_validator.py", "tests/_test_validator_perception_retention_extra.py"],
-    "VoidedDocuments": ["tests/test_validator.py", "tests/_test_validator_voided_summary_extra.py"],
-    "SummaryDocuments": ["tests/test_validator.py", "tests/_test_validator_voided_summary_extra.py"],
-    "Firma digital": ["tests/test_validator.py", "tests/_test_validator_signature_extra.py"],
-}
-
-RULES = {}
-for f in ["rules_Invoice.txt", "rules_CreditNote.txt", "rules_DebitNote.txt"]:
-    p = ROOT / f
-    if p.exists():
-        RULES[f.replace("rules_", "").replace(".txt", "")] = p.read_text(encoding="utf-8", errors="ignore")
+EXCEL_URL = (
+    "https://cpe.sunat.gob.pe/sites/default/files/2026-05/"
+    "Reglas%20de%20validaci%C3%B3n%20actualizado%20al%2024.04.2026%20%281%29.xlsx"
+)
+SUNAT_PAGE = "https://cpe.sunat.gob.pe/guias-y-manuales"
 
 
-def get_description(code: str, doc_type: str) -> str:
-    keys = []
-    mapping = {"Invoice": "Invoice", "CreditNote": "CreditNote", "DebitNote": "DebitNote"}
-    if doc_type in mapping:
-        keys.append(mapping[doc_type])
-    keys.extend(["Invoice", "CreditNote", "DebitNote"])
-    for key in keys:
-        text = RULES.get(key, "")
-        m = re.search(
-            rf"===\s*{re.escape(code)}\s*===\s*.*?Msg:\s*(.+?)(?=\n===|\Z)",
-            text,
-            re.DOTALL,
+def _escape_cell(text: str) -> str:
+    return text.replace("|", "\\|").replace("\n", " ")
+
+
+def _pct(a: int, b: int) -> str:
+    return f"{(a / b * 100) if b else 0.0:.1f}%"
+
+
+def _oos_reason(desc: str) -> str:
+    low = desc.lower()
+    if "nombre del archivo" in low or "nombre del xml" in low:
+        return "Depende del nombre del archivo/XML."
+    if "fecha de recepción" in low or "fecha de envío" in low:
+        return "Depende de la fecha de recepción/envío de SUNAT."
+    if "listado" in low or "padrón" in low or "padron" in low:
+        return "Requiere consulta a listados o padrones SUNAT."
+    if "estado anulado" in low or "estado rechazado" in low or "estado del comprobante" in low:
+        return "Depende del estado del comprobante en SUNAT."
+    if "see-empresas supervisadas" in low:
+        return "Depende del padrón SEE-Empresas supervisadas."
+    if "sunat" in low and ("producto" in low or "código" in low):
+        return "Requiere listado/código SUNAT."
+    return "Requiere información externa no disponible localmente."
+
+
+def _oos_item(code: str, desc: str) -> str:
+    if desc:
+        return f"- `{code}` — {_escape_cell(desc)}"
+    return f"- `{code}` — Regla general de validación de archivo/servicio (hoja General del Excel SUNAT)."
+
+
+def generate_summary(report: dict) -> str:
+    lines: list[str] = [
+        "---",
+        "title: Validaciones SUNAT",
+        "description: Reglas de validación SUNAT implementadas en openUBL Server.",
+        "---",
+        "",
+        f"openUBL Server aplica las reglas de validación del Excel **[Reglas de validación actualizado al 24.04.2026]({EXCEL_URL})** publicado por SUNAT Perú en [{SUNAT_PAGE}]({SUNAT_PAGE}).",
+        "",
+        "## Fuente de verdad",
+        "",
+        f"- **Documento**: Excel *Reglas de validación actualizado al 24.04.2026*.",
+        f"- **Descarga directa**: [Reglas de validación actualizado al 24.04.2026]({EXCEL_URL}).",
+        f"- **Página oficial**: [{SUNAT_PAGE}]({SUNAT_PAGE}).",
+        "",
+        "## Alcance",
+        "",
+        "openUBL implementa **todas las reglas de tipo ERROR que se pueden evaluar localmente**, es decir, sin consultar padrones, listados ni servicios web de SUNAT.",
+        "",
+        "La tabla inferior muestra el estado por tipo de documento. Para el listado completo de códigos, descripciones y tests, consulta [Validaciones SUNAT detalladas](./validaciones-sunat-detallado).",
+        "",
+        "Las reglas que requieren listados/padrones quedan **documentadas como fuera de alcance** en esta página.",
+        "",
+        "## Tabla resumen por documento",
+        "",
+        "| Documento | Implementadas | Con test | Fuera de alcance | Pendientes | % Validaciones | % Testing |",
+        "|---|---:|---:|---:|---:|---:|---:|",
+    ]
+    for doc, data in report["documents"].items():
+        total = data["total_sunat_error"]
+        impl = len(data["implemented"])
+        tested = len(data["tested"])
+        oos = len(data["out_of_scope"])
+        pending = len(data["local_missing"])
+        implementable = len(data["implementable"])
+        pct_valid = _pct(impl, implementable)
+        pct_test = _pct(tested, impl)
+        lines.append(
+            f"| {doc} | {impl} | {tested} | {oos} | {pending} | {pct_valid} | {pct_test} |"
         )
-        if m:
-            return " ".join(m.group(1).split())
-    return ""
-
-
-def extract_string_args(call: ast.Call) -> list[str]:
-    out = []
-    for arg in call.args:
-        if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
-            out.append(arg.value)
-    for kw in call.keywords:
-        if kw.arg == "code" and isinstance(kw.value, ast.Constant) and isinstance(kw.value.value, str):
-            out.append(kw.value.value)
-    return out
-
-
-def extract_codes_from_text(text: str) -> set[str]:
-    codes = set()
-    for m in re.finditer(r'_add\s*\(\s*errors\s*,\s*["\'](\d{4})["\']', text):
-        codes.add(m.group(1))
-    try:
-        tree = ast.parse(text)
-    except SyntaxError:
-        return codes
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Call):
-            func = node.func
-            name = ""
-            if isinstance(func, ast.Name):
-                name = func.id
-            elif isinstance(func, ast.Attribute):
-                name = func.attr
-            if name in ("SunatError", "ValidationError", "_add"):
-                for code in extract_string_args(node):
-                    if re.fullmatch(r"\d{4}", code):
-                        codes.add(code)
-    for m in re.finditer(r'#\s*ERROR\s+(\d{4})', text):
-        codes.add(m.group(1))
-    return codes
-
-
-def extract_out_of_scope_codes(text: str) -> set[str]:
-    codes = set()
-    for m in re.finditer(r'#\s*FUERA\s*DE\s*ALCANCE.*?\b(\d{4})\b', text, re.IGNORECASE | re.DOTALL):
-        codes.add(m.group(1))
-    return codes
-
-
-def extract_tested_codes(text: str) -> set[str]:
-    codes = set()
-    for m in re.finditer(r'\b_m(\d{4})\b', text):
-        codes.add(m.group(1))
-    for m in re.finditer(r'"(\d{4})"', text):
-        codes.add(m.group(1))
-    for m in re.finditer(r"'(\d{4})'", text):
-        codes.add(m.group(1))
-    return codes
-
-
-def doc_type_for_function(name: str) -> str | None:
-    lowered = name.lower()
-    if "signature" in lowered or "sign" in lowered:
-        return "Firma digital"
-    if "credit_note" in lowered or "creditnote" in lowered:
-        return "CreditNote"
-    if "debit_note" in lowered or "debitnote" in lowered:
-        return "DebitNote"
-    if "perception" in lowered:
-        return "Perception"
-    if "retention" in lowered:
-        return "Retention"
-    if "voided" in lowered:
-        return "VoidedDocuments"
-    if "summary" in lowered:
-        return "SummaryDocuments"
-    if "invoice" in lowered:
-        return "Invoice"
-    return None
-
-
-def process_function_node(node, text, impl, out_scope):
-    doc = doc_type_for_function(node.name)
-    if doc is None:
-        return
-    start, end = node.lineno, node.end_lineno
-    segment = "\n".join(text.splitlines()[start - 1 : end])
-    impl[doc] |= extract_codes_from_text(segment)
-    out_scope[doc] |= extract_out_of_scope_codes(segment)
-
-
-def parse_validator_py():
-    path = ROOT / "src" / "openubl" / "validator.py"
-    text = path.read_text(encoding="utf-8")
-    tree = ast.parse(text)
-    impl = defaultdict(set)
-    out_scope = defaultdict(set)
-
-    for node in tree.body:
-        if isinstance(node, ast.ClassDef):
-            for child in node.body:
-                if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                    process_function_node(child, text, impl, out_scope)
-        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            process_function_node(node, text, impl, out_scope)
-
-    return impl, out_scope
-
-
-def parse_extra_modules():
-    impl = defaultdict(set)
-    out_scope = defaultdict(set)
-    for path in (ROOT / "src" / "openubl" / "validators").glob("_extra_*.py"):
-        text = path.read_text(encoding="utf-8")
-        doc = DOC_TYPES.get(path.name, path.name)
-        if doc in EXTRA_DOC_SPLIT and path.name in EXTRA_DOC_SPLIT[doc]:
-            split = EXTRA_DOC_SPLIT[doc][path.name]
-            for node in ast.parse(text).body:
-                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name in split:
-                    start, end = node.lineno, node.end_lineno
-                    segment = "\n".join(text.splitlines()[start - 1 : end])
-                    sub_doc = split[node.name]
-                    impl[sub_doc] |= extract_codes_from_text(segment)
-                    out_scope[sub_doc] |= extract_out_of_scope_codes(segment)
-        else:
-            impl[doc] |= extract_codes_from_text(text)
-            out_scope[doc] |= extract_out_of_scope_codes(text)
-    return impl, out_scope
-
-
-def parse_tests():
-    tested = defaultdict(set)
-    for doc, files in TEST_FILES.items():
-        for f in files:
-            path = ROOT / f
-            if path.exists():
-                tested[doc] |= extract_tested_codes(path.read_text(encoding="utf-8", errors="ignore"))
-    return tested
-
-
-def main():
-    impl_main, out_main = parse_validator_py()
-    impl_extra, out_extra = parse_extra_modules()
-    tested = parse_tests()
-
-    implemented = defaultdict(set)
-    out_of_scope = defaultdict(set)
-    for doc in set(impl_main) | set(impl_extra):
-        implemented[doc] = impl_main.get(doc, set()) | impl_extra.get(doc, set())
-        out_of_scope[doc] = out_main.get(doc, set()) | out_extra.get(doc, set())
-
-    lines = []
-    lines.append("---")
-    lines.append("title: Validaciones SUNAT detalladas")
-    lines.append("description: Listado completo de códigos SUNAT implementados, su descripción y test de cobertura.")
-    lines.append("---")
-    lines.append("")
-    lines.append("Esta página lista cada código SUNAT implementado en openUBL, su descripción, el tipo de documento y si cuenta con test parametrizado. También indica los códigos fuera de alcance por requerir padrones o listados SUNAT.")
-    lines.append("")
-    lines.append("## Tabla resumen por documento")
-    lines.append("")
-    lines.append("| Documento | Implementadas | Con test | Fuera de alcance |")
-    lines.append("|-----------|--------------:|---------:|-----------------:|")
-    docs_order = ["Invoice", "CreditNote", "DebitNote", "VoidedDocuments", "SummaryDocuments", "Perception", "Retention", "Firma digital"]
-    for doc in docs_order:
-        codes = implemented.get(doc, set())
-        out = out_of_scope.get(doc, set())
-        test_set = tested.get(doc, set())
-        lines.append(f"| {doc} | {len(codes)} | {len(codes & test_set)} | {len(out)} |")
-    lines.append("")
-
-    for doc in docs_order:
-        codes = sorted(implemented.get(doc, set()), key=lambda x: int(x))
-        out = out_of_scope.get(doc, set())
-        test_set = tested.get(doc, set())
-        lines.append(f"## {doc}")
+    lines.extend([
+        "",
+        "* `% Validaciones` = Implementadas / (Total SUNAT ERROR − Fuera de alcance) × 100.",
+        "* `% Testing` = Con test / Implementadas × 100.",
+        "* `Pendientes` son reglas ERROR implementables localmente que aún no están en el validador.",
+        "",
+        "## Códigos fuera de alcance",
+        "",
+        "Ejemplos de reglas que requieren listados o padrones SUNAT y no se evalúan localmente:",
+        "",
+    ])
+    for doc, data in report["documents"].items():
+        oos = data["out_of_scope"]
+        if not oos:
+            continue
+        lines.append(f"### {doc}")
         lines.append("")
-        lines.append(f"- **Implementadas**: {len(codes)}")
-        lines.append(f"- **Con test**: {len(set(codes) & test_set)}")
-        lines.append(f"- **Fuera de alcance**: {len(out)}")
+        for code in oos:
+            desc = data["descriptions"].get(code, "")
+            lines.append(_oos_item(code, desc))
         lines.append("")
-        lines.append("| Código | Descripción | Test |")
-        lines.append("|--------|-------------|------|")
-        for code in codes:
-            desc = get_description(code, doc)
-            has_test = "Sí" if code in test_set else "No"
-            lines.append(f"| {code} | {desc} | {has_test} |")
-        if out:
+    lines.extend([
+        "## Formato de respuesta de errores",
+        "",
+        "Cuando `validar_sunat=true` y el XML no cumple una o más reglas, el endpoint responde HTTP 422:",
+        "",
+        "```json",
+        '{"detail":[{"code":"2074","message":"El valor del Tag UBL cbc:UBLVersionID es diferente de \'2.1\'"}]}',
+        "```",
+        "",
+        "El campo `code` es el código SUNAT exacto del Excel.",
+        "",
+        "## Cómo verificar cobertura",
+        "",
+        "```bash",
+        "uv run python scripts/validation_coverage.py",
+        "```",
+        "",
+        "## Enlaces útiles",
+        "",
+        "- [Validaciones SUNAT detalladas](./validaciones-sunat-detallado): listado completo de códigos implementados, descripción de cada regla y test de cobertura.",
+        "",
+    ])
+    return "\n".join(lines)
+
+
+def generate_detailed(report: dict) -> str:
+    lines: list[str] = [
+        "---",
+        "title: Validaciones SUNAT detalladas",
+        "description: Listado completo de códigos SUNAT implementados, su descripción y test de cobertura.",
+        "---",
+        "",
+        f"Esta página lista cada código SUNAT del Excel **[Reglas de validación actualizado al 24.04.2026]({EXCEL_URL})** implementado en openUBL, su descripción y si cuenta con test parametrizado. También indica los códigos fuera de alcance por requerir padrones o listados SUNAT.",
+        "",
+        f"- **Descarga directa**: [Reglas de validación actualizado al 24.04.2026]({EXCEL_URL}).",
+        f"- **Página oficial**: [{SUNAT_PAGE}]({SUNAT_PAGE}).",
+        "",
+        "## Tabla resumen por documento",
+        "",
+        "| Documento | Implementadas | Con test | Fuera de alcance | Pendientes | % Validaciones | % Testing |",
+        "|---|---:|---:|---:|---:|---:|---:|",
+    ]
+    for doc, data in report["documents"].items():
+        total = data["total_sunat_error"]
+        impl = len(data["implemented"])
+        tested = len(data["tested"])
+        oos = len(data["out_of_scope"])
+        pending = len(data["local_missing"])
+        implementable = len(data["implementable"])
+        pct_valid = _pct(impl, implementable)
+        pct_test = _pct(tested, impl)
+        lines.append(
+            f"| {doc} | {impl} | {tested} | {oos} | {pending} | {pct_valid} | {pct_test} |"
+        )
+    lines.extend([
+        "",
+        "## Detalle por documento",
+        "",
+    ])
+    for doc, data in report["documents"].items():
+        impl_set = set(data["implemented"])
+        tested_set = set(data["tested"])
+        oos_set = set(data["out_of_scope"])
+        all_codes = sorted(set(data["descriptions"].keys()))
+        lines.append(f"### {doc}")
+        lines.append("")
+        lines.append(
+            f"- **Total ERROR**: {data['total_sunat_error']} | **Implementadas**: {len(impl_set)} | "
+            f"**Con test**: {len(tested_set)} | **Fuera de alcance**: {len(oos_set)} | "
+            f"**Pendientes**: {len(data['local_missing'])}"
+        )
+        lines.append("")
+        lines.append("| Código | Descripción | Implementada | Test |")
+        lines.append("|---|---|:---:|:---:|")
+        for code in all_codes:
+            if code in oos_set:
+                continue
+            desc = _escape_cell(data["descriptions"].get(code, ""))
+            impl = "Sí" if code in impl_set else "No"
+            test = "Sí" if code in tested_set else "No"
+            lines.append(f"| `{code}` | {desc} | {impl} | {test} |")
+        lines.append("")
+        if oos_set:
+            lines.append(f"#### Fuera de alcance en {doc}")
             lines.append("")
-            lines.append(f"### Fuera de alcance en {doc}")
+            lines.append("| Código | Descripción | Motivo |")
+            lines.append("|---|---|---|")
+            for code in sorted(oos_set):
+                desc = data["descriptions"].get(code, "")
+                display_desc = _escape_cell(desc) if desc else "Regla general de validación de archivo/servicio."
+                reason = _oos_reason(desc)
+                lines.append(f"| `{code}` | {display_desc} | {reason} |")
             lines.append("")
-            lines.append("| Código | Descripción |")
-            lines.append("|--------|-------------|")
-            for code in sorted(out, key=lambda x: int(x)):
-                desc = get_description(code, doc)
-                lines.append(f"| {code} | {desc} |")
-        lines.append("")
+    return "\n".join(lines)
 
-    output = ROOT / "docs" / "src" / "content" / "docs" / "engine" / "validaciones-sunat-detallado.mdx"
-    output.write_text("\n".join(lines), encoding="utf-8")
-    print(f"Generated {output}")
 
-    total_impl = sum(len(implemented[d]) for d in implemented)
-    total_tested = sum(len(implemented[d] & tested.get(d, set())) for d in implemented)
-    total_out = sum(len(out_of_scope[d]) for d in out_of_scope)
-    print(f"Total implementadas: {total_impl}")
-    print(f"Total con test: {total_tested}")
-    print(f"Total fuera de alcance: {total_out}")
+def main() -> int:
+    if not REPORT_PATH.exists():
+        print(f"No existe {REPORT_PATH}; ejecuta scripts/validation_coverage.py primero", file=sys.stderr)
+        return 1
+    report = json.loads(REPORT_PATH.read_text(encoding="utf-8"))
+    DOCS_DIR.mkdir(parents=True, exist_ok=True)
+    (DOCS_DIR / "validaciones-sunat.mdx").write_text(generate_summary(report), encoding="utf-8")
+    (DOCS_DIR / "validaciones-sunat-detallado.mdx").write_text(generate_detailed(report), encoding="utf-8")
+    print(f"Documentación generada en {DOCS_DIR}")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

@@ -27,3 +27,5 @@ docs/.astro/
 
 # Local tools (e.g. downloaded binaries)
 .tools/
+# SUNAT validation coverage cache
+.cache/
